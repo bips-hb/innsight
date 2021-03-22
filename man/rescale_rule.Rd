@@ -25,8 +25,8 @@ to determine a multiplier for an activation function.
 This rule defines the same multiplier for the negative and positive
 contributions by the simple ratio between difference-from-reference preactivation
 \eqn{\Delta x = x-x'} and difference-from-reference postactivation
-\eqn{\Delta y = f(x) - f(x')}, i.e.
-\deqn{m_{+ \to +} = m_{- \to -} = \frac{\Delta y}{\Delta x} = \frac{f(x) - f(x')}{x-x'}.}
+\eqn{\Delta y = \sigma(x) - \sigma(x')}, i.e.
+\deqn{m_{\Delta x^+ \Delta y^+} = m_{\Delta x^- \Delta y^-} = \frac{\Delta y}{\Delta x} = \frac{\sigma(x) - \sigma(x')}{x-x'}.}
 Afterward the contribution \eqn{m_{\Delta x \Delta t}} is calculated and returned.
 }
 \references{

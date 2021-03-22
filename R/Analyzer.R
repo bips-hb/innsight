@@ -20,9 +20,9 @@ public = list(
     #' are relevant for the evaluation. For example a list of
     #' \code{\link{Dense_Layer}}.
     #' @field num_layers Number of all layers in \code{layers}.
-    #' @field last_input Last recorded input for the forward-pass
+    #' @field last_input Last recorded input for the forward pass
     #' (default: \code{NULL}).
-    #' @field last_input_ref Last recorded reference input for the forward_pass
+    #' @field last_input_ref Last recorded reference input for the forward pass
     #' (default: \code{NULL}).
 
     model = NULL,
@@ -39,9 +39,9 @@ public = list(
     #' tasks to be interpreted. Only models from the following types or packages
     #' are allowed: \code{\link[keras]{keras_model}},
     #' \code{\link[keras]{keras_model_sequential}} or
-    #' \code{\link[neuralnet]{neuralnet}}
+    #' \code{\link[neuralnet]{neuralnet}}.
     #'
-    #' @return A new instance of the R6-class 'Analyzer'.
+    #' @return A new instance of the R6 class \code{'Analyzer'}.
     #'
 
     initialize = function(model) {
@@ -54,11 +54,11 @@ public = list(
     #' @description
     #'
     #' The forward method of the whole model, i.e. it calculates the output
-    #' \eqn{y=f(x)} of a given input \code{x} respectively \code{x_ref}. In doing so
-    #' all intermediate values are stored in the individual layers.
+    #' \eqn{y=f(x)} of a given input \eqn{x} respectively an reference input \eqn{x'}.
+    #' In doing so all intermediate values are stored in the individual layers.
     #'
-    #' @param x Input of the model.
-    #' @param x_ref Reference input of the model. If this value is not needed, it
+    #' @param x Input vector of the model.
+    #' @param x_ref Reference input vector of the model. If this value is not needed, it
     #' can be set to the default value \code{NULL}.
     #'
     #' @return A list with two vectors. The first one is the output for input
@@ -82,8 +82,8 @@ public = list(
     #' list \code{layers} when the input \code{x} or reference input \code{x_ref}
     #' has changed.
     #'
-    #' @param x Input of the model.
-    #' @param x_ref Reference input of the model. If this value is not needed, it
+    #' @param x Input vector of the model.
+    #' @param x_ref Reference input vector of the model. If this value is not needed, it
     #' can be set to the default value \code{NULL}.
     #'
     #' @return Returns the instance itself.
@@ -111,18 +111,22 @@ public = list(
     #' calculated for. Use the default value \code{NULL} to return the importance
     #' for all classes.
     #'
-    #' @return A vector of the length of the input features, which contains the
-    #' importance scores for each input variable.
+    #' @return If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{(in, out)},
+    #' which contains the importance scores for each input variable to the
+    #' output predictions. Otherwise returns a vector of the importance scores
+    #' for each input variable for the given output class.
     #'
     #' @examples
     #' # neuralnet example
     #' library(neuralnet)
     #'
     #' # train a neural network
-    #' model_neuralnet <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length + Petal.Width, iris, linear.output = FALSE, hidden = c(5,4), act.fct = "tanh", rep = 2)
+    #' nn <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length
+    #'                + Petal.Width, iris, linear.output = FALSE,
+    #'                hidden = c(5,4), act.fct = "tanh", rep = 2)
     #'
     #' # create an analyzer for this model
-    #' analyzer = Analyzer$new(model_neuralnet)
+    #' analyzer = Analyzer$new(nn)
     #'
     #' # calculate importance score for all three classes with the
     #' # connection weight method
@@ -154,12 +158,12 @@ public = list(
     #' method \code{\link{func_lrp}}.
     #'
     #'
-    #' @param x The input of the model to be interpreted.
+    #' @param x The input vector of the model to be interpreted.
     #' @param out_class If the given model is a classification model, this
     #' parameter can be used to determine which class the relevance should be
     #' calculated for. Use the default value \code{NULL} to return the relevance
     #' for all classes.
-    #' @param rule_name The name of the rule, with which the relevances are
+    #' @param rule_name The name of the rule, with which the relevance scores are
     #' calculated. Implemented are \code{"simple"}, \code{"eps"}, \code{"ab"},
     #' \code{"ww"} (default: \code{"simple"}).
     #' @param rule_param The parameter of the selected rule. Note: Only the rules
@@ -167,7 +171,7 @@ public = list(
     #' value \code{NULL} for the default parameters ("eps" : \eqn{0.01}, "ab" : \eqn{0.5}).
     #'
     #'
-    #' @return If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{in x out},
+    #' @return If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{(in, out)},
     #' which contains the relevance scores for each input variable to the
     #' output predictions. Otherwise returns a vector of the relevance scores
     #' for each input variable for the given output class.
@@ -176,7 +180,9 @@ public = list(
     #' library(neuralnet)
     #'
     #' # train a model
-    #' nn <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length + Petal.Width, iris, linear.output = FALSE, hidden = c(5,4), rep = 2)
+    #' nn <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length
+    #'                 + Petal.Width, iris, linear.output = FALSE,
+    #'                 hidden = c(5,4), rep = 2)
     #'
     #' # create an analyzer for this model
     #' analyzer = Analyzer$new(nn)
@@ -221,8 +227,8 @@ public = list(
     #' output. The main calculation is outsourced to the
     #' method \code{\link{func_deeplift}}.
     #'
-    #' @param x The input of the model to be interpreted.
-    #' @param x_ref The reference input for the interpretation.
+    #' @param x The input vector of the model to be interpreted.
+    #' @param x_ref The reference input vector for the interpretation.
     #' @param rule_name Name of the applied rule to calculate the contributions. Use one
     #' of \code{"rescale"} and \code{"revealcancel"} (default: \code{"rescale"}).
     #' @param out_class If the given model is a classification model, this
@@ -230,7 +236,7 @@ public = list(
     #' calculated for. Use the default value \code{NULL} to return the contribution
     #' for all classes.
     #'
-    #' @return If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{in x out},
+    #' @return If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{(in, out)},
     #' which contains the contribution values for each input variable to the
     #' output predictions. Otherwise returns a vector of the contribution values
     #' for each input variable for the given output class.
@@ -239,7 +245,9 @@ public = list(
     #' library(neuralnet)
     #'
     #' # train a model
-    #' nn <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length + Petal.Width, iris, linear.output = FALSE, hidden = c(5,4), rep = 2)
+    #' nn <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length
+    #'                + Petal.Width, iris, linear.output = FALSE,
+    #'                hidden = c(5,4), rep = 2)
     #'
     #' # create an analyzer for this model
     #' analyzer = Analyzer$new(nn)

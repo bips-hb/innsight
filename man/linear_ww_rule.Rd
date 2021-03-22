@@ -2,7 +2,7 @@
 % Please edit documentation in R/LRP.R
 \name{linear_ww_rule}
 \alias{linear_ww_rule}
-\title{W²-LRP-Rule for a dense layer}
+\title{LRP: W²-Rule for a dense layer}
 \usage{
 linear_ww_rule(weight, relevance)
 }

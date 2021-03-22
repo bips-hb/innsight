@@ -49,27 +49,27 @@ length \emph{dim_out}.}
 transformation into a non-linear one.}
 
 \item{\code{inputs}}{Save the inputs from the last forward pass of this layer.
-If there was no call of method \href{#method-forward}{\code{Dense_Layer$forward}} yet
+If there was no call of method \code{Dense_Layer$forward} yet
 then this value is \code{NULL}.}
 
 \item{\code{preactivation}}{Save the outputs of the linear transformation from
 the last forward pass of this layer. If there was no call of method
-\href{#method-forward}{\code{Dense_Layer$forward}} yet then this value is \code{NULL}.}
+\code{Dense_Layer$forward} yet, then this value is \code{NULL}.}
 
 \item{\code{outputs}}{Save the outputs of the whole layer from the last forward pass.
-If there was no call of method \href{#method-forward}{\code{Dense_Layer$forward}} yet
+If there was no call of method \code{Dense_Layer$forward} yet,
 then this value is \code{NULL}.}
 
 \item{\code{inputs_ref}}{Save the reference inputs from the last forward pass of this layer.
-If there was no call of method \href{#method-forward}{\code{Dense_Layer$forward}} yet
+If there was no call of method \code{Dense_Layer$forward} yet,
 then this value is \code{NULL}.}
 
 \item{\code{preactivation_ref}}{Save the reference outputs of the linear transformation from
 the last forward pass of this layer. If there was no call of method
-\href{#method-forward}{\code{Dense_Layer$forward}} yet then this value is \code{NULL}.}
+\code{Dense_Layer$forward} yet, then this value is \code{NULL}.}
 
 \item{\code{outputs_ref}}{Save the reference outputs of the whole layer from the last forward pass.
-If there was no call of method \href{#method-forward}{\code{Dense_Layer$forward}} yet
+If there was no call of method \code{Dense_Layer$forward} yet,
 then this value is \code{NULL}.}
 }
 \if{html}{\out{</div>}}
@@ -86,7 +86,7 @@ then this value is \code{NULL}.}
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
-Create a new instance of this class with given parameters.
+Create a new instance of this class with given parameters of a dense layer.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Dense_Layer$new(weights, bias, activation)}\if{html}{\out{</div>}}
 }
@@ -103,7 +103,7 @@ Create a new instance of this class with given parameters.
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A new instance of the R6 class 'Dense_Layer' with the given parameters.
+A new instance of the R6 class \code{'Dense_Layer'} with the given parameters.
 }
 }
 \if{html}{\out{<hr>}}

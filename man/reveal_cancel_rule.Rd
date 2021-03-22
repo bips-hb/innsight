@@ -26,13 +26,13 @@ Implementation of the \emph{Reveal Cancel Rule} introduced by Shrikumar et al. (
 to determine a multiplier for an activation function.
 This rule defines different multipliers for the negative and positive
 contributions between difference-from-reference preactivation and postactivation.
-The positive and negative part of the postactivation \eqn{\Delta y = f(x) - f(x')}
+The positive and negative part of the postactivation \eqn{\Delta y = \sigma(x) - \sigma(x')}
 is given by
-\deqn{\Delta y^+ := 0.5 ( f(x' + \Delta x^+) - f(x') + f(x' + \Delta x^+ + \Delta x^-) - f(x' + \Delta x^-) )}
-\deqn{\Delta y^- := 0.5 ( f(x' + \Delta x^-) - f(x') + f(x' + \Delta x^+ + \Delta x^-) - f(x' + \Delta x^+) ).}
+\deqn{\Delta y^+ := 0.5 ( \sigma(x' + \Delta x^+) - \sigma(x') + \sigma(x' + \Delta x^+ + \Delta x^-) - \sigma(x' + \Delta x^-) )}
+\deqn{\Delta y^- := 0.5 ( \sigma(x' + \Delta x^-) - \sigma(x') + \sigma(x' + \Delta x^+ + \Delta x^-) - \sigma(x' + \Delta x^+) ).}
 Hence the multiplier are
-\deqn{m_{+ \to +} = \frac{\Delta y^+}{\Delta x^+}}
-\deqn{m_{- \to -} = \frac{\Delta y^-}{\Delta x^-}.}
+\deqn{m_{\Delta x^+ \Delta y^+} = \frac{\Delta y^+}{\Delta x^+}}
+\deqn{m_{\Delta x^- \Delta y^-} = \frac{\Delta y^-}{\Delta x^-}.}
 Afterward the contribution \eqn{m_{\Delta x \Delta t}} is calculated and returned.
 }
 \references{

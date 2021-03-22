@@ -2,7 +2,7 @@
 % Please edit documentation in R/LRP.R
 \name{linear_eps_rule}
 \alias{linear_eps_rule}
-\title{Epsilon-LRP-Rule for a dense layer}
+\title{LRP: Epsilon-Rule for a dense layer}
 \usage{
 linear_eps_rule(input, weight, bias, relevance, eps = 0.01)
 }

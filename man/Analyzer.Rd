@@ -19,10 +19,12 @@ methods like \emph{Layer-wise Relevance Propagation (LRP)}, \emph{DeepLift}, and
 library(neuralnet)
 
 # train a neural network
-model_neuralnet <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length + Petal.Width, iris, linear.output = FALSE, hidden = c(5,4), act.fct = "tanh", rep = 2)
+nn <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length
+               + Petal.Width, iris, linear.output = FALSE,
+               hidden = c(5,4), act.fct = "tanh", rep = 2)
 
 # create an analyzer for this model
-analyzer = Analyzer$new(model_neuralnet)
+analyzer = Analyzer$new(nn)
 
 # calculate importance score for all three classes with the
 # connection weight method
@@ -39,7 +41,9 @@ analyzer$Connection_Weights(out_class = 1)
 library(neuralnet)
 
 # train a model
-nn <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length + Petal.Width, iris, linear.output = FALSE, hidden = c(5,4), rep = 2)
+nn <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length
+                + Petal.Width, iris, linear.output = FALSE,
+                hidden = c(5,4), rep = 2)
 
 # create an analyzer for this model
 analyzer = Analyzer$new(nn)
@@ -64,7 +68,9 @@ analyzer$LRP(input, rule_name = "eps")
 library(neuralnet)
 
 # train a model
-nn <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length + Petal.Width, iris, linear.output = FALSE, hidden = c(5,4), rep = 2)
+nn <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length
+               + Petal.Width, iris, linear.output = FALSE,
+               hidden = c(5,4), rep = 2)
 
 # create an analyzer for this model
 analyzer = Analyzer$new(nn)
@@ -116,10 +122,10 @@ are relevant for the evaluation. For example a list of
 
 \item{\code{num_layers}}{Number of all layers in \code{layers}.}
 
-\item{\code{last_input}}{Last recorded input for the forward-pass
+\item{\code{last_input}}{Last recorded input for the forward pass
 (default: \code{NULL}).}
 
-\item{\code{last_input_ref}}{Last recorded reference input for the forward_pass
+\item{\code{last_input_ref}}{Last recorded reference input for the forward pass
 (default: \code{NULL}).}
 }
 \if{html}{\out{</div>}}
@@ -152,12 +158,12 @@ Create a new analyzer for a given neural network.
 tasks to be interpreted. Only models from the following types or packages
 are allowed: \code{\link[keras]{keras_model}},
 \code{\link[keras]{keras_model_sequential}} or
-\code{\link[neuralnet]{neuralnet}}}
+\code{\link[neuralnet]{neuralnet}}.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A new instance of the R6-class 'Analyzer'.
+A new instance of the R6 class \code{'Analyzer'}.
 }
 }
 \if{html}{\out{<hr>}}
@@ -165,8 +171,8 @@ A new instance of the R6-class 'Analyzer'.
 \if{latex}{\out{\hypertarget{method-forward}{}}}
 \subsection{Method \code{forward()}}{
 The forward method of the whole model, i.e. it calculates the output
-\eqn{y=f(x)} of a given input \code{x} respectively \code{x_ref}. In doing so
-all intermediate values are stored in the individual layers.
+\eqn{y=f(x)} of a given input \eqn{x} respectively an reference input \eqn{x'}.
+In doing so all intermediate values are stored in the individual layers.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Analyzer$forward(x, x_ref = NULL)}\if{html}{\out{</div>}}
 }
@@ -174,9 +180,9 @@ all intermediate values are stored in the individual layers.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{x}}{Input of the model.}
+\item{\code{x}}{Input vector of the model.}
 
-\item{\code{x_ref}}{Reference input of the model. If this value is not needed, it
+\item{\code{x_ref}}{Reference input vector of the model. If this value is not needed, it
 can be set to the default value \code{NULL}.}
 }
 \if{html}{\out{</div>}}
@@ -201,9 +207,9 @@ has changed.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{x}}{Input of the model.}
+\item{\code{x}}{Input vector of the model.}
 
-\item{\code{x_ref}}{Reference input of the model. If this value is not needed, it
+\item{\code{x_ref}}{Reference input vector of the model. If this value is not needed, it
 can be set to the default value \code{NULL}.}
 }
 \if{html}{\out{</div>}}
@@ -236,8 +242,10 @@ for all classes.}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A vector of the length of the input features, which contains the
-importance scores for each input variable.
+If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{(in, out)},
+which contains the importance scores for each input variable to the
+output predictions. Otherwise returns a vector of the importance scores
+for each input variable for the given output class.
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
@@ -245,10 +253,12 @@ importance scores for each input variable.
 library(neuralnet)
 
 # train a neural network
-model_neuralnet <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length + Petal.Width, iris, linear.output = FALSE, hidden = c(5,4), act.fct = "tanh", rep = 2)
+nn <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length
+               + Petal.Width, iris, linear.output = FALSE,
+               hidden = c(5,4), act.fct = "tanh", rep = 2)
 
 # create an analyzer for this model
-analyzer = Analyzer$new(model_neuralnet)
+analyzer = Analyzer$new(nn)
 
 # calculate importance score for all three classes with the
 # connection weight method
@@ -279,14 +289,14 @@ method \code{\link{func_lrp}}.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{x}}{The input of the model to be interpreted.}
+\item{\code{x}}{The input vector of the model to be interpreted.}
 
 \item{\code{out_class}}{If the given model is a classification model, this
 parameter can be used to determine which class the relevance should be
 calculated for. Use the default value \code{NULL} to return the relevance
 for all classes.}
 
-\item{\code{rule_name}}{The name of the rule, with which the relevances are
+\item{\code{rule_name}}{The name of the rule, with which the relevance scores are
 calculated. Implemented are \code{"simple"}, \code{"eps"}, \code{"ab"},
 \code{"ww"} (default: \code{"simple"}).}
 
@@ -297,7 +307,7 @@ value \code{NULL} for the default parameters ("eps" : \eqn{0.01}, "ab" : \eqn{0.
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{in x out},
+If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{(in, out)},
 which contains the relevance scores for each input variable to the
 output predictions. Otherwise returns a vector of the relevance scores
 for each input variable for the given output class.
@@ -307,7 +317,9 @@ for each input variable for the given output class.
 \preformatted{library(neuralnet)
 
 # train a model
-nn <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length + Petal.Width, iris, linear.output = FALSE, hidden = c(5,4), rep = 2)
+nn <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length
+                + Petal.Width, iris, linear.output = FALSE,
+                hidden = c(5,4), rep = 2)
 
 # create an analyzer for this model
 analyzer = Analyzer$new(nn)
@@ -347,9 +359,9 @@ method \code{\link{func_deeplift}}.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{x}}{The input of the model to be interpreted.}
+\item{\code{x}}{The input vector of the model to be interpreted.}
 
-\item{\code{x_ref}}{The reference input for the interpretation.}
+\item{\code{x_ref}}{The reference input vector for the interpretation.}
 
 \item{\code{rule_name}}{Name of the applied rule to calculate the contributions. Use one
 of \code{"rescale"} and \code{"revealcancel"} (default: \code{"rescale"}).}
@@ -362,7 +374,7 @@ for all classes.}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{in x out},
+If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{(in, out)},
 which contains the contribution values for each input variable to the
 output predictions. Otherwise returns a vector of the contribution values
 for each input variable for the given output class.
@@ -372,7 +384,9 @@ for each input variable for the given output class.
 \preformatted{library(neuralnet)
 
 # train a model
-nn <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length + Petal.Width, iris, linear.output = FALSE, hidden = c(5,4), rep = 2)
+nn <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length
+               + Petal.Width, iris, linear.output = FALSE,
+               hidden = c(5,4), rep = 2)
 
 # create an analyzer for this model
 analyzer = Analyzer$new(nn)

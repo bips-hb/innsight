@@ -23,7 +23,7 @@ calculated. Implemented are \code{"simple"}, \code{"eps"}, \code{"ab"},
 value \code{NULL} for the default parameters ("eps" : \eqn{0.01}, "ab" : \eqn{0.5}).}
 }
 \value{
-If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{(#input features, #outputs)},
+If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{(in, out)},
 which contains the relevance scores for each input variable to the
 output predictions. Otherwise it returns a vector of the relevance scores
 for each input variable for the given output class.

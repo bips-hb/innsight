@@ -18,7 +18,7 @@ calculated for. Use the default value \code{NULL} to return the contribution
 for all classes.}
 }
 \value{
-If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{in x out},
+If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{(in, out)},
 which contains the contribution values for each input variable to the
 output predictions. Otherwise returns a vector of the contribution values
 for each input variable for the given output class.

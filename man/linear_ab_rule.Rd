@@ -2,7 +2,7 @@
 % Please edit documentation in R/LRP.R
 \name{linear_ab_rule}
 \alias{linear_ab_rule}
-\title{Alpha-Beta-LRP-Rule for a dense layer}
+\title{LRP: Alpha-Beta-Rule for a dense layer}
 \usage{
 linear_ab_rule(input, weight, bias, relevance, alpha = 0.5)
 }

@@ -49,44 +49,44 @@ public = list(
     #' @field activation Activation function \eqn{\sigma} to turn the linear
     #' transformation into a non-linear one.
     #' @field inputs Save the inputs from the last forward pass of this layer.
-    #' If there was no call of method \href{#method-forward}{\code{Dense_Layer$forward}} yet
+    #' If there was no call of method \code{Dense_Layer$forward} yet
     #' then this value is \code{NULL}.
     #' @field preactivation Save the outputs of the linear transformation from
     #' the last forward pass of this layer. If there was no call of method
-    #' \href{#method-forward}{\code{Dense_Layer$forward}} yet then this value is \code{NULL}.
+    #' \code{Dense_Layer$forward} yet, then this value is \code{NULL}.
     #' @field outputs Save the outputs of the whole layer from the last forward pass.
-    #' If there was no call of method \href{#method-forward}{\code{Dense_Layer$forward}} yet
+    #' If there was no call of method \code{Dense_Layer$forward} yet,
     #' then this value is \code{NULL}.
     #' @field inputs_ref Save the reference inputs from the last forward pass of this layer.
-    #' If there was no call of method \href{#method-forward}{\code{Dense_Layer$forward}} yet
+    #' If there was no call of method \code{Dense_Layer$forward} yet,
     #' then this value is \code{NULL}.
     #' @field preactivation_ref Save the reference outputs of the linear transformation from
     #' the last forward pass of this layer. If there was no call of method
-    #' \href{#method-forward}{\code{Dense_Layer$forward}} yet then this value is \code{NULL}.
+    #' \code{Dense_Layer$forward} yet, then this value is \code{NULL}.
     #' @field outputs_ref Save the reference outputs of the whole layer from the last forward pass.
-    #' If there was no call of method \href{#method-forward}{\code{Dense_Layer$forward}} yet
+    #' If there was no call of method \code{Dense_Layer$forward} yet,
     #' then this value is \code{NULL}.
 
-    type = NULL, # dense, conv
-    dim = NULL, # c(input_dim, output_dim)
-    weights = NULL, # input x output matrix
-    bias = NULL, # vector (output_dim)
+    type = NULL,
+    dim = NULL,
+    weights = NULL,
+    bias = NULL,
     activation = NULL,
-    inputs = NULL, # vector (input_dim)
-    preactivation = NULL, # vector (output_dim)
-    outputs = NULL, # vector (output_dim)
-    inputs_ref = NULL, # vector (input_dim)
-    preactivation_ref = NULL, # vector (output_dim)
-    outputs_ref = NULL, # vector (output_dim)
+    inputs = NULL,
+    preactivation = NULL,
+    outputs = NULL,
+    inputs_ref = NULL,
+    preactivation_ref = NULL,
+    outputs_ref = NULL,
 
     #' @description
-    #' Create a new instance of this class with given parameters.
+    #' Create a new instance of this class with given parameters of a dense layer.
     #'
     #' @param weights The weight matrix of dimension \emph{(dim_in , dim_out)} for the linear transformation.
     #' @param bias The bias vector of length \emph{dim_out} for the linear transformation.
     #' @param activation The activation function of the dense layer.
     #'
-    #' @return A new instance of the R6 class 'Dense_Layer' with the given parameters.
+    #' @return A new instance of the R6 class \code{'Dense_Layer'} with the given parameters.
     #'
 
     initialize = function(

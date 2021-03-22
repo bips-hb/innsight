@@ -8,10 +8,10 @@
 #' Olden et al. (2004) which results in a feature importance score for each input
 #' variable. The basic idea is to multiply up all path weights for each
 #' possible connection between an input feature and the output and then
-#' calculate the sum over them. For a neural net with \eqn{3} hidden layers with weight
+#' calculate the sum over them. For a neural network with \eqn{3} hidden layers with weight
 #' matrices \eqn{W_1}, \eqn{W_2} and \eqn{W_3} this method results in a simple
 #' matrix multiplication
-#' \deqn{W_1 \cdot W_2 \cdot W_3 }.
+#' \deqn{W_1 \cdot W_2 \cdot W_3. }
 #'
 #' @param layers List of layers of type \code{\link{Dense_Layer}}.
 #' @param out_class If the given model is a classification model, this
@@ -19,8 +19,10 @@
 #' calculated for. Use the default value \code{NULL} to return the importance
 #' for all classes.
 #'
-#' @return Returns a vector of the length of the input features, which contains the
-#' importance scores for each input variable.
+#' @return If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{(in, out)},
+#' which contains the importance scores for each input variable to the
+#' output predictions. Otherwise returns a vector of the importance scores
+#' for each input variable for the given output class.
 #'
 #' @examples
 #' # create dense layers

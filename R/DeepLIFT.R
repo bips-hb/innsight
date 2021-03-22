@@ -29,7 +29,7 @@
 #' for all classes.
 #'
 #' @return
-#' If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{in x out},
+#' If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{(in, out)},
 #' which contains the contribution values for each input variable to the
 #' output predictions. Otherwise returns a vector of the contribution values
 #' for each input variable for the given output class.
@@ -143,8 +143,8 @@ func_deeplift <- function(layers, rule_name = "rescale", out_class = NULL) {
 #' This rule defines the same multiplier for the negative and positive
 #' contributions by the simple ratio between difference-from-reference preactivation
 #' \eqn{\Delta x = x-x'} and difference-from-reference postactivation
-#' \eqn{\Delta y = f(x) - f(x')}, i.e.
-#' \deqn{m_{+ \to +} = m_{- \to -} = \frac{\Delta y}{\Delta x} = \frac{f(x) - f(x')}{x-x'}.}
+#' \eqn{\Delta y = \sigma(x) - \sigma(x')}, i.e.
+#' \deqn{m_{\Delta x^+ \Delta y^+} = m_{\Delta x^- \Delta y^-} = \frac{\Delta y}{\Delta x} = \frac{\sigma(x) - \sigma(x')}{x-x'}.}
 #' Afterward the contribution \eqn{m_{\Delta x \Delta t}} is calculated and returned.
 #'
 #' @param mult_x_plus The multiplier from the upper positive difference-from-reference
@@ -182,13 +182,13 @@ rescale_rule <- function(mult_x_plus, mult_x_minus, layer) {
 #' to determine a multiplier for an activation function.
 #' This rule defines different multipliers for the negative and positive
 #' contributions between difference-from-reference preactivation and postactivation.
-#' The positive and negative part of the postactivation \eqn{\Delta y = f(x) - f(x')}
+#' The positive and negative part of the postactivation \eqn{\Delta y = \sigma(x) - \sigma(x')}
 #' is given by
-#' \deqn{\Delta y^+ := 0.5 ( f(x' + \Delta x^+) - f(x') + f(x' + \Delta x^+ + \Delta x^-) - f(x' + \Delta x^-) )}
-#' \deqn{\Delta y^- := 0.5 ( f(x' + \Delta x^-) - f(x') + f(x' + \Delta x^+ + \Delta x^-) - f(x' + \Delta x^+) ).}
+#' \deqn{\Delta y^+ := 0.5 ( \sigma(x' + \Delta x^+) - \sigma(x') + \sigma(x' + \Delta x^+ + \Delta x^-) - \sigma(x' + \Delta x^-) )}
+#' \deqn{\Delta y^- := 0.5 ( \sigma(x' + \Delta x^-) - \sigma(x') + \sigma(x' + \Delta x^+ + \Delta x^-) - \sigma(x' + \Delta x^+) ).}
 #' Hence the multiplier are
-#' \deqn{m_{+ \to +} = \frac{\Delta y^+}{\Delta x^+}}
-#' \deqn{m_{- \to -} = \frac{\Delta y^-}{\Delta x^-}.}
+#' \deqn{m_{\Delta x^+ \Delta y^+} = \frac{\Delta y^+}{\Delta x^+}}
+#' \deqn{m_{\Delta x^- \Delta y^-} = \frac{\Delta y^-}{\Delta x^-}.}
 #' Afterward the contribution \eqn{m_{\Delta x \Delta t}} is calculated and returned.
 #'
 #' @param delta_x Difference-from-reference preactivation of the current layer.

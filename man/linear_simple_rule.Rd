@@ -2,7 +2,7 @@
 % Please edit documentation in R/LRP.R
 \name{linear_simple_rule}
 \alias{linear_simple_rule}
-\title{Simple-LRP-Rule for a dense layer}
+\title{LRP: Simple-Rule for a dense layer}
 \usage{
 linear_simple_rule(input, weight, bias, relevance)
 }

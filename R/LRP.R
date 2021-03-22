@@ -37,7 +37,7 @@ implemented_lrp_rules <- c("simple", "eps", "ab", "ww")
 #' value \code{NULL} for the default parameters ("eps" : \eqn{0.01}, "ab" : \eqn{0.5}).
 #'
 #' @return
-#' If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{(#input features, #outputs)},
+#' If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{(in, out)},
 #' which contains the relevance scores for each input variable to the
 #' output predictions. Otherwise it returns a vector of the relevance scores
 #' for each input variable for the given output class.
@@ -124,7 +124,7 @@ func_lrp <- function(layers,
 
 ###-------------------------------Linear Rules----------------------------------
 
-#' @title Simple-LRP-Rule for a dense layer
+#' @title LRP: Simple-Rule for a dense layer
 #' @name linear_simple_rule
 #'
 #' @description
@@ -170,7 +170,7 @@ linear_simple_rule <- function(input, weight, bias, relevance){
 }
 
 
-#' @title Epsilon-LRP-Rule for a dense layer
+#' @title LRP: Epsilon-Rule for a dense layer
 #' @name linear_eps_rule
 #'
 #' @description
@@ -215,7 +215,7 @@ linear_eps_rule <- function(input, weight, bias, relevance, eps = 0.01) {
   z_ij %*% (relevance / ( z_j + eps * ((z_j >= 0)*2 -1 ) ) )
 }
 
-#' @title Alpha-Beta-LRP-Rule for a dense layer
+#' @title LRP: Alpha-Beta-Rule for a dense layer
 #' @name linear_ab_rule
 #'
 #' @description
@@ -261,7 +261,7 @@ linear_ab_rule <- function(input, weight, bias, relevance, alpha = 0.5) {
   relu(z_ij) %*% (relevance * alpha / (z_plus + 1e-16)) - relu(-z_ij) %*% (relevance * (1-alpha) / (z_minus - 1e-16))
 }
 
-#' @title W²-LRP-Rule for a dense layer
+#' @title LRP: W²-Rule for a dense layer
 #' @name linear_ww_rule
 #'
 #' @description
