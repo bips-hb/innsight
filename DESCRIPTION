@@ -1,0 +1,25 @@
+Package: msIML
+Type: Package
+Title: Model-specific Interpretable Machine Learning (msIML)
+Version: 0.1.0
+Authors@R: c(person(given = "Niklas", family = "Koenen", role = c("aut", "cre"), email = "niklas.koenen@gmail.com"))
+Description: Interpretability methods to analyze the behavior
+    and predictions of fully connected artificial Neural Networks.  
+    Implemented methods are: Connection Weights described by Olden et al. (2004)
+    <doi:10.1016/j.ecolmodel.2004.03.013>, Layer-wise Relevance Propagation (LRP)
+    described by Bach et al. (2015) <doi:0.1371/journal.pone.0130140> and 
+    Deep Learning Important Features (DeepLIFT) described by Shrikumar et al. 
+    (2017) <arXiv:1704.02685>.
+License: MIT + file LICENSE
+Imports:
+  R6
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE, r6 = TRUE)
+RoxygenNote: 7.1.1
+Suggests: 
+    testthat (>= 3.0.0),
+    neuralnet,
+    torch,
+    keras
+Config/testthat/edition: 3
