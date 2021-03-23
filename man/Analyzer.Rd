@@ -2,12 +2,13 @@
 % Please edit documentation in R/Analyzer.R
 \name{Analyzer}
 \alias{Analyzer}
-\title{Analyzer of a Neural Network}
+\title{Analyzer of an artificial Neural Network}
 \description{
 This class analyzes a passed neural network and then provides various ways
 to better understand the predictions and the overall model. Implemented are
-methods like \emph{Layer-wise Relevance Propagation (LRP)}, \emph{DeepLift}, and
-\emph{Connection Weights}.
+methods like \emph{Layer-wise Relevance Propagation (LRP)}, \emph{DeepLift},
+\emph{Connection Weights}, \emph{SmoothGrad}, \emph{Gradient},
+\emph{Input times Gradient}.
 }
 \examples{
 
@@ -88,6 +89,77 @@ analyzer$DeepLift(input, input_ref)
 # calculate contribution scores for all classes with reveal-cancel-rule
 analyzer$DeepLift(input, input_ref, rule_name = "revealcancel")
 
+
+## ------------------------------------------------
+## Method `Analyzer$Gradients`
+## ------------------------------------------------
+
+library(neuralnet)
+
+# train a model
+nn <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length
+                + Petal.Width, iris, linear.output = FALSE,
+                hidden = c(5,4), rep = 2)
+
+# create an analyzer for this model
+analyzer = Analyzer$new(nn)
+# get one example from the dataset as vector
+input <- as.vector(t(iris[1,-5]))
+input
+
+# calculate the gradients for class 2
+analyzer$Gradients(input, out_class = 2)
+
+# calculate the gradients for all classes
+analyzer$Gradients(input)
+
+
+## ------------------------------------------------
+## Method `Analyzer$Inputs_times_Gradients`
+## ------------------------------------------------
+
+library(neuralnet)
+
+# train a model
+nn <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length
+                + Petal.Width, iris, linear.output = FALSE,
+                hidden = c(5,4), rep = 2)
+
+# create an analyzer for this model
+analyzer = Analyzer$new(nn)
+# get one example from the dataset as vector
+input <- as.vector(t(iris[1,-5]))
+
+# calculate the input times gradients for class 2
+analyzer$Inputs_times_Gradients(input, out_class = 2)
+
+# calculate the smoothed input times gradients for all classes
+analyzer$Inputs_times_Gradients(input, grad_type = "smooth")
+
+
+## ------------------------------------------------
+## Method `Analyzer$SmoothGrad`
+## ------------------------------------------------
+
+library(neuralnet)
+
+# train a model
+nn <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length
+                + Petal.Width, iris, linear.output = FALSE,
+                hidden = c(5,4), rep = 2)
+
+# create an analyzer for this model
+analyzer = Analyzer$new(nn)
+# get one example from the dataset as vector
+input <- as.vector(t(iris[1,-5]))
+input
+
+# calculate the smoothed gradients for class 2
+analyzer$SmoothGrad(input, out_class = 2)
+
+# calculate the smoothed gradients for all classes
+analyzer$SmoothGrad(input)
+
 }
 \references{
 J. D. Olden et al. (2004) \emph{An accurate comparison of methods for
@@ -99,6 +171,9 @@ classifier decisions by layer-wise relevance propagation.} PLoS ONE 10, p. 1-46
 
 A. Shrikumar et al. (2017) \emph{Learning important features through
 propagating activation differences.}  ICML 2017, p. 4844-4866
+
+D. Smilkov et al. (2017) \emph{SmoothGrad: Removing noise by adding noise.}
+arXiv: 1706.03825
 }
 \seealso{
 \code{\link{func_connection_weights}}
@@ -109,6 +184,12 @@ propagating activation differences.}  ICML 2017, p. 4844-4866
 
 \code{\link{func_deeplift}}, \code{\link{rescale_rule}},
 \code{\link{reveal_cancel_rule}}
+
+\code{\link{func_gradient}}
+
+\code{\link{func_gradient}}
+
+\code{\link{func_gradient}}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -139,6 +220,9 @@ are relevant for the evaluation. For example a list of
 \item \href{#method-Connection_Weights}{\code{Analyzer$Connection_Weights()}}
 \item \href{#method-LRP}{\code{Analyzer$LRP()}}
 \item \href{#method-DeepLift}{\code{Analyzer$DeepLift()}}
+\item \href{#method-Gradients}{\code{Analyzer$Gradients()}}
+\item \href{#method-Inputs_times_Gradients}{\code{Analyzer$Inputs_times_Gradients()}}
+\item \href{#method-SmoothGrad}{\code{Analyzer$SmoothGrad()}}
 \item \href{#method-clone}{\code{Analyzer$clone()}}
 }
 }
@@ -403,6 +487,199 @@ analyzer$DeepLift(input, input_ref)
 
 # calculate contribution scores for all classes with reveal-cancel-rule
 analyzer$DeepLift(input, input_ref, rule_name = "revealcancel")
+
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Gradients"></a>}}
+\if{latex}{\out{\hypertarget{method-Gradients}{}}}
+\subsection{Method \code{Gradients()}}{
+This method computes the gradients of the outputs with respect to the input
+variables, i.e. for all input variable \eqn{i} and output class \eqn{j}
+\deqn{\frac{\partial f(x)_j}{\partial x_i}.}
+The main calculation is outsourced to the
+method \code{\link{func_gradient}}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Analyzer$Gradients(x, out_class = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{The input vector of the model to be interpreted.}
+
+\item{\code{out_class}}{If the given model is a classification model, this
+parameter can be used to determine which class the gradients should be
+calculated for. Use the default value \code{NULL} to return the gradients
+for all classes.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{(in, out)},
+which contains the gradients for each input variable to the
+output predictions. Otherwise returns a vector of the gradient
+for each input variable for the given output class.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{library(neuralnet)
+
+# train a model
+nn <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length
+                + Petal.Width, iris, linear.output = FALSE,
+                hidden = c(5,4), rep = 2)
+
+# create an analyzer for this model
+analyzer = Analyzer$new(nn)
+# get one example from the dataset as vector
+input <- as.vector(t(iris[1,-5]))
+input
+
+# calculate the gradients for class 2
+analyzer$Gradients(input, out_class = 2)
+
+# calculate the gradients for all classes
+analyzer$Gradients(input)
+
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Inputs_times_Gradients"></a>}}
+\if{latex}{\out{\hypertarget{method-Inputs_times_Gradients}{}}}
+\subsection{Method \code{Inputs_times_Gradients()}}{
+This method computes the (smoothed) gradients of the outputs with respect
+to the input variables and multiplies these with the input vector.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Analyzer$Inputs_times_Gradients(
+  x,
+  grad_type = "normal",
+  out_class = NULL,
+  n = 50,
+  noise_level = 0.3
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{The input vector of the model to be interpreted.}
+
+\item{\code{grad_type}}{Use \code{"normal"} for the normal calculated gradients
+and \code{"smooth"} for the smoothed gradients (default: \code{"normal"}).}
+
+\item{\code{out_class}}{If the given model is a classification model, this
+parameter can be used to determine which class the gradients times input should be
+calculated for. Use the default value \code{NULL} to return the gradients
+times input for all classes.}
+
+\item{\code{n}}{Number of perturbations of the input vector (default: \eqn{50}).
+This parameter is only for smoothed gradients required.}
+
+\item{\code{noise_level}}{Determines the standard deviation of the gaussian
+perturbation, i.e. \eqn{\sigma = (\max(x) - \min(x)) *} \code{noise_level}.
+This parameter is only for smoothed gradients required.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{(in, out)},
+which contains the gradients times input for each input variable to the
+output predictions. Otherwise returns a vector of the gradient times input
+for each input variable for the given output class.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{library(neuralnet)
+
+# train a model
+nn <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length
+                + Petal.Width, iris, linear.output = FALSE,
+                hidden = c(5,4), rep = 2)
+
+# create an analyzer for this model
+analyzer = Analyzer$new(nn)
+# get one example from the dataset as vector
+input <- as.vector(t(iris[1,-5]))
+
+# calculate the input times gradients for class 2
+analyzer$Inputs_times_Gradients(input, out_class = 2)
+
+# calculate the smoothed input times gradients for all classes
+analyzer$Inputs_times_Gradients(input, grad_type = "smooth")
+
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SmoothGrad"></a>}}
+\if{latex}{\out{\hypertarget{method-SmoothGrad}{}}}
+\subsection{Method \code{SmoothGrad()}}{
+This is an implementation of the \emph{SmoothGrad} algorithm introduced
+by D. Smilkov et al. (2017).
+It computes smoothed gradients of the outputs with respect to the input
+variables by averaging over gradients of the randomly perturbed input,
+i.e. for all input variable \eqn{i} and output class \eqn{j}
+\deqn{\frac{1}{n} \sum_i^n \frac{\partial f(x + \varepsilon )_j}{\partial x_i}}
+with \eqn{\varepsilon \sim \mathcal{N}(0, \sigma^2)}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Analyzer$SmoothGrad(x, out_class = NULL, n = 50, noise_level = 0.3)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{The input vector of the model to be interpreted.}
+
+\item{\code{out_class}}{If the given model is a classification model, this
+parameter can be used to determine which class the gradients should be
+calculated for. Use the default value \code{NULL} to return the gradients
+for all classes.}
+
+\item{\code{n}}{Number of perturbations of the input vector (default: \eqn{50}).}
+
+\item{\code{noise_level}}{Determines the standard deviation of the gaussian
+perturbation, i.e. \eqn{\sigma = (\max(x) - \min(x)) *} \code{noise_level}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{(in, out)},
+which contains the gradients for each input variable to the
+output predictions. Otherwise returns a vector of the gradient
+for each input variable for the given output class.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{library(neuralnet)
+
+# train a model
+nn <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length
+                + Petal.Width, iris, linear.output = FALSE,
+                hidden = c(5,4), rep = 2)
+
+# create an analyzer for this model
+analyzer = Analyzer$new(nn)
+# get one example from the dataset as vector
+input <- as.vector(t(iris[1,-5]))
+input
+
+# calculate the smoothed gradients for class 2
+analyzer$SmoothGrad(input, out_class = 2)
+
+# calculate the smoothed gradients for all classes
+analyzer$SmoothGrad(input)
 
 }
 \if{html}{\out{</div>}}

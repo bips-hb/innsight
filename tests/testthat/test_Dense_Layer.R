@@ -23,13 +23,13 @@ test_that("Initialization", {
   b <- rnorm(10)
 
   # for argument bias
-  expect_error(Dense_Layer$new(W, W, relu))
-  expect_error(Dense_Layer$new(W, NA, relu))
-  expect_error(Dense_Layer$new(W, NULL, relu))
+  expect_error(Dense_Layer$new(W, W, relu, "relu"))
+  expect_error(Dense_Layer$new(W, NA, relu, "relu"))
+  expect_error(Dense_Layer$new(W, NULL, relu, "relu"))
   # for argument weights
-  expect_error(Dense_Layer$new(b, b, relu))
-  expect_error(Dense_Layer$new(NA, b, relu))
-  expect_error(Dense_Layer$new(NULL, b, relu))
+  expect_error(Dense_Layer$new(b, b, relu, "relu"))
+  expect_error(Dense_Layer$new(NA, b, relu, "relu"))
+  expect_error(Dense_Layer$new(NULL, b, relu, "relu"))
 })
 
 
@@ -48,7 +48,7 @@ test_that("Forward method",{
 
     inputs <- rnorm(d_in)
     inputs_ref <- rnorm(d_in)
-    layer <- Dense_Layer$new(W, b, relu)
+    layer <- Dense_Layer$new(W, b, relu, "relu")
 
     # forward works properly for one input
     expect_error(layer$forward(inputs), NA)
@@ -101,7 +101,7 @@ test_that("Forward method",{
   b <- rnorm(10)
   inputs <- rnorm(5)
   inputs_ref <- rnorm(5)
-  layer <- Dense_Layer$new(W, b, relu)
+  layer <- Dense_Layer$new(W, b, relu, "relu")
 
   expect_error(layer$forward(NULL, inputs_ref))
   expect_error(layer$forward(NA, inputs_ref))

@@ -48,6 +48,8 @@ length \emph{dim_out}.}
 \item{\code{activation}}{Activation function \eqn{\sigma} to turn the linear
 transformation into a non-linear one.}
 
+\item{\code{activation_name}}{Name of the activation function \eqn{\sigma}.}
+
 \item{\code{inputs}}{Save the inputs from the last forward pass of this layer.
 If there was no call of method \code{Dense_Layer$forward} yet
 then this value is \code{NULL}.}
@@ -88,7 +90,7 @@ then this value is \code{NULL}.}
 \subsection{Method \code{new()}}{
 Create a new instance of this class with given parameters of a dense layer.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Dense_Layer$new(weights, bias, activation)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Dense_Layer$new(weights, bias, activation, activation_name = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

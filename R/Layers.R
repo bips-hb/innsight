@@ -48,6 +48,7 @@ public = list(
     #' length \emph{dim_out}.
     #' @field activation Activation function \eqn{\sigma} to turn the linear
     #' transformation into a non-linear one.
+    #' @field activation_name Name of the activation function \eqn{\sigma}.
     #' @field inputs Save the inputs from the last forward pass of this layer.
     #' If there was no call of method \code{Dense_Layer$forward} yet
     #' then this value is \code{NULL}.
@@ -72,6 +73,7 @@ public = list(
     weights = NULL,
     bias = NULL,
     activation = NULL,
+    activation_name = NULL,
     inputs = NULL,
     preactivation = NULL,
     outputs = NULL,
@@ -92,7 +94,8 @@ public = list(
     initialize = function(
       weights,
       bias,
-      activation
+      activation,
+      activation_name = NULL
       ) {
       self$type = "Dense"
       if (!is.matrix(weights)) {
@@ -107,6 +110,7 @@ public = list(
       }
       self$bias = bias
       self$activation = activation
+      self$activation_name = activation_name
     },
 
     #' @description

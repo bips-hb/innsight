@@ -1,12 +1,13 @@
 library(R6)
 
-#' Analyzer of a Neural Network
+#' Analyzer of an artificial Neural Network
 #'
 #' @description
 #' This class analyzes a passed neural network and then provides various ways
 #' to better understand the predictions and the overall model. Implemented are
-#' methods like \emph{Layer-wise Relevance Propagation (LRP)}, \emph{DeepLift}, and
-#' \emph{Connection Weights}.
+#' methods like \emph{Layer-wise Relevance Propagation (LRP)}, \emph{DeepLift},
+#' \emph{Connection Weights}, \emph{SmoothGrad}, \emph{Gradient},
+#' \emph{Input times Gradient}.
 #'
 #' @export
 #'
@@ -283,6 +284,173 @@ public = list(
 
         contrib <- func_deeplift(self$layers, rule_name, out_class)
         contrib
+    },
+
+###------------------------Gradient based methods ------------------------------
+
+    #' @description
+    #' This method computes the gradients of the outputs with respect to the input
+    #' variables, i.e. for all input variable \eqn{i} and output class \eqn{j}
+    #' \deqn{\frac{\partial f(x)_j}{\partial x_i}.}
+    #' The main calculation is outsourced to the
+    #' method \code{\link{func_gradient}}.
+    #'
+    #' @param x The input vector of the model to be interpreted.
+    #' @param out_class If the given model is a classification model, this
+    #' parameter can be used to determine which class the gradients should be
+    #' calculated for. Use the default value \code{NULL} to return the gradients
+    #' for all classes.
+    #'
+    #' @return If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{(in, out)},
+    #' which contains the gradients for each input variable to the
+    #' output predictions. Otherwise returns a vector of the gradient
+    #' for each input variable for the given output class.
+    #'
+    #' @examples
+    #' library(neuralnet)
+    #'
+    #' # train a model
+    #' nn <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length
+    #'                 + Petal.Width, iris, linear.output = FALSE,
+    #'                 hidden = c(5,4), rep = 2)
+    #'
+    #' # create an analyzer for this model
+    #' analyzer = Analyzer$new(nn)
+    #' # get one example from the dataset as vector
+    #' input <- as.vector(t(iris[1,-5]))
+    #' input
+    #'
+    #' # calculate the gradients for class 2
+    #' analyzer$Gradients(input, out_class = 2)
+    #'
+    #' # calculate the gradients for all classes
+    #' analyzer$Gradients(input)
+    #'
+    #' @seealso
+    #' \code{\link{func_gradient}}
+    #'
+    Gradients = function(x, out_class = NULL) {
+        self$update(x)
+
+        gradients <- func_gradient(self$layers, out_class)
+        gradients
+    },
+
+    #' @description
+    #' This method computes the (smoothed) gradients of the outputs with respect
+    #' to the input variables and multiplies these with the input vector.
+    #'
+    #' @param x The input vector of the model to be interpreted.
+    #' @param grad_type Use \code{"normal"} for the normal calculated gradients
+    #' and \code{"smooth"} for the smoothed gradients (default: \code{"normal"}).
+    #' @param out_class If the given model is a classification model, this
+    #' parameter can be used to determine which class the gradients times input should be
+    #' calculated for. Use the default value \code{NULL} to return the gradients
+    #' times input for all classes.
+    #' @param n Number of perturbations of the input vector (default: \eqn{50}).
+    #' This parameter is only for smoothed gradients required.
+    #' @param noise_level Determines the standard deviation of the gaussian
+    #' perturbation, i.e. \eqn{\sigma = (\max(x) - \min(x)) *} \code{noise_level}.
+    #' This parameter is only for smoothed gradients required.
+    #'
+    #' @return If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{(in, out)},
+    #' which contains the gradients times input for each input variable to the
+    #' output predictions. Otherwise returns a vector of the gradient times input
+    #' for each input variable for the given output class.
+    #'
+    #' @examples
+    #' library(neuralnet)
+    #'
+    #' # train a model
+    #' nn <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length
+    #'                 + Petal.Width, iris, linear.output = FALSE,
+    #'                 hidden = c(5,4), rep = 2)
+    #'
+    #' # create an analyzer for this model
+    #' analyzer = Analyzer$new(nn)
+    #' # get one example from the dataset as vector
+    #' input <- as.vector(t(iris[1,-5]))
+    #'
+    #' # calculate the input times gradients for class 2
+    #' analyzer$Inputs_times_Gradients(input, out_class = 2)
+    #'
+    #' # calculate the smoothed input times gradients for all classes
+    #' analyzer$Inputs_times_Gradients(input, grad_type = "smooth")
+    #'
+    #' @seealso
+    #' \code{\link{func_gradient}}
+    #'
+
+    Inputs_times_Gradients = function(x, grad_type = "normal", out_class = NULL, n = 50, noise_level = 0.3) {
+        if (grad_type == "normal") {
+          in_t_grad <- self$Gradients(x, out_class) * x
+        } else if (grad_type == "smooth") {
+          in_t_grad <- self$SmoothGrad(x, out_class, n, noise_level) * x
+        } else {
+          stop(sprintf("Unknown parameter \"%s\" for 'grad_type'. Use \"normal\" or \"smooth\".", grad_type))
+        }
+        in_t_grad
+    },
+
+    #' @description
+    #' This is an implementation of the \emph{SmoothGrad} algorithm introduced
+    #' by D. Smilkov et al. (2017).
+    #' It computes smoothed gradients of the outputs with respect to the input
+    #' variables by averaging over gradients of the randomly perturbed input,
+    #' i.e. for all input variable \eqn{i} and output class \eqn{j}
+    #' \deqn{\frac{1}{n} \sum_i^n \frac{\partial f(x + \varepsilon )_j}{\partial x_i}}
+    #' with \eqn{\varepsilon \sim \mathcal{N}(0, \sigma^2)}.
+    #'
+    #' @param x The input vector of the model to be interpreted.
+    #' @param out_class If the given model is a classification model, this
+    #' parameter can be used to determine which class the gradients should be
+    #' calculated for. Use the default value \code{NULL} to return the gradients
+    #' for all classes.
+    #' @param n Number of perturbations of the input vector (default: \eqn{50}).
+    #' @param noise_level Determines the standard deviation of the gaussian
+    #' perturbation, i.e. \eqn{\sigma = (\max(x) - \min(x)) *} \code{noise_level}.
+    #'
+    #' @return If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{(in, out)},
+    #' which contains the gradients for each input variable to the
+    #' output predictions. Otherwise returns a vector of the gradient
+    #' for each input variable for the given output class.
+    #'
+    #' @examples
+    #' library(neuralnet)
+    #'
+    #' # train a model
+    #' nn <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length
+    #'                 + Petal.Width, iris, linear.output = FALSE,
+    #'                 hidden = c(5,4), rep = 2)
+    #'
+    #' # create an analyzer for this model
+    #' analyzer = Analyzer$new(nn)
+    #' # get one example from the dataset as vector
+    #' input <- as.vector(t(iris[1,-5]))
+    #' input
+    #'
+    #' # calculate the smoothed gradients for class 2
+    #' analyzer$SmoothGrad(input, out_class = 2)
+    #'
+    #' # calculate the smoothed gradients for all classes
+    #' analyzer$SmoothGrad(input)
+    #'
+    #' @seealso
+    #' \code{\link{func_gradient}}
+    #'
+    #' @references
+    #' D. Smilkov et al. (2017) \emph{SmoothGrad: Removing noise by adding noise.}
+    #' arXiv: 1706.03825
+    #'
+    SmoothGrad = function(x, out_class = NULL, n = 50, noise_level = 0.3 ) {
+        sigma <- noise_level * (max(x) - min(x))
+        smooth_grad <- 0
+        for (i in 1:n) {
+            input_pert <- x + rnorm(length(x), mean = 0, sd = sigma)
+            self$update(input_pert)
+            smooth_grad <- smooth_grad + func_gradient(self$layers, out_class = out_class)
+        }
+        smooth_grad / n
     }
   )
 )
@@ -294,7 +462,6 @@ analyze_model <- function(model) {
   if (inherits(model, "nn_module")) {
     require(torch)
     if (torch::is_nn_module(model)) {
-      cat("It's a torch model!\n")
       analyze_torch_model(model)
     } else {
       stop("This model isn't a valid torch model!")
@@ -302,12 +469,10 @@ analyze_model <- function(model) {
   }
   else if (inherits(model, "nn")) {
     #library(neuralnet)
-    cat("It's a neuralnet model! \n")
     analyze_neuralnet_model(model)
   }
   else if (inherits(model, c("keras.engine.sequential.Sequential", "keras.engine.functional.Functional"))) {
     #library(keras)
-    cat("It's a keras model! \n")
     analyze_keras_model(model)
   } else {
     stop(sprintf("Unknown model of class \"%s\".", paste0(class(model), collapse = "\", \"")))
@@ -326,13 +491,15 @@ analyze_keras_model <- function(model) {
         if (type == "Dropout" || type == "InputLayer") {
           message(sprintf("Skipping %s-Layer...", type))
         } else {
+          act_name <- layer$activation$`__name__`
           weights <- layer$weights[[1]]$numpy()
           bias <- as.vector(layer$weights[[2]]$numpy())
-          activation <- get_activation(layer$activation$`__name__`)
+          activation <- get_activation(act_name)
           layers_list <- c(layers_list, Dense_Layer$new(#type = type,
                                                   weights = weights,
                                                   bias = bias,
-                                                  activation = activation))
+                                                  activation = activation,
+                                                  activation_name = act_name))
         }
       } else {
         stop(sprintf("Layer of type \"%s\" is not implemented yet. Supported layers are: \"%s\"", type,
@@ -342,13 +509,17 @@ analyze_keras_model <- function(model) {
     layers_list
   },
   error=function(cond) {
-    message(cond)
+    warning(cond)
   })
 }
 
 analyze_neuralnet_model <- function(model) {
   tryCatch({
     layers_list = list()
+
+    if (!("result.matrix" %in% names(model))) {
+      warning("The model hasn't been fitted yet!")
+    }
 
     # Get number of best repition
     if (ncol(model$result.matrix) == 1 ) {
@@ -358,7 +529,8 @@ analyze_neuralnet_model <- function(model) {
     }
 
     weights <- model$weights[[best_rep]]
-    act <- get_activation(attributes(model$act.fct)$type)
+    act_name <- attributes(model$act.fct)$type
+    act <- get_activation(act_name)
 
     for (i in 1:length(weights)) {
 
@@ -368,19 +540,21 @@ analyze_neuralnet_model <- function(model) {
       if (i == length(weights) && model$linear.output == TRUE) {
         layers_list[[i]] = Dense_Layer$new(weights = w,
                                      bias = b,
-                                     activation = get_activation("linear")
+                                     activation = get_activation("linear"),
+                                     activation_name = "linear"
         )
       } else {
         layers_list[[i]] = Dense_Layer$new(weights = w,
                                      bias = b,
-                                     activation = act
+                                     activation = act,
+                                     activation_name = act_name
         )
       }
     }
     layers_list
   },
   error=function(cond) {
-    message(cond)
+    warning(cond)
   })
 }
 

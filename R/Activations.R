@@ -7,20 +7,49 @@ relu <- function(x) {
   ifelse(x >= 0, x, 0)
 }
 
+relu_dev <- function(x) {
+  r <- ifelse(x >= 0, 1, 0)
+  diag(length(r)) * r
+}
+
 sigmoid <- function(x) {
   1 / (1 + exp(-x))
+}
+
+sigmoid_dev <- function(x) {
+  r <- sigmoid(x) * (1 - sigmoid(x))
+  diag(length(r)) * r
 }
 
 softplus <- function(x) {
   log( exp(x) + 1)
 }
 
+softplus_dev <- function(x) {
+  r <- sigmoid(x)
+  diag(length(r)) * r
+}
+
 softmax <- function(x) {
   exp(x) / sum(exp(x))
 }
 
+softmax_dev <- function(x) {
+  s <- as.vector(softmax(x))
+  t(diag(length(s)) * s - s^2)
+}
+
 linear <- function(x) {
   x
+}
+
+linear_dev <- function(x) {
+  diag(length(x))
+}
+
+tanh_dev <- function(x) {
+  r <- 1 - tanh(x)^2
+  diag(length(r)) * r
 }
 
 #' @title Get activation function by name
@@ -45,4 +74,15 @@ get_activation <- function(name) {
   else if (name == "tanh") return(tanh)
   else if (name == "linear") return(linear)
   else stop(sprintf("Activation function \"%s\" is not implementet yet!", name))
+}
+
+
+get_deveritive_activation <- function(name) {
+  if (name == "relu") return(relu_dev)
+  else if (name == "softplus") return(softplus_dev)
+  else if (name == "sigmoid" || name == "logistic") return(sigmoid_dev)
+  else if (name == "softmax") return(softmax_dev)
+  else if (name == "tanh") return(tanh_dev)
+  else if (name == "linear") return(linear_dev)
+  else stop(sprintf("Deveritive of activation function \"%s\" is not implementet yet!", name))
 }
