@@ -25,12 +25,12 @@ output neuron of the model as a matrix.
 }
 \description{
 This is a variant of the LRP-rule \code{\link{linear_simple_rule}} with a
-predefined stabilizer \eqn{\varepsilon > 0} for the denominator and is an implementation
+predefined stabilizer \eqn{\epsilon > 0} for the denominator and is an implementation
 of eq. (58) in Bach et al. (2015). Let \eqn{z_{ij}:= x_i w_{ij}} the preactivation of a hidden
 dense layer between hidden neuron \eqn{i} and neuron \eqn{j} in the next hidden layer.
 The relevance for a single connection is propagated by the stabilized ratio between local (\eqn{z_{ij}}) and
 global (\eqn{z_j := b_j + \sum_{i'} z_{i'j}}) preactivation, i.e.
-\deqn{R_{ij} = \frac{z_{ij}}{z_j + \varepsilon\ sgn(z_j)} \cdot R_j.}
+\deqn{R_{ij} = \frac{z_{ij}}{z_j + \epsilon\ sgn(z_j)} \cdot R_j.}
 Then the relevance of the neuron \eqn{i} is given by the sum over the relevances
 of all possible outgoing connections, i.e.
 \deqn{R_i = \sum_j R_{ij}.}
@@ -41,5 +41,5 @@ classifier decisions by layer-wise relevance propagation.} PLoS ONE 10, p. 1-46
 }
 \seealso{
 \code{\link{linear_simple_rule}}, \code{\link{linear_ab_rule}},
-\code{\link{linear_ww_rule}}, \code{\link{func_lrp}}, \code{\link{Analyzer}}
+\code{\link{linear_ww_rule}}, \code{\link{LRP}}
 }

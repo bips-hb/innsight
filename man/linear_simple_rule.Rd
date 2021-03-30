@@ -38,5 +38,5 @@ classifier decisions by layer-wise relevance propagation.} PLoS ONE 10, p. 1-46
 }
 \seealso{
 \code{\link{linear_eps_rule}}, \code{\link{linear_ab_rule}},
-\code{\link{linear_ww_rule}}, \code{\link{func_lrp}}, \code{\link{Analyzer}}
+\code{\link{linear_ww_rule}}, \code{\link{LRP}}
 }

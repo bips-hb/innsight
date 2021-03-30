@@ -1,114 +1,144 @@
-context("Test Analyzer")
+context("Class Analyzer")
 
-test_that("Analyzer Initialization", {
-  ###--------------neuralnet-----------------
+test_that("Test general errors",{
+  expect_error(Analyzer$new(NULL))
+  expect_error(Analyzer$new(NA))
+  expect_error(Analyzer$new(c(3)))
+  expect_error(Analyzer$new("124"))
+})
+
+test_that("Test neuralnet model", {
   library(neuralnet)
-  library(datasets)
+  #
+  # --------------------- positive tests ---------------------------------------
+  #
+
+  nn <- neuralnet((Species == "setosa") ~ Petal.Length + Petal.Width,
+                  iris, linear.output = FALSE,
+                  hidden = c(3,2), act.fct = "tanh", rep = 1)
+  analyzer = Analyzer$new(nn)
+
+  # forward method
+  idx <- sample(nrow(iris), 10)
+  for (i in idx){
+    y_true <- as.vector(predict(nn, iris[i,]))
+    y <- analyzer$forward(as.vector(t(iris[i,3:4])))$out
+    expect_equal(y_true, y)
+  }
+
+  # update method
+  idx <- sample(nrow(iris), 10)
+  for (i in idx){
+    y_true <- as.vector(predict(nn, iris[i,]))
+    analyzer$update(as.vector(t(iris[i,3:4])))
+    expect_equal(y_true, rev(analyzer$layers)[[1]]$outputs)
+  }
+
+  #
+  # ----------------------------- negative tests -------------------------------
+  #
+
+  # custom activation function
+  softplus <- function(x) log(1+exp(x))
+  nn <- neuralnet((Species == "setosa") ~ Petal.Length + Petal.Width,
+                  iris, linear.output = FALSE,
+                  hidden = c(3,2), act.fct = softplus, rep = 1)
+  expect_error(Analyzer$new(nn))
+
+  # doesn't converge
+  expect_warning(nn <- neuralnet(Species ~ .,
+                  iris, linear.output = TRUE,
+                  hidden = c(3,2), act.fct = "tanh", rep = 1, stepmax = 1e+01))
+  expect_error(Analyzer$new(nn))
+
+})
+
+test_that("Test keras model", {
+  #
+  # ----------------------- positive tests ------------------------------------
+  #
+  library(keras)
   data(iris)
 
-  # Binary classification
-  nn <- neuralnet(Species == "setosa" ~ Petal.Length + Petal.Width, iris, linear.output = FALSE, rep = 1) # one rep
-  expect_error(Analyzer$new(nn), NA)
+  iris[,5] <- as.numeric(iris[,5]) -1
+  # Turn `iris` into a matrix
+  iris <- as.matrix(iris)
+  # Set iris `dimnames` to `NULL`
+  dimnames(iris) <- NULL
+  # Determine sample size
+  ind <- sample(2, nrow(iris), replace=TRUE, prob=c(0.67, 0.33))
+  # Split the `iris` data
+  iris.training <- iris[ind==1, 1:4]
+  iris.test <- iris[ind==2, 1:4]
+  # Split the class attribute
+  iris.trainingtarget <- iris[ind==1, 5]
+  iris.testtarget <- iris[ind==2, 5]
+  # One hot encode training target values
+  iris.trainLabels <- to_categorical(iris.trainingtarget)
+  # One hot encode test target values
+  iris.testLabels <- to_categorical(iris.testtarget)
 
-  nn <- neuralnet(Species == "setosa" ~ Petal.Length + Petal.Width, iris, linear.output = FALSE, rep = 5) # multiple rep
-  expect_error(Analyzer$new(nn), NA)
+  model <- keras_model_sequential()
+  model %>%
+    layer_dense(units = 16, activation = 'relu', input_shape = c(4)) %>%
+    layer_dropout(0.1) %>%
+    layer_dense(units = 8, activation = 'relu') %>%
+    layer_dropout(0.1) %>%
+    layer_dense(units = 3, activation = 'softmax')
 
-  nn <- neuralnet(Species == "setosa" ~ Petal.Length + Petal.Width, iris, linear.output = FALSE, hidden = c(5,3), rep = 5) # more hidden layers
-  expect_error(Analyzer$new(nn), NA)
+  # test non-fitted model
+  analyzer = Analyzer$new(model)
 
-  ###--------------keras model-----------------
+  # test compiled model
+  model %>% compile(
+    loss = 'categorical_crossentropy',
+    optimizer = 'adam',
+    metrics = 'accuracy'
+  )
+  analyzer = Analyzer$new(model)
 
-  #
-  # toDo
-  #
+  # test fitted model
+  history <- model %>% fit(
+    iris.training,
+    iris.trainLabels,
+    epochs = 50,
+    batch_size = 5,
+    validation_split = 0.2, verbose = 0
+  )
+  analyzer = Analyzer$new(model)
 
-})
-
-test_that("Forward method", {
-  ###--------------neuralnet-----------------
-  for (act in c("logistic", "tanh")) {
-    nn <- neuralnet(Species == "setosa" ~ Petal.Length + Petal.Width, iris, act.fct = act, linear.output = FALSE, hidden = c(5,3), rep = 1) # more hidden layers
-
-    analyzer <- Analyzer$new(nn)
-    iris_test <- iris[1:20, ]
-
-    nn_pred <- predict(nn, iris_test)
-    for (i in 1:20) {
-      analyzer_pred <- analyzer$forward(as.vector(t(iris[i,c(3,4)])))$out
-      expect_equal(analyzer_pred, nn_pred[i])
-    }
+  # forward method
+  y_true <- predict(model, iris.test)
+  for (i in range(nrow(iris.test))) {
+    y <- analyzer$forward(as.vector(iris.test[i,]))$out
+    expect_equal(y_true[i,], y, tolerance = 1e-6)
   }
-  ###--------------keras model-----------------
+
+  # update method
+  for (i in range(nrow(iris.test))) {
+    analyzer$update(as.vector(iris.test[i,]))
+    expect_equal(y_true[i,], rev(analyzer$layers)[[1]]$outputs, tolerance = 1e-6)
+  }
 
   #
-  # toDo
+  # ------------------------- negative method ---------------------------------
   #
+
+  # activation function in own layer
+  model <- keras_model_sequential()
+  model %>%
+    layer_dense(units = 16, activation = 'linear', input_shape = c(4)) %>%
+    layer_activation_relu() %>%
+    layer_dense(units = 3, activation = 'softmax')
+
+  expect_error(Analyzer$new(model))
+
+  # not implemented layer
+  model <- keras_model_sequential()
+  model %>%
+    layer_dense(units = 16, activation = 'linear', input_shape = c(4)) %>%
+    layer_batch_normalization() %>%
+    layer_dense(units = 3, activation = 'softmax')
+
+  expect_error(Analyzer$new(model))
 })
-
-test_that("Connection Weights", {
-  ##------------------- neuralnet ---------------------
-  model_neuralnet <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length + Petal.Width, iris, linear.output = FALSE, hidden = c(5,4), rep = 2)
-
-  # create an analyzer for this model
-  analyzer = Analyzer$new(model_neuralnet)
-
-  expect_error(analyzer$Connection_Weights(), NA)
-  expect_error(analyzer$Connection_Weights(out_class = 2), NA)
-
-  expect_equal(is.matrix(analyzer$Connection_Weights()), TRUE)
-  expect_equal(is.vector(analyzer$Connection_Weights(out_class = 2)), TRUE)
-
-  ###--------------keras model-----------------
-
-  #
-  # toDo
-  #
-})
-
-test_that("Layerwise Relevance Propagation", {
-  ##------------------- neuralnet ---------------------
-  model_neuralnet <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length + Petal.Width, iris, linear.output = FALSE, hidden = c(5,4), rep = 2)
-
-  # create an analyzer for this model
-  analyzer = Analyzer$new(model_neuralnet)
-
-  input <- as.vector(t(iris[1,-5]))
-
-  expect_error(analyzer$LRP(input), NA)
-  expect_error(analyzer$LRP(input, out_class = 2), NA)
-
-  expect_equal(is.matrix(analyzer$LRP(input)), TRUE)
-  expect_equal(is.vector(analyzer$LRP(input, out_class = 2)), TRUE)
-
-  ###--------------keras model-----------------
-
-  #
-  # toDo
-  #
-})
-
-
-
-test_that("DeepLIFT", {
-  ##------------------- neuralnet ---------------------
-  model_neuralnet <- neuralnet(Species ~Sepal.Length+ Sepal.Width + Petal.Length + Petal.Width, iris, linear.output = FALSE, hidden = c(5,4), rep = 2)
-
-  # create an analyzer for this model
-  analyzer = Analyzer$new(model_neuralnet)
-
-  input <- as.vector(t(iris[1,-5]))
-  input_ref <- rnorm(4)
-
-  expect_error(analyzer$DeepLift(input, input_ref), NA)
-  expect_error(analyzer$DeepLift(input, input_ref, out_class = 2), NA)
-
-  expect_equal(is.matrix(analyzer$DeepLift(input, input_ref)), TRUE)
-  expect_equal(is.vector(analyzer$DeepLift(input, input_ref, out_class = 2)), TRUE)
-
-  ###--------------keras model-----------------
-
-  #
-  # toDo
-  #
-})
-

@@ -29,7 +29,7 @@ This is an alternative stabilizing method compared to the LRP-rule
 negative and positive preactivation separately, i.e. we have a factor
 \eqn{\alpha} only for the positive part and another one \eqn{\beta = 1 - \alpha} for the
 negative part of the considered ratio between local and global preactivation:
-\deqn{R_{ij} = ( \alpha\ \frac{z_{ij}^+}{z_j^+} + \beta\ \frac{z_{ij}^-}{z_j^-} ) \cdot R_j.}
+\deqn{R_{ij} = ( \alpha \frac{z_{ij}^+}{z_j^+} + \beta \frac{z_{ij}^-}{z_j^-} ) \cdot R_j.}
 Then the relevance of the neuron \eqn{i} is given by the sum over the relevances
 of all possible outgoing connections, i.e.
 \deqn{R_i = \sum_j R_{ij}.}
@@ -40,5 +40,5 @@ classifier decisions by layer-wise relevance propagation.} PLoS ONE 10, p. 1-46
 }
 \seealso{
 \code{\link{linear_simple_rule}}, \code{\link{linear_eps_rule}},
-\code{\link{linear_ww_rule}}, \code{\link{func_lrp}}, \code{\link{Analyzer}}
+\code{\link{linear_ww_rule}}, \code{\link{LRP}}
 }

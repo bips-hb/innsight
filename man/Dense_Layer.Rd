@@ -101,6 +101,8 @@ Create a new instance of this class with given parameters of a dense layer.
 \item{\code{bias}}{The bias vector of length \emph{dim_out} for the linear transformation.}
 
 \item{\code{activation}}{The activation function of the dense layer.}
+
+\item{\code{activation_name}}{Name of the activation function.}
 }
 \if{html}{\out{</div>}}
 }
@@ -128,7 +130,7 @@ stored in the class attributes: \code{inputs}, \code{preactivation},
 \item{\code{x}}{Input vector for this layer.}
 
 \item{\code{x_ref}}{Reference input vector for this layer. It is only needed for
-the DeepLift method (see \code{\link{func_deeplift}}) and can otherwise be set to \code{NULL}.}
+the DeepLift method and can otherwise be set to \code{NULL}.}
 }
 \if{html}{\out{</div>}}
 }

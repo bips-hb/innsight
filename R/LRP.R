@@ -3,13 +3,12 @@
 # "On pixel-wise explanations for non-linear classifier decisions by layer-wise relevance propagation"
 #       by S. Bach et al. (2015)
 #
-
 implemented_lrp_rules <- c("simple", "eps", "ab", "ww")
 
 
 
 #' @title Layer-wise Relevance Propagation (LRP) method
-#' @name func_lrp
+#' @name LRP
 #'
 #' @description
 #' This is an implementation of the \emph{Layer-wise Relevance Propagation (LRP)}
@@ -17,14 +16,16 @@ implemented_lrp_rules <- c("simple", "eps", "ab", "ww")
 #' interpreting a single element of the dataset and returns the relevance scores for
 #' each input feature. The basic idea of this method is to decompose the
 #' prediction score of the model with respect to the input features, i.e.
-#' \deqn{f(x) \approx \sum_i R(x_i).}
+#' \deqn{f(x) = \sum_i R(x_i).}
 #' Because of the bias vector, this decomposition is generally an approximation.
 #' There exist several propagation rules to determine the relevance scores. In this
 #' package are implemented: \code{\link{linear_simple_rule}},
 #' \code{\link{linear_eps_rule}}, \code{\link{linear_ab_rule}},
 #' \code{\link{linear_ww_rule}}.
 #'
-#' @param layers List of layers of type \code{\link{Dense_Layer}}.
+#' @param analyzer An instance of the R6 class \code{\link{Analyzer}}.
+#' @param data Either a matrix or a data frame, where each row must describe an
+#' input to the network.
 #' @param out_class If the given model is a classification model, this
 #' parameter can be used to determine which class the relevance scores should be
 #' calculated for. Use the default value \code{NULL} to return the relevance
@@ -37,44 +38,33 @@ implemented_lrp_rules <- c("simple", "eps", "ab", "ww")
 #' value \code{NULL} for the default parameters ("eps" : \eqn{0.01}, "ab" : \eqn{0.5}).
 #'
 #' @return
-#' If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{(in, out)},
+#' It returns a list of matrices of shape \emph{(in, out)},
 #' which contains the relevance scores for each input variable to the
-#' output predictions. Otherwise it returns a vector of the relevance scores
-#' for each input variable for the given output class.
+#' output predictions or single output class (if \code{out_class} is not \code{NULL})
+#' for every input in \code{data}.
 #'
 #' @examples
-#' # create three dense layers
-#' W_1 <- matrix(rnorm(3*10), nrow = 3, ncol = 10)
-#' b_1 <- rnorm(10)
-#' W_2 <- matrix(rnorm(10*5), nrow = 10, ncol = 5)
-#' b_2 <- rnorm(5)
-#' W_3 <- matrix(rnorm(5*2), nrow = 5, ncol = 2)
-#' b_3 <- rnorm(2)
+#' library(neuralnet)
+#' nn <- neuralnet( Species ~ .,
+#'                  iris, linear.output = FALSE,
+#'                  hidden = c(10,8), act.fct = "tanh", rep = 1, threshold = 0.5)
+#' # create an analyzer for this model
+#' analyzer = Analyzer$new(nn)
 #'
-#' dense_1 <- Dense_Layer$new(W_1, b_1, get_activation("relu"))
-#' dense_2 <- Dense_Layer$new(W_2, b_2, get_activation("relu"))
-#' dense_3 <- Dense_Layer$new(W_3, b_3, get_activation("softmax"))
+#' # calculate relevance scores for the whole dataset and for class 1
+#' result <- LRP(analyzer, data = iris[,-5], rule_name = "simple", out_class = 1)
+#' plot(result)
 #'
-#' # do the forward pass to store all intermediate values
-#' inputs <- rnorm(3)
-#' output <- dense_1$forward(inputs)$out
-#' output <- dense_2$forward(output)$out
-#' output <- dense_3$forward(output)$out
-#'
-#' # calculate relevances for class 1 with simple-rule
-#' func_lrp(list(dense_1, dense_2, dense_3), out_class = 1)
-#'
-#' # calculate relevances for all classes with simple-rule
-#' func_lrp(list(dense_1, dense_2, dense_3))
-#'
-#' # calculate relevances for class 1 with eps-rule (eps = 0.1)
-#' func_lrp(list(dense_1, dense_2, dense_3), out_class = 1, rule_name = "eps", rule_param = 0.1)
+#' # calculate relevance scores for the whole dataset and all classes with
+#' # eps-rule (eps = 0.1)
+#' result <- LRP(analyzer, data = iris[,-5], rule_name = "eps", rule_param = 0.1)
+#' plot(result)
 #'
 #' @seealso
-#' \code{\link{Analyzer}}, \code{\link{func_deeplift}}, \code{\link{func_connection_weights}},
+#' \code{\link{Analyzer}},
 #' \code{\link{linear_simple_rule}},
 #' \code{\link{linear_eps_rule}}, \code{\link{linear_ab_rule}},
-#' \code{\link{linear_ww_rule}}
+#' \code{\link{linear_ww_rule}}, [plot.LRP]
 #'
 #' @references
 #' S. Bach et al. (2015) \emph{On pixel-wise explanations for non-linear
@@ -82,44 +72,131 @@ implemented_lrp_rules <- c("simple", "eps", "ab", "ww")
 #'
 #' @export
 
-func_lrp <- function(layers,
+LRP <- function(analyzer,
+                data,
                 out_class = NULL,
                 rule_name = "simple",
                 rule_param = NULL ) {
 
+  checkmate::assertClass(analyzer, "Analyzer")
+  checkmate::assert_choice(rule_name, implemented_lrp_rules)
+  if (is.null(rule_param)) {
+    if (rule_name == "eps"){
+      rule_param = 0.01
+    } else if (rule_name == "ab") {
+      rule_param = 0.5
+    }
+  }
   rule <- get_Rule(rule_name, rule_param)
 
-  # the output layer must be considered specially, i.e. without the softmax or
-  # sigmoid activation
+  checkmate::assert(checkmate::checkDataFrame(data, ncols = analyzer$layers[[1]]$dim[1]),
+                    checkmate::checkMatrix(data, ncols = analyzer$layers[[1]]$dim[1]))
+  checkmate::assertInt(out_class, null.ok = TRUE, lower = 1, upper = rev(analyzer$layers)[[1]]$dim[2])
 
-  last_layer <- layers[[length(layers)]]
-  rel <- last_layer$preactivation #get output before softmax/sigmoid
-  W <- last_layer$weights
-  b <- last_layer$bias
-  input <- last_layer$inputs
+  num_inputs = nrow(data)
+  relevances = vector(mode = "list", length = num_inputs)
 
-  rel <- rule(input, W, b, diag(length(rel)) * rel)
+  for (i in 1:num_inputs) {
+      analyzer$update(as.vector(t(data[i,])))
+      layers = analyzer$layers
 
-  for (layer in rev(layers)[-1]) {
-    W <- layer$weights
-    b <- as.vector(layer$bias)
-    input <- as.vector(layer$inputs)
+      # the output layer must be considered specially, i.e. without the softmax or
+      # sigmoid activation
 
-    rel <- rule(input, W, b, rel)
+      last_layer <- layers[[length(layers)]]
+      rel <- last_layer$preactivation # get output before softmax/sigmoid
+      W <- last_layer$weights
+      b <- last_layer$bias
+      input <- last_layer$inputs
+
+      rel <- rule(input, W, b, diag(length(rel)) * rel)
+
+      for (layer in rev(layers)[-1]) {
+        W <- layer$weights
+        b <- as.vector(layer$bias)
+        input <- as.vector(layer$inputs)
+
+        rel <- rule(input, W, b, rel)
+      }
+      rownames(rel) <- paste0(rep("X", nrow(rel)), 1:nrow(rel))
+      colnames(rel) <- paste0(rep("Y", ncol(rel)), 1:ncol(rel))
+      if (!is.null(out_class)) {
+        rel <- as.matrix(rel[, out_class])
+        colnames(rel) <- paste0("Y", out_class)
+      }
+      relevances[[i]] <- rel
   }
-  rownames(rel) <- paste0(rep("X", nrow(rel)), 1:nrow(rel))
-  colnames(rel) <- paste0(rep("Y", ncol(rel)), 1:ncol(rel))
-  if (is.null(out_class)) {
-    return(rel)
-  } else {
-    if ( !(out_class %in% 1:ncol(rel) ) ) {
-      stop(sprintf("Parameter 'out_class' has to be an integer value between 1 and %s! Your value: %s",
-                   ncol(rel), out_class ))
-    } else return(rel[, out_class])
-  }
+  class(relevances) <- c("LRP", class(relevances))
+  attributes(relevances)$rule_name <- rule_name
+  attributes(relevances)$rule_param <- rule_param
+  relevances
 }
 
+#' @title Plot function for LRP results
+#' @name plot.LRP
+#' @description Plots the results of the \code{\link{LRP}} method.
+#'
+#' @param x A result of the \code{\link{LRP}} method.
+#' @param rank If \code{TRUE}, relevance scores are ranked.
+#' @param scale Scale the relevance scores to \eqn{[-1,1]}.
+#' @param ... Other arguments passed on to methods. Not currently used.
+#'
+#' @return Returns a ggplot2 plot object.
+#'
+#' @examples
+#' library(neuralnet)
+#' nn <- neuralnet( Species ~ .,
+#'                  iris, linear.output = FALSE,
+#'                  hidden = c(10,8), act.fct = "tanh", rep = 1, threshold = 0.5)
+#' # create an analyzer for this model
+#' analyzer = Analyzer$new(nn)
+#'
+#' # calculate relevance scores for the whole dataset and for class 1
+#' result <- LRP(analyzer, data = iris[,-5], rule_name = "simple", out_class = 1)
+#'
+#' # plot the results
+#' plot(result)
+#'
+#' # plot the results with ranked relevances
+#' plot(result, rank = TRUE)
+#'
+#' # plot the results scaled to -1 to 1
+#' plot(result, scale = TRUE)
+#'
+#' @seealso [LRP]
+#' @rdname plot.LRP
+#' @export
+#'
 
+plot.LRP <- function(x, rank = FALSE, scale = FALSE, ...) {
+  rule_name <- attributes(x)$rule_name
+  rule_param <- attributes(x)$rule_param
+  if (rule_name %in% c("eps", "ab")) {
+    subtitle = sprintf("%s-Rule (%s)", rule_name, rule_param)
+  } else {
+    subtitle = sprintf("%s-Rule", rule_name)
+  }
+  if (rank) {
+    x <- lapply(x, function(z) apply(z,2, rank))
+  }
+  features = c()
+  labels = c()
+  relevance = c()
+  for (i in 1:length(x)) {
+    features <- c(features, rep(rownames(x[[i]]), ncol(x[[i]])))
+    labels <- c(labels, rep(colnames(x[[i]]), each = nrow(x[[i]])))
+    rel <- as.vector(x[[i]])
+    if (scale) {
+      rel <- rel / max(abs(rel))
+    }
+    relevance <- c(relevance, rel)
+  }
+  ggplot2::ggplot(data.frame(features, labels, relevance),
+                  mapping = ggplot2::aes(x = features, y = relevance, fill = labels), ...) +
+    ggplot2::geom_boxplot() +
+    ggplot2::scale_fill_brewer(palette = "Reds") +
+    ggplot2::ggtitle("Feature Importance with Layerwise Relevance Propagation", subtitle = subtitle)
+}
 
 
 ###-------------------------------Linear Rules----------------------------------
@@ -151,7 +228,7 @@ func_lrp <- function(layers,
 #'
 #' @seealso
 #' \code{\link{linear_eps_rule}}, \code{\link{linear_ab_rule}},
-#' \code{\link{linear_ww_rule}}, \code{\link{func_lrp}}, \code{\link{Analyzer}}
+#' \code{\link{linear_ww_rule}}, \code{\link{LRP}}
 #'
 #' @references
 #' S. Bach et al. (2015) \emph{On pixel-wise explanations for non-linear
@@ -175,12 +252,12 @@ linear_simple_rule <- function(input, weight, bias, relevance){
 #'
 #' @description
 #' This is a variant of the LRP-rule \code{\link{linear_simple_rule}} with a
-#' predefined stabilizer \eqn{\varepsilon > 0} for the denominator and is an implementation
+#' predefined stabilizer \eqn{\epsilon > 0} for the denominator and is an implementation
 #' of eq. (58) in Bach et al. (2015). Let \eqn{z_{ij}:= x_i w_{ij}} the preactivation of a hidden
 #' dense layer between hidden neuron \eqn{i} and neuron \eqn{j} in the next hidden layer.
 #' The relevance for a single connection is propagated by the stabilized ratio between local (\eqn{z_{ij}}) and
 #' global (\eqn{z_j := b_j + \sum_{i'} z_{i'j}}) preactivation, i.e.
-#' \deqn{R_{ij} = \frac{z_{ij}}{z_j + \varepsilon\ sgn(z_j)} \cdot R_j.}
+#' \deqn{R_{ij} = \frac{z_{ij}}{z_j + \epsilon\ sgn(z_j)} \cdot R_j.}
 #' Then the relevance of the neuron \eqn{i} is given by the sum over the relevances
 #' of all possible outgoing connections, i.e.
 #' \deqn{R_i = \sum_j R_{ij}.}
@@ -199,7 +276,7 @@ linear_simple_rule <- function(input, weight, bias, relevance){
 #'
 #' @seealso
 #' \code{\link{linear_simple_rule}}, \code{\link{linear_ab_rule}},
-#' \code{\link{linear_ww_rule}}, \code{\link{func_lrp}}, \code{\link{Analyzer}}
+#' \code{\link{linear_ww_rule}}, \code{\link{LRP}}
 #'
 #' @references
 #' S. Bach et al. (2015) \emph{On pixel-wise explanations for non-linear
@@ -224,7 +301,7 @@ linear_eps_rule <- function(input, weight, bias, relevance, eps = 0.01) {
 #' negative and positive preactivation separately, i.e. we have a factor
 #' \eqn{\alpha} only for the positive part and another one \eqn{\beta = 1 - \alpha} for the
 #' negative part of the considered ratio between local and global preactivation:
-#' \deqn{R_{ij} = ( \alpha\ \frac{z_{ij}^+}{z_j^+} + \beta\ \frac{z_{ij}^-}{z_j^-} ) \cdot R_j.}
+#' \deqn{R_{ij} = ( \alpha \frac{z_{ij}^+}{z_j^+} + \beta \frac{z_{ij}^-}{z_j^-} ) \cdot R_j.}
 #' Then the relevance of the neuron \eqn{i} is given by the sum over the relevances
 #' of all possible outgoing connections, i.e.
 #' \deqn{R_i = \sum_j R_{ij}.}
@@ -243,7 +320,7 @@ linear_eps_rule <- function(input, weight, bias, relevance, eps = 0.01) {
 #'
 #' @seealso
 #' \code{\link{linear_simple_rule}}, \code{\link{linear_eps_rule}},
-#' \code{\link{linear_ww_rule}}, \code{\link{func_lrp}}, \code{\link{Analyzer}}
+#' \code{\link{linear_ww_rule}}, \code{\link{LRP}}
 #'
 #' @references
 #' S. Bach et al. (2015) \emph{On pixel-wise explanations for non-linear
@@ -285,7 +362,7 @@ linear_ab_rule <- function(input, weight, bias, relevance, alpha = 0.5) {
 #'
 #' @seealso
 #' \code{\link{linear_simple_rule}}, \code{\link{linear_eps_rule}},
-#' \code{\link{linear_ab_rule}}, \code{\link{func_lrp}}, \code{\link{Analyzer}}
+#' \code{\link{linear_ab_rule}}, \code{\link{LRP}}
 #'
 #' @references
 #' G. Montavon et al. (2015) \emph{Explaining nonLinear classification decisions

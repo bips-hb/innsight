@@ -12,12 +12,18 @@ Description: Interpretability methods to analyze the behavior
     (2017) <arXiv:1704.02685>.
 License: MIT + file LICENSE
 Imports:
-  R6
+  R6, 
+  checkmate,
+  ggplot2,
+  stats
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE, r6 = TRUE)
 RoxygenNote: 7.1.1
-Suggests: 
+VignetteBuilder: knitr
+Suggests:
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0),
     neuralnet,
     torch,

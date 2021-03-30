@@ -33,5 +33,5 @@ with deep taylor decomposition.} CoRR
 }
 \seealso{
 \code{\link{linear_simple_rule}}, \code{\link{linear_eps_rule}},
-\code{\link{linear_ab_rule}}, \code{\link{func_lrp}}, \code{\link{Analyzer}}
+\code{\link{linear_ab_rule}}, \code{\link{LRP}}
 }

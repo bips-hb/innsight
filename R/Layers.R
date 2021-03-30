@@ -1,6 +1,3 @@
-library(R6)
-
-###------------------------Dense Layer------------------------------------------
 
 #' Dense layer of a Neural Network
 #'
@@ -37,7 +34,7 @@ library(R6)
 #'
 
 
-Dense_Layer <- R6Class("Dense_Layer",
+Dense_Layer <- R6::R6Class("Dense_Layer",
 public = list(
 
     #' @field type Type of the layer (in this case \code{"Dense"}).
@@ -87,6 +84,7 @@ public = list(
     #' @param weights The weight matrix of dimension \emph{(dim_in , dim_out)} for the linear transformation.
     #' @param bias The bias vector of length \emph{dim_out} for the linear transformation.
     #' @param activation The activation function of the dense layer.
+    #' @param activation_name Name of the activation function.
     #'
     #' @return A new instance of the R6 class \code{'Dense_Layer'} with the given parameters.
     #'
@@ -98,16 +96,10 @@ public = list(
       activation_name = NULL
       ) {
       self$type = "Dense"
-      if (!is.matrix(weights)) {
-        stop("Parameter 'weights' has to be a matrix of numbers.")
-      }
+      checkmate::assertMatrix(weights)
       self$dim = dim(weights)
       self$weights = weights
-      if (!is.vector(bias)) {
-        stop("Parameter 'bias' has to be a vector of numbers.")
-      } else if (length(bias) != ncol(weights)) {
-        stop(sprintf("Missmatch between weight matrix and bias vector. Number of weight columns %s is unequal to the length of the bias vector %s!", ncol(weights), length(bias)))
-      }
+      checkmate::assertVector(bias, len = ncol(weights))
       self$bias = bias
       self$activation = activation
       self$activation_name = activation_name
@@ -123,7 +115,7 @@ public = list(
     #'
     #' @param x Input vector for this layer.
     #' @param x_ref Reference input vector for this layer. It is only needed for
-    #' the DeepLift method (see \code{\link{func_deeplift}}) and can otherwise be set to \code{NULL}.
+    #' the DeepLift method and can otherwise be set to \code{NULL}.
     #'
     #' @return A list of two vectors. The first one is the output of this
     #' layer for the input \code{x} and the second entry is the output for the

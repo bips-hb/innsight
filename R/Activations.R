@@ -66,6 +66,8 @@ tanh_dev <- function(x) {
 #' Returns the activation function.
 #'
 #' @export
+#'
+
 get_activation <- function(name) {
   if (name == "relu") return(relu)
   else if (name == "softplus") return(softplus)
@@ -76,7 +78,21 @@ get_activation <- function(name) {
   else stop(sprintf("Activation function \"%s\" is not implementet yet!", name))
 }
 
-
+#' @title Get deveritive of activation function by name
+#' @name get_deveritive_activation
+#'
+#' @description
+#' This is a getter method for all implemented deveritives of an activation functions. Use one of
+#' \code{"relu"}, \code{"softplus"}, \code{"sigmoid"} / \code{"logistic"},
+#' \code{"softmax"}, \code{"tanh"}, \code{"linear"}.
+#'
+#' @param name Name of the activation function.
+#'
+#' @returns
+#' Returns the deveritive of the activation function.
+#'
+#' @export
+#'
 get_deveritive_activation <- function(name) {
   if (name == "relu") return(relu_dev)
   else if (name == "softplus") return(softplus_dev)
