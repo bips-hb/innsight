@@ -180,10 +180,11 @@ plot.Gradient <- function(x, rank = FALSE, scale = FALSE, ...) {
     }
     gradient <- c(gradient, rel)
   }
+  features <- factor(features, levels = rownames(x[[1]]))
   ggplot2::ggplot(data.frame(features, labels, gradient),
                   mapping = ggplot2::aes(x = features, y = gradient, fill = labels)) +
-    ggplot2::geom_boxplot() +
-    ggplot2::scale_fill_brewer(palette = "Reds") +
+    ggplot2::geom_boxplot(alpha = 0.6) +
+    ggplot2::scale_fill_viridis_d() +
     ggplot2::ggtitle(sprintf("Feature Importance with %s", name), subtitle = subtitle)
 }
 

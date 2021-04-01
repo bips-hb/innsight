@@ -117,10 +117,11 @@ plot.ConnectionWeights <- function(x, rank = FALSE, scale = FALSE, ...) {
     x <- apply(x,2, rank) / nrow(x)
   }
   features <- rep(rownames(x), ncol(x))
+  features <- factor(features, levels = rownames(x))
   labels <- rep(colnames(x), each = nrow(x))
   importance <- as.vector(x)
   ggplot2::ggplot(data.frame(features, labels, importance), ggplot2::aes(fill=labels, y=importance, x=features)) +
-    ggplot2::geom_bar(position="dodge", stat="identity") +
-    ggplot2::scale_fill_brewer(palette = "Reds") +
+    ggplot2::geom_bar(position="dodge", stat="identity", alpha = 0.6) +
+    ggplot2::scale_fill_viridis_d() +
     ggplot2::ggtitle("Feature Importance with Connection Weights")
 }
