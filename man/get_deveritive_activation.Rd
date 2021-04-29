@@ -2,7 +2,7 @@
 % Please edit documentation in R/Activations.R
 \name{get_deveritive_activation}
 \alias{get_deveritive_activation}
-\title{Get deveritive of activation function by name}
+\title{Get deveritive of a activation function by name}
 \usage{
 get_deveritive_activation(name)
 }

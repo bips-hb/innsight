@@ -1,6 +1,4 @@
 
-
-
 ###---------------------------- DeepLift ---------------------------------------
 
 #' @title Deep Learning Important FeaTures (DeepLIFT) method
@@ -23,19 +21,16 @@
 #' @param analyzer An instance of the R6 class \code{\link{Analyzer}}.
 #' @param data Either a matrix or a data frame, where each row must describe an
 #' input to the network.
-#' @param x_ref The reference input vector for the interpretation.
+#' @param x_ref The reference input vector for the interpretation. You can also
+#' pass an index from the given data set \code{data} which will be used as the
+#' reference input. With the default value \code{NULL} you use an input of zeros.
 #' @param rule_name Name of the applied rule to calculate the contributions. Use one
 #' of \code{"rescale"} and \code{"revealcancel"}.
-#' @param out_class If the given model is a classification model, this
-#' parameter can be used to determine which class the contribution should be
-#' calculated for. Use the default value \code{NULL} to return the contribution
-#' for all classes.
 #'
 #' @return
-#' It returns a list of matrices of shape \emph{(in, out)},
-#' which contains the contribution scores for each input variable to the
-#' output predictions or single output class (if \code{out_class} is not \code{NULL})
-#' for every input in \code{data}.
+#' It returns an array of size \emph{(dim_in, dim_out, num_data)} which
+#' contains the contribution scores for each input variable to the
+#' output predictions for each element in the given data.
 #'
 #' @examples
 #' library(neuralnet)
@@ -45,12 +40,12 @@
 #'                 hidden = c(10,6), act.fct = "tanh", rep = 1, threshold = 0.1 )
 #' analyzer = Analyzer$new(nn)
 #'
-#' # calculate contributions for all classes and x_ref = 0 with rescale rule
+#' # calculate contributions for x_ref = 0 with rescale rule
 #' result <- DeepLift(analyzer, iris[,-5])
 #' plot(result)
 #'
-#' # calculate contributions for class 1 and x_ref first datapoint with revealcancel rule
-#' result <- DeepLift(analyzer, iris[,-5], x_ref = 1, rule_name = "revealcancel", out_class = 1)
+#' # calculate contributions for x_ref first datapoint with 'revealcancel' rule
+#' result <- DeepLift(analyzer, iris[,-5], x_ref = 1, rule_name = "revealcancel")
 #' plot(result)
 #'
 #' # compare class 'setosa' with 'virginica'
@@ -70,50 +65,59 @@
 #'@export
 #'
 
-DeepLift <- function(analyzer, data, x_ref = NULL, rule_name = "rescale",
-                     out_class = NULL) {
+DeepLift <- function(analyzer, data, x_ref = NULL, rule_name = "rescale") {
+
+  # Check arguments
   checkmate::assertClass(analyzer, "Analyzer")
   checkmate::assert_choice(rule_name, c("rescale", "revealcancel"))
-  num_input_features <- analyzer$layers[[1]]$dim[1]
-  checkmate::assert(checkmate::checkDataFrame(data, ncols = num_input_features),
-                    checkmate::checkMatrix(data, ncols = num_input_features))
-  checkmate::assert(checkmate::checkDataFrame(x_ref, ncols = num_input_features, nrows = 1),
-                    checkmate::checkVector(x_ref, len = num_input_features),
-                    checkmate::checkInt(x_ref, lower = 1, upper = nrow(data), null.ok = TRUE))
-  checkmate::assertInt(out_class, null.ok = TRUE, lower = 1, upper = rev(analyzer$layers)[[1]]$dim[2])
+  dim_in <- analyzer$dim_in
+  num_inputs = nrow(data)
+  checkmate::assert(checkmate::checkDataFrame(data, ncols = dim_in),
+                    checkmate::checkMatrix(data, ncols = dim_in))
+  checkmate::assert(checkmate::checkDataFrame(x_ref, ncols = dim_in, nrows = 1),
+                    checkmate::checkVector(x_ref, len = dim_in),
+                    checkmate::checkInt(x_ref, lower = 1, upper = num_inputs, null.ok = TRUE))
 
+  # Get the reference input
+  # NULL: create an input vector of zeros
   if (is.null(x_ref)) {
     x_ref <- as.vector(t(data[1,])) * 0
   }
+  # numeric: take the x_ref-th row of the given data as reference value
   else if (length(x_ref) == 1) {
     x_ref <- as.vector(t(data[x_ref,]))
-  } else {
+  }
+  # otherwise the argument 'x_ref' is the reference input
+  else {
     x_ref <- as.vector(t(x_ref))
   }
 
-  num_inputs = nrow(data)
-  contributions = vector(mode = "list", length = num_inputs)
+  # Update the analyzer and set up some variables
+  analyzer$update(as.matrix(data), x_ref)
+
+  layers = analyzer$layers
+  contributions = array(NA, dim = c(dim_in, analyzer$dim_out, num_inputs))
+  dimnames(contributions) <- list(analyzer$feature_names,
+                                  analyzer$response_names,
+                                  paste0(rep("B", num_inputs), 1:num_inputs))
+
+  # The last layer needs special treatment, since the activation function
+  # will not be considered.
+  last_layer <- layers[[length(layers)]]
+  W_ll <- last_layer$weights
 
   for (i in 1:num_inputs) {
-    analyzer$update(as.vector(t(data[i,])), x_ref)
-    layers = analyzer$layers
-
-    # The last layer needs special treatment, since the activation function
-    # will not be considered.
-    last_layer <- layers[[length(layers)]]
-
-    W <- last_layer$weights
-    delta_x <- last_layer$inputs - last_layer$inputs_ref
+    delta_x <- last_layer$inputs[i,] - last_layer$inputs_ref
 
     # multiplier for linear part
-    multiplier_plus <- W * (W * delta_x > 0) + 0.5 * W * (delta_x == 0)
-    multiplier_minus <- W * (W * delta_x < 0) + 0.5 * W * (delta_x == 0)
+    multiplier_plus <- W_ll * (W_ll * delta_x > 0) + 0.5 * W_ll * (delta_x == 0)
+    multiplier_minus <- W_ll * (W_ll * delta_x < 0) + 0.5 * W_ll * (delta_x == 0)
 
 
     # continue with the remaining layers
     for (layer in rev(layers)[-1]) {
       W <- layer$weights
-      delta_x <- layer$inputs - layer$inputs_ref
+      delta_x <- layer$inputs[i,] - layer$inputs_ref
 
       # multiplier for linear part
       mult_x_plus <- W * (W * delta_x > 0) + 0.5 * W * (delta_x == 0)
@@ -121,24 +125,23 @@ DeepLift <- function(analyzer, data, x_ref = NULL, rule_name = "rescale",
 
       # multiplier for activation
       if (rule_name == "rescale") {
-        multiplier <- rescale_rule(mult_x_plus, mult_x_minus, layer)
+        multiplier <- rescale_rule(mult_x_plus, mult_x_minus,
+                                   layer$outputs[i,] - layer$outputs_ref,
+                                   layer$preactivation[i,] - layer$preactivation_ref)
       } else if (rule_name == "revealcancel") {
         multiplier <- reveal_cancel_rule(delta_x, mult_x_plus, mult_x_minus, layer)
       }
+
+      # Combine multiplier with upper layer contributions
       multiplier_plus <- multiplier %*% multiplier_plus
       multiplier_minus <- multiplier %*% multiplier_minus
     }
 
-    # name the output
-    contrib <- (multiplier_plus + multiplier_minus) * delta_x
-    rownames(contrib) <- paste0(rep("X", nrow(contrib)), 1:nrow(contrib))
-    colnames(contrib) <- paste0(rep("Y", ncol(contrib)), 1:ncol(contrib))
-    if (!is.null(out_class)) {
-      contrib <- as.matrix(contrib[, out_class])
-      colnames(contrib) <- paste0("Y", out_class)
-    }
-    contributions[[i]] <- contrib
+    # Calculate the final contribution scores
+    contributions[,,i] <-  (multiplier_plus + multiplier_minus) * delta_x
   }
+
+  # Store class and other attributes
   class(contributions) <- c("DeepLift", class(contributions))
   attributes(contributions)$rule_name <- rule_name
   contributions
@@ -150,7 +153,8 @@ DeepLift <- function(analyzer, data, x_ref = NULL, rule_name = "rescale",
 #'
 #' @param x A result of the \code{\link{DeepLift}} method.
 #' @param rank If \code{TRUE}, contribution scores are ranked.
-#' @param scale Scale the contribution scores to \eqn{[-1,1]}.
+#' @param scale Scale the gradient values to the centered 90% of the calculated
+#' values.
 #' @param ... Other arguments passed on to methods. Not currently used.
 #'
 #' @return Returns a ggplot2 plot object.
@@ -172,7 +176,7 @@ DeepLift <- function(analyzer, data, x_ref = NULL, rule_name = "rescale",
 #' # plot the results with ranked relevances
 #' plot(result, rank = TRUE)
 #'
-#' # plot the results scaled to -1 to 1
+#' # cut the lower and upper 5% of the data and plot the result
 #' plot(result, scale = TRUE)
 #'
 #' @seealso [DeepLift]
@@ -183,26 +187,26 @@ DeepLift <- function(analyzer, data, x_ref = NULL, rule_name = "rescale",
 plot.DeepLift <- function(x, rank = FALSE, scale = FALSE, ...) {
   rule_name <- attributes(x)$rule_name
   subtitle = sprintf("%s-Rule", rule_name)
+  features = rep(dimnames(x)[[1]], dim(x)[2]*dim(x)[3])
+  Class = rep(dimnames(x)[[2]], each = dim(x)[1], times = dim(x)[3])
   if (rank) {
-    x <- lapply(x, function(z) apply(z,2, rank))
+    x[] <- apply(x, 3, function(z) apply(z,2, rank))
+    y_min <- 0.9
+    y_max <- dim(x)[2]+1 + 0.1
+  } else if (scale) {
+    y_min <- stats::quantile(x, 0.05)
+    y_max <- stats::quantile(x, 0.95)
+  } else {
+    y_min <- min(x)
+    y_max <- max(x)
   }
-  features = c()
-  labels = c()
-  contribution = c()
-  for (i in 1:length(x)) {
-    features <- c(features, rep(rownames(x[[i]]), ncol(x[[i]])))
-    labels <- c(labels, rep(colnames(x[[i]]), each = nrow(x[[i]])))
-    rel <- as.vector(x[[i]])
-    if (scale) {
-      rel <- rel / max(abs(rel))
-    }
-    contribution <- c(contribution, rel)
-  }
-  features <- factor(features, levels = rownames(x[[1]]))
-  ggplot2::ggplot(data.frame(features, labels, contribution),
-                  mapping = ggplot2::aes(x = features, y = contribution, fill = labels), ...) +
+  Contribution = as.vector(x)
+  Features <- factor(features, levels = dimnames(x)[[1]])
+  ggplot2::ggplot(data.frame(Features, Class, Contribution),
+                  mapping = ggplot2::aes(x = Features, y = Contribution, fill = Class), ...) +
     ggplot2::geom_boxplot(alpha = 0.6) +
     ggplot2::scale_fill_viridis_d() +
+    ggplot2::coord_cartesian(ylim = c(y_min, y_max)) +
     ggplot2::ggtitle("Feature Importance with DeepLift", subtitle = subtitle)
 }
 
@@ -224,7 +228,8 @@ plot.DeepLift <- function(x, rank = FALSE, scale = FALSE, ...) {
 #' value to the output, i.e. \eqn{m_{\Delta y^+ \Delta t}}
 #' @param mult_x_minus The multiplier from the upper negative difference-from-reference
 #' value to the output, i.e. \eqn{m_{\Delta y^- \Delta t}}.
-#' @param layer The hidden layer of type \code{\link{Dense_Layer}}.
+#' @param delta_x Difference-from-reference of the preactivation.
+#' @param delta_y Difference-from-reference of the postactivation.
 #'
 #' @return
 #' Returns the multiplier from the difference-from-reference preactivation to
@@ -240,9 +245,7 @@ plot.DeepLift <- function(x, rank = FALSE, scale = FALSE, ...) {
 #'
 #'@export
 
-rescale_rule <- function(mult_x_plus, mult_x_minus, layer) {
-  delta_x <- layer$outputs - layer$outputs_ref
-  delta_y <- layer$preactivation - layer$preactivation_ref
+rescale_rule <- function(mult_x_plus, mult_x_minus, delta_x, delta_y) {
 
   # add a numeric stabilizer
   multiplier_rescale <- delta_x / (delta_y + 1e-16 * ((delta_y >= 0)*2 -1 ))

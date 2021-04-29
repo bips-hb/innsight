@@ -97,12 +97,22 @@ public = list(
     #' (default: \code{NULL}).
     #' @field last_input_ref Last recorded reference input for the forward pass
     #' (default: \code{NULL}).
+    #' @field dim_in Dimension of the input features.
+    #' @field dim_out Dimension of the models output, i.e. dimension of the
+    #' response variables.
+    #' @field feature_names A list of names for the input features.
+    #' @field response_names A list of names for the response variables.
+    #'
 
     model = NULL,
     layers = NULL,
     num_layers = NULL,
     last_input = NULL,
     last_input_ref = NULL,
+    dim_in = NULL,
+    dim_out = NULL,
+    feature_names = NULL,
+    response_names = NULL,
 
 ###-----------------------------Initialize--------------------------------------
     #' @description
@@ -113,24 +123,64 @@ public = list(
     #' are allowed: \code{\link[keras]{keras_model}},
     #' \code{\link[keras]{keras_model_sequential}} or
     #' \code{\link[neuralnet]{neuralnet}}.
+    #' @param feature_names A list of names for the input features. Use the
+    #' default value \code{NULL} for the default names (X1, X2, ...).
+    #' @param response_names A list of names for the response variables. Use the
+    #' default value \code{NULL} for the default names (Y1, Y2, ...).
     #'
     #' @return A new instance of the R6 class \code{'Analyzer'}.
     #'
 
-    initialize = function(model) {
-        if (inherits(model, "nn_module")) {
-          self$layers = analyze_torch_model(model)
-        }
-        else if (inherits(model, "nn")) {
-          self$layers = analyze_neuralnet_model(model)
-        }
-        else if (inherits(model, c("keras.engine.sequential.Sequential", "keras.engine.functional.Functional"))) {
-          self$layers = analyze_keras_model(model)
-        } else {
-          stop(sprintf("Unknown model of class \"%s\".", paste0(class(model), collapse = "\", \"")))
-        }
+    initialize = function(model, feature_names = NULL, response_names = NULL) {
+      checkmate::assertVector(feature_names, null.ok = TRUE)
+      checkmate::assertVector(response_names, null.ok = TRUE)
 
-        self$num_layers <- length(self$layers)
+      # Analyze the passed model and store its internal structure in a list of
+      # layers
+
+      # Torch model
+      if (inherits(model, "nn_module")) {
+        self$layers = analyze_torch_model(model)
+      }
+      # Neuralnet model
+      else if (inherits(model, "nn")) {
+        self$layers = analyze_neuralnet_model(model)
+        self$feature_names = model$model.list$variables
+        self$response_names = model$model.list$response
+      }
+      # Keras model
+      else if (inherits(model, c("keras.engine.sequential.Sequential", "keras.engine.functional.Functional"))) {
+        self$layers = analyze_keras_model(model)
+      }
+      else {
+        stop(sprintf("Unknown model of class \"%s\".", paste0(class(model), collapse = "\", \"")))
+      }
+
+      self$dim_in <- self$layers[[1]]$dim[1]
+      self$dim_out <- rev(self$layers)[[1]]$dim[2]
+
+      # Set the names for the feature and response variables
+      if (length(feature_names)  == self$dim_in) {
+        self$feature_names <- feature_names
+      }
+      else if (!is.null(feature_names)) {
+        warning("Wrong length of argument 'feature_names'. Use default values instead.")
+      }
+      if (length(self$feature_names) != self$dim_in) {
+        self$feature_names = paste0(rep("X", self$dim_in), 1:self$dim_in)
+      }
+
+      if (length(response_names)  == self$dim_out) {
+        self$response_names <- response_names
+      }
+      else if (!is.null(response_names)) {
+        warning("Wrong length of argument 'response_names'. Use default values instead.")
+      }
+      if (length(self$response_names) != self$dim_out) {
+        self$response_names = paste0(rep("Y", self$dim_out), 1:self$dim_out)
+      }
+
+      self$num_layers <- length(self$layers)
     },
 
 ###-------------------------forward and update----------------------------------
@@ -139,12 +189,14 @@ public = list(
     #' The forward method of the whole model, i.e. it calculates the output
     #' \eqn{y=f(x)} of a given input \eqn{x} respectively an reference input \eqn{x'}.
     #' In doing so all intermediate values are stored in the individual layers.
+    #' A batch-wise evaluation is performed, hence \eqn{x} must be a matrix of
+    #' inputs.
     #'
-    #' @param x Input vector of the model.
+    #' @param x Input matrix of the model with size \emph{(num_data, dim_in)}.
     #' @param x_ref Reference input vector of the model. If this value is not needed, it
     #' can be set to the default value \code{NULL}.
     #'
-    #' @return A list with two vectors. The first one is the output for input
+    #' @return A list with two vectors. The first one is the output for the inputs
     #' \code{x} and the second entry is the output for the
     #' reference input \code{x_ref}.
     #'
@@ -162,10 +214,10 @@ public = list(
     #' @description
     #'
     #' This method updates the stored intermediate values in each layer from the
-    #' list \code{layers} when the input \code{x} or reference input \code{x_ref}
+    #' list \code{layers} when the inputs \code{x} or reference input \code{x_ref}
     #' has changed.
     #'
-    #' @param x Input vector of the model.
+    #' @param x Input matrix of the model with size \emph{(num_data, dim_in)}.
     #' @param x_ref Reference input vector of the model. If this value is not needed, it
     #' can be set to the default value \code{NULL}.
     #'

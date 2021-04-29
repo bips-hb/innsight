@@ -11,7 +11,8 @@
 
 \item{rank}{If \code{TRUE}, contribution scores are ranked.}
 
-\item{scale}{Scale the contribution scores to \eqn{[-1,1]}.}
+\item{scale}{Scale the gradient values to the centered 90\% of the calculated
+values.}
 
 \item{...}{Other arguments passed on to methods. Not currently used.}
 }
@@ -38,7 +39,7 @@ plot(result)
 # plot the results with ranked relevances
 plot(result, rank = TRUE)
 
-# plot the results scaled to -1 to 1
+# cut the lower and upper 5\% of the data and plot the result
 plot(result, scale = TRUE)
 
 }

@@ -7,11 +7,13 @@
 \method{plot}{Gradient}(x, rank = FALSE, scale = FALSE, ...)
 }
 \arguments{
-\item{x}{A result of the \code{\link{Gradient}} method.}
+\item{x}{A result of the \code{\link{Gradient}} or \code{\link{SmoothGrad}}
+method.}
 
 \item{rank}{If \code{TRUE}, gradient values are ranked.}
 
-\item{scale}{Scale the gradient values to \eqn{[-1,1]}.}
+\item{scale}{Scale the gradient values to the centered 90\% of the calculated
+values.}
 
 \item{...}{Other arguments passed on to methods. Not currently used.}
 }
@@ -19,7 +21,8 @@
 Returns a ggplot2 plot object.
 }
 \description{
-Plots the results of the \code{\link{Gradient}} method.
+Plots the results of the \code{\link{Gradient}} or
+\code{\link{SmoothGrad}} method.
 }
 \examples{
 library(neuralnet)
@@ -38,7 +41,7 @@ plot(result)
 # plot the results with ranked relevances
 plot(result, rank = TRUE)
 
-# plot the results scaled to -1 to 1
+# cut the lower and upper 5\% of the data and plot the result
 plot(result, scale = TRUE)
 
 # you can also use the SmoothGrad method
@@ -47,5 +50,5 @@ plot(result, scale = TRUE)
 
 }
 \seealso{
-\link{Gradient}
+\link{Gradient}, \link{SmoothGrad}
 }

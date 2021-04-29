@@ -23,8 +23,8 @@
 #' # Create a new dense layer
 #' my_layer <- Dense_Layer$new(weights = W, bias = b, activation = sigmoid)
 #'
-#' # example forward pass with no reference input
-#' inputs <- c(-1,2,3)
+#' # example forward pass of a batch of size 4 with no reference input
+#' inputs <- matrix(rnorm(12), ncol = 3, nrow = 4)
 #' my_layer$forward(x = inputs)
 #'
 #' # get preactivation of the last forward pass
@@ -108,32 +108,34 @@ public = list(
     #' @description
     #' The forward method of the dense layer. This method calculates the linear
     #' transformation with the following non-linearity for the input \code{x} and,
-    #' if needed, the reference value \code{x_ref}. All the intermediate values are
-    #' stored in the class attributes: \code{inputs}, \code{preactivation},
+    #' if needed, the reference value \code{x_ref}. In addition, the input x must
+    #' be a matrix of size \emph{(batch_size x dim_in)}, which enables batch-wise
+    #' evaluation. All the intermediate values are stored in the class attributes:
+    #' \code{inputs}, \code{preactivation},
     #' \code{outputs}, \code{inputs_ref}, \code{preactivation_ref},
     #' \code{outputs_ref}.
     #'
-    #' @param x Input vector for this layer.
+    #' @param x Input matrix of size \emph{(batch_size x dim_in)} for this layer.
     #' @param x_ref Reference input vector for this layer. It is only needed for
     #' the DeepLift method and can otherwise be set to \code{NULL}.
     #'
-    #' @return A list of two vectors. The first one is the output of this
-    #' layer for the input \code{x} and the second entry is the output for the
-    #' reference input \code{x_ref}.
+    #' @return  A list of two elements. The first one (\code{out}) is the output matrix
+    #' of this layer for the input \code{x} and the second entry (\code{out_ref})
+    #' is the output for the reference input \code{x_ref}.
     #'
 
     forward = function(x, x_ref = NULL) {
-      if (!is.vector(x) || !is.double(x)) {
-        stop("Input value has to be a vector of numbers!")
+      if (!is.matrix(x) || !is.numeric(x)) {
+        stop("Input value has to be a numeric matrix of size (n x dim_in)!")
       }
-      else if (length(x) != self$dim[1]) {
-        stop(sprintf("Wrong size of the input vector. Expected %s, your length %s .", self$dim[1], length(x)))
+      else if (ncol(x) != self$dim[1]) {
+        stop(sprintf("Wrong size of the input matrix. Expected %s columns, your number of columns %s .", self$dim[1], ncol(x)))
       }
 
       self$inputs_ref = x_ref
       if ( !is.null(x_ref) ) {
-        if (!is.vector(x) || !is.double(x)) {
-          stop("Reference input value has to be a vector of numbers!")
+        if (!is.vector(x_ref) || !is.numeric(x_ref)) {
+          stop("Reference input value has to be a numeric vector!")
         }
         else if (length(x_ref) != self$dim[1]) {
           stop(sprintf("Wrong size of the input vector. Expected %s, your length %s .", self$dim[1], length(x_ref)))
@@ -145,8 +147,10 @@ public = list(
        self$preactivation_ref = NULL
       }
 
+      rownames(x) <- paste0(rep("B", nrow(x)), 1:nrow(x))
+
       self$inputs = x
-      self$preactivation = as.vector(t(self$weights) %*% x + self$bias)
+      self$preactivation = t(t(x %*% self$weights) + self$bias)
       self$outputs = self$activation(self$preactivation)
 
       list(out = self$outputs, out_ref = self$outputs_ref)

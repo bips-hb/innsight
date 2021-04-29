@@ -4,7 +4,7 @@
 \alias{rescale_rule}
 \title{DeepLIFT: Rescale-Rule}
 \usage{
-rescale_rule(mult_x_plus, mult_x_minus, layer)
+rescale_rule(mult_x_plus, mult_x_minus, delta_x, delta_y)
 }
 \arguments{
 \item{mult_x_plus}{The multiplier from the upper positive difference-from-reference
@@ -13,7 +13,9 @@ value to the output, i.e. \eqn{m_{\Delta y^+ \Delta t}}}
 \item{mult_x_minus}{The multiplier from the upper negative difference-from-reference
 value to the output, i.e. \eqn{m_{\Delta y^- \Delta t}}.}
 
-\item{layer}{The hidden layer of type \code{\link{Dense_Layer}}.}
+\item{delta_x}{Difference-from-reference of the preactivation.}
+
+\item{delta_y}{Difference-from-reference of the postactivation.}
 }
 \value{
 Returns the multiplier from the difference-from-reference preactivation to

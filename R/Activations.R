@@ -9,7 +9,7 @@ relu <- function(x) {
 
 relu_dev <- function(x) {
   r <- ifelse(x >= 0, 1, 0)
-  diag(length(r)) * r
+  r
 }
 
 sigmoid <- function(x) {
@@ -18,7 +18,7 @@ sigmoid <- function(x) {
 
 sigmoid_dev <- function(x) {
   r <- sigmoid(x) * (1 - sigmoid(x))
-  diag(length(r)) * r
+  r
 }
 
 softplus <- function(x) {
@@ -27,16 +27,15 @@ softplus <- function(x) {
 
 softplus_dev <- function(x) {
   r <- sigmoid(x)
-  diag(length(r)) * r
 }
 
 softmax <- function(x) {
-  exp(x) / sum(exp(x))
+  exp(x) / rowSums(exp(x))
 }
 
 softmax_dev <- function(x) {
-  s <- as.vector(softmax(x))
-  t(diag(length(s)) * s - s^2)
+  s <- softmax(x)
+  r <- s - s^2
 }
 
 linear <- function(x) {
@@ -44,12 +43,12 @@ linear <- function(x) {
 }
 
 linear_dev <- function(x) {
-  diag(length(x))
+  r <- x * 0 + 1
 }
 
 tanh_dev <- function(x) {
+  # x has shape [batch_size, h_in]
   r <- 1 - tanh(x)^2
-  diag(length(r)) * r
 }
 
 #' @title Get activation function by name
@@ -78,7 +77,7 @@ get_activation <- function(name) {
   else stop(sprintf("Activation function \"%s\" is not implementet yet!", name))
 }
 
-#' @title Get deveritive of activation function by name
+#' @title Get deveritive of a activation function by name
 #' @name get_deveritive_activation
 #'
 #' @description

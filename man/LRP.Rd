@@ -4,18 +4,13 @@
 \alias{LRP}
 \title{Layer-wise Relevance Propagation (LRP) method}
 \usage{
-LRP(analyzer, data, out_class = NULL, rule_name = "simple", rule_param = NULL)
+LRP(analyzer, data, rule_name = "simple", rule_param = NULL)
 }
 \arguments{
 \item{analyzer}{An instance of the R6 class \code{\link{Analyzer}}.}
 
 \item{data}{Either a matrix or a data frame, where each row must describe an
 input to the network.}
-
-\item{out_class}{If the given model is a classification model, this
-parameter can be used to determine which class the relevance scores should be
-calculated for. Use the default value \code{NULL} to return the relevance
-for all classes.}
 
 \item{rule_name}{The name of the rule, with which the relevance scores are
 calculated. Implemented are \code{"simple"}, \code{"eps"}, \code{"ab"},
@@ -46,18 +41,18 @@ package are implemented: \code{\link{linear_simple_rule}},
 }
 \examples{
 library(neuralnet)
+data(iris)
 nn <- neuralnet( Species ~ .,
                  iris, linear.output = FALSE,
                  hidden = c(10,8), act.fct = "tanh", rep = 1, threshold = 0.5)
 # create an analyzer for this model
 analyzer = Analyzer$new(nn)
 
-# calculate relevance scores for the whole dataset and for class 1
-result <- LRP(analyzer, data = iris[,-5], rule_name = "simple", out_class = 1)
+# calculate relevance scores for the whole dataset
+result <- LRP(analyzer, data = iris[,-5], rule_name = "simple")
 plot(result)
 
-# calculate relevance scores for the whole dataset and all classes with
-# eps-rule (eps = 0.1)
+# calculate relevance scores for the whole dataset with eps-rule (eps = 0.1)
 result <- LRP(analyzer, data = iris[,-5], rule_name = "eps", rule_param = 0.1)
 plot(result)
 

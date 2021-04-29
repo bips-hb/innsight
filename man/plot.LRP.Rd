@@ -11,7 +11,8 @@
 
 \item{rank}{If \code{TRUE}, relevance scores are ranked.}
 
-\item{scale}{Scale the relevance scores to \eqn{[-1,1]}.}
+\item{scale}{Scale the gradient values to the centered 90\% of the calculated
+values.}
 
 \item{...}{Other arguments passed on to methods. Not currently used.}
 }
@@ -29,8 +30,8 @@ nn <- neuralnet( Species ~ .,
 # create an analyzer for this model
 analyzer = Analyzer$new(nn)
 
-# calculate relevance scores for the whole dataset and for class 1
-result <- LRP(analyzer, data = iris[,-5], rule_name = "simple", out_class = 1)
+# calculate relevance scores for the whole dataset
+result <- LRP(analyzer, data = iris[,-5], rule_name = "simple")
 
 # plot the results
 plot(result)
@@ -38,7 +39,7 @@ plot(result)
 # plot the results with ranked relevances
 plot(result, rank = TRUE)
 
-# plot the results scaled to -1 to 1
+# cut the lower and upper 5\% of the data and plot the result
 plot(result, scale = TRUE)
 
 }

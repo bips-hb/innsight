@@ -26,10 +26,6 @@ implemented_lrp_rules <- c("simple", "eps", "ab", "ww")
 #' @param analyzer An instance of the R6 class \code{\link{Analyzer}}.
 #' @param data Either a matrix or a data frame, where each row must describe an
 #' input to the network.
-#' @param out_class If the given model is a classification model, this
-#' parameter can be used to determine which class the relevance scores should be
-#' calculated for. Use the default value \code{NULL} to return the relevance
-#' for all classes.
 #' @param rule_name The name of the rule, with which the relevance scores are
 #' calculated. Implemented are \code{"simple"}, \code{"eps"}, \code{"ab"},
 #' \code{"ww"} (default: \code{"simple"}).
@@ -45,18 +41,18 @@ implemented_lrp_rules <- c("simple", "eps", "ab", "ww")
 #'
 #' @examples
 #' library(neuralnet)
+#' data(iris)
 #' nn <- neuralnet( Species ~ .,
 #'                  iris, linear.output = FALSE,
 #'                  hidden = c(10,8), act.fct = "tanh", rep = 1, threshold = 0.5)
 #' # create an analyzer for this model
 #' analyzer = Analyzer$new(nn)
 #'
-#' # calculate relevance scores for the whole dataset and for class 1
-#' result <- LRP(analyzer, data = iris[,-5], rule_name = "simple", out_class = 1)
+#' # calculate relevance scores for the whole dataset
+#' result <- LRP(analyzer, data = iris[,-5], rule_name = "simple")
 #' plot(result)
 #'
-#' # calculate relevance scores for the whole dataset and all classes with
-#' # eps-rule (eps = 0.1)
+#' # calculate relevance scores for the whole dataset with eps-rule (eps = 0.1)
 #' result <- LRP(analyzer, data = iris[,-5], rule_name = "eps", rule_param = 0.1)
 #' plot(result)
 #'
@@ -74,10 +70,10 @@ implemented_lrp_rules <- c("simple", "eps", "ab", "ww")
 
 LRP <- function(analyzer,
                 data,
-                out_class = NULL,
                 rule_name = "simple",
                 rule_param = NULL ) {
 
+  # Check arguments and set default rule parameters
   checkmate::assertClass(analyzer, "Analyzer")
   checkmate::assert_choice(rule_name, implemented_lrp_rules)
   if (is.null(rule_param)) {
@@ -88,44 +84,45 @@ LRP <- function(analyzer,
     }
   }
   rule <- get_Rule(rule_name, rule_param)
-
-  checkmate::assert(checkmate::checkDataFrame(data, ncols = analyzer$layers[[1]]$dim[1]),
-                    checkmate::checkMatrix(data, ncols = analyzer$layers[[1]]$dim[1]))
-  checkmate::assertInt(out_class, null.ok = TRUE, lower = 1, upper = rev(analyzer$layers)[[1]]$dim[2])
-
+  dim_in <- analyzer$dim_in
+  dim_out <- analyzer$dim_out
   num_inputs = nrow(data)
-  relevances = vector(mode = "list", length = num_inputs)
+
+  checkmate::assert(checkmate::checkDataFrame(data, ncols = dim_in),
+                    checkmate::checkMatrix(data, ncols = dim_in))
+
+  # Update the analyzer and define some variables
+  analyzer$update(as.matrix(data))
+
+  layers = analyzer$layers
+  relevances = array(NA, dim = c(dim_in, dim_out, num_inputs))
+  dimnames(relevances) <- list(analyzer$feature_names,
+                               analyzer$response_names,
+                               paste0(rep("B", num_inputs), 1:num_inputs))
+
+  # The last layer needs special treatment, since the activation function
+  # will not be considered.
+  last_layer <- layers[[length(layers)]]
 
   for (i in 1:num_inputs) {
-      analyzer$update(as.vector(t(data[i,])))
-      layers = analyzer$layers
+      # last layer
+      rel <- rule(last_layer$inputs[i,],
+                  last_layer$weights,
+                  last_layer$bias,
+                  diag(dim_out) * last_layer$preactivation[i,])
 
-      # the output layer must be considered specially, i.e. without the softmax or
-      # sigmoid activation
-
-      last_layer <- layers[[length(layers)]]
-      rel <- last_layer$preactivation # get output before softmax/sigmoid
-      W <- last_layer$weights
-      b <- last_layer$bias
-      input <- last_layer$inputs
-
-      rel <- rule(input, W, b, diag(length(rel)) * rel)
-
+      # other layers
       for (layer in rev(layers)[-1]) {
-        W <- layer$weights
-        b <- as.vector(layer$bias)
-        input <- as.vector(layer$inputs)
 
-        rel <- rule(input, W, b, rel)
+        rel <- rule(layer$inputs[i,],
+                    layer$weights,
+                    layer$bias,
+                    rel)
       }
-      rownames(rel) <- paste0(rep("X", nrow(rel)), 1:nrow(rel))
-      colnames(rel) <- paste0(rep("Y", ncol(rel)), 1:ncol(rel))
-      if (!is.null(out_class)) {
-        rel <- as.matrix(rel[, out_class])
-        colnames(rel) <- paste0("Y", out_class)
-      }
-      relevances[[i]] <- rel
+      relevances[,,i] <- rel
   }
+
+  # Store class and other attributes
   class(relevances) <- c("LRP", class(relevances))
   attributes(relevances)$rule_name <- rule_name
   attributes(relevances)$rule_param <- rule_param
@@ -138,7 +135,8 @@ LRP <- function(analyzer,
 #'
 #' @param x A result of the \code{\link{LRP}} method.
 #' @param rank If \code{TRUE}, relevance scores are ranked.
-#' @param scale Scale the relevance scores to \eqn{[-1,1]}.
+#' @param scale Scale the gradient values to the centered 90% of the calculated
+#' values.
 #' @param ... Other arguments passed on to methods. Not currently used.
 #'
 #' @return Returns a ggplot2 plot object.
@@ -151,8 +149,8 @@ LRP <- function(analyzer,
 #' # create an analyzer for this model
 #' analyzer = Analyzer$new(nn)
 #'
-#' # calculate relevance scores for the whole dataset and for class 1
-#' result <- LRP(analyzer, data = iris[,-5], rule_name = "simple", out_class = 1)
+#' # calculate relevance scores for the whole dataset
+#' result <- LRP(analyzer, data = iris[,-5], rule_name = "simple")
 #'
 #' # plot the results
 #' plot(result)
@@ -160,7 +158,7 @@ LRP <- function(analyzer,
 #' # plot the results with ranked relevances
 #' plot(result, rank = TRUE)
 #'
-#' # plot the results scaled to -1 to 1
+#' # cut the lower and upper 5% of the data and plot the result
 #' plot(result, scale = TRUE)
 #'
 #' @seealso [LRP]
@@ -176,26 +174,26 @@ plot.LRP <- function(x, rank = FALSE, scale = FALSE, ...) {
   } else {
     subtitle = sprintf("%s-Rule", rule_name)
   }
+  features = rep(dimnames(x)[[1]], dim(x)[2]*dim(x)[3])
+  Class = rep(dimnames(x)[[2]], each = dim(x)[1], times = dim(x)[3])
   if (rank) {
-    x <- lapply(x, function(z) apply(z,2, rank))
+    x[] <- apply(x, 3, function(z) apply(z,2, rank))
+    y_min <- 0.9
+    y_max <- dim(x)[2]+1 + 0.1
+  } else if (scale) {
+    y_min <- stats::quantile(x, 0.05)
+    y_max <- stats::quantile(x, 0.95)
+  } else {
+    y_min <- min(x)
+    y_max <- max(x)
   }
-  features = c()
-  labels = c()
-  relevance = c()
-  for (i in 1:length(x)) {
-    features <- c(features, rep(rownames(x[[i]]), ncol(x[[i]])))
-    labels <- c(labels, rep(colnames(x[[i]]), each = nrow(x[[i]])))
-    rel <- as.vector(x[[i]])
-    if (scale) {
-      rel <- rel / max(abs(rel))
-    }
-    relevance <- c(relevance, rel)
-  }
-  features <- factor(features, levels = rownames(x[[1]]))
-  ggplot2::ggplot(data.frame(features, labels, relevance),
-                  mapping = ggplot2::aes(x = features, y = relevance, fill = labels), ...) +
+  Relevance = as.vector(x)
+  Features <- factor(features, levels = dimnames(x)[[1]])
+  ggplot2::ggplot(data.frame(Features, Class, Relevance),
+                  mapping = ggplot2::aes(x = Features, y = Relevance, fill = Class), ...) +
     ggplot2::geom_boxplot(alpha = 0.6) +
     ggplot2::scale_fill_viridis_d() +
+    ggplot2::coord_cartesian(ylim = c(y_min, y_max)) +
     ggplot2::ggtitle("Feature Importance with Layerwise Relevance Propagation", subtitle = subtitle)
 }
 

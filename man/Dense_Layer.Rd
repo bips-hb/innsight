@@ -24,8 +24,8 @@ sigmoid <- function(x) 1 / (1 + exp(-x))
 # Create a new dense layer
 my_layer <- Dense_Layer$new(weights = W, bias = b, activation = sigmoid)
 
-# example forward pass with no reference input
-inputs <- c(-1,2,3)
+# example forward pass of a batch of size 4 with no reference input
+inputs <- matrix(rnorm(12), ncol = 3, nrow = 4)
 my_layer$forward(x = inputs)
 
 # get preactivation of the last forward pass
@@ -116,8 +116,10 @@ A new instance of the R6 class \code{'Dense_Layer'} with the given parameters.
 \subsection{Method \code{forward()}}{
 The forward method of the dense layer. This method calculates the linear
 transformation with the following non-linearity for the input \code{x} and,
-if needed, the reference value \code{x_ref}. All the intermediate values are
-stored in the class attributes: \code{inputs}, \code{preactivation},
+if needed, the reference value \code{x_ref}. In addition, the input x must
+be a matrix of size \emph{(batch_size x dim_in)}, which enables batch-wise
+evaluation. All the intermediate values are stored in the class attributes:
+\code{inputs}, \code{preactivation},
 \code{outputs}, \code{inputs_ref}, \code{preactivation_ref},
 \code{outputs_ref}.
 \subsection{Usage}{
@@ -127,7 +129,7 @@ stored in the class attributes: \code{inputs}, \code{preactivation},
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{x}}{Input vector for this layer.}
+\item{\code{x}}{Input matrix of size \emph{(batch_size x dim_in)} for this layer.}
 
 \item{\code{x_ref}}{Reference input vector for this layer. It is only needed for
 the DeepLift method and can otherwise be set to \code{NULL}.}
@@ -135,9 +137,9 @@ the DeepLift method and can otherwise be set to \code{NULL}.}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A list of two vectors. The first one is the output of this
-layer for the input \code{x} and the second entry is the output for the
-reference input \code{x_ref}.
+A list of two elements. The first one (\code{out}) is the output matrix
+of this layer for the input \code{x} and the second entry (\code{out_ref})
+is the output for the reference input \code{x_ref}.
 }
 }
 \if{html}{\out{<hr>}}

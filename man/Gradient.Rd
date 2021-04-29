@@ -4,13 +4,7 @@
 \alias{Gradient}
 \title{Calculate the Gradient}
 \usage{
-Gradient(
-  analyzer,
-  data,
-  times_input = TRUE,
-  out_class = NULL,
-  ignore_last_act = TRUE
-)
+Gradient(analyzer, data, times_input = TRUE, ignore_last_act = TRUE)
 }
 \arguments{
 \item{analyzer}{An instance of the R6 class \code{\link{Analyzer}}.}
@@ -21,22 +15,28 @@ input to the network.}
 \item{times_input}{Multiplies the gradients with the input features. This
 method is called 'Gradient x Inputs'.}
 
-\item{out_class}{If the given model is a classification model, this
-parameter can be used to determine which class the gradients should be
-calculated for. Use the default value \code{NULL} to return the gradients
-for all classes.}
-
 \item{ignore_last_act}{Calculate the gradients of the output or the preactivation
 of the output (default: \code{TRUE}).}
 }
 \value{
-If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{(in, out)},
-which contains the gradients for each input variable to the
-output predictions. Otherwise returns a vector of the gradient
-for each input variable for the given output class.
+Returns an array of size \emph{(dim_in, dim_out, num_data)} which
+contains the gradients for each input variable to the
+output predictions for each element in the given data.
 }
 \description{
 This method computes the gradients of the outputs with respect to the input
 variables, i.e. for all input variable \eqn{i} and output class \eqn{j}
-\deqn{\frac{\partial f(x)_j}{\partial x_i}.}
+\deqn{d f(x)_j / d x_i.}
+}
+\examples{
+library(neuralnet)
+nn <- neuralnet( Species ~ .,
+                 iris, linear.output = FALSE,
+                 hidden = c(10,8), act.fct = "tanh", rep = 1, threshold = 0.5)
+# create an analyzer for this model
+analyzer = Analyzer$new(nn)
+
+# calculate gradients for the whole dataset
+Gradient(analyzer, data = iris[,-5])
+
 }

@@ -9,6 +9,7 @@ test_that("Test general errors",{
 
 test_that("Test neuralnet model", {
   library(neuralnet)
+  data(iris)
   #
   # --------------------- positive tests ---------------------------------------
   #
@@ -20,19 +21,16 @@ test_that("Test neuralnet model", {
 
   # forward method
   idx <- sample(nrow(iris), 10)
-  for (i in idx){
-    y_true <- as.vector(predict(nn, iris[i,]))
-    y <- analyzer$forward(as.vector(t(iris[i,3:4])))$out
-    expect_equal(y_true, y)
-  }
+  y_true <- as.vector(predict(nn, iris))
+  y <- as.vector(analyzer$forward(as.matrix(iris[,3:4]))$out)
+  expect_equal(y_true, y, ignore_attr = TRUE)
 
   # update method
   idx <- sample(nrow(iris), 10)
-  for (i in idx){
-    y_true <- as.vector(predict(nn, iris[i,]))
-    analyzer$update(as.vector(t(iris[i,3:4])))
-    expect_equal(y_true, rev(analyzer$layers)[[1]]$outputs)
-  }
+  y_true <- as.vector(predict(nn, iris))
+  analyzer$update(as.matrix(iris[,3:4]))
+  expect_equal(y_true, rev(analyzer$layers)[[1]]$outputs, ignore_attr = TRUE)
+
 
   #
   # ----------------------------- negative tests -------------------------------
@@ -109,16 +107,12 @@ test_that("Test keras model", {
 
   # forward method
   y_true <- predict(model, iris.test)
-  for (i in range(nrow(iris.test))) {
-    y <- analyzer$forward(as.vector(iris.test[i,]))$out
-    expect_equal(y_true[i,], y, tolerance = 1e-6)
-  }
+  y <- analyzer$forward(iris.test)$out
+  expect_equal(y_true, y, tolerance = 1e-6, ignore_attr = TRUE)
 
   # update method
-  for (i in range(nrow(iris.test))) {
-    analyzer$update(as.vector(iris.test[i,]))
-    expect_equal(y_true[i,], rev(analyzer$layers)[[1]]$outputs, tolerance = 1e-6)
-  }
+  analyzer$update(iris.test)
+  expect_equal(y_true, rev(analyzer$layers)[[1]]$outputs, tolerance = 1e-6, ignore_attr = TRUE)
 
   #
   # ------------------------- negative method ---------------------------------

@@ -111,6 +111,15 @@ are relevant for the evaluation. For example a list of
 
 \item{\code{last_input_ref}}{Last recorded reference input for the forward pass
 (default: \code{NULL}).}
+
+\item{\code{dim_in}}{Dimension of the input features.}
+
+\item{\code{dim_out}}{Dimension of the models output, i.e. dimension of the
+response variables.}
+
+\item{\code{feature_names}}{A list of names for the input features.}
+
+\item{\code{response_names}}{A list of names for the response variables.}
 }
 \if{html}{\out{</div>}}
 }
@@ -129,7 +138,7 @@ are relevant for the evaluation. For example a list of
 \subsection{Method \code{new()}}{
 Create a new analyzer for a given neural network.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Analyzer$new(model)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Analyzer$new(model, feature_names = NULL, response_names = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -140,6 +149,12 @@ tasks to be interpreted. Only models from the following types or packages
 are allowed: \code{\link[keras]{keras_model}},
 \code{\link[keras]{keras_model_sequential}} or
 \code{\link[neuralnet]{neuralnet}}.}
+
+\item{\code{feature_names}}{A list of names for the input features. Use the
+default value \code{NULL} for the default names (X1, X2, ...).}
+
+\item{\code{response_names}}{A list of names for the response variables. Use the
+default value \code{NULL} for the default names (Y1, Y2, ...).}
 }
 \if{html}{\out{</div>}}
 }
@@ -154,6 +169,8 @@ A new instance of the R6 class \code{'Analyzer'}.
 The forward method of the whole model, i.e. it calculates the output
 \eqn{y=f(x)} of a given input \eqn{x} respectively an reference input \eqn{x'}.
 In doing so all intermediate values are stored in the individual layers.
+A batch-wise evaluation is performed, hence \eqn{x} must be a matrix of
+inputs.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Analyzer$forward(x, x_ref = NULL)}\if{html}{\out{</div>}}
 }
@@ -161,7 +178,7 @@ In doing so all intermediate values are stored in the individual layers.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{x}}{Input vector of the model.}
+\item{\code{x}}{Input matrix of the model with size \emph{(num_data, dim_in)}.}
 
 \item{\code{x_ref}}{Reference input vector of the model. If this value is not needed, it
 can be set to the default value \code{NULL}.}
@@ -169,7 +186,7 @@ can be set to the default value \code{NULL}.}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A list with two vectors. The first one is the output for input
+A list with two vectors. The first one is the output for the inputs
 \code{x} and the second entry is the output for the
 reference input \code{x_ref}.
 }
@@ -179,7 +196,7 @@ reference input \code{x_ref}.
 \if{latex}{\out{\hypertarget{method-update}{}}}
 \subsection{Method \code{update()}}{
 This method updates the stored intermediate values in each layer from the
-list \code{layers} when the input \code{x} or reference input \code{x_ref}
+list \code{layers} when the inputs \code{x} or reference input \code{x_ref}
 has changed.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Analyzer$update(x, x_ref = NULL)}\if{html}{\out{</div>}}
@@ -188,7 +205,7 @@ has changed.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{x}}{Input vector of the model.}
+\item{\code{x}}{Input matrix of the model with size \emph{(num_data, dim_in)}.}
 
 \item{\code{x_ref}}{Reference input vector of the model. If this value is not needed, it
 can be set to the default value \code{NULL}.}

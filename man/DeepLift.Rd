@@ -4,7 +4,7 @@
 \alias{DeepLift}
 \title{Deep Learning Important FeaTures (DeepLIFT) method}
 \usage{
-DeepLift(analyzer, data, x_ref = NULL, rule_name = "rescale", out_class = NULL)
+DeepLift(analyzer, data, x_ref = NULL, rule_name = "rescale")
 }
 \arguments{
 \item{analyzer}{An instance of the R6 class \code{\link{Analyzer}}.}
@@ -12,21 +12,17 @@ DeepLift(analyzer, data, x_ref = NULL, rule_name = "rescale", out_class = NULL)
 \item{data}{Either a matrix or a data frame, where each row must describe an
 input to the network.}
 
-\item{x_ref}{The reference input vector for the interpretation.}
+\item{x_ref}{The reference input vector for the interpretation. You can also
+pass an index from the given data set \code{data} which will be used as the
+reference input. With the default value \code{NULL} you use an input of zeros.}
 
 \item{rule_name}{Name of the applied rule to calculate the contributions. Use one
 of \code{"rescale"} and \code{"revealcancel"}.}
-
-\item{out_class}{If the given model is a classification model, this
-parameter can be used to determine which class the contribution should be
-calculated for. Use the default value \code{NULL} to return the contribution
-for all classes.}
 }
 \value{
-It returns a list of matrices of shape \emph{(in, out)},
-which contains the contribution scores for each input variable to the
-output predictions or single output class (if \code{out_class} is not \code{NULL})
-for every input in \code{data}.
+It returns an array of size \emph{(dim_in, dim_out, num_data)} which
+contains the contribution scores for each input variable to the
+output predictions for each element in the given data.
 }
 \description{
 This is an implementation of the \emph{Deep Learning Important FeaTures (DeepLIFT)}
@@ -50,12 +46,12 @@ nn <- neuralnet(Species ~ .,
                 hidden = c(10,6), act.fct = "tanh", rep = 1, threshold = 0.1 )
 analyzer = Analyzer$new(nn)
 
-# calculate contributions for all classes and x_ref = 0 with rescale rule
+# calculate contributions for x_ref = 0 with rescale rule
 result <- DeepLift(analyzer, iris[,-5])
 plot(result)
 
-# calculate contributions for class 1 and x_ref first datapoint with revealcancel rule
-result <- DeepLift(analyzer, iris[,-5], x_ref = 1, rule_name = "revealcancel", out_class = 1)
+# calculate contributions for x_ref first datapoint with 'revealcancel' rule
+result <- DeepLift(analyzer, iris[,-5], x_ref = 1, rule_name = "revealcancel")
 plot(result)
 
 # compare class 'setosa' with 'virginica'
