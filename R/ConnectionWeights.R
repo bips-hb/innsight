@@ -13,15 +13,10 @@
 #' \deqn{W_1 * W_2 * W_3. }
 #'
 #' @param analyzer An instance of the R6 class \code{\link{Analyzer}}.
-#' @param out_class If the given model is a classification model, this
-#' parameter can be used to determine which class the importance score should be
-#' calculated for. Use the default value \code{NULL} to return the importance
-#' for all classes.
 #'
-#' @return If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{(in, out)},
+#' @return It returns a matrix of shape \emph{(in, out)},
 #' which contains the importance scores for each input variable to the
-#' output predictions. Otherwise returns a vector of the importance scores
-#' for each input variable for the given output class.
+#' output predictions.
 #'
 #' @examples
 #' library(neuralnet)
@@ -31,11 +26,9 @@
 #' analyzer = Analyzer$new(nn)
 #'
 #' # calculate importance for all classes
-#' result <- Connection_Weights(analyzer, out_class = NULL)
+#' result <- Connection_Weights(analyzer)
 #' plot(result)
 #'
-#' # calculate importance for class 1
-#' result <- Connection_Weights(analyzer, out_class = 1)
 #' # plot the importance in a ranked scale
 #' plot(result, rank = TRUE)
 #'
@@ -51,7 +44,7 @@
 #'@export
 #'
 
-Connection_Weights <- function(analyzer, out_class = NULL){
+Connection_Weights <- function(analyzer){
   checkmate::assertClass(analyzer, "Analyzer")
   layers = analyzer$layers
   importance <- layers[[length(layers)]]$weights
@@ -59,13 +52,8 @@ Connection_Weights <- function(analyzer, out_class = NULL){
     importance <- layer$weights %*% importance
   }
 
-  checkmate::assertInt(out_class, null.ok = TRUE, lower = 1, upper = ncol(importance))
-  rownames(importance) <- paste0(rep("X", nrow(importance)), 1:nrow(importance))
-  colnames(importance) <- paste0(rep("Y", ncol(importance)), 1:ncol(importance))
-  if (!is.null(out_class)) {
-    importance <- as.matrix(importance[, out_class])
-    colnames(importance) <- paste0("Y", out_class)
-  }
+  rownames(importance) <- analyzer$feature_names
+  colnames(importance) <-analyzer$response_names
 
   class(importance) <- c("ConnectionWeights", class(importance))
   importance
@@ -117,11 +105,11 @@ plot.ConnectionWeights <- function(x, rank = FALSE, scale = FALSE, ...) {
     x <- apply(x,2, rank) / nrow(x)
   }
   features <- rep(rownames(x), ncol(x))
-  features <- factor(features, levels = rownames(x))
-  labels <- rep(colnames(x), each = nrow(x))
-  importance <- as.vector(x)
-  ggplot2::ggplot(data.frame(features, labels, importance), ggplot2::aes(fill=labels, y=importance, x=features)) +
-    ggplot2::geom_bar(position="dodge", stat="identity", alpha = 0.6) +
+  Features <- factor(features, levels = rownames(x))
+  Class <- rep(colnames(x), each = nrow(x))
+  Importance <- as.vector(x)
+  ggplot2::ggplot(data.frame(Features, Class, Importance), ggplot2::aes(fill=Class, y=Importance, x=Features)) +
+    ggplot2::geom_bar(position="dodge", stat="identity", color = "black", alpha = 0.6) +
     ggplot2::scale_fill_viridis_d() +
     ggplot2::ggtitle("Feature Importance with Connection Weights")
 }

@@ -218,8 +218,8 @@ plot.Gradient <- function(x, rank = FALSE, scale = FALSE, ...) {
   Class = rep(dimnames(x)[[2]], each = dim(x)[1], times = dim(x)[3])
   if (rank) {
     x[] <- apply(x, 3, function(z) apply(z,2, rank))
-    y_min <- 0.9
-    y_max <- dim(x)[2]+1 + 0.1
+    y_min <- 1
+    y_max <- dim(x)[1]
   } else if (scale) {
     y_min <- stats::quantile(x, 0.05)
     y_max <- stats::quantile(x, 0.95)

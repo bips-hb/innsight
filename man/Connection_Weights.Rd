@@ -4,21 +4,15 @@
 \alias{Connection_Weights}
 \title{Connection Weights method}
 \usage{
-Connection_Weights(analyzer, out_class = NULL)
+Connection_Weights(analyzer)
 }
 \arguments{
 \item{analyzer}{An instance of the R6 class \code{\link{Analyzer}}.}
-
-\item{out_class}{If the given model is a classification model, this
-parameter can be used to determine which class the importance score should be
-calculated for. Use the default value \code{NULL} to return the importance
-for all classes.}
 }
 \value{
-If \code{out_class} is \code{NULL} it returns a matrix of shape \emph{(in, out)},
+It returns a matrix of shape \emph{(in, out)},
 which contains the importance scores for each input variable to the
-output predictions. Otherwise returns a vector of the importance scores
-for each input variable for the given output class.
+output predictions.
 }
 \description{
 This function implements the \emph{Connection Weight} method investigated by
@@ -38,11 +32,9 @@ nn <- neuralnet(Species ~ ., iris, linear.output = FALSE,
 analyzer = Analyzer$new(nn)
 
 # calculate importance for all classes
-result <- Connection_Weights(analyzer, out_class = NULL)
+result <- Connection_Weights(analyzer)
 plot(result)
 
-# calculate importance for class 1
-result <- Connection_Weights(analyzer, out_class = 1)
 # plot the importance in a ranked scale
 plot(result, rank = TRUE)
 
