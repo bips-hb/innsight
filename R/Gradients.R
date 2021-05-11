@@ -33,7 +33,7 @@
 #' @export
 #'
 
-Gradient <- function(analyzer, data, times_input = TRUE, ignore_last_act = TRUE) {
+Gradient <- function(analyzer, data, times_input = FALSE, ignore_last_act = TRUE) {
 
   # Check format of arguments
   checkmate::assertClass(analyzer, "Analyzer")
@@ -97,8 +97,8 @@ Gradient <- function(analyzer, data, times_input = TRUE, ignore_last_act = TRUE)
 #' @export
 #'
 
-SmoothGrad <- function(analyzer, data, n= 50, noise_level = 0.3,
-                       times_input = TRUE, ignore_last_act = TRUE) {
+SmoothGrad <- function(analyzer, data, n= 50, noise_level = 0.1,
+                       times_input = FALSE, ignore_last_act = TRUE) {
 
   # Check format of arguments
   checkmate::assertClass(analyzer, "Analyzer")
@@ -113,19 +113,36 @@ SmoothGrad <- function(analyzer, data, n= 50, noise_level = 0.3,
   # Generate 'n' perturbations of the given data wrt the 'noise level' and add these
   # perturbed data points immediately after the original data point.
   # The resulting data matrix has a size of [batch_size * n, dim_in]
-  input_pert <- matrix(apply(as.matrix(data), 1,
-                             function(x) {
-                               x + stats::rnorm(dim_in*n,
-                                                mean = 0,
-                                                sd = noise_level * (max(x)-min(x)))
-                               }
-                             ), ncol = dim_in, byrow = TRUE)
+  #print("----------------------- The Data---------------------")
+  noise_scale <- noise_level * (apply(as.matrix(data), 2, max) - apply(as.matrix(data), 2, min))
+  #print(noise_scale)
+  inputs <- matrix(rep(as.matrix(data), each = n), ncol = dim_in)
+  noise <- matrix(stats::rnorm(batch_size * n * dim_in, mean = 0, sd = noise_scale), ncol = dim_in, byrow = TRUE)
+  #print(inputs)
+
+  #print("------------------------ The noise ------------------")
+  #print(noise)
+
+  input_pert <- inputs + noise
+  #input_pert <- matrix(apply(as.matrix(data), 1,
+  #                           function(x) {
+  #                             x + stats::rnorm(dim_in*n,
+  #                                              mean = 0,
+  #                                              sd = noise_scale )
+  #                             }
+  #                           ), ncol = dim_in, byrow = TRUE)
 
   # Update the analyzer with the given data
   analyzer$update(input_pert)
 
   # Calculate the gradients, returns an array of size [d_in, d_out, batch_size * n]
   gradients <- calculate_gradients(analyzer, ignore_last_act)
+  #print("---------------the gradients---------------")
+  #analyzer$update(as.matrix(data))
+  #print(calculate_gradients(analyzer, ignore_last_act))
+
+  #print("---------------the gradients (stacked noise)-----------")
+  #print(gradients)
 
   # In order to calculate the mean of all the n calculations for one data point,
   # we define a variable of shape (d_in, d_out, batch_size) with reasonable dimnames
@@ -136,10 +153,20 @@ SmoothGrad <- function(analyzer, data, n= 50, noise_level = 0.3,
                                        dimnames(gradients)[[3]][1:batch_size]))
 
   # Reshape gradients to [d_in, d_out, batch_size, n]
-  dim(gradients) <- c(dim(gradients)[1:2], batch_size, n)
+  dim(gradients) <- c(dim(gradients)[1:2], n, batch_size)
+  #print("------------------ Reshaped Gradients---------------")
+  #print(gradients)
 
   # Calculate the mean over the fourth dimension and save the result in the variable
   # 'smooth_gradients'
+  #print("----------------- In apply function ----------------")
+  #apply(gradients, 4,
+  #      function(x) {
+  #        print("----Start-----")
+  #        print(x[,,1])
+  #        print(apply(x, c(1,2), mean))
+  #        print("----End-------")
+  #      })
   smooth_gradients[] <- array(apply(gradients, 4,
                                     function(x) apply(x, c(1,2), mean))
                               ,dim =dim(smooth_gradients))
@@ -287,4 +314,25 @@ calculate_gradients <- function(analyzer, ignore_last_act = TRUE) {
                              paste0(rep("B", batch_size), 1:batch_size))
   gradient
 }
+
+#library(neuralnet)
+#library(ggplot2)
+#data(iris)
+
+#nn <- neuralnet(Species ~ ., iris, c(8,6,4), threshold = 0.1, linear.output = FALSE)
+
+#ana <- Analyzer$new(nn)
+
+#res_1 <- SmoothGrad(ana, data = iris[1:10,-5], n = 500, noise_level = 0.1, times_input = FALSE)
+#res_2 <- Gradient(ana, iris[1:10,-5], times_input = FALSE)
+
+
+#mean((res_1 - res_2)^2)
+
+#res_1 <- as.vector(res_1)
+#res_2 <- as.vector(res_2)
+
+#r <- data.frame(Gradient = res_2, SmoothGrad = res_1)
+#ggplot(r, aes(Gradient, SmoothGrad)) +
+#  geom_point(alpha = 0.5)
 

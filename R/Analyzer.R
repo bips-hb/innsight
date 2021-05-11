@@ -67,7 +67,7 @@
 #'   iris.trainLabels,
 #'   epochs = 50,
 #'   batch_size = 5,
-#'   validation_split = 0.2, verbose = 0
+#'   validation_split = 0.2, verbose = 1
 #' )
 #' analyzer = Analyzer$new(model)
 #'
@@ -250,8 +250,8 @@ analyze_keras_model <- function(model) {
         message(sprintf("Skipping %s-Layer...", type))
       } else {
         act_name <- layer$activation$`__name__`
-        weights <- layer$weights[[1]]$numpy()
-        bias <- as.vector(layer$weights[[2]]$numpy())
+        weights <- layer$get_weights()[[1]]
+        bias <- as.vector(layer$get_weights()[[2]])
         activation <- get_activation(act_name)
         layers_list <- c(layers_list, Dense_Layer$new(weights = weights,
                                                 bias = bias,

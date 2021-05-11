@@ -102,7 +102,7 @@ plot.ConnectionWeights <- function(x, rank = FALSE, scale = FALSE, ...) {
     x <- x / max(abs(x))
   }
   if (rank) {
-    x <- apply(x,2, rank) / nrow(x)
+    x <- apply(x,2, rank)
   }
   features <- rep(rownames(x), ncol(x))
   Features <- factor(features, levels = rownames(x))

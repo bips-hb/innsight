@@ -8,8 +8,8 @@ SmoothGrad(
   analyzer,
   data,
   n = 50,
-  noise_level = 0.3,
-  times_input = TRUE,
+  noise_level = 0.1,
+  times_input = FALSE,
   ignore_last_act = TRUE
 )
 }

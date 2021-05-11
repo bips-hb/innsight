@@ -30,7 +30,12 @@ softplus_dev <- function(x) {
 }
 
 softmax <- function(x) {
-  exp(x) / rowSums(exp(x))
+  if (is.vector(x)) {
+    return(exp(x) / sum(exp(x)))
+  }
+  else {
+    return(exp(x) / rowSums(exp(x)))
+  }
 }
 
 softmax_dev <- function(x) {

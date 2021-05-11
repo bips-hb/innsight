@@ -4,7 +4,7 @@
 \alias{Gradient}
 \title{Calculate the Gradient}
 \usage{
-Gradient(analyzer, data, times_input = TRUE, ignore_last_act = TRUE)
+Gradient(analyzer, data, times_input = FALSE, ignore_last_act = TRUE)
 }
 \arguments{
 \item{analyzer}{An instance of the R6 class \code{\link{Analyzer}}.}

@@ -77,7 +77,7 @@ history <- model \%>\% fit(
   iris.trainLabels,
   epochs = 50,
   batch_size = 5,
-  validation_split = 0.2, verbose = 0
+  validation_split = 0.2, verbose = 1
 )
 analyzer = Analyzer$new(model)
 
