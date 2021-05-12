@@ -1,4 +1,4 @@
-# NOTE: This workflow is overkill for most R packages
+# # NOTE: This workflow is overkill for most R packages
 # check-standard.yaml is likely a better choice
 # usethis::use_github_action("check-standard") will install it.
 #
@@ -79,6 +79,17 @@ jobs:
           pak::pkg_install("rcmdcheck")
         shell: Rscript {0}
 
+      - name: Install Miniconda
+        run: |
+          pak::pkg_install("rstudio/reticulate")
+          reticulate::install_miniconda()
+
+      - name: Install TensorFlow
+        run: |
+          reticulate::conda_create('r-reticulate', packages = c('python==3.6', 'numpy==1.19'))
+          reticulate::use_condaenv('r-reticulate')
+          keras::install_keras()
+
       - name: Session info
         run: |
           options(width = 100)
@@ -90,7 +101,6 @@ jobs:
         env:
           _R_CHECK_CRAN_INCOMING_: false
         run: |
-          keras::install_keras()
           options(crayon.enabled = TRUE)
           rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), error_on = "warning", check_dir = "check")
         shell: Rscript {0}
