@@ -54,6 +54,7 @@ jobs:
       - name: Install pak and query dependencies
         run: |
           install.packages("pak", repos = "https://r-lib.github.io/p/pak/dev/")
+          pak::pak_install_extra()
           saveRDS(pak::pkg_deps("local::.", dependencies = TRUE), ".github/r-depends.rds")
         shell: Rscript {0}
 
@@ -81,7 +82,7 @@ jobs:
 
       - name: Install TensorFlow
         run: |
-          pak::pkg_install("reticulate")
+          install.packages("reticulate")
           reticulate::conda_create(envname = 'r-reticulate', packages = c('python==3.6', 'numpy==1.19'))
           reticulate::use_condaenv('r-reticulate')
           keras::install_keras()
