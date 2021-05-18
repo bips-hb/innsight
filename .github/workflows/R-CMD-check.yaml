@@ -89,7 +89,7 @@ jobs:
       - name: Install TensorFlow
         run: |
           install.packages("reticulate")
-          reticulate::conda_create(envname = 'r-reticulate', packages = c('python==3.6', 'numpy==1.19'))
+          reticulate::conda_create(envname = 'r-reticulate', packages = c('python==3.6'))
           reticulate::use_condaenv('r-reticulate')
           keras::install_keras()
         shell: Rscript {0}
