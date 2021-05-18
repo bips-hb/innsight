@@ -83,7 +83,7 @@ jobs:
       - name: Install Miniconda
         run: |
           install.packages("reticulate")
-          Rscript -e "reticulate::install_miniconda()
+          reticulate::install_miniconda()
         shell: Rscript {0}
 
       - name: Install TensorFlow
