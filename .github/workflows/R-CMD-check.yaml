@@ -86,6 +86,7 @@ jobs:
           reticulate::conda_create(envname = 'r-reticulate', packages = c('python==3.6', 'numpy==1.19'))
           reticulate::use_condaenv('r-reticulate')
           keras::install_keras()
+        shell: Rscript {0}
 
       - name: Session info
         run: |
