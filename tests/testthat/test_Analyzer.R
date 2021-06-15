@@ -124,7 +124,51 @@ test_that("Test keras model", {
 
   ## other attributes
   # input dimension
-  expect_equal(analyzer$input_dim, c(128,4))
+  expect_equal(analyzer$input_dim, c(4,128))
+  # output dimension
+  expect_equal(analyzer$output_dim, 1)
+
+  for (module in analyzer$model$modules_list) {
+    expect_equal(module$input_dim, dim(module$input)[-1])
+    expect_equal(module$output_dim, dim(module$output)[-1])
+  }
+
+
+
+  #
+  # --------------------- CNN (2D) Model -----------------------------------------
+  #
+
+  data <- array(rnorm(64*32*32*3), dim = c(64,32,32,3))
+
+  model <- keras_model_sequential()
+  model %>%
+    layer_conv_2d(input_shape = c(32,32,3), kernel_size = 8, filters = 8, activation = "softplus") %>%
+    layer_conv_2d(kernel_size = 8, filters = 4,  activation = "tanh") %>%
+    layer_conv_2d(kernel_size = 4, filters = 2,  activation = "relu") %>%
+    layer_flatten() %>%
+    layer_dense(units = 64, activation = "relu") %>%
+    layer_dense(units = 16, activation = "relu") %>%
+    layer_dense(units = 1, activation = "sigmoid")
+
+  # test non-fitted model
+  analyzer = Analyzer$new(model)
+
+  # forward method
+  y_true <- predict(model, data)
+  y <- analyzer$forward(data, channels_first = FALSE)
+  expect_true(mean(abs(y_true - y)) < 1e-6)
+
+  # update
+  x_ref <- array(rnorm(32*32*3), dim=c(1,32,32,3))
+  analyzer$update_ref(x_ref, channels_first = FALSE)
+  y_true <- as.array(model(x_ref))
+  y <- as_array(rev(analyzer$model$modules_list)[[1]]$output_ref)
+  expect_true(mean(abs(y_true - y)) < 1e-6)
+
+  ## other attributes
+  # input dimension
+  expect_equal(analyzer$input_dim, c(3,32,32))
   # output dimension
   expect_equal(analyzer$output_dim, 1)
 

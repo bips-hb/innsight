@@ -152,13 +152,14 @@ analyze_neuralnet_model <- function(model) {
 
 }
 
-implemented_layers <- c("Dense", "Dropout", "InputLayer", "Conv1D", "Flatten")
+implemented_layers <- c("Dense", "Dropout", "InputLayer", "Conv1D", "Conv2D", "Flatten")
 
 analyze_keras_model <- function(model) {
   if (!requireNamespace("keras")) {
     stop("Please install the 'keras' package.")
   }
   modules_list = list()
+  data_format = NULL
   num = 1
   for (layer in model$layers) {
     type <- layer$`__class__`$`__name__`
@@ -177,7 +178,11 @@ analyze_keras_model <- function(model) {
                                             bias = bias,
                                             activation_name = act_name)
       }
-      else if (type == "Conv1D") {
+      else if (type %in% c("Conv1D", "Conv2D") ) {
+        # set the data_format
+        if (is.null(data_format)) {
+          data_format <- layer$data_format
+        }
         layer_config <- layer$get_config()
 
         act_name <- layer_config$activation
@@ -201,22 +206,54 @@ analyze_keras_model <- function(model) {
             output_dim[1] <- out_channels
         }
 
-        # keras weight format: [kernel_size, in_channels, out_channels]
-        # torch weight format: [out_channels, in_channels, kernel_size]
-        weight <-  layer$get_weights()[[1]]
-        weight <- aperm(weight, rev(dim(weights)))
-
-        bias <- as.vector(layer$get_weights()[[2]])
+        # padding differs in keras and torch
+        if (padding == "valid") {
+          padding = 0
+        }
+        else {
+          stop(sprintf("The padding format \"%s\" is not supported. Use \"same\"", padding))
+        }
         name <- paste(type, num, sep = "_")
         num <- num + 1
 
-        # padding differs in keras and torch
-        if (padding == "valid") {
-            padding = 0
+        weight <-  layer$get_weights()[[1]]
+        bias <- as.vector(layer$get_weights()[[2]])
+
+        if (type == "Conv1D") {
+          # keras weight format: [kernel_length, in_channels, out_channels]
+          # torch weight format: [out_channels, in_channels, kernel_length]
+          weight <- aperm(weight, c(3,2,1))
+
+          modules_list[[name]] <- conv1d_layer(weight = weight,
+                                               bias = bias,
+                                               dim_in = input_dim,
+                                               dim_out = output_dim,
+                                               stride = stride,
+                                               padding = padding,
+                                               dilation = dilation,
+                                               activation_name = act_name)
         }
         else {
-            stop(sprintf("The padding format \"%s\" is not supported. Use \"same\"", padding))
+          # Conv2D
+          # keras weight format: [kernel_height, kernel_width, in_channels, out_channels]
+          # torch weight format: [out_channels, in_channels, kernel_height, kernel_width]
+          weight <- aperm(weight, c(4,3,2,1))
+
+          modules_list[[name]] <- conv2d_layer(weight = weight,
+                                               bias = bias,
+                                               dim_in = input_dim,
+                                               dim_out = output_dim,
+                                               stride = stride,
+                                               padding = padding,
+                                               dilation = dilation,
+                                               activation_name = act_name)
         }
+
+
+
+
+
+
 
         modules_list[[name]] <- conv1d_layer(weight = weight,
                                             bias = bias,
@@ -256,8 +293,21 @@ analyze_keras_model <- function(model) {
   result <- NULL
 
   result$model <- analyzed_model(modules_list)
-  result$input_dim <- unlist(model$input_shape)
-  result$output_dim <- unlist(model$output_shape)
+  input_dim <- unlist(model$input_shape)
+  output_dim <- unlist(model$output_shape)
+  # in this package only 'channels_first'
+  if (is.character(data_format) && data_format == "channels_last") {
+    in_channels <- rev(input_dim)[1]
+    input_dim[length(input_dim)] <- input_dim[1]
+    input_dim[1] <- in_channels
+
+    out_channels <- rev(output_dim)[1]
+    output_dim[length(output_dim)] <- output_dim[1]
+    output_dim[1] <- out_channels
+  }
+
+  result$input_dim <- input_dim
+  result$output_dim <- output_dim
   result$input_names <- lapply(result$input_dim, function(x) paste0(rep("X", times = x), 1:x))
   result$output_names <- lapply(result$output_dim, function(x) paste0(rep("Y", times = x), 1:x))
 
