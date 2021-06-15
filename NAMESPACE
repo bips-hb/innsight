@@ -2,5 +2,6 @@
 
 export(Layer)
 export(conv1d_layer)
+export(conv2d_layer)
 export(dense_layer)
 export(flatten_layer)

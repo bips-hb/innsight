@@ -99,7 +99,7 @@ test_that("Test LRP for Dense-Layers",{
 
   ##  alpha= 3
 
-  out <- lrp_dense(dense, rel, rule_name = "alpha_beta")
+  out <- lrp_dense(dense, rel, rule_name = "alpha_beta", rule_param = 3)
 
   # Test: output is torch tensor
   expect_true("torch_tensor" %in% class(out))
@@ -186,7 +186,7 @@ test_that("Test LRP for Conv1D-Layers",{
 
 
   ## epsilon = 10
-  out <- lrp_conv1d(conv1d, rel, rule_name = "epsilon")
+  out <- lrp_conv1d(conv1d, rel, rule_name = "epsilon", rule_param = 10)
 
   # Test: output is torch tensor
   expect_true("torch_tensor" %in% class(out))
@@ -228,7 +228,7 @@ test_that("Test LRP for Conv2D-Layers",{
 
   # weight matrix [out_channels, in_channels, kernel_height, kernel_width]
   weights <- torch_randn(out_channels, in_channels, kernel_height, kernel_width)
-  bias <- torch_randn(out_channels)
+  bias <- torch_randn(out_channels)*0
 
   # define conv2d layer
 
@@ -253,7 +253,7 @@ test_that("Test LRP for Conv2D-Layers",{
 
   # Test: output is correct
   z_j <- nnf_conv2d(inputs, weights, bias)
-  res <- nnf_conv_transpose1d(rel/z_j$unsqueeze(5), weights$unsqueeze(5), stride = 1)
+  res <- nnf_conv_transpose2d(rel/z_j$unsqueeze(5), weights$unsqueeze(5), stride = 1)
   res <- torch_mul(res, inputs$unsqueeze(5))
 
   expect_true(as_array(torch_mean(torch_abs(out - res))) < 1e-8)
@@ -275,14 +275,14 @@ test_that("Test LRP for Conv2D-Layers",{
   # Test: output is correct
   z_j <- nnf_conv2d(inputs, weights, bias)
   z_j <- z_j + 0.001 *torch_sgn(z_j)
-  res <- nnf_conv_transpose1d(rel/z_j$unsqueeze(5), weights$unsqueeze(5), stride = 1)
+  res <- nnf_conv_transpose2d(rel/z_j$unsqueeze(5), weights$unsqueeze(5), stride = 1)
   res <- torch_mul(res, inputs$unsqueeze(5))
 
   expect_true(as_array(torch_mean(torch_abs(out - res))) < 1e-8)
 
 
   ## epsilon = 10
-  out <- lrp_conv2d(conv2d, rel,  rule_name = "epsilon")
+  out <- lrp_conv2d(conv2d, rel,  rule_name = "epsilon", rule_param = 10)
 
   # Test: output is torch tensor
   expect_true("torch_tensor" %in% class(out))
@@ -293,7 +293,7 @@ test_that("Test LRP for Conv2D-Layers",{
   # Test: output is correct
   z_j <- nnf_conv2d(inputs, weights, bias)
   z_j <- z_j + 10 *torch_sgn(z_j)
-  res <- nnf_conv_transpose1d(rel/z_j$unsqueeze(5), weights$unsqueeze(5), stride = 1)
+  res <- nnf_conv_transpose2d(rel/z_j$unsqueeze(5), weights$unsqueeze(5), stride = 1)
   res <- torch_mul(res, inputs$unsqueeze(5))
 
   expect_true(as_array(torch_mean(torch_abs(out - res))) < 1e-8)

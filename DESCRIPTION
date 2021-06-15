@@ -37,6 +37,7 @@ Collate:
     'Analyzer.R'
     'Layer.R'
     'Layer_conv1d.R'
+    'Layer_conv2d.R'
     'Layer_dense.R'
     'Layer_other.R'
     'Method_LRP.R'
