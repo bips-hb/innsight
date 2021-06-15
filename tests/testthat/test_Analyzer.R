@@ -1,4 +1,3 @@
-context("Class Analyzer")
 
 test_that("Test general errors",{
   expect_error(Analyzer$new(NULL))
@@ -7,8 +6,11 @@ test_that("Test general errors",{
   expect_error(Analyzer$new("124"))
 })
 
+
+
 test_that("Test neuralnet model", {
   library(neuralnet)
+  library(torch)
   data(iris)
   #
   # --------------------- positive tests ---------------------------------------
@@ -22,59 +24,34 @@ test_that("Test neuralnet model", {
   # forward method
   idx <- sample(nrow(iris), 10)
   y_true <- as.vector(predict(nn, iris))
-  y <- as.vector(analyzer$forward(as.matrix(iris[,3:4]))$out)
-  expect_equal(y_true, y, ignore_attr = TRUE)
+  y <- as.vector(analyzer$forward(as.matrix(iris[,3:4])))
+  expect_true(mean(abs(y_true - y)) < 1e-6)
 
-  # update method
-  idx <- sample(nrow(iris), 10)
-  y_true <- as.vector(predict(nn, iris))
-  analyzer$update(as.matrix(iris[,3:4]))
-  expect_equal(y_true, rev(analyzer$layers)[[1]]$outputs, ignore_attr = TRUE)
-
-
-  #
-  # ----------------------------- negative tests -------------------------------
-  #
-
-  # custom activation function
-  softplus <- function(x) log(1+exp(x))
-  nn <- neuralnet((Species == "setosa") ~ Petal.Length + Petal.Width,
-                  iris, linear.output = FALSE,
-                  hidden = c(3,2), act.fct = softplus, rep = 1)
-  expect_error(Analyzer$new(nn))
+  # update_ref method
+  x_ref <- iris[sample(nrow(iris), 1), 3:4]
+  y_true <- as.vector(predict(nn, x_ref))
+  analyzer$update_ref(as.matrix(x_ref))
+  expect_true(abs(y_true - as_array(rev(analyzer$model$modules_list)[[1]]$output_ref)) < 1e-6)
 
   # doesn't converge
   expect_warning(nn <- neuralnet(Species ~ .,
-                  iris, linear.output = TRUE,
-                  hidden = c(3,2), act.fct = "tanh", rep = 1, stepmax = 1e+01))
+                                 iris, linear.output = TRUE,
+                                 hidden = c(3,2), act.fct = "tanh", rep = 1, stepmax = 1e+01))
   expect_error(Analyzer$new(nn))
 
 })
 
-test_that("Test keras model", {
-  #
-  # ----------------------- positive tests ------------------------------------
-  #
-  library(keras)
-  data(iris)
 
-  iris[,5] <- as.numeric(iris[,5]) -1
-  # Turn `iris` into a matrix
-  iris <- as.matrix(iris)
-  # Set iris `dimnames` to `NULL`
-  dimnames(iris) <- NULL
-  # Determine sample size
-  ind <- sample(2, nrow(iris), replace=TRUE, prob=c(0.67, 0.33))
-  # Split the `iris` data
-  iris.training <- iris[ind==1, 1:4]
-  iris.test <- iris[ind==2, 1:4]
-  # Split the class attribute
-  iris.trainingtarget <- iris[ind==1, 5]
-  iris.testtarget <- iris[ind==2, 5]
-  # One hot encode training target values
-  iris.trainLabels <- to_categorical(iris.trainingtarget)
-  # One hot encode test target values
-  iris.testLabels <- to_categorical(iris.testtarget)
+test_that("Test keras model", {
+
+  library(keras)
+  library(torch)
+
+  #
+  # --------------------- Dense Model -----------------------------------------
+  #
+
+  data <- matrix(rnorm(4*10), nrow = 10)
 
   model <- keras_model_sequential()
   model %>%
@@ -87,52 +64,73 @@ test_that("Test keras model", {
   # test non-fitted model
   analyzer = Analyzer$new(model)
 
-  # test compiled model
-  model %>% compile(
-    loss = 'categorical_crossentropy',
-    optimizer = 'adam',
-    metrics = 'accuracy'
-  )
-  analyzer = Analyzer$new(model)
+  # forward method
+  y_true <- predict(model, data)
+  y <- analyzer$forward(data)
+  expect_true(mean(abs(y_true - y)) < 1e-6)
 
-  # test fitted model
-  history <- model %>% fit(
-    iris.training,
-    iris.trainLabels,
-    epochs = 50,
-    batch_size = 5,
-    validation_split = 0.2, verbose = 0
-  )
+  # update
+  x_ref <- matrix(rnorm(4), nrow=1, ncol=4)
+  analyzer$update_ref(x_ref)
+  y_true <- as.array(model(x_ref))
+  y <- as_array(rev(analyzer$model$modules_list)[[1]]$output_ref)
+  expect_true(mean(abs(y_true - y)) < 1e-6)
+
+  ## other attributes
+  # input dimension
+  expect_equal(analyzer$input_dim, 4)
+  # output dimension
+  expect_equal(analyzer$output_dim, 3)
+
+  analyzer$forward(data)
+
+  for (module in analyzer$model$modules_list) {
+    expect_equal(module$input_dim, dim(module$input)[-1])
+    expect_equal(module$output_dim, dim(module$output)[-1])
+  }
+
+
+
+  #
+  # --------------------- CNN (1D) Model -----------------------------------------
+  #
+
+  data <- array(rnorm(64*128*4), dim = c(64,128,4))
+
+  model <- keras_model_sequential()
+  model %>%
+    layer_conv_1d(input_shape = c(128,4), kernel_size = 16, filters = 8, activation = "softplus") %>%
+    layer_conv_1d(kernel_size = 16, filters = 4,  activation = "tanh") %>%
+    layer_conv_1d(kernel_size = 16, filters = 2,  activation = "relu") %>%
+    layer_flatten() %>%
+    layer_dense(units = 64, activation = "relu") %>%
+    layer_dense(units = 16, activation = "relu") %>%
+    layer_dense(units = 1, activation = "sigmoid")
+
+  # test non-fitted model
   analyzer = Analyzer$new(model)
 
   # forward method
-  y_true <- predict(model, iris.test)
-  y <- analyzer$forward(iris.test)$out
-  expect_equal(y_true, y, tolerance = 1e-6, ignore_attr = TRUE)
+  y_true <- predict(model, data)
+  y <- analyzer$forward(data, channels_first = FALSE)
+  expect_true(mean(abs(y_true - y)) < 1e-6)
 
-  # update method
-  analyzer$update(iris.test)
-  expect_equal(y_true, rev(analyzer$layers)[[1]]$outputs, tolerance = 1e-6, ignore_attr = TRUE)
+  # update
+  x_ref <- array(rnorm(128*4), dim=c(1,128,4))
+  analyzer$update_ref(x_ref, channels_first = FALSE)
+  y_true <- as.array(model(x_ref))
+  y <- as_array(rev(analyzer$model$modules_list)[[1]]$output_ref)
+  expect_true(mean(abs(y_true - y)) < 1e-6)
 
-  #
-  # ------------------------- negative method ---------------------------------
-  #
+  ## other attributes
+  # input dimension
+  expect_equal(analyzer$input_dim, c(128,4))
+  # output dimension
+  expect_equal(analyzer$output_dim, 1)
 
-  # activation function in own layer
-  model <- keras_model_sequential()
-  model %>%
-    layer_dense(units = 16, activation = 'linear', input_shape = c(4)) %>%
-    layer_activation_relu() %>%
-    layer_dense(units = 3, activation = 'softmax')
+  for (module in analyzer$model$modules_list) {
+    expect_equal(module$input_dim, dim(module$input)[-1])
+    expect_equal(module$output_dim, dim(module$output)[-1])
+  }
 
-  expect_error(Analyzer$new(model))
-
-  # not implemented layer
-  model <- keras_model_sequential()
-  model %>%
-    layer_dense(units = 16, activation = 'linear', input_shape = c(4)) %>%
-    layer_batch_normalization() %>%
-    layer_dense(units = 3, activation = 'softmax')
-
-  expect_error(Analyzer$new(model))
 })

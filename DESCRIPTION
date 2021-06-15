@@ -19,14 +19,13 @@ Imports:
     checkmate,
     ggplot2,
     R6,
-    stats
+    torch
 Suggests:
     keras,
     knitr,
     neuralnet,
     rmarkdown,
-    testthat (>= 3.0.0),
-    torch
+    testthat (>= 3.0.0)
 VignetteBuilder: 
     knitr
 Config/testthat/edition: 3
@@ -34,3 +33,10 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE, r6 = TRUE)
 RoxygenNote: 7.1.1
+Collate: 
+    'Analyzer.R'
+    'Layer.R'
+    'Layer_conv1d.R'
+    'Layer_dense.R'
+    'Layer_other.R'
+    'Method_LRP.R'
