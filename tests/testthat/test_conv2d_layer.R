@@ -329,7 +329,7 @@ test_that("Test get_input_relevances", {
                     expect_equal(dim(rel_lower), c(batch_size, in_channels, in_height, in_width, model_out))
 
                     # Alpha-Beta rule
-                    rel_lower <- conv2d_dilation$get_input_relevances(rel, rule_name = "alph_beta")
+                    rel_lower <- conv2d_dilation$get_input_relevances(rel, rule_name = "alpha_beta")
                     expect_equal(dim(rel_lower), c(batch_size, in_channels, in_height, in_width, model_out))
                   }
                 }
