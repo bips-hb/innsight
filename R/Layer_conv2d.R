@@ -14,9 +14,10 @@ conv2d_layer <- torch::nn_module(
                         dim_in,
                         dim_out,
                         stride = 1,
-                        padding = 0,
+                        padding = c(0,0,0,0),
                         dilation = 1,
-                        activation_name = 'linear', ...) {
+                        activation_name = 'linear',
+                        dtype = "float") {
 
     # [in_channels, in_height, in_width]
     self$input_dim <- dim_in
@@ -25,15 +26,48 @@ conv2d_layer <- torch::nn_module(
     self$in_channels <- dim(weight)[2]
     self$out_channels <- dim(weight)[1]
     self$kernel_size <- dim(weight)[-c(1,2)]
-
-    self$W <- torch_tensor(weight, dtype = torch_float())
-    self$b <- torch_tensor(bias, dtype = torch_float())
-
+    # int or tuple of length 2
     self$stride <- stride
+    # tuple of length 4
+    # padding goes from the last to the first dimension, i.e.
+    # padding [left, right, top, bottom]
     self$padding <- padding
+    # int or tuple of length 2
     self$dilation <- dilation
 
-    self$get_activation(activation_name, ...)
+    self$get_activation(activation_name)
+
+    # Check if weight is already a tensor
+    if (!inherits(weight, "torch_tensor")) {
+      self$W <- torch::torch_tensor(weight)
+    }
+    else {
+      self$W <- weight
+    }
+    # Check if bias is already a tensor
+    if (!inherits(bias, "torch_tensor")) {
+      self$b <- torch::torch_tensor(bias)
+    }
+    else {
+      self$b <- bias
+    }
+
+    self$set_dtype(dtype)
+  },
+
+  set_dtype = function(dtype) {
+    if (dtype == "float") {
+      self$W <- self$W$to(torch::torch_float())
+      self$b <- self$b$to(torch::torch_float())
+    }
+    else if (dtype == "double") {
+      self$W <- self$W$to(torch::torch_double())
+      self$b <- self$b$to(torch::torch_double())
+    }
+    else {
+      stop(sprintf("Unknown argument for 'dtype' : %s . Use 'float' or 'double' instead"))
+    }
+    self$dtype <- dtype
   },
 
   #
@@ -41,13 +75,18 @@ conv2d_layer <- torch::nn_module(
   #
   forward = function(x) {
     self$input <- x
-    self$preactivation <- torch::nnf_conv2d(x, self$W, self$b, self$stride, self$padding, self$dilation)
-    if (self$activation_name == 'linear') {
-      self$output <- self$preactivation
-    }
-    else {
-      self$output <- self$activation_f(self$preactivation)
-    }
+
+    # Apply padding
+    x <- torch::nnf_pad(x, pad = self$padding)
+    # Apply convolution (2D)
+    self$preactivation <- torch::nnf_conv2d(x, self$W,
+                                            bias = self$b,
+                                            stride = self$stride,
+                                            padding = 0,
+                                            dilation = self$dilation)
+    # Apply non-linearity
+    self$output <- self$activation_f(self$preactivation)
+
     self$output
   },
 
@@ -55,15 +94,17 @@ conv2d_layer <- torch::nn_module(
   # x_ref: Tensor of size [in_channels, in_height, in_width]
   #
   update_ref = function(x_ref) {
-
     self$input_ref <- x_ref
-    self$preactivation_ref <- torch::nnf_conv2d(x_ref, self$W, self$b, self$stride, self$padding, self$dilation)
-    if (self$activation_name == 'linear') {
-      self$output_ref <- self$preactivation_ref
-    }
-    else {
-      self$output_ref <- self$activation_f(self$preactivation_ref)
-    }
+    # Apply padding
+    x_ref <- torch::nnf_pad(x_ref, pad = self$padding)
+    # Apply convolution (2D)
+    self$preactivation_ref <- torch::nnf_conv2d(x_ref, self$W,
+                                                bias = self$b,
+                                                stride =self$stride,
+                                                padding = 0,
+                                                dilation = self$dilation)
+    # Apply non-linearity
+    self$output_ref <- self$activation_f(self$preactivation_ref)
 
     self$output_ref
   },
@@ -72,79 +113,79 @@ conv2d_layer <- torch::nn_module(
   #   rule_name       : Name of the LRP-rule ("simple", "epsilon", "alpha_beta")
   #   rule_param      : Parameter of the rule ("simple": no parameter, "epsilon": epsilon value,
   #                     set default to 0.001, "alpha_beta": alpha value, set default to 0.5)
-  #   relevance       : relevance score from the upper layer to the output, torch Tensor
+  #   rel_upper       : relevance score from the upper layer to the output, torch Tensor
   #                   : of size [batch_size, out_channels, out_height, out_width, model_out]
   #
   #   output          : torch Tensor of size [batch_size, in_channels, in_height, in_width, model_out]
 
-  get_input_relevances = function(relevance, rule_name = 'simple', rule_param = NULL) {
+  get_input_relevances = function(rel_upper, rule_name = 'simple', rule_param = NULL) {
+    # set default parameter
+    if (is.null(rule_param)) {
+      if (rule_name == "epsilon") {
+        rule_param <- 0.001
+      }
+      else if (rule_name == "alpha_beta") {
+        rule_param <- 0.5
+      }
+    }
 
     if (rule_name == 'simple') {
-      z <-  self$preactivation
+      z <-  self$preactivation$unsqueeze(5)
       # add a small stabilizer
-      z <- z + (z==0)*1e-16
-      rel_lower <- self$get_gradient(relevance / z$unsqueeze(5), self$W)
-      rel_lower <- torch::torch_mul(rel_lower, self$input$unsqueeze(5))
+      z <- z + (z==0) * 1e-16
+      rel_lower <-
+        self$get_gradient(rel_upper / z, self$W) * self$input$unsqueeze(5)
     }
     else if (rule_name == 'epsilon') {
-      # set default parameter
-      if (is.null(rule_param)) {
-        epsilon <- 0.001
-      }
-      else {
-        epsilon <- rule_param
-      }
-
-      z <-  self$preactivation
-      z <- z + epsilon * torch::torch_sgn(z)
-      rel_lower <- self$get_gradient(relevance / z$unsqueeze(5), self$W)
-      rel_lower <- torch::torch_mul(rel_lower, self$input$unsqueeze(5))
+      z <-  self$preactivation$unsqueeze(5)
+      z <- z + rule_param * torch::torch_sgn(z) + (z==0) * 1e-16
+      rel_lower <-
+        self$get_gradient(rel_upper / z, self$W) * self$input$unsqueeze(5)
     }
     else if (rule_name == 'alpha_beta') {
-      # set default parameter
-      if (is.null(rule_param)) {
-        alpha <- 0.5
-      }
-      else {
-        alpha <- rule_param
-      }
+      # Get positive and negative decomposition of the linear output
+      output <- self$get_pos_and_neg_outputs(self$input, use_bias = TRUE)
 
-      output_partition <- self$get_pos_and_neg_outputs(self$input, use_bias = TRUE)
-
-      z <- relevance / ( output_partition$pos + (output_partition$pos == 0) * 1e-16 )$unsqueeze(5)
+      # Apply the simple rule for each part:
+      # - positive part
+      z <- rel_upper / ( output$pos + (output$pos == 0) * 1e-16 )$unsqueeze(5)
 
       t1 <- self$get_gradient(z, (self$W * (self$W > 0)))
       t2 <- self$get_gradient(z, (self$W * (self$W <= 0)))
 
       input <- self$input$unsqueeze(5)
-      rel_pos <- torch::torch_mul(t1, (input * (input > 0))) +
-                 torch::torch_mul(t2, (input * (input <= 0)))
+      rel_pos <- t1 *  (input * (input > 0)) + t2 * (input * (input <= 0))
 
-
-      z <- relevance / ( output_partition$neg + (output_partition$neg == 0) * 1e-16 )$unsqueeze(5)
+      # - negative part
+      z <- rel_upper / ( output$neg + (output$neg == 0) * 1e-16 )$unsqueeze(5)
 
       t1 <- self$get_gradient(z, (self$W * (self$W > 0)))
       t2 <- self$get_gradient(z, (self$W * (self$W <= 0)))
 
-      rel_neg <- torch::torch_mul(t1, (input * (input <= 0))) +
-                 torch::torch_mul(t2, (input * (input > 0)))
+      rel_neg <- t1 * (input * (input <= 0)) + t2 * (input * (input > 0))
 
-
-      # calculate over all relevance for the layer
-      rel_lower <- rel_pos * alpha + rel_neg * (1 - alpha)
-
+      # calculate over all relevance for the lower layer
+      rel_lower <- rel_pos * rule_param + rel_neg * (1 - rule_param)
+    }
+    else {
+      stop(sprintf("Unknown LRP-rule '%s'!", rule_name))
     }
 
     rel_lower
   },
 
-  get_input_multiplier = function(multiplier, rule_name = "rescale") {
+  #
+  #   mult_upper [batch_size, out_channels, out_height, out_width, model_out]
+  #
+  #   output [batch_size, in_channels, in_height, in_width, model_out]
+  #
+  get_input_multiplier = function(mult_upper, rule_name = "rescale") {
 
     #
     # --------------------- Non-linear part---------------------------
     #
-    mult_pos <- multiplier
-    mult_neg <- multiplier
+    mult_pos <- mult_upper
+    mult_neg <- mult_upper
     if (self$activation_name != "linear") {
       if (rule_name == "rescale") {
 
@@ -155,18 +196,18 @@ conv2d_layer <- torch::nn_module(
 
         nonlin_mult <- delta_output / (delta_preact + 1e-16 * (delta_preact == 0))
 
-        # multiplier    [batch_size, out_channels, out_height, out_width, model_out]
+        # mult_upper    [batch_size, out_channels, out_height, out_width, model_out]
         # nonlin_mult   [batch_size, out_channels, out_height, out_width, 1]
-        mult_pos <- multiplier * nonlin_mult
-        mult_neg <- multiplier * nonlin_mult
+        mult_pos <- mult_upper * nonlin_mult
+        mult_neg <- mult_upper * nonlin_mult
 
       }
       else if (rule_name == "reveal_cancel") {
 
-        pos_and_neg_output <- self$get_pos_and_neg_outputs(self$input - self$input_ref)
+        output <- self$get_pos_and_neg_outputs(self$input - self$input_ref)
 
-        delta_x_pos <- pos_and_neg_output$pos
-        delta_x_neg <- pos_and_neg_output$neg
+        delta_x_pos <- output$pos
+        delta_x_neg <- output$neg
 
         act <- self$activation_f
         x <- self$preactivation
@@ -180,8 +221,11 @@ conv2d_layer <- torch::nn_module(
           0.5 * (act(x_ref + delta_x_neg) - act(x_ref)) +
           0.5 * (act(x) - act(x_ref + delta_x_pos))
 
-        mult_pos <- multiplier * (delta_output_pos / (delta_x_pos + 1e-16))$unsqueeze(5)
-        mult_neg <- multiplier * (delta_output_neg / (delta_x_neg - 1e-16))$unsqueeze(5)
+        mult_pos <- mult_upper * (delta_output_pos / (delta_x_pos + 1e-16))$unsqueeze(5)
+        mult_neg <- mult_upper * (delta_output_neg / (delta_x_neg - 1e-16))$unsqueeze(5)
+      }
+      else {
+        stop(sprintf("Unknown DeepLift rule '%s'!", rule_name))
       }
     }
 
@@ -196,35 +240,74 @@ conv2d_layer <- torch::nn_module(
     # weight      [out_channels, in_channels, kernel_height, kernel_width]
     weight <- self$W
 
-    # multiplier    [batch_size, in_channels, in_height, in_width, model_out]
-    multiplier <-
+    # mult_lower    [batch_size, in_channels, in_height, in_width, model_out]
+    mult_lower <-
       self$get_gradient(mult_pos, weight * (weight > 0)) * (delta_input > 0) +
       self$get_gradient(mult_pos, weight * (weight < 0)) * (delta_input < 0) +
       self$get_gradient(mult_neg, weight * (weight > 0)) * (delta_input < 0) +
       self$get_gradient(mult_neg, weight * (weight < 0)) * (delta_input > 0) +
       self$get_gradient(0.5 * (mult_pos + mult_neg), weight) * (delta_input == 0)
 
-    multiplier
+    mult_lower
   },
 
+  #
+  #   input   [batch_size, out_channels, out_height, out_width, model_out]
+  #   weight  [out_channels, in_channels, kernel_height, kernel_width]
+  #
+  #   output  [batch_size, in_channels, in_height, in_width, model_out]
+  #
   get_gradient = function(input, weight) {
+    # Since we have added the model_out dimension, strides and dilation need to
+    # be extended by 1.
+
+    # stride is a number or a tuple of length 2
     if (length(self$stride) == 1) {
       stride <- c(self$stride, self$stride, 1)
     }
-    else if (length(self$stride) == 1) {
+    else if (length(self$stride) == 2) {
       stride <- c(self$stride, 1)
     }
-    else {
-      stop("Wrong stide format!")
+
+    # dilation is a number or a tuple of length 2
+    if (length(self$dilation) == 1) {
+      dilation <- c(self$dilation, self$dilation, 1)
     }
-    out <- torch::nnf_conv_transpose2d(input, weight$unsqueeze(5),
+    else if (length(self$dilation) == 2) {
+      dilation <- c(self$dilation, 1)
+    }
+
+    out <- torch::nnf_conv_transpose3d(input, weight$unsqueeze(5),
                                        bias = NULL,
                                        stride = stride,
-                                       padding = self$padding,
-                                       dilation = self$dilation)
+                                       padding = 0,
+                                       dilation = dilation)
+
+    # If stride is > 1, it could happen that the reconstructed input after
+    # padding (out) lost some dimensions, because multiple input shapes are
+    # mapped to the same output shape. Therefore, we use padding with zeros to
+    # fill in the missing irrelevant input values.
+    lost_h <- self$input_dim[2] + self$padding[3] + self$padding[4] - dim(out)[3]
+    lost_w <- self$input_dim[3] + self$padding[1] + self$padding[2] - dim(out)[4]
+
+    # (begin last axis, end last axis, begin 2nd to last axis, end 2nd to last axis, begin 3rd to last axis, etc.)
+    out <- torch::nnf_pad(out, pad = c(0, 0, 0, lost_w, 0, lost_h))
+    # Now we have added the missing values such that dim(out) = dim(padded_input)
+
+    # Apply the inverse padding to obtain dim(out) = dim(input)
+    dim_out <- dim(out)
+    out <- out[,,(self$padding[3]+1):(dim_out[3] - self$padding[4]), (self$padding[1]+1):(dim_out[4] - self$padding[2]),]
+
+
     out
   },
 
+  #
+  # input   [batch_size, in_channels, in_height, in_width]
+  #
+  # output$pos [batch_size, out_channels, out_height, out_width]
+  # output$neg [batch_size, out_channels, out_height, out_width]
+  #
   get_pos_and_neg_outputs = function(input, use_bias = FALSE) {
     output <- NULL
 
@@ -238,21 +321,22 @@ conv2d_layer <- torch::nn_module(
     }
 
     conv2d <- function(x, W, b) {
+      x <- nnf_pad(x, pad = self$padding)
       out <- torch::nnf_conv2d(x, W,
                               bias = b,
                               stride = self$stride,
-                              padding = self$padding,
+                              padding = 0,
                               dilation = self$dilation)
       out
     }
 
     # input (+) x weight (+) and input (-) x weight (-)
     output$pos <- conv2d(input * (input > 0), self$W * (self$W > 0), b_pos) +
-                  conv2d(input * (input < 0), self$W * (self$W < 0), b_pos)
+                  conv2d(input * (input <= 0), self$W * (self$W <= 0), b_pos)
 
     # input (+) x weight (-) and input (-) x weight (+)
-    output$neg <- conv2d(input * (input > 0), self$W * (self$W < 0), b_neg) +
-                  conv2d(input * (input < 0), self$W * (self$W > 0), b_neg)
+    output$neg <- conv2d(input * (input > 0), self$W * (self$W <= 0), b_neg) +
+                  conv2d(input * (input <= 0), self$W * (self$W > 0), b_neg)
 
     output
   }
