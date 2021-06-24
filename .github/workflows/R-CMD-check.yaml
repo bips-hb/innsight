@@ -9,6 +9,7 @@ on:
     branches:
       - main
       - master
+      - torch-backbone
   pull_request:
     branches:
       - main
