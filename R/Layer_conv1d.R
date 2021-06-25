@@ -5,7 +5,7 @@
 #'@description
 #'Implementation of a one-dimensional Convolutional Neural Network layer as an R6 class
 #'where input, preactivation and output values of the last forward pass are stored
-#'(same for a reference input, if this is needed). Applies a torch function for 
+#'(same for a reference input, if this is needed). Applies a torch function for
 #'forwarding an input through a 1d convolution followed by an activation function
 #'\eqn{\sigma} to the input data, i.e.
 #'\deqn{y= \sigma(\code{nnf_conv1d(x,W,b)})}
@@ -23,8 +23,8 @@ conv1d_layer <- torch::nn_module(
   # weight: [out_channels, in_channels, kernel_size]
   # bias  : [out_channels]
   #
-  #'@description 
-  #'Create a new instance of this class with given parameters of a one-dimensional 
+  #'@description
+  #'Create a new instance of this class with given parameters of a one-dimensional
   #'convolutional layer.
   #'@param weight The weight matrix of dimension \emph{(out_channels, in_channels, kernel_size)}
   #'@param bias The bias vector of dimension \emph{(out_channels)}
@@ -42,7 +42,8 @@ conv1d_layer <- torch::nn_module(
                         stride = 1,
                         padding = c(0,0),
                         dilation = 1,
-                        activation_name = 'linear', ...) {
+                        activation_name = 'linear',
+                        dtype = "float") {
 
     # [in_channels, in_length]
     self$input_dim <- dim_in
@@ -51,15 +52,41 @@ conv1d_layer <- torch::nn_module(
     self$in_channels <- dim(weight)[2]
     self$out_channels <- dim(weight)[1]
     self$kernel_size <- dim(weight)[-c(1,2)]
-
-    self$W <- torch_tensor(weight, dtype = torch_float())
-    self$b <- torch_tensor(bias, dtype = torch_float())
-
     self$stride <- stride
+    # padding     [left, right]
     self$padding <- padding
     self$dilation <- dilation
 
-    self$get_activation(activation_name, ...)
+    self$get_activation(activation_name)
+
+    if (!inherits(weight, "torch_tensor")) {
+      self$W <- torch_tensor(weight)
+    }
+    else {
+      self$W <- weight
+    }
+    if (!inherits(bias, "torch_tensor")) {
+      self$b <- torch_tensor(bias)
+    }
+    else {
+      self$b <- bias
+    }
+    self$set_dtype(dtype)
+  },
+
+  set_dtype = function(dtype) {
+    if (dtype == "float") {
+      self$W <- self$W$to(torch::torch_float())
+      self$b <- self$b$to(torch::torch_float())
+    }
+    else if (dtype == "double") {
+      self$W <- self$W$to(torch::torch_double())
+      self$b <- self$b$to(torch::torch_double())
+    }
+    else {
+      stop(sprintf("Unknown argument for 'dtype' : %s . Use 'float' or 'double' instead"))
+    }
+    self$dtype <- dtype
   },
 
   #
@@ -67,8 +94,8 @@ conv1d_layer <- torch::nn_module(
   #
   #' @title Forward function for conv1d layer
   #' @name forward
-  #' 
-  #' @description 
+  #'
+  #' @description
   #' The forward function takes an input and forwards it through the layer
   #'
   #'
@@ -77,16 +104,16 @@ conv1d_layer <- torch::nn_module(
   #' \emph{(batch_size,out_channels,out_length)}
   forward = function(x) {
     self$input <- x
-    #Pad the input
-    x <- nnf_pad(x, pad = self$padding)
-    
-    self$preactivation <- torch::nnf_conv1d(x, self$W, self$b, self$stride,padding=0, self$dilation)
-    if (self$activation_name == 'linear') {
-        self$output <- self$preactivation
-    }
-    else {
-        self$output <- self$activation_f(self$preactivation)
-    }
+    # Pad the input
+    x <- torch::nnf_pad(x, pad = self$padding)
+    # Apply conv1d
+    self$preactivation <- torch::nnf_conv1d(x, self$W,
+                                            bias = self$b,
+                                            stride = self$stride,
+                                            padding = 0,
+                                            dilation = self$dilation)
+    self$output <- self$activation_f(self$preactivation)
+
     self$output
   },
 
@@ -99,20 +126,22 @@ conv1d_layer <- torch::nn_module(
   #'This function takes the reference input and runs it through
   #'the layer, updating the the values of input_ref and output_ref
   #'
-  #'@param x_ref The new reference input, of dimensions \emph{(in_channels,in_length)}
-  #'@return returns the output of the reference input after 
-  #'passing through the layer, of dimension \emph{(out_channels,out_length)}
+  #'@param x_ref The new reference input, of dimensions \emph{(1,in_channels,in_length)}
+  #'@return returns the output of the reference input after
+  #'passing through the layer, of dimension \emph{(1,out_channels,out_length)}
   #'
   update_ref = function(x_ref) {
-
     self$input_ref <- x_ref
-    self$preactivation_ref <- torch::nnf_conv1d(x_ref, self$W, self$b, self$stride, self$padding, self$dilation)
-    if (self$activation_name == 'linear') {
-        self$output_ref <- self$preactivation_ref
-    }
-    else {
-        self$output_ref <- self$activation_f(self$preactivation_ref)
-    }
+    # Apply padding
+    x_ref <- torch::nnf_pad(x_ref, pad = self$padding)
+    # Apply conv1d
+    self$preactivation_ref <- torch::nnf_conv1d(x_ref, self$W,
+                                                bias = self$b,
+                                                stride = self$stride,
+                                                padding = 0,
+                                                dilation = self$dilation)
+
+    self$output_ref <- self$activation_f(self$preactivation_ref)
 
     self$output_ref
   },
@@ -120,28 +149,26 @@ conv1d_layer <- torch::nn_module(
   #'@title LRP relevance method for layer's inputs
   #'@name get_input_relevances
   #'@description
-  #'This method uses the output layer relevances and calculates the input layer 
+  #'This method uses the output layer relevances and calculates the input layer
   #'relevances using the specified rule
-  #'@param relevance The output relevances, of dimensions \emph{(batch_size, out_channels, out_length, model_out)}
+  #' @param rel_output The output relevances, of dimensions \emph{(batch_size, out_channels, out_length, model_out)}
   #' @param rule_name The name of the rule, with which the relevance scores are
-  #' calculated. Implemented are \code{"simple"}, \code{"eps"}, \code{"ab"},
+  #' calculated. Implemented are \code{"simple"}, \code{"epsilon"}, \code{"alpha_beta"},
   #' \code{"ww"} (default: \code{"simple"}).
   #' @param rule_param The parameter of the selected rule. Note: Only the rules
-  #' \code{"eps"} and \code{"ab"} take use of the parameter. Use the default
-  #' value \code{NULL} for the default parameters ("eps" : \eqn{0.01}, "ab" : \eqn{0.5}).
+  #' \code{"epsilon"} and \code{"alpha_beta"} take use of the parameter. Use the default
+  #' value \code{NULL} for the default parameters ("epsilon" : \eqn{0.01}, "alpha_beta" : \eqn{0.5}).
   #'
   #'
-  get_input_relevances = function(relevance, rule_name = 'simple', rule_param = NULL) {
+  get_input_relevances = function(rel_output, rule_name = 'simple', rule_param = NULL) {
 
     if (rule_name == 'simple') {
-      z <-  self$preactivation
+      z <-  self$preactivation$unsqueeze(4)
       # add a small stabilizer
-      z <- z + (z==0)*1e-12
-          
-      
-          rel_lower <- self$get_gradient(relevance / z$unsqueeze(4), self$W)
-          rel_lower <- torch::torch_mul(rel_lower, self$input$unsqueeze(4))
-        
+      z <- z + (z==0) * 1e-12
+
+      rel_input <-
+        self$get_gradient(rel_output / z, self$W) * self$input$unsqueeze(4)
     }
     else if (rule_name == 'epsilon') {
       # set default parameter
@@ -152,11 +179,11 @@ conv1d_layer <- torch::nn_module(
         epsilon <- rule_param
       }
 
-      z <-  self$preactivation
-      z <- z + epsilon * torch::torch_sgn(z)
- 
-      rel_lower <- self$get_gradient(relevance / z$unsqueeze(4), self$W)
-      rel_lower <- torch::torch_mul(rel_lower, self$input$unsqueeze(4))
+      z <-  self$preactivation$unsqueeze(4)
+      z <- z + epsilon * torch::torch_sgn(z) + (z==0) * 1e-12
+
+      rel_input <-
+        self$get_gradient(rel_output / z, self$W) * self$input$unsqueeze(4)
     }
     else if (rule_name == 'alpha_beta') {
       # set default parameter
@@ -167,63 +194,132 @@ conv1d_layer <- torch::nn_module(
         alpha <- rule_param
       }
 
-      output_partition <- self$get_pos_and_neg_outputs(self$input, use_bias = TRUE)
-
-     z <- relevance / ( output_partition$pos + (output_partition$pos == 0) * 1e-16 )$unsqueeze(4)
-
-      t1 <- self$get_gradient(z, (self$W * (self$W > 0)))
-      t2 <- self$get_gradient(z, (self$W * (self$W <= 0)))
-
+      # Get positive and negative part of the output
+      out_part <- self$get_pos_and_neg_outputs(self$input, use_bias = TRUE)
       input <- self$input$unsqueeze(4)
-      rel_pos <- torch::torch_mul(t1, (input * (input > 0))) +
-                 torch::torch_mul(t2, (input * (input <= 0)))
 
-
-      z <- relevance / ( output_partition$neg + (output_partition$neg == 0) * 1e-16 )$unsqueeze(4)
+      # Apply simple rule on the positive part
+      z <- rel_output / ( out_part$pos + (out_part$pos == 0) * 1e-16 )$unsqueeze(4)
 
       t1 <- self$get_gradient(z, (self$W * (self$W > 0)))
       t2 <- self$get_gradient(z, (self$W * (self$W <= 0)))
 
-      rel_neg <- torch::torch_mul(t1, (input * (input <= 0))) +
-                 torch::torch_mul(t2, (input * (input > 0)))
+      rel_pos <- t1 * (input * (input > 0)) + t2 * (input * (input <= 0))
 
+      # Apply simple rule on the negative part
+      z <- rel_output / ( out_part$neg + (out_part$neg == 0) * 1e-16 )$unsqueeze(4)
 
+      t1 <- self$get_gradient(z, (self$W * (self$W > 0)))
+      t2 <- self$get_gradient(z, (self$W * (self$W <= 0)))
 
+      rel_neg <- t1 * (input * (input <= 0)) + t2 * (input * (input > 0))
+
+      # Calculate over all relevance for the lower layer
+      rel_input <- rel_pos * alpha + rel_neg * (1 - alpha)
     }
 
-    rel_lower
+    rel_input
   },
-  
-  #'@title Get gradient method 
+
+  get_input_multiplier = function(mult_output, rule_name = "rescale") {
+
+    #
+    # --------------------- Non-linear part---------------------------
+    #
+    mult_pos <- mult_output
+    mult_neg <- mult_output
+    if (self$activation_name != "linear") {
+      if (rule_name == "rescale") {
+
+        # output       [batch_size, out_channels, out_length]
+        # delta_output [batch_size, out_channels, out_length, 1]
+        delta_output <- (self$output - self$output_ref)$unsqueeze(4)
+        delta_preact <- (self$preactivation - self$preactivation_ref)$unsqueeze(4)
+
+        nonlin_mult <- delta_output / (delta_preact + 1e-16 * (delta_preact == 0))
+
+        # mult_output   [batch_size, out_channels, out_length, model_out]
+        # nonlin_mult   [batch_size, out_channels, out_length, 1]
+        mult_pos <- mult_output * nonlin_mult
+        mult_neg <- mult_output * nonlin_mult
+
+      }
+      else if (rule_name == "reveal_cancel") {
+
+        pos_and_neg_output <- self$get_pos_and_neg_outputs(self$input - self$input_ref)
+
+        delta_x_pos <- pos_and_neg_output$pos
+        delta_x_neg <- pos_and_neg_output$neg
+
+        act <- self$activation_f
+        x <- self$preactivation
+        x_ref <- self$preactivation_ref
+
+        delta_output_pos <-
+          0.5 * (act(x_ref + delta_x_pos) - act(x_ref)) +
+          0.5 * (act(x) - act(x_ref + delta_x_neg))
+
+        delta_output_neg <-
+          0.5 * (act(x_ref + delta_x_neg) - act(x_ref)) +
+          0.5 * (act(x) - act(x_ref + delta_x_pos))
+
+        mult_pos <- mult_output * (delta_output_pos / (delta_x_pos + (delta_x_pos == 0) * 1e-16))$unsqueeze(4)
+        mult_neg <- mult_output * (delta_output_neg / (delta_x_neg - (delta_x_neg == 0) * 1e-16))$unsqueeze(4)
+      }
+    }
+
+    #
+    # -------------- Linear part -----------------------
+    #
+
+    # input        [batch_size, in_channels, in_length]
+    # delta_input  [batch_size, in_channels, in_length, 1]
+    delta_input <- (self$input - self$input_ref)$unsqueeze(4)
+
+    # weight      [out_channels, in_channels, kernel_length]
+    weight <- self$W
+
+    # mult_input    [batch_size, in_channels, in_length, model_out]
+    mult_input <-
+      self$get_gradient(mult_pos, weight * (weight > 0)) * (delta_input > 0) +
+      self$get_gradient(mult_pos, weight * (weight < 0)) * (delta_input < 0) +
+      self$get_gradient(mult_neg, weight * (weight > 0)) * (delta_input < 0) +
+      self$get_gradient(mult_neg, weight * (weight < 0)) * (delta_input > 0) +
+      self$get_gradient(0.5 * (mult_pos + mult_neg), weight) * (delta_input == 0)
+
+    mult_input
+  },
+
+  #'@title Get gradient method
   #'@name get_gradient
   #'@description
-  #'This method uses \code{nnf_conv_transpose1d} to multiply the input with the 
-  #'gradient of a layer's output with respect to the layer's input. 
+  #'This method uses \code{nnf_conv_transpose1d} to multiply the input with the
+  #'gradient of a layer's output with respect to the layer's input.
   #'
   #'@param input A relevance tensor of dimension \emph{(batch_size, out_channels, out_length, model_out)}
   #'@param weight A weight tensor of dimensions \emph{(out_channels, in_channels, kernel_size)}
   #'
-  #'@return 
+  #'@return
   #'This returns the 1d transpose of the input using \code{nnf_conv_transpose1d} with params
   #'\code{input}, \code{weight$unsqueeze(4)}
   #'
 
   get_gradient = function(input, weight) {
-    
+
     # Since we have added the model_out dimension, strides and dilation need to
     # be extended by 1.
-    
+
     stride <- c(self$stride,1)
-    
+
     # dilation is a number or a tuple of length 2
     dilation <- c(self$dilation,1)
-    
+
     out <- torch::nnf_conv_transpose2d(input, weight$unsqueeze(4),
                                        bias = NULL,
                                        stride = stride,
                                        padding = 0,
                                        dilation = dilation)
-    
+
     # If stride is > 1, it could happen that the reconstructed input after
     # padding (out) lost some dimensions, because multiple input shapes are
     # mapped to the same output shape. Therefore, we use padding with zeros to
@@ -232,13 +328,10 @@ conv1d_layer <- torch::nn_module(
 
     out <- torch::nnf_pad(out, pad = c(0,0,0, lost_length))
     # Now we have added the missing values such that dim(out) = dim(padded_input)
-    
+
     # Apply the inverse padding to obtain dim(out) = dim(input)
-    dim_out <- dim(out)
-    
-    out[,,(self$padding[1]+1):(dim_out[3]-self$padding[2]),]
-    
-    
+    out <- out[,,(self$padding[1]+1):(dim(out)[3]-self$padding[2]),]
+
     out
   },
 
@@ -255,21 +348,24 @@ conv1d_layer <- torch::nn_module(
     }
 
     conv1d <- function(x, W, b) {
+      x <- torch::nnf_pad(x, pad = self$padding)
       out <- torch::nnf_conv1d(x, W,
-                              bias = b,
-                              stride = self$stride,
-                              padding = self$padding,
-                              dilation = self$dilation)
+                               bias = b,
+                               stride = self$stride,
+                               padding = 0,
+                               dilation = self$dilation)
       out
     }
 
     # input (+) x weight (+) and input (-) x weight (-)
-    output$pos <- conv1d(input * (input > 0), self$W * (self$W > 0), b_pos) +
-                  conv1d(input * (input < 0), self$W * (self$W < 0), b_pos)
+    output$pos <-
+      conv1d(input * (input > 0), self$W * (self$W > 0), b_pos) +
+      conv1d(input * (input < 0), self$W * (self$W < 0), b_pos)
 
     # input (+) x weight (-) and input (-) x weight (+)
-    output$neg <- conv1d(input * (input > 0), self$W * (self$W < 0), b_neg) +
-                  conv1d(input * (input < 0), self$W * (self$W > 0), b_neg)
+    output$neg <-
+      conv1d(input * (input > 0), self$W * (self$W < 0), b_neg) +
+      conv1d(input * (input < 0), self$W * (self$W > 0), b_neg)
 
     output
   }
