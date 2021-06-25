@@ -113,12 +113,12 @@ conv2d_layer <- torch::nn_module(
   #   rule_name       : Name of the LRP-rule ("simple", "epsilon", "alpha_beta")
   #   rule_param      : Parameter of the rule ("simple": no parameter, "epsilon": epsilon value,
   #                     set default to 0.001, "alpha_beta": alpha value, set default to 0.5)
-  #   rel_upper       : relevance score from the upper layer to the output, torch Tensor
+  #   rel_output      : relevance score from the upper layer to the output, torch Tensor
   #                   : of size [batch_size, out_channels, out_height, out_width, model_out]
   #
   #   output          : torch Tensor of size [batch_size, in_channels, in_height, in_width, model_out]
 
-  get_input_relevances = function(rel_upper, rule_name = 'simple', rule_param = NULL) {
+  get_input_relevances = function(rel_output, rule_name = 'simple', rule_param = NULL) {
     # set default parameter
     if (is.null(rule_param)) {
       if (rule_name == "epsilon") {
@@ -133,14 +133,14 @@ conv2d_layer <- torch::nn_module(
       z <-  self$preactivation$unsqueeze(5)
       # add a small stabilizer
       z <- z + (z==0) * 1e-16
-      rel_lower <-
-        self$get_gradient(rel_upper / z, self$W) * self$input$unsqueeze(5)
+      rel_input <-
+        self$get_gradient(rel_output / z, self$W) * self$input$unsqueeze(5)
     }
     else if (rule_name == 'epsilon') {
       z <-  self$preactivation$unsqueeze(5)
       z <- z + rule_param * torch::torch_sgn(z) + (z==0) * 1e-16
-      rel_lower <-
-        self$get_gradient(rel_upper / z, self$W) * self$input$unsqueeze(5)
+      rel_input <-
+        self$get_gradient(rel_output / z, self$W) * self$input$unsqueeze(5)
     }
     else if (rule_name == 'alpha_beta') {
       # Get positive and negative decomposition of the linear output
@@ -148,7 +148,7 @@ conv2d_layer <- torch::nn_module(
 
       # Apply the simple rule for each part:
       # - positive part
-      z <- rel_upper / ( output$pos + (output$pos == 0) * 1e-16 )$unsqueeze(5)
+      z <- rel_output / ( output$pos + (output$pos == 0) * 1e-16 )$unsqueeze(5)
 
       t1 <- self$get_gradient(z, (self$W * (self$W > 0)))
       t2 <- self$get_gradient(z, (self$W * (self$W <= 0)))
@@ -157,7 +157,7 @@ conv2d_layer <- torch::nn_module(
       rel_pos <- t1 *  (input * (input > 0)) + t2 * (input * (input <= 0))
 
       # - negative part
-      z <- rel_upper / ( output$neg + (output$neg == 0) * 1e-16 )$unsqueeze(5)
+      z <- rel_output / ( output$neg + (output$neg == 0) * 1e-16 )$unsqueeze(5)
 
       t1 <- self$get_gradient(z, (self$W * (self$W > 0)))
       t2 <- self$get_gradient(z, (self$W * (self$W <= 0)))
@@ -165,27 +165,27 @@ conv2d_layer <- torch::nn_module(
       rel_neg <- t1 * (input * (input <= 0)) + t2 * (input * (input > 0))
 
       # calculate over all relevance for the lower layer
-      rel_lower <- rel_pos * rule_param + rel_neg * (1 - rule_param)
+      rel_input <- rel_pos * rule_param + rel_neg * (1 - rule_param)
     }
     else {
       stop(sprintf("Unknown LRP-rule '%s'!", rule_name))
     }
 
-    rel_lower
+    rel_input
   },
 
   #
-  #   mult_upper [batch_size, out_channels, out_height, out_width, model_out]
+  #   mult_output [batch_size, out_channels, out_height, out_width, model_out]
   #
   #   output [batch_size, in_channels, in_height, in_width, model_out]
   #
-  get_input_multiplier = function(mult_upper, rule_name = "rescale") {
+  get_input_multiplier = function(mult_output, rule_name = "rescale") {
 
     #
     # --------------------- Non-linear part---------------------------
     #
-    mult_pos <- mult_upper
-    mult_neg <- mult_upper
+    mult_pos <- mult_output
+    mult_neg <- mult_output
     if (self$activation_name != "linear") {
       if (rule_name == "rescale") {
 
@@ -196,10 +196,10 @@ conv2d_layer <- torch::nn_module(
 
         nonlin_mult <- delta_output / (delta_preact + 1e-16 * (delta_preact == 0))
 
-        # mult_upper    [batch_size, out_channels, out_height, out_width, model_out]
+        # mult_output   [batch_size, out_channels, out_height, out_width, model_out]
         # nonlin_mult   [batch_size, out_channels, out_height, out_width, 1]
-        mult_pos <- mult_upper * nonlin_mult
-        mult_neg <- mult_upper * nonlin_mult
+        mult_pos <- mult_output * nonlin_mult
+        mult_neg <- mult_output * nonlin_mult
 
       }
       else if (rule_name == "reveal_cancel") {
@@ -221,8 +221,8 @@ conv2d_layer <- torch::nn_module(
           0.5 * (act(x_ref + delta_x_neg) - act(x_ref)) +
           0.5 * (act(x) - act(x_ref + delta_x_pos))
 
-        mult_pos <- mult_upper * (delta_output_pos / (delta_x_pos + 1e-16))$unsqueeze(5)
-        mult_neg <- mult_upper * (delta_output_neg / (delta_x_neg - 1e-16))$unsqueeze(5)
+        mult_pos <- mult_output * (delta_output_pos / (delta_x_pos + 1e-16))$unsqueeze(5)
+        mult_neg <- mult_output * (delta_output_neg / (delta_x_neg - 1e-16))$unsqueeze(5)
       }
       else {
         stop(sprintf("Unknown DeepLift rule '%s'!", rule_name))
@@ -240,15 +240,15 @@ conv2d_layer <- torch::nn_module(
     # weight      [out_channels, in_channels, kernel_height, kernel_width]
     weight <- self$W
 
-    # mult_lower    [batch_size, in_channels, in_height, in_width, model_out]
-    mult_lower <-
+    # mult_input    [batch_size, in_channels, in_height, in_width, model_out]
+    mult_input <-
       self$get_gradient(mult_pos, weight * (weight > 0)) * (delta_input > 0) +
       self$get_gradient(mult_pos, weight * (weight < 0)) * (delta_input < 0) +
       self$get_gradient(mult_neg, weight * (weight > 0)) * (delta_input < 0) +
       self$get_gradient(mult_neg, weight * (weight < 0)) * (delta_input > 0) +
       self$get_gradient(0.5 * (mult_pos + mult_neg), weight) * (delta_input == 0)
 
-    mult_lower
+    mult_input
   },
 
   #

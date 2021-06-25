@@ -358,13 +358,16 @@ test_that("Test keras net with Conv1D", {
 })
 
 
+
 test_that("Test keras net with Conv2D", {
+  library(torch)
+  library(keras)
   batch_size <- 20
   in_channels <- 3
   i <- 1
 
-  for (in_height in c(20,21)) {
-    for (in_width in c(20,21, 30,31)) {
+  for (in_height in c(200,201)) {
+    for (in_width in c(200,201, 220,221)) {
       for (kernel_height in c(3,4)) {
         for (kernel_width in c(3,4,6,7)) {
           for (padding in c("same", "valid")) {
@@ -389,14 +392,14 @@ test_that("Test keras net with Conv2D", {
                 y <- analyzer$forward(input, channels_first = FALSE)
                 y_true <- as.array(model(input))
 
-                expect_lt(mean((y - y_true)^2), 1e-10)
+                expect_lt(mean((y - y_true)^2), 1e-8)
 
                 # update_ref
                 input <- as_array(torch_randn(1, in_height, in_width, in_channels))
                 y <- analyzer$update_ref(input, channels_first = FALSE)
                 y_true <- as.array(model(input))
 
-                expect_lt(mean((y - y_true)^2), 1e-10)
+                expect_lt(mean((y - y_true)^2), 1e-8)
 
                 # layer dimension
                 for (layer in analyzer$model$modules_list) {
@@ -423,14 +426,14 @@ test_that("Test keras net with Conv2D", {
                 y <- analyzer$forward(input, channels_first = FALSE)
                 y_true <- as.array(model(input))
 
-                expect_lt(mean((y - y_true)^2), 1e-10)
+                expect_lt(mean((y - y_true)^2), 1e-8)
 
                 # update_ref
                 input <- as_array(torch_randn(1, in_height, in_width, in_channels))
                 y <- analyzer$update_ref(input, channels_first = FALSE)
                 y_true <- as.array(model(input))
 
-                expect_lt(mean((y - y_true)^2), 1e-10)
+                expect_lt(mean((y - y_true)^2), 1e-8)
 
                 # layer dimension
                 for (layer in analyzer$model$modules_list) {
@@ -445,4 +448,3 @@ test_that("Test keras net with Conv2D", {
     }
   }
 })
-
