@@ -16,7 +16,6 @@ knitr::opts_chunk$set(
 # msIML
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/bips-hb/msIML/workflows/R-CMD-check/badge.svg)](https://github.com/bips-hb/msIML/actions)
 <!-- badges: end -->
 
 The goal of msIML is to ...

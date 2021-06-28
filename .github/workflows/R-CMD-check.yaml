@@ -93,6 +93,11 @@ jobs:
           keras::install_keras()
         shell: Rscript {0}
 
+      - name: Install LibTorch
+        run: |
+          torch::install_torch()
+        shell: Rscript {0}
+
       - name: Session info
         run: |
           options(width = 100)
