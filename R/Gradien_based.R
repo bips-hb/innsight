@@ -9,7 +9,9 @@ Gradient_Based <- R6::R6Class(
 
     result = NULL,
 
-    initialize = function() {},
+    initialize = function() {
+
+    },
 
     set_dtype = function(dtype) {
       #
@@ -25,7 +27,7 @@ Gradient_Based <- R6::R6Class(
       #
       # change the data and re-run the method
       #
-    },
+    }
 
 
   ),
@@ -45,7 +47,9 @@ Gradient_Based <- R6::R6Class(
       grad
     },
 
-    run = function() {}
+    run = function() {
+
+    }
   )
 )
 
