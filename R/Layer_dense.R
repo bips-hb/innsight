@@ -1,3 +1,16 @@
+#'
+#'Dense layer of a convolutional neural network
+#'
+#'
+#'Implementation of a dense Neural Network layer as a torch module
+#'where input, preactivation and output values of the last forward pass are stored
+#'(same for a reference input, if this is needed). Applies a torch function for
+#'forwarding an input through a linear function followed by an activation function
+#'\eqn{\sigma} to the input data, i.e.
+#'\deqn{y= \sigma(\code{nnf_dense(x,W,b)})}
+#'
+#'@export
+
 
 #' @include Layer.R
 #' @export
@@ -9,6 +22,15 @@ dense_layer <- torch::nn_module(
   # weight: [out_features, in_features]
   # bias  : [out_features]
   #
+  
+  #'@title Initialize the module
+  #'@name initialize
+  #'@param weight The weight matrix of dimensions \emph{(out_features,in_features)}
+  #'@param bias The bias vector of dimension \emph{(out_features)}
+  #'@param dim_in the input dimension of the layer
+  #'@param dim_out the output dimension of the layer
+  #'@param activation_name The name of the activation function used by the layer, by default \code{activation_name = 1}
+  #'
   initialize = function(weight, bias, activation_name, dtype = "float") {
     self$input_dim <- dim(weight)[2]
     self$output_dim <- dim(weight)[1]
@@ -31,6 +53,13 @@ dense_layer <- torch::nn_module(
 
     self$set_dtype(dtype)
   },
+  
+ #'@title set the data type of weight and bias
+ #'@name set_dtype
+ #'@description
+ #'This function changes the data type of the weight and bias tensor to be either float or double
+ #'@param dtype The name of the data type the weight and bias tensor are to be changed into. Can be \emph{"float"} or \emph{"double"}
+ #'
 
   set_dtype = function(dtype) {
     if (dtype == "float") {
@@ -50,6 +79,17 @@ dense_layer <- torch::nn_module(
   #
   # x: [batch_size, in_features]
   #
+  
+  #' @title Forward function for dense layer
+  #' @name forward
+  #'
+  #' @description
+  #' The forward function takes an input and forwards it through the layer
+  #'
+  #'
+  #'@param x The input torch tensor of dimensions  \emph{(batch_size, in_features )}
+  #'@return returns the output of the layer with respect to the given inputs, with dimensions
+  #' \emph{(batch_size,out_features)}
   forward = function(x) {
 
     self$input <- x
@@ -62,6 +102,17 @@ dense_layer <- torch::nn_module(
   #
   # x_ref: Tensor of size [1,in_features]
   #
+  
+  #'@title Update the reference value
+  #'@name update_ref
+  #'@description
+  #'This function takes the reference input and runs it through
+  #'the layer, updating the the values of input_ref and output_ref
+  #'
+  #'@param x_ref The new reference input, of dimensions \emph{(1,in_features)}
+  #'@return returns the output of the reference input after
+  #'passing through the layer, of dimension \emph{(1,out_features)}
+  #'
   update_ref = function(x_ref) {
 
     self$input_ref <- x_ref
@@ -76,6 +127,21 @@ dense_layer <- torch::nn_module(
   #
   #   output       [batch_size, dim_in, model_out]
   #
+  
+  #'@title LRP relevance method for layer's inputs
+  #'@name get_input_relevances
+  #'@description
+  #'This method uses the output layer relevances and calculates the input layer
+  #'relevances using the specified rule
+  #' @param rel_output The output relevances, of dimensions \emph{(batch_size, out_features, model_out)}
+  #' @param rule_name The name of the rule, with which the relevance scores are
+  #' calculated. Implemented are \code{"simple"}, \code{"epsilon"}, \code{"alpha_beta"}
+  #'  (default: \code{"simple"}).
+  #' @param rule_param The parameter of the selected rule. Note: Only the rules
+  #' \code{"epsilon"} and \code{"alpha_beta"} take use of the parameter. Use the default
+  #' value \code{NULL} for the default parameters ("epsilon" : \eqn{0.01}, "alpha_beta" : \eqn{0.5}).
+  #'
+  #'
   get_input_relevances = function(rel_output, rule_name = 'simple', rule_param = NULL) {
 
     if (is.null(rule_param)) {
@@ -201,12 +267,33 @@ dense_layer <- torch::nn_module(
   #
   #   output  [batch_size, dim_in, model_out]
   #
+  
+  #'@title Get gradient method
+  #'@name get_gradient
+  #'@description
+  #'This method uses \code{torch::torch_matmul} to multiply the input with the
+  #'gradient of a layer's output with respect to the layer's input.
+  #'
+  #'@param grad_out A tensor of dimension \emph{(batch_size, out_features, model_out)}
+  #'@param weight A weight tensor of dimensions \emph{(out_features, in_features)}
+  #'
+  #'@return
+  #'This returns the result of \code{torch:torch_matmul(weight$t(),grad_out)}
+  #'
   get_gradient = function(grad_out, weight) {
     grad_in <- torch::torch_matmul(weight$t(), grad_out)
 
     grad_in
   },
-
+  
+  #'@title Get positive and negative parts of the output
+  #'@name get_pos_and_neg_outputs
+  #'@description
+  #'This method uses the \code{torch::nnf_lienar()} method to divide the output of a linear pass of the input
+  #'into its positive and negative parts
+  #'@param input The input of the dense layer, of dimension \emph{(batch_size, in_features)}
+  #'@param use_bias If \code{use_bias == TRUE} the bias is used in the forward passes, if \code{use_bias == FALSE} it is omitted
+  #'@return Returns an output object with positive and negative parts of the output stored in \code{output$pos} and \code{output$neg} respectively
   get_pos_and_neg_outputs = function(input, use_bias = FALSE) {
     output <- NULL
 

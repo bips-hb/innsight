@@ -3,7 +3,7 @@
 #'
 #'
 #'@description
-#'Implementation of a one-dimensional Convolutional Neural Network layer as an R6 class
+#'Implementation of a one-dimensional Convolutional Neural Network layer as a torch module
 #'where input, preactivation and output values of the last forward pass are stored
 #'(same for a reference input, if this is needed). Applies a torch function for
 #'forwarding an input through a 1d convolution followed by an activation function
@@ -23,6 +23,8 @@ conv1d_layer <- torch::nn_module(
   # weight: [out_channels, in_channels, kernel_size]
   # bias  : [out_channels]
   #
+  #'@title Initialize the module
+  #'@name initialize
   #'@description
   #'Create a new instance of this class with given parameters of a one-dimensional
   #'convolutional layer.
@@ -334,7 +336,7 @@ conv1d_layer <- torch::nn_module(
 
     out
   },
-
+  
   get_pos_and_neg_outputs = function(input, use_bias = FALSE) {
     output <- NULL
 
