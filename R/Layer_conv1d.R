@@ -1,20 +1,37 @@
+#' @include Layer.R
+NULL
 
-#'One-dimensional convolution layer of a Neural Network
+#' One-dimensional convolution layer of a Neural Network
 #'
+#' Implementation of a one-dimensional Convolutional Neural Network layer as a \code{\link[torch]{nn_conv1d}} module
+#' where input, preactivation and output values of the last forward pass are stored
+#' (same for a reference input, if this is needed). Applies the torch function \code{\link[torch]{nnf_conv1d}} for
+#' forwarding an input through a 1d convolution followed by an activation function
+#' \eqn{\sigma} to the input data, i.e.
+#' \deqn{y= \sigma(\code{nnf_conv1d(x,W,b)})}
 #'
-#'@description
-#'Implementation of a one-dimensional Convolutional Neural Network layer as a torch module
-#'where input, preactivation and output values of the last forward pass are stored
-#'(same for a reference input, if this is needed). Applies a torch function for
-#'forwarding an input through a 1d convolution followed by an activation function
-#'\eqn{\sigma} to the input data, i.e.
-#'\deqn{y= \sigma(\code{nnf_conv1d(x,W,b)})}
+#' @param weight The weight matrix of dimension \emph{(out_channels, in_channels, kernel_size)}
+#' @param bias The bias vector of dimension \emph{(out_channels)}
+#' @param dim_in The input dimension of the layer: \emph{(in_channels, in_length)}
+#' @param dim_out The output dimensions of the layer: \emph{(out_channels, out_length)}
+#' @param stride The stride used in the convolution, by default `1`
+#' @param padding The padding of the layer, by default `c(0,0)` (left, right), can be an integer or a two-dimensional tuple
+#' @param dilation The dilation of the layer, by default `1`
+#' @param activation_name The name of the activation function used, by default `"linear"`
+#' @param dtype The data type of all the parameters (Use `'float'` or `'double'`)
+#'
+#' @section Attributes:
+#' \describe{
+#'   \item{`self$W`}{The weight matrix of this layer with shape \emph{(out_channels, in_channels, kernel_size)}}
+#'   \item{`self$b`}{The bias vector of this layer with shape \emph{(out_channels)}}
+#'   \item{`self$...`}{Many attributes are inherited from the superclass [Layer], e.g.
+#'   `input`, `input_dim`, `preactivation`, `activation_name`, etc.}
+#' }
 #'
 #'@export
-
-
-#' @include Layer.R
-#' @export
+#'
+#' @section Methods:
+#'
 conv1d_layer <- torch::nn_module(
   classname = "Conv1D_Layer",
   inherit = Layer,
@@ -22,21 +39,6 @@ conv1d_layer <- torch::nn_module(
   #
   # weight: [out_channels, in_channels, kernel_size]
   # bias  : [out_channels]
-  #
-  #'@title Initialize the module
-  #'@name initialize
-  #'@description
-  #'Create a new instance of this class with given parameters of a one-dimensional
-  #'convolutional layer.
-  #'@param weight The weight matrix of dimension \emph{(out_channels, in_channels, kernel_size)}
-  #'@param bias The bias vector of dimension \emph{(out_channels)}
-  #'@param dim_in The input dimension of the layer: \emph{(in_channels,in_length)}
-  #'@param dim_out The output dimensions of the layer: \emph{(out_channels,out_length)}
-  #'@param stride The stride used in the convolution, by default \code{stride=1}
-  #'@param padding The padding of the layer, by default \code{padding = c(0,0)}, can be an integer or a two-dimensional tuple
-  #'@param dilation The dilation of the layer, by default \code{dilation = 1}
-  #'@param activation_name The name of the activation function used, by default \code{activation_name = 1}
-  #'
   initialize = function(weight,
                         bias,
                         dim_in,
@@ -76,34 +78,22 @@ conv1d_layer <- torch::nn_module(
     self$set_dtype(dtype)
   },
 
-  set_dtype = function(dtype) {
-    if (dtype == "float") {
-      self$W <- self$W$to(torch::torch_float())
-      self$b <- self$b$to(torch::torch_float())
-    }
-    else if (dtype == "double") {
-      self$W <- self$W$to(torch::torch_double())
-      self$b <- self$b$to(torch::torch_double())
-    }
-    else {
-      stop(sprintf("Unknown argument for 'dtype' : %s . Use 'float' or 'double' instead"))
-    }
-    self$dtype <- dtype
-  },
 
-  #
-  # x : Tensor [batch_size, in_channels, Length_in ]
-  #
-  #' @title Forward function for conv1d layer
-  #' @name forward
+  #' @section `self$forward()`:
+  #' The forward function takes an input and forwards it through the layer.
   #'
-  #' @description
-  #' The forward function takes an input and forwards it through the layer
+  #' ## Usage
+  #' `self(x)`
   #'
+  #' ## Arguments
+  #' \describe{
+  #' \item{`x`}{The input torch tensor of dimensions \emph{(batch_size, in_channels, in_length)}}
+  #' }
   #'
-  #'@param x The input torch tensor of dimensions  \emph{(batch_size, in_channels, in_length )}
-  #'@return returns the output of the layer with respect to the given inputs, with dimensions
-  #' \emph{(batch_size,out_channels,out_length)}
+  #' ## Return
+  #' Returns the output of the layer with respect to the given inputs, with dimensions
+  #' \emph{(batch_size, out_channels, out_length)}
+  #'
   forward = function(x) {
     self$input <- x
     # Pad the input
@@ -119,18 +109,21 @@ conv1d_layer <- torch::nn_module(
     self$output
   },
 
-  #
-  # x_ref: Tensor of size [in_channels, Length_in]
-  #
-  #'@title Update the reference value
-  #'@name update_ref
-  #'@description
-  #'This function takes the reference input and runs it through
-  #'the layer, updating the the values of input_ref and output_ref
+  #' @section `self$update_ref()`:
+  #' This function takes the reference input and runs it through
+  #' the layer, updating the the values of `input_ref`, `preactivation_ref` and `output_ref`
   #'
-  #'@param x_ref The new reference input, of dimensions \emph{(1,in_channels,in_length)}
-  #'@return returns the output of the reference input after
-  #'passing through the layer, of dimension \emph{(1,out_channels,out_length)}
+  #' ## Usage
+  #' `self$update_ref(x_ref)`
+  #'
+  #' ## Arguments
+  #' \describe{
+  #'   \item{`x_ref`}{The new reference input, of dimensions \emph{(1, in_channels, in_length)}}
+  #' }
+  #'
+  #' ## Return
+  #' Returns the output of the reference input after
+  #' passing through the layer, of dimension \emph{(1, out_channels, out_length)}
   #'
   update_ref = function(x_ref) {
     self$input_ref <- x_ref
@@ -148,19 +141,27 @@ conv1d_layer <- torch::nn_module(
     self$output_ref
   },
 
-  #'@title LRP relevance method for layer's inputs
-  #'@name get_input_relevances
-  #'@description
-  #'This method uses the output layer relevances and calculates the input layer
-  #'relevances using the specified rule
-  #' @param rel_output The output relevances, of dimensions \emph{(batch_size, out_channels, out_length, model_out)}
-  #' @param rule_name The name of the rule, with which the relevance scores are
-  #' calculated. Implemented are \code{"simple"}, \code{"epsilon"}, \code{"alpha_beta"},
-  #' \code{"ww"} (default: \code{"simple"}).
-  #' @param rule_param The parameter of the selected rule. Note: Only the rules
-  #' \code{"epsilon"} and \code{"alpha_beta"} take use of the parameter. Use the default
-  #' value \code{NULL} for the default parameters ("epsilon" : \eqn{0.01}, "alpha_beta" : \eqn{0.5}).
+
+
+  #' @section `self$get_input_relevances()`:
+  #' This method uses the output layer relevances and calculates the input layer
+  #' relevances using the specified rule.
   #'
+  #' ## Usage
+  #' `self$get_input_relevances(rel_output,`
+  #' `  rule_name = 'simple',`
+  #' `  rule_param = NULL)`
+  #'
+  #' ## Arguments
+  #' \describe{
+  #'   \item{`rel_output`}{The output relevances, of dimensions \emph{(batch_size, out_channels, out_length, model_out)}}
+  #'   \item{`rule_name`}{The name of the rule, with which the relevance scores are
+  #'        calculated. Implemented are `"simple"`, `"epsilon"`, `"alpha_beta"`,
+  #'        `"ww"` (default: `"simple"`).}
+  #'   \item{`rule_param`}{The parameter of the selected rule. Note: Only the rules
+  #'        `"epsilon"` and `"alpha_beta"` take use of the parameter. Use the default
+  #'        value `NULL` for the default parameters (`"epsilon"` : \eqn{0.01}, `"alpha_beta"` : \eqn{0.5}).}
+  #' }
   #'
   get_input_relevances = function(rel_output, rule_name = 'simple', rule_param = NULL) {
 
@@ -223,6 +224,8 @@ conv1d_layer <- torch::nn_module(
     rel_input
   },
 
+  #' @section `self$get_input_multiplier()`:
+  #'
   get_input_multiplier = function(mult_output, rule_name = "rescale") {
 
     #
@@ -292,20 +295,23 @@ conv1d_layer <- torch::nn_module(
     mult_input
   },
 
-  #'@title Get gradient method
-  #'@name get_gradient
-  #'@description
-  #'This method uses \code{nnf_conv_transpose1d} to multiply the input with the
-  #'gradient of a layer's output with respect to the layer's input.
+  #' @section `self$get_gradient()`:
+  #' This method uses \code{\link[torch]{nnf_conv_transpose1d}} to multiply the input with the
+  #' gradient of a layer's output with respect to the layer's input. This results in the
+  #' gradients of the model output with respect to layer's input.
   #'
-  #'@param input A relevance tensor of dimension \emph{(batch_size, out_channels, out_length, model_out)}
-  #'@param weight A weight tensor of dimensions \emph{(out_channels, in_channels, kernel_size)}
+  #' ## Usage
+  #' `self$get_gradient(input, weight)`
   #'
-  #'@return
-  #'This returns the 1d transpose of the input using \code{nnf_conv_transpose1d} with params
-  #'\code{input}, \code{weight$unsqueeze(4)}
+  #' ## Arguments
+  #' \describe{
+  #'   \item{`input`}{The gradients of the upper layer, a tensor of dimension \emph{(batch_size, out_channels, out_length, model_out)}}
+  #'   \item{`weight`}{A weight tensor of dimensions \emph{(out_channels, in_channels, kernel_size)}}
+  #' }
   #'
-
+  #' ## Return
+  #' This returns the gradient of the model's output with respect to the layer input.
+  #'
   get_gradient = function(input, weight) {
 
     # Since we have added the model_out dimension, strides and dilation need to
@@ -336,7 +342,9 @@ conv1d_layer <- torch::nn_module(
 
     out
   },
-  
+
+  #' @section `self$get_pos_and_neg_outputs()`:
+  #'
   get_pos_and_neg_outputs = function(input, use_bias = FALSE) {
     output <- NULL
 
@@ -370,6 +378,24 @@ conv1d_layer <- torch::nn_module(
       conv1d(input * (input < 0), self$W * (self$W > 0), b_neg)
 
     output
+  },
+
+
+  #' @section `self$set_dtype()`:
+  #'
+  set_dtype = function(dtype) {
+    if (dtype == "float") {
+      self$W <- self$W$to(torch::torch_float())
+      self$b <- self$b$to(torch::torch_float())
+    }
+    else if (dtype == "double") {
+      self$W <- self$W$to(torch::torch_double())
+      self$b <- self$b$to(torch::torch_double())
+    }
+    else {
+      stop(sprintf("Unknown argument for 'dtype' : %s . Use 'float' or 'double' instead"))
+    }
+    self$dtype <- dtype
   }
 )
 
