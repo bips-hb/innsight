@@ -90,10 +90,19 @@ Analyzer <- R6::R6Class("Analyzer",
                             self$output_names <- result$output_names
                           },
 
-                          #' Forward method
+                          #' @description
                           #'
-                          #' @param x Input
-                          #' @param channels_first Boolean value
+                          #' The forward method of the whole model, i.e. it calculates the output
+                          #' \eqn{y=f(x)} of a given input \eqn{x}.
+                          #' In doing so all intermediate values are stored in the individual layers.
+                          #' A batch-wise evaluation is performed, hence \eqn{x} must be an array of
+                          #' inputs.
+                          #'
+                          #' @param x Input array of the model with size \emph{(batch_size, dim_in)}.
+                          #' @param channels_first Data format (default: `TRUE`)
+                          #'
+                          #' @return An array of size \emph{(batch_size, dim_out)}.
+                          #'
 
                           forward = function(x, channels_first = TRUE) {
                             x <- torch::torch_tensor(as.array(x), dtype = torch::torch_float())
@@ -107,6 +116,17 @@ Analyzer <- R6::R6Class("Analyzer",
                             torch::as_array(out)
                           },
 
+                          #' @description
+                          #'
+                          #' This method takes the reference input and runs it through
+                          #' the model and stores all intermediate values in the
+                          #' layer's attributes.
+                          #'
+                          #' @param x_ref The new reference input, of dimensions \emph{(1, dim_in)}
+                          #' @param channels_first Data format (default: `TRUE`)
+                          #'
+                          #' @return Returns reference output of the reference input.
+                          #'
                           update_ref = function(x_ref, channels_first = TRUE) {
                             x_ref <- torch::torch_tensor(as.array(x_ref), dtype = torch::torch_float())
                             if (channels_first == FALSE) {

@@ -10,7 +10,7 @@ NULL
 #' \eqn{\sigma} to the input data, i.e.
 #' \deqn{y= \sigma(\code{nnf_conv1d(x,W,b)})}
 #'
-#' @param weight The weight matrix of dimension \emph{(out_channels, in_channels, kernel_size)}
+#' @param weight The weight matrix of dimension \emph{(out_channels, in_channels, kernel_length)}
 #' @param bias The bias vector of dimension \emph{(out_channels)}
 #' @param dim_in The input dimension of the layer: \emph{(in_channels, in_length)}
 #' @param dim_out The output dimensions of the layer: \emph{(out_channels, out_length)}
@@ -22,7 +22,7 @@ NULL
 #'
 #' @section Attributes:
 #' \describe{
-#'   \item{`self$W`}{The weight matrix of this layer with shape \emph{(out_channels, in_channels, kernel_size)}}
+#'   \item{`self$W`}{The weight matrix of this layer with shape \emph{(out_channels, in_channels, kernel_length)}}
 #'   \item{`self$b`}{The bias vector of this layer with shape \emph{(out_channels)}}
 #'   \item{`self$...`}{Many attributes are inherited from the superclass [Layer], e.g.
 #'   `input`, `input_dim`, `preactivation`, `activation_name`, etc.}
@@ -30,14 +30,12 @@ NULL
 #'
 #'@export
 #'
-#' @section Methods:
-#'
 conv1d_layer <- torch::nn_module(
   classname = "Conv1D_Layer",
   inherit = Layer,
 
   #
-  # weight: [out_channels, in_channels, kernel_size]
+  # weight: [out_channels, in_channels, kernel_length]
   # bias  : [out_channels]
   initialize = function(weight,
                         bias,
@@ -55,7 +53,7 @@ conv1d_layer <- torch::nn_module(
     self$output_dim <- dim_out
     self$in_channels <- dim(weight)[2]
     self$out_channels <- dim(weight)[1]
-    self$kernel_size <- dim(weight)[-c(1,2)]
+    self$kernel_length <- dim(weight)[-c(1,2)]
     self$stride <- stride
     # padding     [left, right]
     self$padding <- padding
@@ -80,7 +78,8 @@ conv1d_layer <- torch::nn_module(
 
 
   #' @section `self$forward()`:
-  #' The forward function takes an input and forwards it through the layer.
+  #' The forward function takes an input and forwards it through the layer,
+  #' updating the the values of `input`, `preactivation` and `output`
   #'
   #' ## Usage
   #' `self(x)`
@@ -148,8 +147,9 @@ conv1d_layer <- torch::nn_module(
   #' relevances using the specified rule.
   #'
   #' ## Usage
-  #' `self$get_input_relevances(rel_output,`
-  #' `  rule_name = 'simple',`
+  #' `self$get_input_relevances(`\cr
+  #' `  rel_output,`\cr
+  #' `  rule_name = 'simple',` \cr
   #' `  rule_param = NULL)`
   #'
   #' ## Arguments
@@ -162,6 +162,11 @@ conv1d_layer <- torch::nn_module(
   #'        `"epsilon"` and `"alpha_beta"` take use of the parameter. Use the default
   #'        value `NULL` for the default parameters (`"epsilon"` : \eqn{0.01}, `"alpha_beta"` : \eqn{0.5}).}
   #' }
+  #'
+  #' ## Return
+  #' Returns the relevance score of the layer's input to the model output as a
+  #' torch tensor of size \emph{(batch_size, in_channels, in_length, model_out)}
+  #'
   #'
   get_input_relevances = function(rel_output, rule_name = 'simple', rule_param = NULL) {
 
@@ -225,6 +230,25 @@ conv1d_layer <- torch::nn_module(
   },
 
   #' @section `self$get_input_multiplier()`:
+  #' This function is the local implementation of the DeepLift method for this
+  #' layer and returns the multiplier from the input contribution to the output.
+  #'
+  #' ## Usage
+  #' `self$get_input_multiplier(mult_output, rule_name = "rescale")`
+  #'
+  #' ## Arguments
+  #' \describe{
+  #'   \item{`mult_output`}{The multiplier of the layer output contribution
+  #'   to the model output. A torch tensor of shape
+  #'   \emph{(batch_size, out_channels, out_length, model_out)}}
+  #'   \item{`rule_name`}{The name of the rule, with which the multiplier is
+  #'        calculated. Implemented are `"rescale"` and `"reveal_cancel"`
+  #'        (default: `"rescale"`).}
+  #' }
+  #'
+  #' ## Return
+  #' Returns the contribution multiplier of the layer's input to the model output
+  #' as torch tensor of dimension \emph{(batch_size, in_channels, in_length, model_out)}.
   #'
   get_input_multiplier = function(mult_output, rule_name = "rescale") {
 
@@ -306,11 +330,12 @@ conv1d_layer <- torch::nn_module(
   #' ## Arguments
   #' \describe{
   #'   \item{`input`}{The gradients of the upper layer, a tensor of dimension \emph{(batch_size, out_channels, out_length, model_out)}}
-  #'   \item{`weight`}{A weight tensor of dimensions \emph{(out_channels, in_channels, kernel_size)}}
+  #'   \item{`weight`}{A weight tensor of dimensions \emph{(out_channels, in_channels, kernel_length)}}
   #' }
   #'
   #' ## Return
-  #' This returns the gradient of the model's output with respect to the layer input.
+  #' Returns the gradient of the model's output with respect to the layer input
+  #' as a torch tensor of dimension \emph{(batch_size, in_channels, in_length, model_out)}.
   #'
   get_gradient = function(input, weight) {
 
@@ -344,6 +369,24 @@ conv1d_layer <- torch::nn_module(
   },
 
   #' @section `self$get_pos_and_neg_outputs()`:
+  #' This method separates the linear layer output (i.e. the preactivation) into
+  #' the positive and negative parts.
+  #'
+  #' ## Usage
+  #' `self$get_pos_and_neg_outputs(input, use_bias = FALSE)`
+  #'
+  #' ## Arguments
+  #' \describe{
+  #'   \item{`input`}{The input whose linear output we want to decompose into
+  #'   the positive and negative parts}
+  #'   \item{`use_bias`}{Boolean whether the bias vector should be considered
+  #'   (default: FALSE)}
+  #' }
+  #'
+  #' ## Return
+  #' Returns a decomposition of the linear output of this layer with input `input`
+  #' into the positive and negative parts. A list of two torch tensors with
+  #' size \emph{(batch_size, out_channels, out_length)} and keys `$pos` and `$neg`
   #'
   get_pos_and_neg_outputs = function(input, use_bias = FALSE) {
     output <- NULL
@@ -382,6 +425,17 @@ conv1d_layer <- torch::nn_module(
 
 
   #' @section `self$set_dtype()`:
+  #' This function changes the data type of the weight and bias tensor to be
+  #' either `"float"` or `"double"`.
+  #'
+  #' ## Usage
+  #' `self$set_dtype(dtype)`
+  #'
+  #' ## Arguments
+  #' \describe{
+  #'   \item{`dtype`}{The data type of the layer's parameters. Use `"float"` or
+  #'   `"double"`}
+  #' }
   #'
   set_dtype = function(dtype) {
     if (dtype == "float") {

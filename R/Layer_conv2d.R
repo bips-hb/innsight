@@ -1,6 +1,35 @@
-
 #' @include Layer.R
-#' @export
+NULL
+
+#' Two-dimensional convolution layer of a Neural Network
+#'
+#' Implementation of a two-dimensional Convolutional Neural Network layer as a \code{\link[torch]{nn_conv2d}} module
+#' where input, preactivation and output values of the last forward pass are stored
+#' (same for a reference input, if this is needed). Applies the torch function \code{\link[torch]{nnf_conv2d}} for
+#' forwarding an input through a 2d convolution followed by an activation function
+#' \eqn{\sigma} to the input data, i.e.
+#' \deqn{y= \sigma(\code{nnf_conv2d(x,W,b)})}
+#'
+#' @param weight The weight matrix of dimension \emph{(out_channels, in_channels, kernel_height, kernel_width)}
+#' @param bias The bias vector of dimension \emph{(out_channels)}
+#' @param dim_in The input dimension of the layer: \emph{(in_channels, in_height, in_width)}
+#' @param dim_out The output dimensions of the layer: \emph{(out_channels, out_height, oout_width)}
+#' @param stride The stride used in the convolution, by default `1`
+#' @param padding The padding of the layer, by default `c(0,0,0,0)` (left, right, top, bottom), can be an integer or a four-dimensional tuple
+#' @param dilation The dilation of the layer, by default `1`
+#' @param activation_name The name of the activation function used, by default `"linear"`
+#' @param dtype The data type of all the parameters (Use `'float'` or `'double'`)
+#'
+#' @section Attributes:
+#' \describe{
+#'   \item{`self$W`}{The weight matrix of this layer with shape \emph{(out_channels, in_channels, kernel_height, kernel_width)}}
+#'   \item{`self$b`}{The bias vector of this layer with shape \emph{(out_channels)}}
+#'   \item{`self$...`}{Many attributes are inherited from the superclass [Layer], e.g.
+#'   `input`, `input_dim`, `preactivation`, `activation_name`, etc.}
+#' }
+#'
+#'@export
+#'
 conv2d_layer <- torch::nn_module(
   classname = "Conv2D_Layer",
   inherit = Layer,
@@ -55,24 +84,25 @@ conv2d_layer <- torch::nn_module(
     self$set_dtype(dtype)
   },
 
-  set_dtype = function(dtype) {
-    if (dtype == "float") {
-      self$W <- self$W$to(torch::torch_float())
-      self$b <- self$b$to(torch::torch_float())
-    }
-    else if (dtype == "double") {
-      self$W <- self$W$to(torch::torch_double())
-      self$b <- self$b$to(torch::torch_double())
-    }
-    else {
-      stop(sprintf("Unknown argument for 'dtype' : %s . Use 'float' or 'double' instead"))
-    }
-    self$dtype <- dtype
-  },
-
   #
   # x : Tensor [minibatch, in_channels, in_height, in_width]
   #
+  #' @section `self$forward()`:
+  #' The forward function takes an input and forwards it through the layer,
+  #' updating the the values of `input`, `preactivation` and `output`
+  #'
+  #' ## Usage
+  #' `self(x)`
+  #'
+  #' ## Arguments
+  #' \describe{
+  #' \item{`x`}{The input torch tensor of dimensions \emph{(batch_size, in_channels, in_height, in_width)}}
+  #' }
+  #'
+  #' ## Return
+  #' Returns the output of the layer with respect to the given inputs, with dimensions
+  #' \emph{(batch_size, out_channels, out_height, out_width)}
+  #'
   forward = function(x) {
     self$input <- x
 
@@ -93,6 +123,22 @@ conv2d_layer <- torch::nn_module(
   #
   # x_ref: Tensor of size [in_channels, in_height, in_width]
   #
+  #' @section `self$update_ref()`:
+  #' This function takes the reference input and runs it through
+  #' the layer, updating the the values of `input_ref`, `preactivation_ref` and `output_ref`
+  #'
+  #' ## Usage
+  #' `self$update_ref(x_ref)`
+  #'
+  #' ## Arguments
+  #' \describe{
+  #'   \item{`x_ref`}{The new reference input, of dimensions \emph{(1, in_channels, in_height, in_width)}}
+  #' }
+  #'
+  #' ## Return
+  #' Returns the output of the reference input after
+  #' passing through the layer, of dimension \emph{(1, out_channels, out_height, out_width)}
+  #'
   update_ref = function(x_ref) {
     self$input_ref <- x_ref
     # Apply padding
@@ -118,6 +164,32 @@ conv2d_layer <- torch::nn_module(
   #
   #   output          : torch Tensor of size [batch_size, in_channels, in_height, in_width, model_out]
 
+  #' @section `self$get_input_relevances()`:
+  #' This method uses the output layer relevances and calculates the input layer
+  #' relevances using the specified rule.
+  #'
+  #' ## Usage
+  #' `self$get_input_relevances(`\cr
+  #' `  rel_output,`\cr
+  #' `  rule_name = 'simple',` \cr
+  #' `  rule_param = NULL)`
+  #'
+  #' ## Arguments
+  #' \describe{
+  #'   \item{`rel_output`}{The output relevances, of dimensions
+  #'   \emph{(batch_size, out_channels, out_height, out_width, model_out)}}
+  #'   \item{`rule_name`}{The name of the rule, with which the relevance scores are
+  #'        calculated. Implemented are `"simple"`, `"epsilon"`, `"alpha_beta"`,
+  #'        `"ww"` (default: `"simple"`).}
+  #'   \item{`rule_param`}{The parameter of the selected rule. Note: Only the rules
+  #'        `"epsilon"` and `"alpha_beta"` take use of the parameter. Use the default
+  #'        value `NULL` for the default parameters (`"epsilon"` : \eqn{0.01}, `"alpha_beta"` : \eqn{0.5}).}
+  #' }
+  #'
+  #' ## Return
+  #' Returns the relevance score of the layer's input to the model output as a
+  #' torch tensor of size \emph{(batch_size, in_channels, in_height, in_width, model_out)}
+  #'
   get_input_relevances = function(rel_output, rule_name = 'simple', rule_param = NULL) {
     # set default parameter
     if (is.null(rule_param)) {
@@ -179,6 +251,27 @@ conv2d_layer <- torch::nn_module(
   #
   #   output [batch_size, in_channels, in_height, in_width, model_out]
   #
+  #' @section `self$get_input_multiplier()`:
+  #' This function is the local implementation of the DeepLift method for this
+  #' layer and returns the multiplier from the input contribution to the output.
+  #'
+  #' ## Usage
+  #' `self$get_input_multiplier(mult_output, rule_name = "rescale")`
+  #'
+  #' ## Arguments
+  #' \describe{
+  #'   \item{`mult_output`}{The multiplier of the layer output contribution
+  #'   to the model output. A torch tensor of shape
+  #'   \emph{(batch_size, out_channels, out_height, out_width, model_out)}}
+  #'   \item{`rule_name`}{The name of the rule, with which the multiplier is
+  #'        calculated. Implemented are `"rescale"` and `"reveal_cancel"`
+  #'        (default: `"rescale"`).}
+  #' }
+  #'
+  #' ## Return
+  #' Returns the contribution multiplier of the layer's input to the model output
+  #' as torch tensor of dimension \emph{(batch_size, in_channels, in_height, in_width, model_out)}.
+  #'
   get_input_multiplier = function(mult_output, rule_name = "rescale") {
 
     #
@@ -257,6 +350,25 @@ conv2d_layer <- torch::nn_module(
   #
   #   output  [batch_size, in_channels, in_height, in_width, model_out]
   #
+  #' @section `self$get_gradient()`:
+  #' This method uses \code{\link[torch]{nnf_conv_transpose2d}} to multiply the input with the
+  #' gradient of a layer's output with respect to the layer's input. This results in the
+  #' gradients of the model output with respect to layer's input.
+  #'
+  #' ## Usage
+  #' `self$get_gradient(input, weight)`
+  #'
+  #' ## Arguments
+  #' \describe{
+  #'   \item{`input`}{The gradients of the upper layer, a tensor of dimension
+  #'   \emph{(batch_size, out_channels, out_height, out_width, model_out)}}
+  #'   \item{`weight`}{A weight tensor of dimensions \emph{(out_channels, in_channels, kernel_height, kernel_width)}}
+  #' }
+  #'
+  #' ## Return
+  #' Returns the gradient of the model's output with respect to the layer input
+  #' as a torch tensor of dimension \emph{(batch_size, in_channels, in_height, in_width, model_out)}.
+  #'
   get_gradient = function(input, weight) {
     # Since we have added the model_out dimension, strides and dilation need to
     # be extended by 1.
@@ -308,6 +420,26 @@ conv2d_layer <- torch::nn_module(
   # output$pos [batch_size, out_channels, out_height, out_width]
   # output$neg [batch_size, out_channels, out_height, out_width]
   #
+  #' @section `self$get_pos_and_neg_outputs()`:
+  #' This method separates the linear layer output (i.e. the preactivation) into
+  #' the positive and negative parts.
+  #'
+  #' ## Usage
+  #' `self$get_pos_and_neg_outputs(input, use_bias = FALSE)`
+  #'
+  #' ## Arguments
+  #' \describe{
+  #'   \item{`input`}{The input whose linear output we want to decompose into
+  #'   the positive and negative parts}
+  #'   \item{`use_bias`}{Boolean whether the bias vector should be considered
+  #'   (default: FALSE)}
+  #' }
+  #'
+  #' ## Return
+  #' Returns a decomposition of the linear output of this layer with input `input`
+  #' into the positive and negative parts. A list of two torch tensors with
+  #' size \emph{(batch_size, out_channels, out_height, out_width)} and keys `$pos` and `$neg`
+  #'
   get_pos_and_neg_outputs = function(input, use_bias = FALSE) {
     output <- NULL
 
@@ -339,5 +471,33 @@ conv2d_layer <- torch::nn_module(
                   conv2d(input * (input <= 0), self$W * (self$W > 0), b_neg)
 
     output
+  },
+
+  #' @section `self$set_dtype()`:
+  #' This function changes the data type of the weight and bias tensor to be
+  #' either `"float"` or `"double"`.
+  #'
+  #' ## Usage
+  #' `self$set_dtype(dtype)`
+  #'
+  #' ## Arguments
+  #' \describe{
+  #'   \item{`dtype`}{The data type of the layer's parameters. Use `"float"` or
+  #'   `"double"`}
+  #' }
+  #'
+  set_dtype = function(dtype) {
+    if (dtype == "float") {
+      self$W <- self$W$to(torch::torch_float())
+      self$b <- self$b$to(torch::torch_float())
+    }
+    else if (dtype == "double") {
+      self$W <- self$W$to(torch::torch_double())
+      self$b <- self$b$to(torch::torch_double())
+    }
+    else {
+      stop(sprintf("Unknown argument for 'dtype' : %s . Use 'float' or 'double' instead"))
+    }
+    self$dtype <- dtype
   }
 )

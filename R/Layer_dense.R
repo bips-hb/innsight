@@ -1,19 +1,34 @@
-#'
-#'Dense layer of a convolutional neural network
-#'
-#'
-#'Implementation of a dense Neural Network layer as a torch module
-#'where input, preactivation and output values of the last forward pass are stored
-#'(same for a reference input, if this is needed). Applies a torch function for
-#'forwarding an input through a linear function followed by an activation function
-#'\eqn{\sigma} to the input data, i.e.
-#'\deqn{y= \sigma(\code{nnf_dense(x,W,b)})}
-#'
-#'@export
-
-
 #' @include Layer.R
+#'
+NULL
+
+
+#'
+#' Dense layer of a convolutional neural network
+#'
+#'
+#' Implementation of a dense Neural Network layer as a torch module
+#' where input, preactivation and output values of the last forward pass are stored
+#' (same for a reference input, if this is needed). Applies a torch function for
+#' forwarding an input through a linear function followed by an activation function
+#' \eqn{\sigma} to the input data, i.e.
+#' \deqn{y= \sigma(\code{nnf_dense(x,W,b)})}
+#'
+#' @param weight The weight matrix of dimensions \emph{(out_features, in_features)}
+#' @param bias The bias vector of dimension \emph{(out_features)}
+#' @param activation_name The name of the activation function used by the layer
+#' @param dtype The data type of all the parameters (Use `'float'` or `'double'`)
+#'
+#' @section Attributes:
+#' \describe{
+#'   \item{`self$W`}{The weight matrix of this layer with shape \emph{(out_features, in_features)}}
+#'   \item{`self$b`}{The bias vector of this layer with shape \emph{(out_features)}}
+#'   \item{`self$...`}{Many attributes are inherited from the superclass [Layer], e.g.
+#'   `input`, `input_dim`, `preactivation`, `activation_name`, etc.}
+#' }
+#'
 #' @export
+#'
 dense_layer <- torch::nn_module(
   classname = "Dense_Layer",
   inherit = Layer,
@@ -22,15 +37,6 @@ dense_layer <- torch::nn_module(
   # weight: [out_features, in_features]
   # bias  : [out_features]
   #
-  
-  #'@title Initialize the module
-  #'@name initialize
-  #'@param weight The weight matrix of dimensions \emph{(out_features,in_features)}
-  #'@param bias The bias vector of dimension \emph{(out_features)}
-  #'@param dim_in the input dimension of the layer
-  #'@param dim_out the output dimension of the layer
-  #'@param activation_name The name of the activation function used by the layer, by default \code{activation_name = 1}
-  #'
   initialize = function(weight, bias, activation_name, dtype = "float") {
     self$input_dim <- dim(weight)[2]
     self$output_dim <- dim(weight)[1]
@@ -53,43 +59,26 @@ dense_layer <- torch::nn_module(
 
     self$set_dtype(dtype)
   },
-  
- #'@title set the data type of weight and bias
- #'@name set_dtype
- #'@description
- #'This function changes the data type of the weight and bias tensor to be either float or double
- #'@param dtype The name of the data type the weight and bias tensor are to be changed into. Can be \emph{"float"} or \emph{"double"}
- #'
-
-  set_dtype = function(dtype) {
-    if (dtype == "float") {
-      self$W <- self$W$to(torch::torch_float())
-      self$b <- self$b$to(torch::torch_float())
-    }
-    else if (dtype == "double") {
-      self$W <- self$W$to(torch::torch_double())
-      self$b <- self$b$to(torch::torch_double())
-    }
-    else {
-      stop(sprintf("Unknown argument for 'dtype' : %s . Use 'float' or 'double' instead"))
-    }
-    self$dtype <- dtype
-  },
 
   #
   # x: [batch_size, in_features]
   #
-  
-  #' @title Forward function for dense layer
-  #' @name forward
-  #'
-  #' @description
+
+  #' @section `self$forward()`:
   #' The forward function takes an input and forwards it through the layer
   #'
+  #' ## Usage
+  #' `self(x)`
   #'
-  #'@param x The input torch tensor of dimensions  \emph{(batch_size, in_features )}
-  #'@return returns the output of the layer with respect to the given inputs, with dimensions
-  #' \emph{(batch_size,out_features)}
+  #' ## Arguments
+  #' \describe{
+  #'   \item{`x`}{The input torch tensor of dimensions \emph{(batch_size, in_features)}}
+  #' }
+  #'
+  #' ## Return
+  #' Returns the output of the layer with respect to the given inputs, with dimensions
+  #' \emph{(batch_size, out_features)}
+  #'
   forward = function(x) {
 
     self$input <- x
@@ -102,16 +91,21 @@ dense_layer <- torch::nn_module(
   #
   # x_ref: Tensor of size [1,in_features]
   #
-  
-  #'@title Update the reference value
-  #'@name update_ref
-  #'@description
-  #'This function takes the reference input and runs it through
-  #'the layer, updating the the values of input_ref and output_ref
+  #' @section `self$update_ref()`:
+  #' This function takes the reference input and runs it through
+  #' the layer, updating the the values of `input_ref`, `preactivation_ref` and `output_ref`
   #'
-  #'@param x_ref The new reference input, of dimensions \emph{(1,in_features)}
-  #'@return returns the output of the reference input after
-  #'passing through the layer, of dimension \emph{(1,out_features)}
+  #' ## Usage
+  #' `self$update_ref(x_ref)`
+  #'
+  #' ## Arguments
+  #' \describe{
+  #'   \item{`x_ref`}{The new reference input, of dimensions \emph{(1, in_features)}}
+  #' }
+  #'
+  #' ## Return
+  #' Returns the output of the reference input after
+  #' passing through the layer, of dimension \emph{(1, out_features)}
   #'
   update_ref = function(x_ref) {
 
@@ -127,20 +121,29 @@ dense_layer <- torch::nn_module(
   #
   #   output       [batch_size, dim_in, model_out]
   #
-  
-  #'@title LRP relevance method for layer's inputs
-  #'@name get_input_relevances
-  #'@description
-  #'This method uses the output layer relevances and calculates the input layer
-  #'relevances using the specified rule
-  #' @param rel_output The output relevances, of dimensions \emph{(batch_size, out_features, model_out)}
-  #' @param rule_name The name of the rule, with which the relevance scores are
-  #' calculated. Implemented are \code{"simple"}, \code{"epsilon"}, \code{"alpha_beta"}
-  #'  (default: \code{"simple"}).
-  #' @param rule_param The parameter of the selected rule. Note: Only the rules
-  #' \code{"epsilon"} and \code{"alpha_beta"} take use of the parameter. Use the default
-  #' value \code{NULL} for the default parameters ("epsilon" : \eqn{0.01}, "alpha_beta" : \eqn{0.5}).
+  #' @section `self$get_input_relevances()`:
+  #' This method uses the output layer relevances and calculates the input layer
+  #' relevances using the specified rule.
   #'
+  #' ## Usage
+  #' `self$get_input_relevances(`\cr
+  #' `  rel_output,`\cr
+  #' `  rule_name = 'simple',` \cr
+  #' `  rule_param = NULL)`
+  #'
+  #' ## Arguments
+  #' \describe{
+  #'   \item{`rel_output`}{The output relevances, of dimensions \emph{(batch_size, out_features, model_out)}}
+  #'   \item{`rule_name`}{The name of the rule, with which the relevance scores are
+  #'        calculated. Implemented are `"simple"`, `"epsilon"`, `"alpha_beta"` (default: `"simple"`).}
+  #'   \item{`rule_param`}{The parameter of the selected rule. Note: Only the rules
+  #'        `"epsilon"` and `"alpha_beta"` take use of the parameter. Use the default
+  #'        value `NULL` for the default parameters (`"epsilon"` : \eqn{0.01}, `"alpha_beta"` : \eqn{0.5}).}
+  #' }
+  #'
+  #' ## Return
+  #' Returns the relevance score of the layer's input to the model output as a
+  #' torch tensor of size \emph{(batch_size, in_features, model_out)}
   #'
   get_input_relevances = function(rel_output, rule_name = 'simple', rule_param = NULL) {
 
@@ -205,6 +208,27 @@ dense_layer <- torch::nn_module(
   #
   #   output        [batch_size, dim_in, model_out]
   #
+  #' @section `self$get_input_multiplier()`:
+  #' This function is the local implementation of the DeepLift method for this
+  #' layer and returns the multiplier from the input contribution to the output.
+  #'
+  #' ## Usage
+  #' `self$get_input_multiplier(mult_output, rule_name = "rescale")`
+  #'
+  #' ## Arguments
+  #' \describe{
+  #'   \item{`mult_output`}{The multiplier of the layer output contribution
+  #'   to the model output. A torch tensor of shape
+  #'   \emph{(batch_size, out_features, model_out)}}
+  #'   \item{`rule_name`}{The name of the rule, with which the multiplier is
+  #'        calculated. Implemented are `"rescale"` and `"reveal_cancel"`
+  #'        (default: `"rescale"`).}
+  #' }
+  #'
+  #' ## Return
+  #' Returns the contribution multiplier of the layer's input to the model output
+  #' as torch tensor of dimension \emph{(batch_size, in_features, model_out)}.
+  #'
   get_input_multiplier = function(mult_output, rule_name = "rescale") {
 
     #
@@ -267,33 +291,52 @@ dense_layer <- torch::nn_module(
   #
   #   output  [batch_size, dim_in, model_out]
   #
-  
-  #'@title Get gradient method
-  #'@name get_gradient
-  #'@description
-  #'This method uses \code{torch::torch_matmul} to multiply the input with the
-  #'gradient of a layer's output with respect to the layer's input.
+  #' @section `self$get_gradient()`:
+  #' This method uses \code{\link[torch]{torch_matmul}} to multiply the input with the
+  #' gradient of a layer's output with respect to the layer's input. This results in the
+  #' gradients of the model output with respect to layer's input.
   #'
-  #'@param grad_out A tensor of dimension \emph{(batch_size, out_features, model_out)}
-  #'@param weight A weight tensor of dimensions \emph{(out_features, in_features)}
+  #' ## Usage
+  #' `self$get_gradient(input, weight)`
   #'
-  #'@return
-  #'This returns the result of \code{torch:torch_matmul(weight$t(),grad_out)}
+  #' ## Arguments
+  #' \describe{
+  #'   \item{`grad_out`}{The gradients of the upper layer, a tensor of dimension
+  #'   \emph{(batch_size, out_features, model_out)}}
+  #'   \item{`weight`}{A weight tensor of dimensions \emph{(out_features, in_features)}}
+  #' }
+  #'
+  #' ## Return
+  #' Returns the gradient of the model's output with respect to the layer input
+  #' as a torch tensor of dimension \emph{(batch_size, in_features, model_out)}.
   #'
   get_gradient = function(grad_out, weight) {
     grad_in <- torch::torch_matmul(weight$t(), grad_out)
 
     grad_in
   },
-  
-  #'@title Get positive and negative parts of the output
-  #'@name get_pos_and_neg_outputs
-  #'@description
-  #'This method uses the \code{torch::nnf_lienar()} method to divide the output of a linear pass of the input
-  #'into its positive and negative parts
-  #'@param input The input of the dense layer, of dimension \emph{(batch_size, in_features)}
-  #'@param use_bias If \code{use_bias == TRUE} the bias is used in the forward passes, if \code{use_bias == FALSE} it is omitted
-  #'@return Returns an output object with positive and negative parts of the output stored in \code{output$pos} and \code{output$neg} respectively
+
+
+  #' @section `self$get_pos_and_neg_outputs()`:
+  #' This method separates the linear layer output (i.e. the preactivation) into
+  #' the positive and negative parts.
+  #'
+  #' ## Usage
+  #' `self$get_pos_and_neg_outputs(input, use_bias = FALSE)`
+  #'
+  #' ## Arguments
+  #' \describe{
+  #'   \item{`input`}{The input whose linear output we want to decompose into
+  #'   the positive and negative parts}
+  #'   \item{`use_bias`}{Boolean whether the bias vector should be considered
+  #'   (default: FALSE)}
+  #' }
+  #'
+  #' ## Return
+  #' Returns a decomposition of the linear output of this layer with input `input`
+  #' into the positive and negative parts. A list of two torch tensors with
+  #' size \emph{(batch_size, out_features)} and keys `$pos` and `$neg`
+  #'
   get_pos_and_neg_outputs = function(input, use_bias = FALSE) {
     output <- NULL
 
@@ -317,5 +360,33 @@ dense_layer <- torch::nn_module(
       torch::nnf_linear(input * (input < 0), W * (W > 0), bias = b_neg)
 
     output
+  },
+
+  #' @section `self$set_dtype()`:
+  #' This function changes the data type of the weight and bias tensor to be
+  #' either `"float"` or `"double"`.
+  #'
+  #' ## Usage
+  #' `self$set_dtype(dtype)`
+  #'
+  #' ## Arguments
+  #' \describe{
+  #'   \item{`dtype`}{The data type of the layer's parameters. Use `"float"` or
+  #'   `"double"`}
+  #' }
+  #'
+  set_dtype = function(dtype) {
+    if (dtype == "float") {
+       self$W <- self$W$to(torch::torch_float())
+       self$b <- self$b$to(torch::torch_float())
+    }
+    else if (dtype == "double") {
+       self$W <- self$W$to(torch::torch_double())
+       self$b <- self$b$to(torch::torch_double())
+    }
+    else {
+       stop(sprintf("Unknown argument for 'dtype' : %s . Use 'float' or 'double' instead"))
+    }
+    self$dtype <- dtype
   }
 )
