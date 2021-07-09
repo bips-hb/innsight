@@ -8,7 +8,7 @@
 #' before flattening the transformation must be undone.
 #'
 #' @param dim_in The input dimensions of the flatten layer
-#' @param output_dim The output dimensions of the flatten layer
+#' @param dim_out The output dimensions of the flatten layer
 #'
 #' @section Attributes:
 #' \describe{

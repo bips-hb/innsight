@@ -4,117 +4,182 @@ Gradient_Based <- R6::R6Class(
   public = list(
 
     data = NULL,
-    model = NULL,
+    data_torch = NULL,
+    analyzer = NULL,
     times_input = NULL,
+    ignore_last_act = NULL,
+    dtype = NULL,
+    channels_first = NULL,
 
     result = NULL,
+    result_torch = NULL,
 
-    initialize = function() {
+    initialize = function(analyzer, data,
+                          channels_first = TRUE,
+                          times_input = TRUE,
+                          ignore_last_act = TRUE,
+                          dtype = 'float') {
 
-    },
+      checkmate::assertClass(analyzer, "Analyzer")
+      self$analyzer <- analyzer
 
-    set_dtype = function(dtype) {
-      #
-      # toDo
-      #
-      # Set dtype of data and all the model params
-      #
-    },
+      data <- tryCatch(as.array(data),
+                       error=function(e) stop(sprintf("Failed to convert the argument 'data' to an array using the function 'base::as.array'. The class of your 'data': %s", class(data))))
+      checkmate::assertSetEqual(dim(data)[-1], analyzer$input_dim)
+      self$data <- data
 
-    change_data = function(data) {
-      #
-      # toDo
-      #
-      # change the data and re-run the method
-      #
+      checkmate::assert_logical(times_input)
+      self$times_input <- times_input
+
+      checkmate::assert_logical(ignore_last_act)
+      self$ignore_last_act <- ignore_last_act
+
+      checkmate::assert_logical(channels_first)
+      self$channels_first <- channels_first
+
+      checkmate::assertChoice(dtype, c('float', 'double'))
+      self$dtype <- dtype
+      self$analyzer$model$set_dtype(dtype)
+
+      if (self$dtype == "float") {
+        data <- torch::torch_tensor(data,
+                                     dtype = torch::torch_float())
+      }
+      else {
+        data <- torch::torch_tensor(data,
+                                     dtype = torch::torch_double())
+      }
+
+      self$data_torch <- data
     }
-
 
   ),
 
   private = list(
-    #
-    # data    : torch Tensor [*, dim_in]
-    #
-    # output  : Gradients [*, dim_in]
-    calculate_gradients = function(input) {
-      grad <- NULL
+    calculate_gradients = function(input, ignore_last_act = FALSE) {
 
-      #
-      # toDo
-      #
+      input$requires_grad <- TRUE
 
-      grad
-    },
+      out <- self$analyzer$model(input, channels_first = self$channels_first)
 
-    run = function() {
 
+      if (ignore_last_act) {
+        output <- rev(self$analyzer$model$modules_list)[[1]]$preactivation
+      }
+      else {
+        output <- out
+      }
+
+      # Implemented is only the case where the output is one-dimensional
+      checkmate::assertTRUE(length(dim(output)) == 2)
+
+      res <- vector(mode = 'list', length = dim(output)[2])
+      out_sum <- sum(output, dim = 1)
+
+      for (i in 1:dim(output)[2]) {
+        res[[i]] <- autograd_grad(out_sum[i], input, retain_graph = TRUE)[[1]]
+      }
+
+      torch::torch_stack(res, dim = length(dim(input)) + 1)
     }
   )
 )
 
 Gradient <- R6::R6Class(
   classname = "Gradient",
-  inherit = "Gradient_Based",
+  inherit = Gradient_Based,
   public = list(
 
     initialize = function(analyzer, data,
-                          dtype = "float",
+                          channels_first = TRUE,
                           times_input = TRUE,
-                          ignore_last_act = TRUE) {
-      #
-      # toDo
-      #
-      # store and check arguments, transform to torch Tensor and calculate
-      # normal gradients (use private method 'run') of the given data. Save the
-      # result in the attribute 'result'
-      #
+                          ignore_last_act = TRUE,
+                          dtype = "float") {
+
+      super$initialize(analyzer, data, channels_first, times_input, ignore_last_act, dtype)
+
+      self$result_torch <- private$run()
+      self$result <- as.array(self$result_torch)
+
+      gc() # we have to call gc otherwise R tensors are not disposed.
+
     }
   ),
 
   private = list(
     run = function() {
-      #
-      # toDo
-      #
-      # Main method. Use the parent-method 'calculate_gradient'. In this
-      # case, this is more or less already the solution
-      #
 
+      gradients <- private$calculate_gradients(self$data_torch,
+                                               ignore_last_act = self$ignore_last_act)
+
+      if (self$times_input) {
+        gradients <- gradients * self$data_torch$unsqueeze(-1)
+      }
+
+      gradients
     }
   )
 )
 
 SmoothGrad <- R6::R6Class(
   classname = "SmoothGrad",
-  inherit = "Gradient_Based",
+  inherit = Gradient_Based,
   public = list(
+
+    n = NULL,
+    noise_level = NULL,
 
     initialize = function(analyzer, data,
                           n = 50,
                           noise_level = 0.1,
+                          channels_first = TRUE,
                           dtype = "float",
                           times_input = TRUE,
                           ignore_last_act = TRUE) {
-      #
-      # toDo
-      #
-      # store and check relevant arguments, transform to torch Tensor and calculate
-      # smoothed gradients (use private method 'run') of the given data. Save the
-      # result in the attribute 'result'
-      #
+
+      super$initialize(analyzer, data, channels_first, times_input, ignore_last_act, dtype)
+
+      checkmate::assertInt(n, lower = 1)
+      checkmate::assertNumber(noise_level, lower = 0)
+      self$n <- n
+      self$noise_level <- noise_level
+
+      self$result_torch <- private$run()
+      self$result <- as.array(self$result_torch)
+
+      gc() # we have to call gc otherwise R tensors are not disposed.
+
     }
   ),
 
   private = list(
     run = function() {
-      #
-      # toDo
-      #
-      # Main method. Apply SmoothGrad.
-      #
+
+      data <-
+        torch::torch_repeat_interleave(
+          self$data_torch,
+          repeats = torch::torch_tensor(self$n, dtype = torch::torch_long()),
+          dim = 1)
+
+      noise_scale <- self$noise_level * (max(data) - min(data))
+
+      noise <- torch::torch_randn_like(data) * noise_scale
+
+      gradients <- private$calculate_gradients(data + noise,
+                                               ignore_last_act = self$ignore_last_act)
+
+      smoothgrads <-
+        torch::torch_stack(lapply(gradients$chunk(dim(self$data)[1]),
+                                  torch::torch_mean,
+                                  dim = 1),
+                           dim = 1)
+
+      if (self$times_input) {
+        smoothgrads <- smoothgrads * self$data_torch$unsqueeze(-1)
+      }
+
+      smoothgrads
 
     }
   )
 )
-
