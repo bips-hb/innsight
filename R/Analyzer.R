@@ -21,138 +21,97 @@
 #'     * Deep Learning Important Feartures ([DeepLift]), Shrikumar et al. (2017)
 #'
 #'
+#' @field model The given neural network.
+#' @field input_last Last recorded input for the forward pass
+#' (default: \code{NULL}).
+#' @field input_last_ref Last recorded reference input for the forward pass
+#' (default: \code{NULnum_layersL}).
+#' @field input_dim Dimension of the input features.
+#' @field input_names Names of the input features
+#' @field output_dim Dimension of the models output, i.e. dimension of the
+#' response variables.
+#' @field output_names A list of names for the response variables.
+#' @field dtype The data type for the calculations. Use either `'float'` or
+#' `'double'`.
 #'
-
-
 Analyzer <- R6::R6Class("Analyzer",
-                        public = list(
+  public = list(
 
-                          #' @field model The given neural network.
-                          #' @field input_last Last recorded input for the forward pass
-                          #' (default: \code{NULL}).
-                          #' @field input_last_ref Last recorded reference input for the forward pass
-                          #' (default: \code{NULnum_layersL}).
-                          #' @field input_dim Dimension of the input features.
-                          #' @field input_names Names of the input features
-                          #' @field output_dim Dimension of the models output, i.e. dimension of the
-                          #' response variables.
-                          #' @field output_names A list of names for the response variables.
-                          #'
+    model = NULL,
 
-                          model = NULL,
+    input_dim = NULL,
+    input_names = NULL,
 
-                          input_last = NULL,
-                          input_last_ref = NULL,
-                          input_dim = NULL,
-                          input_names = NULL,
+    output_dim = NULL,
+    output_names = NULL,
 
-                          output_dim = NULL,
-                          output_names = NULL,
+    ###-----------------------------Initialize--------------------------------------
+    #' @description
+    #' Create a new analyzer for a given neural network.
+    #'
+    #' @param model A trained neural network for classification or regression
+    #' tasks to be interpreted. Only models from the following types or packages
+    #' are allowed: \code{\link[keras]{keras_model}},
+    #' \code{\link[keras]{keras_model_sequential}} or
+    #' \code{\link[neuralnet]{neuralnet}}.
+    #' @param feature_names A list of names for the input features. Use the
+    #' default value \code{NULL} for the default names (X1, X2, ...).
+    #' @param response_names A list of names for the response variables. Use the
+    #' default value \code{NULL} for the default names (Y1, Y2, ...).
+    #' @param dtype The data type for the calculations. Use either `'float'` or `'double'`
+    #'
+    #'
+    #' @return A new instance of the R6 class \code{'Analyzer'}.
+    #'
 
-                          ###-----------------------------Initialize--------------------------------------
-                          #' @description
-                          #' Create a new analyzer for a given neural network.
-                          #'
-                          #' @param model A trained neural network for classification or regression
-                          #' tasks to be interpreted. Only models from the following types or packages
-                          #' are allowed: \code{\link[keras]{keras_model}},
-                          #' \code{\link[keras]{keras_model_sequential}} or
-                          #' \code{\link[neuralnet]{neuralnet}}.
-                          #' @param feature_names A list of names for the input features. Use the
-                          #' default value \code{NULL} for the default names (X1, X2, ...).
-                          #' @param response_names A list of names for the response variables. Use the
-                          #' default value \code{NULL} for the default names (Y1, Y2, ...).
-                          #'
-                          #' @return A new instance of the R6 class \code{'Analyzer'}.
-                          #'
+    initialize = function(model, feature_names = NULL, response_names = NULL, dtype = 'float') {
+      checkmate::assertArray(feature_names, null.ok = TRUE)
+      checkmate::assertArray(response_names, null.ok = TRUE)
+      checkmate::assertChoice(dtype, c('float', 'double'))
 
-                          initialize = function(model, feature_names = NULL, response_names = NULL) {
-                            checkmate::assertArray(feature_names, null.ok = TRUE)
-                            checkmate::assertArray(response_names, null.ok = TRUE)
+      # Analyze the passed model and store its internal structure in a list of
+      # layers
+      if (inherits(model, "nn")) {
+        result <- analyze_neuralnet_model(model)
+      }
+      else if (inherits(model, c("keras.engine.sequential.Sequential", "keras.engine.functional.Functional"))) {
+        result <- analyze_keras_model(model, dtype)
+      }
+      else if (inherits(model, "nn_module") && torch::is_nn_module(model)) {
+        #
+        # toDo
+        #
+      }
+      else {
+        stop(sprintf("Unknown model of class \"%s\".", paste0(class(model), collapse = "\", \"")))
+      }
 
-                            # Analyze the passed model and store its internal structure in a list of
-                            # layers
-
-                            if (inherits(model, "nn")) {
-                              result <- analyze_neuralnet_model(model)
-                            }
-                            else if (inherits(model, c("keras.engine.sequential.Sequential", "keras.engine.functional.Functional"))) {
-                              result <- analyze_keras_model(model)
-                            }
-                            else {
-                              stop(sprintf("Unknown model of class \"%s\".", paste0(class(model), collapse = "\", \"")))
-                            }
-
-                            self$model <- result$model
-                            self$input_dim <- result$input_dim
-                            self$output_dim <- result$output_dim
-                            self$input_names <-result$input_names
-                            self$output_names <- result$output_names
-                          },
-
-                          #' @description
-                          #'
-                          #' The forward method of the whole model, i.e. it calculates the output
-                          #' \eqn{y=f(x)} of a given input \eqn{x}.
-                          #' In doing so all intermediate values are stored in the individual layers.
-                          #' A batch-wise evaluation is performed, hence \eqn{x} must be an array of
-                          #' inputs.
-                          #'
-                          #' @param x Input array of the model with size \emph{(batch_size, dim_in)}.
-                          #' @param channels_first Data format (default: `TRUE`)
-                          #'
-                          #' @return An array of size \emph{(batch_size, dim_out)}.
-                          #'
-
-                          forward = function(x, channels_first = TRUE) {
-                            x <- torch::torch_tensor(as.array(x), dtype = torch::torch_float())
-                            if (channels_first == FALSE) {
-                              x <- torch::torch_movedim(x, -1,2)
-                            }
-
-                            out <- self$model(x, channels_first)
-                            self$input_last <- x
-
-                            torch::as_array(out)
-                          },
-
-                          #' @description
-                          #'
-                          #' This method takes the reference input and runs it through
-                          #' the model and stores all intermediate values in the
-                          #' layer's attributes.
-                          #'
-                          #' @param x_ref The new reference input, of dimensions \emph{(1, dim_in)}
-                          #' @param channels_first Data format (default: `TRUE`)
-                          #'
-                          #' @return Returns reference output of the reference input.
-                          #'
-                          update_ref = function(x_ref, channels_first = TRUE) {
-                            x_ref <- torch::torch_tensor(as.array(x_ref), dtype = torch::torch_float())
-                            if (channels_first == FALSE) {
-                              x_ref <- torch::torch_movedim(x_ref, -1,2)
-                            }
-                            out_ref <- self$model$update_ref(x_ref, channels_first)
-                            self$input_last_ref <- x_ref
-
-                            torch::as_array(out_ref)
-                          }
-                        )
+      self$model <- result$model
+      self$input_dim <- result$input_dim
+      self$output_dim <- result$output_dim
+      self$input_names <-result$input_names
+      self$output_names <- result$output_names
+    }
+  )
 )
 
 
 
 #' A \code{torch::nn_module} that stores the layers of the model to be analyzed
 #' @description
-#' This torch_module is how the different types of models to be anaylzed (keras, neuralnet) are stored.
+#' This torch_module is how the different types of models to be analyzed (keras, neuralnet) are stored.
+#'
+#' @noRd
 analyzed_model <- torch::nn_module(
   classname = "Analyzed_Model",
 
   #'@field modules_list The layers of the model in the form of a list of torch modules
   modules_list = NULL,
+  dtype = NULL,
 
-  initialize = function(modules_list) {
+  initialize = function(modules_list, dtype = 'float') {
     self$modules_list <- modules_list
+    self$dtype <- dtype
   },
 
   ###-------------------------forward and update----------------------------------
@@ -162,11 +121,15 @@ analyzed_model <- torch::nn_module(
   #' \eqn{y=f(x)} of a given input \eqn{x}.
   #' In doing so all intermediate values are stored in the individual torch modules.
   #'
-  #' @param x Input tensor of the model with size \emph{(batch_size, dim_in)}.
+  #' @param x Input of the model with size \emph{(batch_size, dim_in)}.
   #'
   #' @return Returns the output for the inputs \code{x}.
   #'
   forward = function(x, channels_first = TRUE) {
+    if (channels_first == FALSE) {
+      x <- torch::torch_movedim(x, -1,2)
+    }
+
     for (module in self$modules_list) {
       if ("Flatten_Layer" %in% module$.classes) {
         x <- module(x, channels_first)
@@ -183,12 +146,16 @@ analyzed_model <- torch::nn_module(
   #' This method updates the stored intermediate values in each module from the
   #' list \code{modules_list} when the reference input \code{x_ref}
   #' has changed.
-  #' @param x_ref Reference input vector of the model.
+  #' @param x_ref Reference input of the model.
   #' @param channels_first If \code{TRUE}, any flatten layers will be flattened channels first, if \code{FALSE} they will be flattened
   #' channels last.
   #'
   #' @return Returns the instance itself.
   update_ref = function(x_ref, channels_first = TRUE) {
+
+    if (channels_first == FALSE) {
+      x_ref <- torch::torch_movedim(x_ref, -1,2)
+    }
     for (module in self$modules_list) {
       if ("Flatten_Layer" %in% module$.classes) {
         x_ref <- module(x_ref, channels_first)
@@ -198,6 +165,15 @@ analyzed_model <- torch::nn_module(
       }
     }
     x_ref
+  },
+
+  set_dtype = function(dtype) {
+    for (module in self$modules_list) {
+      if (!('Flatten_Layer' %in% module$.classes)) {
+        module$set_dtype(dtype)
+      }
+    }
+    self$dtype <- dtype
   }
 
 )
@@ -216,8 +192,9 @@ analyzed_model <- torch::nn_module(
 #' the model, \code{result$input_names} is the names of the input variables, \code{result$output_names}
 #' is the name of the output variables.
 #'
-
-analyze_neuralnet_model <- function(model) {
+#' @noRd
+#'
+analyze_neuralnet_model <- function(model, dtype = "float") {
   if (!requireNamespace("neuralnet")) {
     stop("Please install the 'neuralnet' package.")
   }
@@ -252,18 +229,20 @@ analyze_neuralnet_model <- function(model) {
     if (i == length(weights) && model$linear.output == TRUE) {
       modules_list[[name]] <- dense_layer(weight = w,
                                           bias = b,
-                                          activation_name = "linear")
+                                          activation_name = "linear",
+                                          dtype = dtype)
     }
     else {
       modules_list[[name]] <- dense_layer(weight = w,
                                           bias = b,
-                                          activation_name = act_name)
+                                          activation_name = act_name,
+                                          dtype = dtype)
     }
   }
 
   result <- NULL
 
-  result$model <- analyzed_model(modules_list)
+  result$model <- analyzed_model(modules_list, dtype)
   result$input_dim <- ncol(model$covariate)
   result$output_dim <- ncol(model$response)
   result$input_names <- model$model.list$variables
@@ -289,8 +268,9 @@ implemented_layers <- c("Dense", "Dropout", "InputLayer", "Conv1D", "Conv2D", "F
 #' the model, \code{result$input_names} is the names of the input variables, \code{result$output_names}
 #' is the name of the output variables.
 #'
-
-analyze_keras_model <- function(model) {
+#' @noRd
+#'
+analyze_keras_model <- function(model, dtype = 'float') {
   if (!requireNamespace("keras")) {
     stop("Please install the 'keras' package.")
   }
@@ -299,166 +279,50 @@ analyze_keras_model <- function(model) {
   num = 1
   for (layer in model$layers) {
     type <- layer$`__class__`$`__name__`
+    name <- paste(type, num, sep = "_")
 
-    if (type %in% implemented_layers) {
-      if (type == "Dropout" || type == "InputLayer") {
-        message(sprintf("Skipping %s-Layer...", type))
-      }
-      else if (type == "Dense") {
-        act_name <- layer$activation$`__name__`
-        weights <- as.array(t(layer$get_weights()[[1]]))
-        bias <- as.vector(layer$get_weights()[[2]])
-        name <- paste(type, num, sep = "_")
-        num <- num + 1
-        modules_list[[name]] <- dense_layer(weight = weights,
-                                            bias = bias,
-                                            activation_name = act_name)
-      }
-      else if (type %in% c("Conv1D", "Conv2D") ) {
-        # set the data_format
-        if (is.null(data_format)) {
-          data_format <- layer$data_format
-        }
-        layer_config <- layer$get_config()
+    checkmate::assertChoice(type, implemented_layers)
 
-        act_name <- layer_config$activation
-        filters <- as.numeric(layer_config$filters)
-        kernel_size <- as.numeric(unlist(layer_config$kernel_size))
-        stride <- as.numeric(unlist(layer_config$strides))
-        padding <- layer_config$padding
-        dilation <- unlist(layer_config$dilation_rate)
-
-        # input_shape:
-        #     channels_first:  [batch_size, in_channels, in_height, in_width]
-        #     channels_last:   [batch_size, in_height, in_width, in_channels]
-        input_dim <- unlist(layer$input_shape)
-        output_dim <- unlist(layer$output_shape)
-
-        # in this package only 'channels_first'
-        if (layer$data_format == "channels_last") {
-          input_dim <- c(rev(input_dim)[1], input_dim[-length(input_dim)])
-          output_dim <- c(rev(output_dim)[1], output_dim[-length(output_dim)])
-        }
-
-        # padding differs in keras and torch
-        if (padding == "valid") {
-          if (type == "Conv1D") {
-            padding <- c(0,0)
-          }
-          else {
-            padding = c(0,0,0,0)
-          }
-        }
-        else if (padding == "same") {
-          if (type == "Conv1D") {
-            in_length <- input_dim[2]
-            out_length <- output_dim[2]
-            filter_length <- (kernel_size - 1) * dilation + 1
-
-            if ((in_length %% stride[1]) == 0) {
-              pad = max(filter_length - stride[1], 0)
-            }
-            else {
-              pad = max(filter_length - (in_length %% stride[1]), 0)
-            }
-
-            pad_left = pad %/% 2
-            pad_right = pad - pad_left
-
-            padding <- c(pad_left, pad_right)
-          }
-          else if (type == "Conv2D") {
-            in_height <- input_dim[2]
-            in_width <- input_dim[3]
-            out_height <- output_dim[2]
-            out_width <- output_dim[3]
-            filter_height <- (kernel_size[1] - 1 ) * dilation[1] + 1
-            filter_width <- (kernel_size[2] - 1) * dilation[2] + 1
-
-            if ((in_height %% stride[1]) == 0) {
-              pad_along_height = max(filter_height - stride[1], 0)
-            }
-            else {
-              pad_along_height = max(filter_height - (in_height %% stride[1]), 0)
-            }
-            if ((in_width %% stride[2]) == 0) {
-              pad_along_width = max(filter_width - stride[2], 0)
-            }
-            else {
-              pad_along_width = max(filter_width - (in_width %% stride[2]), 0)
-            }
-
-            pad_top = pad_along_height %/% 2
-            pad_bottom = pad_along_height - pad_top
-            pad_left = pad_along_width %/% 2
-            pad_right = pad_along_width - pad_left
-
-            padding <- c(pad_left, pad_right, pad_top, pad_bottom)
-          }
-        }
-        else {
-          stop(sprintf("The padding format \"%s\" is not supported. Use \"same\"", padding))
-        }
-        name <- paste(type, num, sep = "_")
-        num <- num + 1
-
-        weight <-  layer$get_weights()[[1]]
-        bias <- as.vector(layer$get_weights()[[2]])
-
-        if (type == "Conv1D") {
-          # keras weight format: [kernel_length, in_channels, out_channels]
-          # torch weight format: [out_channels, in_channels, kernel_length]
-          weight <- aperm(weight, c(3,2,1))
-
-          modules_list[[name]] <- conv1d_layer(weight = weight,
-                                               bias = bias,
-                                               dim_in = input_dim,
-                                               dim_out = output_dim,
-                                               stride = stride,
-                                               padding = padding,
-                                               dilation = dilation,
-                                               activation_name = act_name)
-        }
-        else {
-          # Conv2D
-          # keras weight format: [kernel_height, kernel_width, in_channels, out_channels]
-          # torch weight format: [out_channels, in_channels, kernel_height, kernel_width]
-          weight <- aperm(weight, perm = c(4,3,1,2))
-
-          modules_list[[name]] <- conv2d_layer(weight = weight,
-                                               bias = bias,
-                                               dim_in = input_dim,
-                                               dim_out = output_dim,
-                                               stride = stride,
-                                               padding = padding,
-                                               dilation = dilation,
-                                               activation_name = act_name)
-        }
-      }
-      else if (type == "Flatten") {
-        input_dim <- unlist(layer$input_shape)
-        output_dim <- unlist(layer$output_shape)
-
-        # in this package only 'channels_first'
-        if (layer$data_format == "channels_last") {
-          input_dim <- c(rev(input_dim)[1], input_dim[-length(input_dim)])
-          output_dim <- c(rev(output_dim)[1], output_dim[-length(output_dim)])
-        }
-
-        name <- paste(type, num, sep = "_")
-        num <- num + 1
-
-        modules_list[[name]] <- flatten_layer(input_dim, output_dim)
-      }
+    if (type == "Dropout" || type == "InputLayer") {
+      message(sprintf("Skipping %s-Layer...", type))
     }
-    else {
-      stop(sprintf("Layer of type \"%s\" is not implemented yet. Supported layers are: \"%s\"", type,
-                   paste0(implemented_layers, collapse = "\", \"")))
+    else if (type == "Dense") {
+      modules_list[[name]] <- add_keras_dense(layer, dtype)
+      num <- num + 1
+    }
+    else if (type == "Conv1D") {
+      # set the data_format
+      if (is.null(data_format)) {
+        data_format <- layer$data_format
+      }
+      modules_list[[name]] <- add_keras_conv1d(layer, dtype)
+      num <- num + 1
+    }
+    else if (type == "Conv2D") {
+      # set the data_format
+      if (is.null(data_format)) {
+        data_format <- layer$data_format
+      }
+      modules_list[[name]] <- add_keras_conv2d(layer, dtype)
+      num <- num + 1
+    }
+    else if (type == "Flatten") {
+      input_dim <- unlist(layer$input_shape)
+      output_dim <- unlist(layer$output_shape)
+
+      # in this package only 'channels_first'
+      if (layer$data_format == "channels_last") {
+        input_dim <- c(rev(input_dim)[1], input_dim[-length(input_dim)])
+        output_dim <- c(rev(output_dim)[1], output_dim[-length(output_dim)])
+      }
+
+      modules_list[[name]] <- flatten_layer(input_dim, output_dim)
+      num <- num + 1
     }
   }
   result <- NULL
 
-  result$model <- analyzed_model(modules_list)
+  result$model <- analyzed_model(modules_list, dtype)
   input_dim <- unlist(model$input_shape)
   output_dim <- unlist(model$output_shape)
   # in this package only 'channels_first'
@@ -474,10 +338,186 @@ analyze_keras_model <- function(model) {
 
   result$input_dim <- input_dim
   result$output_dim <- output_dim
-  result$input_names <- lapply(result$input_dim, function(x) paste0(rep("X", times = x), 1:x))
+  if (length(input_dim) == 1) {
+    short_names <- c("X")
+  }
+  else if (length(input_dim) == 2) {
+    short_names <- c("C", "L")
+  }
+  else {
+    short_names <- c("C", "H", "W")
+  }
+  result$input_names <- mapply(function(x,y) paste0(rep(y, times = x), 1:x), input_dim, short_names, SIMPLIFY = FALSE)
   result$output_names <- lapply(result$output_dim, function(x) paste0(rep("Y", times = x), 1:x))
 
   result
+}
+
+
+
+add_keras_dense <- function(layer, dtype) {
+  act_name <- layer$activation$`__name__`
+  weights <- as.array(t(layer$get_weights()[[1]]))
+
+  if (layer$use_bias) {
+    bias <- as.vector(layer$get_weights()[[2]])
+  }
+  else {
+    bias <- rep(0, times = dim(weights)[1])
+  }
+
+  dense_layer(weight = weights,
+              bias = bias,
+              activation_name = act_name,
+              dtype = dtype)
+}
+
+add_keras_conv1d <- function(layer, dtype) {
+
+  act_name <- layer$get_config()$activation
+  filters <- as.numeric(layer$get_config()$filters)
+  kernel_size <- as.numeric(unlist(layer$get_config()$kernel_size))
+  stride <- as.numeric(unlist(layer$get_config()$strides))
+  padding <- layer$get_config()$padding
+  dilation <- unlist(layer$get_config()$dilation_rate)
+
+  # input_shape:
+  #     channels_first:  [batch_size, in_channels, in_length]
+  #     channels_last:   [batch_size, in_length, in_channels]
+  input_dim <- unlist(layer$input_shape)
+  output_dim <- unlist(layer$output_shape)
+
+  # in this package only 'channels_first'
+  if (layer$data_format == "channels_last") {
+    input_dim <- c(rev(input_dim)[1], input_dim[-length(input_dim)])
+    output_dim <- c(rev(output_dim)[1], output_dim[-length(output_dim)])
+  }
+
+  # padding differs in keras and torch
+  checkmate::assertChoice(padding, c('valid', 'same'))
+  if (padding == "valid") {
+    padding <- c(0,0)
+  }
+  else if (padding == "same") {
+    in_length <- input_dim[2]
+    out_length <- output_dim[2]
+    filter_length <- (kernel_size - 1) * dilation + 1
+
+    if ((in_length %% stride[1]) == 0) {
+      pad = max(filter_length - stride[1], 0)
+    }
+    else {
+      pad = max(filter_length - (in_length %% stride[1]), 0)
+    }
+
+    pad_left = pad %/% 2
+    pad_right = pad - pad_left
+
+    padding <- c(pad_left, pad_right)
+  }
+
+  weight <-  as.array(layer$get_weights()[[1]])
+
+  if (layer$use_bias) {
+    bias <- as.vector(layer$get_weights()[[2]])
+  }
+  else {
+    bias <- rep(0, times = dim(weight)[3])
+  }
+
+  # keras weight format: [kernel_length, in_channels, out_channels]
+  # torch weight format: [out_channels, in_channels, kernel_length]
+  weight <- aperm(weight, c(3,2,1))
+
+  conv1d_layer(weight = weight,
+               bias = bias,
+               dim_in = input_dim,
+               dim_out = output_dim,
+               stride = stride,
+               padding = padding,
+               dilation = dilation,
+               activation_name = act_name,
+               dtype = dtype)
+}
+
+
+add_keras_conv2d <- function(layer, dtype) {
+
+  act_name <- layer$get_config()$activation
+  filters <- as.numeric(layer$get_config()$filters)
+  kernel_size <- as.numeric(unlist(layer$get_config()$kernel_size))
+  stride <- as.numeric(unlist(layer$get_config()$strides))
+  padding <- layer$get_config()$padding
+  dilation <- unlist(layer$get_config()$dilation_rate)
+
+  # input_shape:
+  #     channels_first:  [batch_size, in_channels, in_height, in_width]
+  #     channels_last:   [batch_size, in_height, in_width, in_channels]
+  input_dim <- unlist(layer$input_shape)
+  output_dim <- unlist(layer$output_shape)
+
+  # in this package only 'channels_first'
+  if (layer$data_format == "channels_last") {
+    input_dim <- c(rev(input_dim)[1], input_dim[-length(input_dim)])
+    output_dim <- c(rev(output_dim)[1], output_dim[-length(output_dim)])
+  }
+
+  # padding differs in keras and torch
+  checkmate::assertChoice(padding, c('valid', 'same'))
+  if (padding == "valid") {
+    padding <- c(0,0,0,0)
+  }
+  else if (padding == "same") {
+    in_height <- input_dim[2]
+    in_width <- input_dim[3]
+    out_height <- output_dim[2]
+    out_width <- output_dim[3]
+    filter_height <- (kernel_size[1] - 1 ) * dilation[1] + 1
+    filter_width <- (kernel_size[2] - 1) * dilation[2] + 1
+
+    if ((in_height %% stride[1]) == 0) {
+      pad_along_height = max(filter_height - stride[1], 0)
+    }
+    else {
+      pad_along_height = max(filter_height - (in_height %% stride[1]), 0)
+    }
+    if ((in_width %% stride[2]) == 0) {
+      pad_along_width = max(filter_width - stride[2], 0)
+    }
+    else {
+      pad_along_width = max(filter_width - (in_width %% stride[2]), 0)
+    }
+
+    pad_top = pad_along_height %/% 2
+    pad_bottom = pad_along_height - pad_top
+    pad_left = pad_along_width %/% 2
+    pad_right = pad_along_width - pad_left
+
+    padding <- c(pad_left, pad_right, pad_top, pad_bottom)
+  }
+
+  weight <-  as.array(layer$get_weights()[[1]])
+
+  if (layer$use_bias) {
+    bias <- as.vector(layer$get_weights()[[2]])
+  }
+  else {
+    bias <- rep(0, times = dim(weight)[4])
+  }
+  # Conv2D
+  # keras weight format: [kernel_height, kernel_width, in_channels, out_channels]
+  # torch weight format: [out_channels, in_channels, kernel_height, kernel_width]
+  weight <- aperm(weight, perm = c(4,3,1,2))
+
+  conv2d_layer(weight = weight,
+               bias = bias,
+               dim_in = input_dim,
+               dim_out = output_dim,
+               stride = stride,
+               padding = padding,
+               dilation = dilation,
+               activation_name = act_name,
+               dtype = dtype)
 }
 
 
@@ -494,3 +534,55 @@ analyze_keras_model <- function(model) {
 #an$model$modules_list$Dense_Layer_2$input_ref
 #an$model$update_ref(x)
 #an$model$modules_list$Dense_Layer_2$input_ref
+
+
+
+# #' @description
+# #'
+# #' The forward method of the whole model, i.e. it calculates the output
+# #' \eqn{y=f(x)} of a given input \eqn{x}.
+# #' In doing so all intermediate values are stored in the individual layers.
+# #' A batch-wise evaluation is performed, hence \eqn{x} must be an array of
+# #' inputs.
+# #'
+# #' @param x Input array of the model with size \emph{(batch_size, dim_in)}.
+# #' @param channels_first Data format (default: `TRUE`)
+# #'
+# #' @return An array of size \emph{(batch_size, dim_out)}.
+# #'
+#
+# forward = function(x, channels_first = TRUE) {
+#   x <- torch::torch_tensor(as.array(x), dtype = torch::torch_float())
+#   if (channels_first == FALSE) {
+#     x <- torch::torch_movedim(x, -1,2)
+#   }
+#
+#   out <- self$model(x, channels_first)
+#   self$input_last <- x
+#
+#   torch::as_array(out)
+# },
+#
+# #' @description
+# #'
+# #' This method takes the reference input and runs it through
+# #' the model and stores all intermediate values in the
+# #' layer's attributes.
+# #'
+# #' @param x_ref The new reference input, of dimensions \emph{(1, dim_in)}
+# #' @param channels_first Data format (default: `TRUE`)
+# #'
+# #' @return Returns reference output of the reference input.
+# #'
+# update_ref = function(x_ref, channels_first = TRUE) {
+#   x_ref <- torch::torch_tensor(as.array(x_ref), dtype = torch::torch_float())
+#   if (channels_first == FALSE) {
+#     x_ref <- torch::torch_movedim(x_ref, -1,2)
+#   }
+#   out_ref <- self$model$update_ref(x_ref, channels_first)
+#   self$input_last_ref <- x_ref
+#
+#   torch::as_array(out_ref)
+# }
+
+

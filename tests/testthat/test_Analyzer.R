@@ -26,7 +26,7 @@ test_that("Test neuralnet model", {
   # forward method
   y_true <- as.vector(predict(nn, iris))
   dim_y_true <- c(150,1)
-  y <- analyzer$forward(as.matrix(iris[,3:4]))
+  y <- as.array(analyzer$model(torch_tensor(as.matrix(iris[,3:4]))))
   dim_y <- dim(y)
 
   expect_equal(dim_y, dim_y_true)
@@ -35,7 +35,7 @@ test_that("Test neuralnet model", {
   # update_ref method
   x_ref <- iris[sample(nrow(iris), 1), 3:4]
   y_ref_true <- as.vector(predict(nn, x_ref))
-  y_ref <- analyzer$update_ref(as.matrix(x_ref))
+  y_ref <- as.array(analyzer$model$update_ref(torch_tensor(as.matrix(x_ref))))
   dim_y_ref <- dim(y_ref)
   expect_equal(dim_y_ref, c(1,1))
   expect_lt((y_ref_true - y_ref)^2, 1e-12)
@@ -70,7 +70,7 @@ test_that("Test keras model: Dense", {
   # forward method
   y_true <- predict(model, data)
   dim_y_true <- dim(y_true)
-  y <- analyzer$forward(data)
+  y <- as.array(analyzer$model(torch_tensor(data)))
   dim_y <- dim(y)
 
   expect_equal(dim_y, dim_y_true)
@@ -78,7 +78,7 @@ test_that("Test keras model: Dense", {
 
   # update_ref
   x_ref <- matrix(rnorm(4), nrow=1, ncol=4)
-  y_ref <- analyzer$update_ref(x_ref)
+  y_ref <- as.array(analyzer$model$update_ref(torch_tensor(x_ref)))
   dim_y_ref <- dim(y_ref)
   y_ref_true <- as.array(model(x_ref))
   dim_y_ref_true <- dim(y_ref_true)
@@ -94,7 +94,7 @@ test_that("Test keras model: Dense", {
   analyzer_output_dim <- analyzer$output_dim
   expect_equal(analyzer_output_dim, 3)
 
-  analyzer$forward(data)
+  analyzer$model(torch_tensor(data))
 
   for (module in analyzer$model$modules_list) {
     expect_equal(module$input_dim, dim(module$input)[-1])
@@ -125,7 +125,7 @@ test_that("Test keras model: Conv1D with 'valid' padding", {
   # forward method
   y_true <- predict(model, data)
   dim_y_true <- dim(y_true)
-  y <- analyzer$forward(data, channels_first = FALSE)
+  y <- as.array(analyzer$model(torch_tensor(data), channels_first = FALSE))
   dim_y <- dim(y)
 
   expect_equal(dim_y, dim_y_true)
@@ -133,7 +133,7 @@ test_that("Test keras model: Conv1D with 'valid' padding", {
 
   # update_ref
   x_ref <- array(rnorm(128*4), dim=c(1,128,4))
-  y_ref <- analyzer$update_ref(x_ref, channels_first = FALSE)
+  y_ref <- as.array(analyzer$model$update_ref(torch_tensor(x_ref), channels_first = FALSE))
   dim_y_ref <- dim(y_ref)
   y_ref_true <- as.array(model(x_ref))
   dim_y_ref_true <- dim(y_ref_true)
@@ -176,13 +176,13 @@ test_that("Test keras model: Conv1D with 'same' padding", {
 
   # forward method
   y_true <- predict(model, data)
-  y <- analyzer$forward(data, channels_first = FALSE)
+  y <- as.array(analyzer$model(torch_tensor(data), channels_first = FALSE))
   expect_equal(dim(y), dim(y_true))
   expect_lt(mean((y_true - y)^2), 1e-12)
 
   # update
   x_ref <- array(rnorm(128*4), dim=c(1,128,4))
-  y_ref <- analyzer$update_ref(x_ref, channels_first = FALSE)
+  y_ref <- as.array(analyzer$model$update_ref(torch_tensor(x_ref), channels_first = FALSE))
   y_ref_true <- as.array(model(x_ref))
   expect_equal(dim(y_ref), dim(y_ref_true))
   expect_lt(mean((y_ref_true - y_ref)^2), 1e-12)
@@ -222,13 +222,13 @@ test_that("Test keras model: Conv2D with 'valid' padding", {
 
   # forward method
   y_true <- predict(model, data)
-  y <- analyzer$forward(data, channels_first = FALSE)
+  y <- as.array(analyzer$model(torch_tensor(data), channels_first = FALSE))
   expect_equal(dim(y), dim(y_true))
   expect_lt(mean((y_true - y)^2), 1e-12)
 
   # update
   x_ref <- array(rnorm(32*32*3), dim=c(1,32,32,3))
-  y_ref <- analyzer$update_ref(x_ref, channels_first = FALSE)
+  y_ref <- as.array(analyzer$model$update_ref(torch_tensor(x_ref), channels_first = FALSE))
   y_ref_true <- as.array(model(x_ref))
   expect_equal(dim(y_ref), dim(y_ref_true))
   expect_lt((y_ref_true - y_ref)^2, 1e-12)
@@ -269,13 +269,13 @@ test_that("Test keras model: Conv2D with 'same' padding", {
 
   # forward method
   y_true <- predict(model, data)
-  y <- analyzer$forward(data, channels_first = FALSE)
+  y <- as.array(analyzer$model(torch_tensor(data), channels_first = FALSE))
   expect_equal(dim(y), dim(y_true))
   expect_lt(mean(abs(y_true - y)^2), 1e-12)
 
   # update
   x_ref <- array(rnorm(32*32*3), dim=c(1,32,32,3))
-  y_ref <- analyzer$update_ref(x_ref, channels_first = FALSE)
+  y_ref <- as.array(analyzer$model$update_ref(torch_tensor(x_ref), channels_first = FALSE))
   y_ref_true <- as.array(model(x_ref))
   expect_equal(dim(y_ref), dim(y_ref_true))
   expect_lt((y_ref_true - y_ref)^2, 1e-12)
