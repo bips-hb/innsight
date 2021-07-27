@@ -1,18 +1,16 @@
 
+#'
+#' @title Superclass for gradient-based interpretation methods
+#' @description Superclass for gradient-based interpretation methods. This class
+#' inherits from [Interpreting_Method].
+#'
 Gradient_Based <- R6::R6Class(
   classname = "Gradient_Based",
+  inherit = Interpreting_Method,
   public = list(
 
-    data = NULL,
-    data_torch = NULL,
-    analyzer = NULL,
     times_input = NULL,
     ignore_last_act = NULL,
-    dtype = NULL,
-    channels_first = NULL,
-
-    result = NULL,
-    result_torch = NULL,
 
     initialize = function(analyzer, data,
                           channels_first = TRUE,
@@ -20,13 +18,7 @@ Gradient_Based <- R6::R6Class(
                           ignore_last_act = TRUE,
                           dtype = 'float') {
 
-      checkmate::assertClass(analyzer, "Analyzer")
-      self$analyzer <- analyzer
-
-      data <- tryCatch(as.array(data),
-                       error=function(e) stop(sprintf("Failed to convert the argument 'data' to an array using the function 'base::as.array'. The class of your 'data': %s", class(data))))
-      checkmate::assertSetEqual(dim(data)[-1], analyzer$input_dim)
-      self$data <- data
+      super$initialize(analyzer, data, channels_first, dtype)
 
       checkmate::assert_logical(times_input)
       self$times_input <- times_input
@@ -34,25 +26,7 @@ Gradient_Based <- R6::R6Class(
       checkmate::assert_logical(ignore_last_act)
       self$ignore_last_act <- ignore_last_act
 
-      checkmate::assert_logical(channels_first)
-      self$channels_first <- channels_first
-
-      checkmate::assertChoice(dtype, c('float', 'double'))
-      self$dtype <- dtype
-      self$analyzer$model$set_dtype(dtype)
-
-      if (self$dtype == "float") {
-        data <- torch::torch_tensor(data,
-                                     dtype = torch::torch_float())
-      }
-      else {
-        data <- torch::torch_tensor(data,
-                                     dtype = torch::torch_double())
-      }
-
-      self$data_torch <- data
     }
-
   ),
 
   private = list(
@@ -85,6 +59,18 @@ Gradient_Based <- R6::R6Class(
   )
 )
 
+#' @title Calculate the Gradients
+#' @name Gradient
+#'
+#' @description
+#' This method computes the gradients of the outputs with respect to the input
+#' variables, i.e. for all input variable \eqn{i} and output class \eqn{j}
+#' \deqn{d f(x)_j / d x_i.}
+#'
+#'
+#' @export
+#'
+
 Gradient <- R6::R6Class(
   classname = "Gradient",
   inherit = Gradient_Based,
@@ -98,8 +84,7 @@ Gradient <- R6::R6Class(
 
       super$initialize(analyzer, data, channels_first, times_input, ignore_last_act, dtype)
 
-      self$result_torch <- private$run()
-      self$result <- as.array(self$result_torch)
+      self$result <- private$run()
 
       gc() # we have to call gc otherwise R tensors are not disposed.
 
@@ -109,11 +94,11 @@ Gradient <- R6::R6Class(
   private = list(
     run = function() {
 
-      gradients <- private$calculate_gradients(self$data_torch,
+      gradients <- private$calculate_gradients(self$data,
                                                ignore_last_act = self$ignore_last_act)
 
       if (self$times_input) {
-        gradients <- gradients * self$data_torch$unsqueeze(-1)
+        gradients <- gradients * self$data$unsqueeze(-1)
       }
 
       gradients
@@ -121,6 +106,22 @@ Gradient <- R6::R6Class(
   )
 )
 
+
+#' @title SmoothGrad method
+#' @name SmoothGrad
+#'
+#' @description
+#' SmoothGrad was introduced by D. Smilkov et al. (2017) and is an extension to
+#' the classical [Gradient] method. It takes the mean of the gradients for \code{n}
+#' perturbations of each data point, i.e. with \eqn{\epsilon ~ N(0,\sigma)}
+#' \deqn{1/n \sum_n d f(x+ \epsilon)_j / d x_j.}
+#'
+#' @references
+#' D. Smilkov et al. (2017) \emph{SmoothGrad: removing noise by adding noise.}
+#' CoRR, abs/1706.03825
+#'
+#' @export
+#'
 SmoothGrad <- R6::R6Class(
   classname = "SmoothGrad",
   inherit = Gradient_Based,
@@ -144,8 +145,7 @@ SmoothGrad <- R6::R6Class(
       self$n <- n
       self$noise_level <- noise_level
 
-      self$result_torch <- private$run()
-      self$result <- as.array(self$result_torch)
+      self$result <- private$run()
 
       gc() # we have to call gc otherwise R tensors are not disposed.
 
@@ -157,7 +157,7 @@ SmoothGrad <- R6::R6Class(
 
       data <-
         torch::torch_repeat_interleave(
-          self$data_torch,
+          self$data,
           repeats = torch::torch_tensor(self$n, dtype = torch::torch_long()),
           dim = 1)
 
@@ -175,7 +175,7 @@ SmoothGrad <- R6::R6Class(
                            dim = 1)
 
       if (self$times_input) {
-        smoothgrads <- smoothgrads * self$data_torch$unsqueeze(-1)
+        smoothgrads <- smoothgrads * self$data$unsqueeze(-1)
       }
 
       smoothgrads
