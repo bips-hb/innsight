@@ -37,6 +37,7 @@ Collate:
     'Analyzer.R'
     'DeepLift.R'
     'Gradien_based.R'
+    'Interpreting_Method.R'
     'LRP.R'
     'Layer.R'
     'Layer_conv1d.R'

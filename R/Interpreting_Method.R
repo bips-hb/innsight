@@ -59,6 +59,27 @@ Interpreting_Method <- R6::R6Class(
       }
 
       self$data <- data
+    },
+
+    #'
+    #' @description
+    #' This function returns the relevance scores for the given data either as an
+    #' array (`as_torch = FALSE`) or a torch tensor (`as_torch = TRUE`) of
+    #' size (batch_size, model_in, model_out).
+    #'
+    #' @param as_torch Boolean value whether the output is an array or a torch
+    #' tensor.
+    #'
+    #' @return The relevance scores of the given data.
+    #'
+
+    get_result = function(as_torch = FALSE) {
+      result <- self$result
+      if (!as_torch) {
+        result <- as.array(result)
+      }
+
+      result
     }
   )
 )

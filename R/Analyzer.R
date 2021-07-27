@@ -22,17 +22,13 @@
 #'
 #'
 #' @field model The given neural network.
-#' @field input_last Last recorded input for the forward pass
-#' (default: \code{NULL}).
-#' @field input_last_ref Last recorded reference input for the forward pass
-#' (default: \code{NULnum_layersL}).
 #' @field input_dim Dimension of the input features.
 #' @field input_names Names of the input features
 #' @field output_dim Dimension of the models output, i.e. dimension of the
 #' response variables.
 #' @field output_names A list of names for the response variables.
-#' @field dtype The data type for the calculations. Use either `'float'` or
-#' `'double'`.
+#'
+#' @export
 #'
 Analyzer <- R6::R6Class("Analyzer",
   public = list(
