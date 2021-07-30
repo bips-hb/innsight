@@ -1,5 +1,5 @@
 #'
-#' Layer of a neural network
+#' A Neural Network Layer for interpreting its input
 #'
 #' Implementation of a layer of a neural network as a torch module, to be used as a
 #' parent module to dense and convolutional layer modules. The main difference
@@ -20,9 +20,8 @@
 #'   \item{`activation_name`}{The name of the activation function}
 #' }
 #'
-#' @export
-Layer <- torch::nn_module(
-  classname = "Layer",
+Interpreting_Layer <- torch::nn_module(
+  classname = "Interpreting_Layer",
 
   input_dim = NULL,
   input = NULL,
