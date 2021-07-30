@@ -43,12 +43,12 @@ test_that("LRP: Dense-Net",{
   expect_equal(dim(lrp_eps_default$get_result()), c(10,4,3))
   expect_true(lrp_eps_default$get_result(as_torch = TRUE)$dtype == torch_double())
 
-  lrp_eps_1 <- LRP$new(analyzer, data, rule_name = "epsilon", rule_param = 1)
+  lrp_eps_1 <- LRP$new(analyzer, data, rule_name = "epsilon", rule_param = 1, ignore_last_act = FALSE)
   expect_equal(dim(lrp_eps_1$get_result()), c(10,4,3))
   expect_true(lrp_eps_1$get_result(as_torch = TRUE)$dtype == torch_float())
 
   # Alpha-Beta Rule
-  lrp_ab_default <- LRP$new(analyzer, data, rule_name = "epsilon", dtype = "double")
+  lrp_ab_default <- LRP$new(analyzer, data, rule_name = "epsilon", dtype = "double", ignore_last_act = FALSE)
   expect_equal(dim(lrp_ab_default$get_result()), c(10,4,3))
   expect_true(lrp_ab_default$get_result(as_torch = TRUE)$dtype == torch_double())
 
@@ -86,12 +86,12 @@ test_that("LRP: Conv1D-Net",{
   expect_equal(dim(lrp_eps_default$get_result()), c(4,64,3,1))
   expect_true(lrp_eps_default$get_result(as_torch = TRUE)$dtype == torch_double())
 
-  lrp_eps_1 <- LRP$new(analyzer, data, rule_name = "epsilon", rule_param = 1, channels_first = FALSE)
+  lrp_eps_1 <- LRP$new(analyzer, data, rule_name = "epsilon", rule_param = 1, channels_first = FALSE, ignore_last_act = FALSE)
   expect_equal(dim(lrp_eps_1$get_result()), c(4,64,3,1))
   expect_true(lrp_eps_1$get_result(as_torch = TRUE)$dtype == torch_float())
 
   # Alpha-Beta Rule
-  lrp_ab_default <- LRP$new(analyzer, data, rule_name = "epsilon", dtype = "double", channels_first = FALSE)
+  lrp_ab_default <- LRP$new(analyzer, data, rule_name = "epsilon", dtype = "double", channels_first = FALSE, ignore_last_act = FALSE)
   expect_equal(dim(lrp_ab_default$get_result()), c(4,64,3,1))
   expect_true(lrp_ab_default$get_result(as_torch = TRUE)$dtype == torch_double())
 
@@ -120,7 +120,7 @@ test_that("LRP: Conv2D-Net",{
   expect_error(LRP$new(analyzer, array(rnorm(4*32*31,3), dim = c(4,32,31,3)), channels_first = FALSE))
 
   # Simple Rule
-  lrp_simple <- LRP$new(analyzer, data, channels_first = FALSE)
+  lrp_simple <- LRP$new(analyzer, data, channels_first = FALSE, ignore_last_act = FALSE)
   expect_equal(dim(lrp_simple$get_result()), c(4,32,32,3,2))
   expect_true(lrp_simple$get_result(as_torch = TRUE)$dtype == torch_float())
 
@@ -129,12 +129,12 @@ test_that("LRP: Conv2D-Net",{
   expect_equal(dim(lrp_eps_default$get_result()), c(4,32,32,3,2))
   expect_true(lrp_eps_default$get_result(as_torch = TRUE)$dtype == torch_double())
 
-  lrp_eps_1 <- LRP$new(analyzer, data, rule_name = "epsilon", rule_param = 1, channels_first = FALSE)
+  lrp_eps_1 <- LRP$new(analyzer, data, rule_name = "epsilon", rule_param = 1, channels_first = FALSE, ignore_last_act = FALSE)
   expect_equal(dim(lrp_eps_1$get_result()), c(4,32,32,3,2))
   expect_true(lrp_eps_1$get_result(as_torch = TRUE)$dtype == torch_float())
 
   # Alpha-Beta Rule
-  lrp_ab_default <- LRP$new(analyzer, data, rule_name = "epsilon", dtype = "double", channels_first = FALSE)
+  lrp_ab_default <- LRP$new(analyzer, data, rule_name = "epsilon", dtype = "double", channels_first = FALSE, ignore_last_act = FALSE)
   expect_equal(dim(lrp_ab_default$get_result()), c(4,32,32,3,2))
   expect_true(lrp_ab_default$get_result(as_torch = TRUE)$dtype == torch_double())
 
@@ -142,7 +142,6 @@ test_that("LRP: Conv2D-Net",{
   expect_equal(dim(lrp_ab_2$get_result()), c(4,32,32,3,2))
   expect_true(lrp_ab_2$get_result(as_torch = TRUE)$dtype == torch_float())
 })
-
 
 test_that("LRP: Correctness", {
   data <- array(rnorm(10*32*32*3), dim = c(10,32,32,3))
@@ -164,4 +163,9 @@ test_that("LRP: Correctness", {
   out <- analyzer$model$modules_list[[7]]$preactivation
   lrp_result_sum <- lrp$get_result(as_torch = TRUE)$sum(dim = c(2,3,4))
   expect_lt(as.array(mean(abs(lrp_result_sum - out)^2)), 1e-5)
+
+  lrp <- LRP$new(analyzer, data, channels_first = FALSE, ignore_last_act = FALSE)
+  out <- analyzer$model$modules_list[[7]]$output - 0.5
+  lrp_result_no_last_act_sum <- lrp$get_result(as_torch = TRUE)$sum(dim = c(2,3,4))
+  expect_lt(as.array(mean(abs(lrp_result_no_last_act_sum - out)^2)), 1e-5)
 })

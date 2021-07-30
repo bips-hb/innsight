@@ -1,4 +1,4 @@
-#' @include Layer.R
+#' @include Interpreting_Layer.R
 #'
 NULL
 
@@ -23,7 +23,7 @@ NULL
 #' \describe{
 #'   \item{`self$W`}{The weight matrix of this layer with shape \emph{(out_features, in_features)}}
 #'   \item{`self$b`}{The bias vector of this layer with shape \emph{(out_features)}}
-#'   \item{`self$...`}{Many attributes are inherited from the superclass [Layer], e.g.
+#'   \item{`self$...`}{Many attributes are inherited from the superclass [Interpreting_Layer], e.g.
 #'   `input`, `input_dim`, `preactivation`, `activation_name`, etc.}
 #' }
 #'
@@ -31,7 +31,7 @@ NULL
 #'
 dense_layer <- torch::nn_module(
   classname = "Dense_Layer",
-  inherit = Layer,
+  inherit = Interpreting_Layer,
 
   #
   # weight: [out_features, in_features]
@@ -277,9 +277,9 @@ dense_layer <- torch::nn_module(
     # mult_input    [batch_size, model_out, dim_in]
     mult_input <-
       self$get_gradient(mult_pos, self$W * (self$W > 0)) * (delta_input > 0) +
-      self$get_gradient(mult_pos, self$W * (self$W < 0)) * (delta_input < 0) +
+      self$get_gradient(mult_pos, self$W * (self$W <= 0)) * (delta_input < 0) +
       self$get_gradient(mult_neg, self$W * (self$W > 0)) * (delta_input < 0) +
-      self$get_gradient(mult_neg, self$W * (self$W < 0)) * (delta_input > 0) +
+      self$get_gradient(mult_neg, self$W * (self$W <= 0)) * (delta_input > 0) +
       self$get_gradient(0.5 * (mult_pos + mult_neg), self$W) * (delta_input == 0)
 
     mult_input
@@ -353,11 +353,11 @@ dense_layer <- torch::nn_module(
 
     output$pos <-
       torch::nnf_linear(input * (input > 0), W * (W > 0), bias = b_pos) +
-      torch::nnf_linear(input * (input < 0), W * (W < 0), bias = b_pos)
+      torch::nnf_linear(input * (input <= 0), W * (W <= 0), bias = b_pos)
 
     output$neg <-
-      torch::nnf_linear(input * (input > 0), W * (W < 0), bias = b_neg) +
-      torch::nnf_linear(input * (input < 0), W * (W > 0), bias = b_neg)
+      torch::nnf_linear(input * (input > 0), W * (W <= 0), bias = b_neg) +
+      torch::nnf_linear(input * (input <= 0), W * (W > 0), bias = b_neg)
 
     output
   },

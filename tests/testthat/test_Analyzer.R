@@ -11,7 +11,6 @@ test_that("Test general errors",{
 })
 
 
-
 test_that("Test neuralnet model", {
   data(iris)
   #
@@ -245,7 +244,6 @@ test_that("Test keras model: Conv2D with 'valid' padding", {
   }
 
 })
-
 
 test_that("Test keras model: Conv2D with 'same' padding", {
   #

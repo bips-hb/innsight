@@ -2,42 +2,61 @@
 #'
 #' @title Superclass for gradient-based interpretation methods
 #' @description Superclass for gradient-based interpretation methods. This class
-#' inherits from [Interpreting_Method].
+#' inherits from [Interpreting_Method]. It summarizes all implemented gradient-based
+#' methods and provides a private function to calculate the gradients w.r.t. to
+#' the input for given data. Implemented are:
+#'
+#' - Normal Gradients  and Gradient x Input ([Gradient])
+#' - SmoothGrad and SmoothGrad x Input ([SmoothGrad])
 #'
 Gradient_Based <- R6::R6Class(
   classname = "Gradient_Based",
   inherit = Interpreting_Method,
   public = list(
 
+    #' @field times_input Multiplies the gradients with the input features. This
+    #' method is called 'Gradient x Input'.
     times_input = NULL,
-    ignore_last_act = NULL,
 
+    #' @description
+    #' Create a new instance of this class.
+    #'
+    #' @param analyzer The analyzer with the stored and torch-converted model.
+    #' @param data The given data as a torch tensor to be interpreted with the
+    #' selected method.
+    #' @param channels_first The format of the given date, i.e. channels on
+    #' last dimension (`FALSE`) or after the batch dimension (`TRUE`). If the
+    #' data has no channels, use the default value `TRUE`.
+    #' @param dtype The type of the data (either `'float'` or `'double'`).
+    #' @param ignore_last_act A boolean value to include the last
+    #' activation into all the calculations, or not. In some cases, the last activation
+    #' leads to a saturation problem.
+    #' @param times_input Multiplies the gradients with the input features. This
+    #' method is called 'Gradient x Input'.
+    #'
     initialize = function(analyzer, data,
                           channels_first = TRUE,
-                          times_input = TRUE,
+                          dtype = 'float',
                           ignore_last_act = TRUE,
-                          dtype = 'float') {
+                          times_input = TRUE) {
 
-      super$initialize(analyzer, data, channels_first, dtype)
+      super$initialize(analyzer, data, channels_first, dtype, ignore_last_act)
 
       checkmate::assert_logical(times_input)
       self$times_input <- times_input
-
-      checkmate::assert_logical(ignore_last_act)
-      self$ignore_last_act <- ignore_last_act
 
     }
   ),
 
   private = list(
-    calculate_gradients = function(input, ignore_last_act = FALSE) {
+    calculate_gradients = function(input) {
 
       input$requires_grad <- TRUE
 
       out <- self$analyzer$model(input, channels_first = self$channels_first)
 
 
-      if (ignore_last_act) {
+      if (self$ignore_last_act) {
         output <- rev(self$analyzer$model$modules_list)[[1]]$preactivation
       }
       else {
@@ -67,7 +86,6 @@ Gradient_Based <- R6::R6Class(
 #' variables, i.e. for all input variable \eqn{i} and output class \eqn{j}
 #' \deqn{d f(x)_j / d x_i.}
 #'
-#'
 #' @export
 #'
 
@@ -76,17 +94,33 @@ Gradient <- R6::R6Class(
   inherit = Gradient_Based,
   public = list(
 
+    #' @description
+    #' Create a new instance of this class.
+    #'
+    #' @param analyzer The analyzer with the stored and torch-converted model.
+    #' @param data The given data as a torch tensor to be interpreted with the
+    #' this method.
+    #' @param channels_first The format of the given data, i.e. channels on
+    #' last dimension (`FALSE`) or after the batch dimension (`TRUE`). If the
+    #' data has no channels, use the default value `TRUE`.
+    #' @param dtype The type of the data (either `'float'` or `'double'`).
+    #' @param ignore_last_act A boolean value to include the last
+    #' activation into all the calculations, or not. In some cases, the last activation
+    #' leads to a saturation problem.
+    #' @param times_input Multiplies the gradients with the input features. This
+    #' method is called 'Gradient x Input'.
+    #'
     initialize = function(analyzer, data,
                           channels_first = TRUE,
-                          times_input = TRUE,
+                          dtype = "float",
                           ignore_last_act = TRUE,
-                          dtype = "float") {
+                          times_input = TRUE) {
 
-      super$initialize(analyzer, data, channels_first, times_input, ignore_last_act, dtype)
+      super$initialize(analyzer, data, channels_first, dtype, ignore_last_act, times_input)
 
       self$result <- private$run()
 
-      gc() # we have to call gc otherwise R tensors are not disposed.
+      #gc() # we have to call gc otherwise R tensors are not disposed.
 
     }
   ),
@@ -94,8 +128,7 @@ Gradient <- R6::R6Class(
   private = list(
     run = function() {
 
-      gradients <- private$calculate_gradients(self$data,
-                                               ignore_last_act = self$ignore_last_act)
+      gradients <- private$calculate_gradients(self$data)
 
       if (self$times_input) {
         gradients <- gradients * self$data$unsqueeze(-1)
@@ -127,18 +160,42 @@ SmoothGrad <- R6::R6Class(
   inherit = Gradient_Based,
   public = list(
 
+    #' @field n Number of perturbations of the input data (default: \eqn{50}).
+    #' @field noise_level The standard deviation of the gaussian
+    #' perturbation, i.e. \eqn{\sigma = (max(x) - min(x)) *} `noise_level`.
+    #'
     n = NULL,
     noise_level = NULL,
 
+    #' @description
+    #' Create a new instance of this class.
+    #'
+    #' @param analyzer The analyzer with the stored and torch-converted model.
+    #' @param data The given data as a torch tensor to be interpreted with the
+    #' this method.
+    #' @param channels_first The format of the given data, i.e. channels on
+    #' last dimension (`FALSE`) or after the batch dimension (`TRUE`). If the
+    #' data has no channels, use the default value `TRUE`.
+    #' @param dtype The type of the data (either `'float'` or `'double'`).
+    #' @param ignore_last_act A boolean value to include the last
+    #' activation into all the calculations, or not. In some cases, the last activation
+    #' leads to a saturation problem.
+    #' @param times_input Multiplies the smoothed gradients with the input features. This
+    #' method is called 'SmoothGrad x Input'.
+    #' @param n Number of perturbations of the input data (default: \eqn{50}).
+    #' @param noise_level Determines the standard deviation of the gaussian
+    #' perturbation, i.e. \eqn{\sigma = (max(x) - min(x)) *} `noise_level`.
+    #'
+    #'
     initialize = function(analyzer, data,
-                          n = 50,
-                          noise_level = 0.1,
                           channels_first = TRUE,
                           dtype = "float",
+                          ignore_last_act = TRUE,
                           times_input = TRUE,
-                          ignore_last_act = TRUE) {
+                          n = 50,
+                          noise_level = 0.1) {
 
-      super$initialize(analyzer, data, channels_first, times_input, ignore_last_act, dtype)
+      super$initialize(analyzer, data, channels_first, dtype, ignore_last_act, times_input)
 
       checkmate::assertInt(n, lower = 1)
       checkmate::assertNumber(noise_level, lower = 0)
@@ -147,7 +204,7 @@ SmoothGrad <- R6::R6Class(
 
       self$result <- private$run()
 
-      gc() # we have to call gc otherwise R tensors are not disposed.
+      #gc() # we have to call gc otherwise R tensors are not disposed.
 
     }
   ),
@@ -165,8 +222,7 @@ SmoothGrad <- R6::R6Class(
 
       noise <- torch::torch_randn_like(data) * noise_scale
 
-      gradients <- private$calculate_gradients(data + noise,
-                                               ignore_last_act = self$ignore_last_act)
+      gradients <- private$calculate_gradients(data + noise)
 
       smoothgrads <-
         torch::torch_stack(lapply(gradients$chunk(dim(self$data)[1]),

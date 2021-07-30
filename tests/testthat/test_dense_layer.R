@@ -115,7 +115,7 @@ test_that("Test get_input_relevances for dense_layer", {
 
 
 
-test_that("Test get_input_relevances for dense_layer", {
+test_that("Test get_input_multiplier for dense_layer", {
   batch_size <- 10
   dim_in <- 201
   dim_out <- 55

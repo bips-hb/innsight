@@ -35,11 +35,12 @@ Roxygen: list(markdown = TRUE, r6 = TRUE)
 RoxygenNote: 7.1.1
 Collate: 
     'Analyzer.R'
+    'Connection_Weights.R'
     'DeepLift.R'
     'Gradien_based.R'
+    'Interpreting_Layer.R'
     'Interpreting_Method.R'
     'LRP.R'
-    'Layer.R'
     'Layer_conv1d.R'
     'Layer_conv2d.R'
     'Layer_dense.R'

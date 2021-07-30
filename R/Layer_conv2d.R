@@ -1,4 +1,4 @@
-#' @include Layer.R
+#' @include Interpreting_Layer.R
 NULL
 
 #' Two-dimensional convolution layer of a Neural Network
@@ -24,7 +24,7 @@ NULL
 #' \describe{
 #'   \item{`self$W`}{The weight matrix of this layer with shape \emph{(out_channels, in_channels, kernel_height, kernel_width)}}
 #'   \item{`self$b`}{The bias vector of this layer with shape \emph{(out_channels)}}
-#'   \item{`self$...`}{Many attributes are inherited from the superclass [Layer], e.g.
+#'   \item{`self$...`}{Many attributes are inherited from the superclass [Interpreting_Layer], e.g.
 #'   `input`, `input_dim`, `preactivation`, `activation_name`, etc.}
 #' }
 #'
@@ -32,7 +32,7 @@ NULL
 #'
 conv2d_layer <- torch::nn_module(
   classname = "Conv2D_Layer",
-  inherit = Layer,
+  inherit = Interpreting_Layer,
 
   #
   # weight: [out_channels, in_channels, kernel_height, kernel_width]

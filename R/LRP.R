@@ -39,6 +39,13 @@ NULL
 #' # use the alpha-beta rule with alpha = 2
 #' lrp <- LRP$new(analyzer, iris[,-5], rule_name = "alpha_beta", rule_param = 2)
 #'
+#' # include the last activation into the calculation
+#' lrp <- LRP$new(analyzer, iris[,-5],
+#'                rule_name = "alpha_beta",
+#'                rule_param = 2,
+#'                ignore_last_act = FALSE)
+#'
+#'
 #'
 #' @references
 #' S. Bach et al. (2015) \emph{On pixel-wise explanations for non-linear
@@ -52,14 +59,18 @@ LRP <- R6::R6Class(
 
   public = list(
 
-    #' @field data The given data as a torch tensor for which the relevance
-    #' scores are to be calculated.
-    #' @field analyzer The analyzer with the stored to torch converted model.
-    #' @field dtype The type of the date (either `'float'` or `'double'`).
-    #' @field channels_first The format of the given date, i.e. channels on
-    #' last dimension (`FALSE`) or after the batch dimension (`TRUE`).
-    #' @field result The calculated relevance scores of the given data as a
-    #' torch tensor of size (batch_size, model_in, model_out).
+    # #' @field data The given data as a torch tensor for which the relevance
+    # #' scores are to be calculated.
+    # #' @field analyzer The analyzer with the stored and torch-converted model.
+    # #' @field dtype The type of the data (either `'float'` or `'double'`).
+    # #' @field channels_first The format of the given data, i.e. channels on
+    # #' last dimension (`FALSE`) or after the batch dimension (`TRUE`).
+    # #' @field ignore_last_act A boolean value to include the last
+    # #' activation into all the calculations, or not. In some cases, the last activation
+    # #' leads to a saturation problem. For a probabilistic output, we substract
+    # #' \eqn{0.5} to obtain meaningful relevances with no relevance at \eqn{0}.
+    # #' @field result The calculated relevance scores of the given data as a
+    # #' torch tensor of size (batch_size, model_in, model_out).
     #' @field rule_name The name of the rule, with which the relevance scores are
     #' calculated. Implemented are \code{"simple"}, \code{"epsilon"}, \code{"alpha_beta"},
     #' (default: \code{"simple"}).
@@ -85,6 +96,9 @@ LRP <- R6::R6Class(
     #' @param channels_first Set the data format of the given data. Internally the format
     #' `channels_first` is used, therefore the format of the given data is required.
     #' Also use the default value `TRUE` if no convolutional layers are used.
+    #' @param ignore_last_act Set this boolean value to include the last
+    #' activation, or not (default: `TRUE`). In some cases, the last activation
+    #' leads to a saturation problem.
     #' @param dtype The data type for the calculations. Use either `'float'` or
     #' `'double'`.
     #'
@@ -93,9 +107,10 @@ LRP <- R6::R6Class(
                           channels_first = TRUE,
                           rule_name = "simple",
                           rule_param = NULL,
+                          ignore_last_act = TRUE,
                           dtype = "float") {
 
-      super$initialize(analyzer, data, channels_first, dtype)
+      super$initialize(analyzer, data, channels_first, dtype, ignore_last_act)
 
       checkmate::assertChoice(rule_name, c('simple', 'epsilon', 'alpha_beta'))
       self$rule_name <- rule_name
@@ -106,6 +121,8 @@ LRP <- R6::R6Class(
       self$analyzer$model$forward(self$data, channels_first = self$channels_first)
 
       self$result <- private$run()
+
+      #gc() # we have to call gc otherwise R tensors are not disposed.
 
     },
 
@@ -197,7 +214,18 @@ LRP <- R6::R6Class(
       rev_layers <- rev(self$analyzer$model$modules_list)
       last_layer <- rev_layers[[1]]
 
-      rel <- torch::torch_diag_embed(last_layer$preactivation)
+      if (self$ignore_last_act) {
+        rel <- torch::torch_diag_embed(last_layer$preactivation)
+      }
+      else {
+        rel <- torch::torch_diag_embed(last_layer$output)
+
+        # For probabilistic output we need to subtract 0.5, such that
+        # 0 means no relevance
+        if (last_layer$activation_name %in% c("softmax", "sigmoid", "logistic")) {
+          rel <- rel - 0.5
+        }
+      }
 
       # other layers
       for (layer in rev_layers) {
