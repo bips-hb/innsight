@@ -28,71 +28,10 @@ and global methods:
 \itemize{
 \item Layerwise Relevance Propagation (\link{LRP}), Bach et al. (2015)
 \item Deep Learning Important Feartures (\link{DeepLift}), Shrikumar et al. (2017)
-\item \link{SmoothGrad}, Smilkov et al. (2017)
-\item \link{Gradient}
+\item Vanilla \link{Gradient}
+\item \link{SmoothGrad}
 }
 }
-}
-}
-\examples{
-#------------------------- neuralnet model ----------------------------------
-library(neuralnet)
-nn <- neuralnet((Species == "setosa") ~ Petal.Length + Petal.Width,
-                iris, linear.output = FALSE,
-hidden = c(3,2), act.fct = "tanh", rep = 1)
-analyzer = Analyzer$new(nn)
-
-#-------------------------- keras model -------------------------------------
-library(keras)
-
-iris[,5] <- as.numeric(iris[,5]) -1
-# Turn `iris` into a matrix
-iris <- as.matrix(iris)
-# Set iris `dimnames` to `NULL`
-dimnames(iris) <- NULL
-iris.training <- iris[, 1:4]
-iris.trainingtarget <- iris[, 5]
-# One hot encode training target values
-iris.trainLabels <- to_categorical(iris.trainingtarget)
-
-# Define model
-model <- keras_model_sequential()
-model \%>\%
-  layer_dense(units = 16, activation = 'relu', input_shape = c(4)) \%>\%
-  layer_dropout(0.1) \%>\%
-  layer_dense(units = 8, activation = 'relu') \%>\%
-  layer_dropout(0.1) \%>\%
-  layer_dense(units = 3, activation = 'softmax')
-
-# Compile the model
-model \%>\% compile(
-  loss = 'categorical_crossentropy',
-  optimizer = 'adam',
-  metrics = 'accuracy'
-)
-
-# Train the model
-history <- model \%>\% fit(
-  iris.training,
-  iris.trainLabels,
-  epochs = 50,
-  batch_size = 5,
-  validation_split = 0.2, verbose = 1
-)
-analyzer = Analyzer$new(model)
-
-}
-\references{
-\itemize{
-\item J. D. Olden et al. (2004) \emph{An accurate comparison of methods for
-quantifying variable importance in artificial neural networks using
-simulated data.} Ecological Modelling 178, p. 389–397
-\item S. Bach et al. (2015) \emph{On pixel-wise explanations for non-linear
-classifier decisions by layer-wise relevance propagation.} PLoS ONE 10, p. 1-46
-\item A. Shrikumar et al. (2017) \emph{Learning important features through
-propagating activation differences.}  ICML 2017, p. 4844-4866
-\item D. Smilkov et al. (2017) \emph{SmoothGrad: removing noise by adding noise.}
-CoRR, abs/1706.03825
 }
 }
 \section{Public fields}{
@@ -100,26 +39,14 @@ CoRR, abs/1706.03825
 \describe{
 \item{\code{model}}{The given neural network.}
 
-\item{\code{layers}}{List of layers in the model. It contains only layers that
-are relevant for the evaluation. For example a list of
-\code{\link{Dense_Layer}}.}
+\item{\code{input_dim}}{Dimension of the input features.}
 
-\item{\code{num_layers}}{Number of all layers in \code{layers}.}
+\item{\code{input_names}}{Names of the input features}
 
-\item{\code{last_input}}{Last recorded input for the forward pass
-(default: \code{NULL}).}
-
-\item{\code{last_input_ref}}{Last recorded reference input for the forward pass
-(default: \code{NULL}).}
-
-\item{\code{dim_in}}{Dimension of the input features.}
-
-\item{\code{dim_out}}{Dimension of the models output, i.e. dimension of the
+\item{\code{output_dim}}{Dimension of the models output, i.e. dimension of the
 response variables.}
 
-\item{\code{feature_names}}{A list of names for the input features.}
-
-\item{\code{response_names}}{A list of names for the response variables.}
+\item{\code{output_names}}{A list of names for the response variables.}
 }
 \if{html}{\out{</div>}}
 }
@@ -127,8 +54,6 @@ response variables.}
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{Analyzer$new()}}
-\item \href{#method-forward}{\code{Analyzer$forward()}}
-\item \href{#method-update}{\code{Analyzer$update()}}
 \item \href{#method-clone}{\code{Analyzer$clone()}}
 }
 }
@@ -138,7 +63,12 @@ response variables.}
 \subsection{Method \code{new()}}{
 Create a new analyzer for a given neural network.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Analyzer$new(model, feature_names = NULL, response_names = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Analyzer$new(
+  model,
+  feature_names = NULL,
+  response_names = NULL,
+  dtype = "float"
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -155,65 +85,13 @@ default value \code{NULL} for the default names (X1, X2, ...).}
 
 \item{\code{response_names}}{A list of names for the response variables. Use the
 default value \code{NULL} for the default names (Y1, Y2, ...).}
+
+\item{\code{dtype}}{The data type for the calculations. Use either \code{'float'} or \code{'double'}}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
 A new instance of the R6 class \code{'Analyzer'}.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-forward"></a>}}
-\if{latex}{\out{\hypertarget{method-forward}{}}}
-\subsection{Method \code{forward()}}{
-The forward method of the whole model, i.e. it calculates the output
-\eqn{y=f(x)} of a given input \eqn{x} respectively an reference input \eqn{x'}.
-In doing so all intermediate values are stored in the individual layers.
-A batch-wise evaluation is performed, hence \eqn{x} must be a matrix of
-inputs.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Analyzer$forward(x, x_ref = NULL)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{x}}{Input matrix of the model with size \emph{(num_data, dim_in)}.}
-
-\item{\code{x_ref}}{Reference input vector of the model. If this value is not needed, it
-can be set to the default value \code{NULL}.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A list with two vectors. The first one is the output for the inputs
-\code{x} and the second entry is the output for the
-reference input \code{x_ref}.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-update"></a>}}
-\if{latex}{\out{\hypertarget{method-update}{}}}
-\subsection{Method \code{update()}}{
-This method updates the stored intermediate values in each layer from the
-list \code{layers} when the inputs \code{x} or reference input \code{x_ref}
-has changed.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Analyzer$update(x, x_ref = NULL)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{x}}{Input matrix of the model with size \emph{(num_data, dim_in)}.}
-
-\item{\code{x_ref}}{Reference input vector of the model. If this value is not needed, it
-can be set to the default value \code{NULL}.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Returns the instance itself.
 }
 }
 \if{html}{\out{<hr>}}

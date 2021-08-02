@@ -78,7 +78,7 @@ jobs:
           pak::local_install_dev_deps(upgrade = TRUE)
           pak::pkg_install("rcmdcheck")
         shell: Rscript {0}
-        
+
       - name: Install Miniconda
         run: |
           install.packages("reticulate")
@@ -93,6 +93,11 @@ jobs:
           keras::install_keras()
         shell: Rscript {0}
 
+      - name: Install LibTorch
+        run: |
+          torch::install_torch()
+        shell: Rscript {0}
+
       - name: Session info
         run: |
           options(width = 100)
@@ -105,7 +110,7 @@ jobs:
           _R_CHECK_CRAN_INCOMING_: false
         run: |
           options(crayon.enabled = TRUE)
-          rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), error_on = "warning", check_dir = "check")
+          rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), error_on = "error", check_dir = "check")
         shell: Rscript {0}
 
       - name: Show testthat output

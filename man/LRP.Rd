@@ -3,41 +3,17 @@
 \name{LRP}
 \alias{LRP}
 \title{Layer-wise Relevance Propagation (LRP) method}
-\usage{
-LRP(analyzer, data, rule_name = "simple", rule_param = NULL)
-}
-\arguments{
-\item{analyzer}{An instance of the R6 class \code{\link{Analyzer}}.}
-
-\item{data}{Either a matrix or a data frame, where each row must describe an
-input to the network.}
-
-\item{rule_name}{The name of the rule, with which the relevance scores are
-calculated. Implemented are \code{"simple"}, \code{"eps"}, \code{"ab"},
-\code{"ww"} (default: \code{"simple"}).}
-
-\item{rule_param}{The parameter of the selected rule. Note: Only the rules
-\code{"eps"} and \code{"ab"} take use of the parameter. Use the default
-value \code{NULL} for the default parameters ("eps" : \eqn{0.01}, "ab" : \eqn{0.5}).}
-}
-\value{
-It returns a list of matrices of shape \emph{(in, out)},
-which contains the relevance scores for each input variable to the
-output predictions or single output class (if \code{out_class} is not \code{NULL})
-for every input in \code{data}.
-}
 \description{
 This is an implementation of the \emph{Layer-wise Relevance Propagation (LRP)}
 algorithm introduced by Bach et al. (2015). It's a local method for
-interpreting a single element of the dataset and returns the relevance scores for
+interpreting a single element of the dataset and calculates the relevance scores for
 each input feature. The basic idea of this method is to decompose the
 prediction score of the model with respect to the input features, i.e.
 \deqn{f(x) = \sum_i R(x_i).}
 Because of the bias vector, this decomposition is generally an approximation.
 There exist several propagation rules to determine the relevance scores. In this
-package are implemented: \code{\link{linear_simple_rule}},
-\code{\link{linear_eps_rule}}, \code{\link{linear_ab_rule}},
-\code{\link{linear_ww_rule}}.
+package are implemented: simple rule ("simple"), epsilon rule ("epsilon") and
+alpha-beta rule ("alpha_beta").
 }
 \examples{
 library(neuralnet)
@@ -48,22 +24,134 @@ nn <- neuralnet( Species ~ .,
 # create an analyzer for this model
 analyzer = Analyzer$new(nn)
 
-# calculate relevance scores for the whole dataset
-result <- LRP(analyzer, data = iris[,-5], rule_name = "simple")
-plot(result)
+# create new instance of 'LRP'
+lrp <- LRP$new(analyzer, iris[,-5], rule_name = "simple")
 
-# calculate relevance scores for the whole dataset with eps-rule (eps = 0.1)
-result <- LRP(analyzer, data = iris[,-5], rule_name = "eps", rule_param = 0.1)
-plot(result)
+# get the result as an array
+lrp$get_result()
+
+# get the result as a torch tensor
+lrp$get_result(as_torch = TRUE)
+
+# use the alpha-beta rule with alpha = 2
+lrp <- LRP$new(analyzer, iris[,-5], rule_name = "alpha_beta", rule_param = 2)
+
+# include the last activation into the calculation
+lrp <- LRP$new(analyzer, iris[,-5],
+               rule_name = "alpha_beta",
+               rule_param = 2,
+               ignore_last_act = FALSE)
+
+
 
 }
 \references{
 S. Bach et al. (2015) \emph{On pixel-wise explanations for non-linear
 classifier decisions by layer-wise relevance propagation.} PLoS ONE 10, p. 1-46
 }
-\seealso{
-\code{\link{Analyzer}},
-\code{\link{linear_simple_rule}},
-\code{\link{linear_eps_rule}}, \code{\link{linear_ab_rule}},
-\code{\link{linear_ww_rule}}, \link{plot.LRP}
+\section{Super class}{
+\code{\link[msIML:Interpreting_Method]{msIML::Interpreting_Method}} -> \code{LRP}
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{rule_name}}{The name of the rule, with which the relevance scores are
+calculated. Implemented are \code{"simple"}, \code{"epsilon"}, \code{"alpha_beta"},
+(default: \code{"simple"}).}
+
+\item{\code{rule_param}}{The parameter of the selected rule.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{LRP$new()}}
+\item \href{#method-plot_relevances}{\code{LRP$plot_relevances()}}
+\item \href{#method-clone}{\code{LRP$clone()}}
+}
+}
+\if{html}{
+\out{<details open ><summary>Inherited methods</summary>}
+\itemize{
+\item \out{<span class="pkg-link" data-pkg="msIML" data-topic="Interpreting_Method" data-id="get_result">}\href{../../msIML/html/Interpreting_Method.html#method-get_result}{\code{msIML::Interpreting_Method$get_result()}}\out{</span>}
+}
+\out{</details>}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
+\subsection{Method \code{new()}}{
+Create a new instance of the LRP-Method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LRP$new(
+  analyzer,
+  data,
+  channels_first = TRUE,
+  rule_name = "simple",
+  rule_param = NULL,
+  ignore_last_act = TRUE,
+  dtype = "float"
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{analyzer}}{An instance of the R6 class \code{\link{Analyzer}}.}
+
+\item{\code{data}}{The data for which the relevance scores are to be calculated.
+It has to be an array or array-like format of size (batch_size, model_in).}
+
+\item{\code{channels_first}}{Set the data format of the given data. Internally the format
+\code{channels_first} is used, therefore the format of the given data is required.
+Also use the default value \code{TRUE} if no convolutional layers are used.}
+
+\item{\code{rule_name}}{The name of the rule, with which the relevance scores are
+calculated. Implemented are \code{"simple"}, \code{"epsilon"}, \code{"alpha_beta"},
+(default: \code{"simple"}).}
+
+\item{\code{rule_param}}{The parameter of the selected rule. Note: Only the rules
+\code{"epsilon"} and \code{"alpha_beta"} take use of the parameter. Use the default
+value \code{NULL} for the default parameters ("epsilon" : \eqn{0.01}, "alpha_beta" : \eqn{0.5}).}
+
+\item{\code{ignore_last_act}}{Set this boolean value to include the last
+activation, or not (default: \code{TRUE}). In some cases, the last activation
+leads to a saturation problem.}
+
+\item{\code{dtype}}{The data type for the calculations. Use either \code{'float'} or
+\code{'double'}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A new instance of the R6 class \code{'LRP'}.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-plot_relevances"></a>}}
+\if{latex}{\out{\hypertarget{method-plot_relevances}{}}}
+\subsection{Method \code{plot_relevances()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LRP$plot_relevances(i = NULL, j = NULL, rank = FALSE, scale = FALSE, ...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LRP$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
 }
