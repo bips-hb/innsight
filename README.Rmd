@@ -1,8 +1,7 @@
+
 ---
 output: github_document
 ---
-
-<!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -13,48 +12,153 @@ knitr::opts_chunk$set(
 )
 ```
 
-# msIML
+# innsight - Get the insights of your Neural Network
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of msIML is to ...
+`innsight` is an R package that interprets the behavior and explains predictions
+of machine learning models. It implements several model-specific interpretability
+methods based on Neural Networks in R, e.g., 
+
+* Layer-wise Relevance Propagation ([LRP](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0130140))
+* Deep Learning Important Features ([DeepLift](https://arxiv.org/abs/1704.02685))
+* Gradient-based methods:
+  * Vanilla Gradient, including [Gradient x Input](https://www.jmlr.org/papers/v11/baehrens10a.html)
+  * Smoothed gradients ([SmoothGrad](https://arxiv.org/abs/1706.03825))
+* Connection Weights
+
+Basically, a Neural Network of the libraries [`torch`](https://torch.mlverse.org/),
+[`keras`](https://keras.rstudio.com/) and [`neuralnet`](https://cran.r-project.org/web/packages/neuralnet/)
+can be passed, which is internally converted into a torch model with special
+insights needed for interpretation.
 
 ## Installation
 
-You can install the released version of msIML from [CRAN](https://CRAN.R-project.org) with:
-
-``` r
-install.packages("msIML")
+Install `devtools` and `torch` from CRAN. Than run the following commands:
+```{r, echo=FALSE}
+library(devtools)
+library(torch)
 ```
 
-And the development version from [GitHub](https://github.com/) with:
+```{r, eval = FALSE}
+devtools::install_github("bips-hb/innsight")
+library(innsight)
 
-``` r
-# install.packages("devtools")
-devtools::install_github("bips-hb/msIML")
-```
-## Example
-
-This is a basic example which shows you how to solve a common problem:
-
-```{r example}
-library(msIML)
-## basic example code
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
+## Examples
 
-```{r cars}
-summary(cars)
+### 1. Neuralnet (Simple)
+
+Let's train a simple fully connected Neural Network with the package `neuralnet`
+on the iris dataset:
+
+```{r, echo=TRUE}
+library(innsight)
+library(neuralnet)
+data(iris)
+
+nn <- neuralnet( Species ~ .,
+                 iris, linear.output = FALSE,
+                 hidden = c(10,8), act.fct = "tanh", threshold = 0.5)
+# create an analyzer for this model
+analyzer = Analyzer$new(nn)
+
+# Apply method Connection_Weights
+cw <- Connection_Weights$new(analyzer)
+cw$get_result()
 ```
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this. You could also use GitHub Actions to re-render `README.Rmd` every time you push. An example workflow can be found here: <https://github.com/r-lib/actions/tree/master/examples>.
+### 2. keras (advanced)
 
-You can also embed plots, for example:
+```{r}
+library(keras)
 
-```{r pressure, echo = FALSE}
-plot(pressure)
+fashion_mnist <- dataset_fashion_mnist()
+c(train_images, train_labels) %<-% fashion_mnist$train
+c(test_images, test_labels) %<-% fashion_mnist$test
+
+
+train_images <- train_images / 255
+test_images <- train_images[1:100,,] / 255
+dim(train_images) <- c(60000, 28, 28, 1)
+dim(test_images) <- c(100, 28, 28, 1)
+
+model <- keras_model_sequential()
+model %>%
+  layer_conv_2d(filters = 8, kernel_size = c(4,4), input_shape = c(28,28, 1), activation = 'relu') %>%
+  layer_conv_2d(filters = 4, kernel_size = c(2,2), activation = 'relu') %>%
+  layer_flatten() %>%
+  layer_dropout(0.25) %>%
+  layer_dense(units = 128, activation = 'relu') %>%
+  layer_dense(units = 10, activation = 'softmax')
+
+model %>% compile(
+  optimizer = 'adam', 
+  loss = 'sparse_categorical_crossentropy',
+  metrics = c('accuracy')
+)
+
+model %>% fit(train_images, train_labels, epochs = 10, verbose = 2)
+
+analyzer <- Analyzer$new(model)
+
+lrp <- LRP$new(analyzer, test_images, channels_first = FALSE)
+result <- lrp$get_result()
+```
+```{r, echo = FALSE}
+library(tidyr)
+library(ggplot2)
+library(scales)
+library(gridExtra)
+
+class_names = c('T-shirt/top',
+                'Trouser',
+                'Pullover',
+                'Dress',
+                'Coat', 
+                'Sandal',
+                'Shirt',
+                'Sneaker',
+                'Bag',
+                'Ankle boot')
+
+
+img <- test_images[1,,,]
+image_1 <- as.data.frame(img)
+colnames(image_1) <- seq_len(ncol(image_1))
+image_1$y <- seq_len(nrow(image_1))
+image_1 <- gather(image_1, "x", "value", -y)
+image_1$x <- as.integer(image_1$x)
+
+g1 <- ggplot(image_1, aes(x = x, y = y, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "black", na.value = NA) +
+  scale_y_reverse() +
+  theme_minimal() +
+  theme(panel.grid = element_blank())   +
+  theme(aspect.ratio = 1) +
+  xlab("") +
+  ylab("")
+
+img <- result[1,,,1, test_labels[1]]
+image_1 <- as.data.frame(img)
+colnames(image_1) <- seq_len(ncol(image_1))
+image_1$y <- seq_len(nrow(image_1))
+image_1 <- gather(image_1, "x", "value", -y)
+image_1$x <- as.integer(image_1$x)
+
+g2 <- ggplot(image_1, aes(x = x, y = y, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = muted("blue"),mid = "white", high = muted("red"), na.value = NA) +
+  scale_y_reverse() +
+  theme_minimal() +
+  theme(panel.grid = element_blank())   +
+  theme(aspect.ratio = 1) +
+  xlab("") +
+  ylab("")
+
+grid.arrange(g1, g2, ncol=2)
 ```
 
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
