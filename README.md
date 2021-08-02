@@ -1,17 +1,17 @@
 
-# msIML
+# innsight
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of msIML is to ...
+The goal of innsight is to ...
 
 ## Installation
 
-You can install the released version of msIML from [CRAN](https://CRAN.R-project.org) with:
+You can install the released version of innsight from [CRAN](https://CRAN.R-project.org) with:
 
 ``` r
-install.packages("msIML")
+install.packages("innsight")
 ```
 
 ## Example
@@ -19,7 +19,7 @@ install.packages("msIML")
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
-library(msIML)
+library(innsight)
 ## basic example code
 ```
 

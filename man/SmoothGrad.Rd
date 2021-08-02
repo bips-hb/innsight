@@ -14,7 +14,7 @@ D. Smilkov et al. (2017) \emph{SmoothGrad: removing noise by adding noise.}
 CoRR, abs/1706.03825
 }
 \section{Super classes}{
-\code{\link[msIML:Interpreting_Method]{msIML::Interpreting_Method}} -> \code{\link[msIML:Gradient_Based]{msIML::Gradient_Based}} -> \code{SmoothGrad}
+\code{\link[innsight:Interpreting_Method]{innsight::Interpreting_Method}} -> \code{\link[innsight:Gradient_Based]{innsight::Gradient_Based}} -> \code{SmoothGrad}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -36,7 +36,7 @@ perturbation, i.e. \eqn{\sigma = (max(x) - min(x)) *} \code{noise_level}.}
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
-\item \out{<span class="pkg-link" data-pkg="msIML" data-topic="Interpreting_Method" data-id="get_result">}\href{../../msIML/html/Interpreting_Method.html#method-get_result}{\code{msIML::Interpreting_Method$get_result()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="Interpreting_Method" data-id="get_result">}\href{../../innsight/html/Interpreting_Method.html#method-get_result}{\code{innsight::Interpreting_Method$get_result()}}\out{</span>}
 }
 \out{</details>}
 }

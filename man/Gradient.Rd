@@ -9,7 +9,7 @@ variables, i.e. for all input variable \eqn{i} and output class \eqn{j}
 \deqn{d f(x)_j / d x_i.}
 }
 \section{Super classes}{
-\code{\link[msIML:Interpreting_Method]{msIML::Interpreting_Method}} -> \code{\link[msIML:Gradient_Based]{msIML::Gradient_Based}} -> \code{Gradient}
+\code{\link[innsight:Interpreting_Method]{innsight::Interpreting_Method}} -> \code{\link[innsight:Gradient_Based]{innsight::Gradient_Based}} -> \code{Gradient}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -21,7 +21,7 @@ variables, i.e. for all input variable \eqn{i} and output class \eqn{j}
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
-\item \out{<span class="pkg-link" data-pkg="msIML" data-topic="Interpreting_Method" data-id="get_result">}\href{../../msIML/html/Interpreting_Method.html#method-get_result}{\code{msIML::Interpreting_Method$get_result()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="Interpreting_Method" data-id="get_result">}\href{../../innsight/html/Interpreting_Method.html#method-get_result}{\code{innsight::Interpreting_Method$get_result()}}\out{</span>}
 }
 \out{</details>}
 }

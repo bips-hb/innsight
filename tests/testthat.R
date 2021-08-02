@@ -1,4 +1,4 @@
 library(testthat)
-library(msIML)
+library(innsight)
 
-test_check("msIML")
+test_check("innsight")

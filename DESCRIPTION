@@ -1,5 +1,5 @@
 Type: Package
-Package: msIML
+Package: innsight
 Title: Model-specific Interpretable Machine Learning (msIML)
 Version: 0.1.0
 Authors@R: 

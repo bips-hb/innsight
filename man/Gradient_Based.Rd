@@ -14,7 +14,7 @@ the input for given data. Implemented are:
 }
 }
 \section{Super class}{
-\code{\link[msIML:Interpreting_Method]{msIML::Interpreting_Method}} -> \code{Gradient_Based}
+\code{\link[innsight:Interpreting_Method]{innsight::Interpreting_Method}} -> \code{Gradient_Based}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -34,7 +34,7 @@ method is called 'Gradient x Input'.}
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
-\item \out{<span class="pkg-link" data-pkg="msIML" data-topic="Interpreting_Method" data-id="get_result">}\href{../../msIML/html/Interpreting_Method.html#method-get_result}{\code{msIML::Interpreting_Method$get_result()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="Interpreting_Method" data-id="get_result">}\href{../../innsight/html/Interpreting_Method.html#method-get_result}{\code{innsight::Interpreting_Method$get_result()}}\out{</span>}
 }
 \out{</details>}
 }

@@ -22,7 +22,7 @@ A. Shrikumar et al. (2017) \emph{Learning important features through
 propagating activation differences.}  ICML 2017, p. 4844-4866
 }
 \section{Super class}{
-\code{\link[msIML:Interpreting_Method]{msIML::Interpreting_Method}} -> \code{DeepLift}
+\code{\link[innsight:Interpreting_Method]{innsight::Interpreting_Method}} -> \code{DeepLift}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -44,7 +44,7 @@ non-linear part of a Neural Network layer. Either \code{"rescale"} or \code{"rev
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
-\item \out{<span class="pkg-link" data-pkg="msIML" data-topic="Interpreting_Method" data-id="get_result">}\href{../../msIML/html/Interpreting_Method.html#method-get_result}{\code{msIML::Interpreting_Method$get_result()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="Interpreting_Method" data-id="get_result">}\href{../../innsight/html/Interpreting_Method.html#method-get_result}{\code{innsight::Interpreting_Method$get_result()}}\out{</span>}
 }
 \out{</details>}
 }

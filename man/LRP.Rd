@@ -50,7 +50,7 @@ S. Bach et al. (2015) \emph{On pixel-wise explanations for non-linear
 classifier decisions by layer-wise relevance propagation.} PLoS ONE 10, p. 1-46
 }
 \section{Super class}{
-\code{\link[msIML:Interpreting_Method]{msIML::Interpreting_Method}} -> \code{LRP}
+\code{\link[innsight:Interpreting_Method]{innsight::Interpreting_Method}} -> \code{LRP}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -74,7 +74,7 @@ calculated. Implemented are \code{"simple"}, \code{"epsilon"}, \code{"alpha_beta
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
-\item \out{<span class="pkg-link" data-pkg="msIML" data-topic="Interpreting_Method" data-id="get_result">}\href{../../msIML/html/Interpreting_Method.html#method-get_result}{\code{msIML::Interpreting_Method$get_result()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="Interpreting_Method" data-id="get_result">}\href{../../innsight/html/Interpreting_Method.html#method-get_result}{\code{innsight::Interpreting_Method$get_result()}}\out{</span>}
 }
 \out{</details>}
 }
