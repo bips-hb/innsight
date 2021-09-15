@@ -2,34 +2,52 @@
 % Please edit documentation in R/Layer_dense.R
 \name{dense_layer}
 \alias{dense_layer}
-\title{Dense layer of a convolutional neural network}
+\title{Dense Layer of a Neural Network}
 \usage{
-dense_layer(weight, bias, activation_name, dtype = "float")
+dense_layer(
+  weight,
+  bias,
+  activation_name,
+  dim_in = NULL,
+  dim_out = NULL,
+  dtype = "float"
+)
 }
 \arguments{
-\item{weight}{The weight matrix of dimensions \emph{(out_features, in_features)}}
+\item{weight}{The weight matrix of dimensions \emph{(out_features,
+in_features)}}
 
 \item{bias}{The bias vector of dimension \emph{(out_features)}}
 
 \item{activation_name}{The name of the activation function used by the layer}
 
-\item{dtype}{The data type of all the parameters (Use \code{'float'} or \code{'double'})}
+\item{dim_in}{The input dimension of this layer. Use the default value
+\code{NULL} to calculate the input dimension from the weight matrix.}
+
+\item{dim_out}{The output dimension of this layer. Use the default value
+\code{NULL} to calculate the output dimension from the weight matrix.}
+
+\item{dtype}{The data type of all the parameters (Use \code{'float'} or
+\code{'double'})}
 }
 \description{
 Implementation of a dense Neural Network layer as a torch module
-where input, preactivation and output values of the last forward pass are stored
-(same for a reference input, if this is needed). Applies a torch function for
-forwarding an input through a linear function followed by an activation function
-\eqn{\sigma} to the input data, i.e.
-\deqn{y= \sigma(\code{nnf_dense(x,W,b)})}
+where input, preactivation and output values of the last forward pass are
+stored (same for a reference input, if this is needed). Applies a torch
+function for forwarding an input through a linear function followed by an
+activation function \eqn{\sigma} to the input data, i.e.
+\deqn{y= \sigma(\text{nnf_dense(x,W,b)})}
 }
 \section{Attributes}{
 
 \describe{
-\item{\code{self$W}}{The weight matrix of this layer with shape \emph{(out_features, in_features)}}
-\item{\code{self$b}}{The bias vector of this layer with shape \emph{(out_features)}}
-\item{\code{self$...}}{Many attributes are inherited from the superclass \link{Interpreting_Layer}, e.g.
-\code{input}, \code{input_dim}, \code{preactivation}, \code{activation_name}, etc.}
+\item{\code{self$W}}{The weight matrix of this layer with shape
+\emph{(out_features, in_features)}}
+\item{\code{self$b}}{The bias vector of this layer with shape
+\emph{(out_features)}}
+\item{\code{self$...}}{Many attributes are inherited from the superclass
+\link{InterpretingLayer}, e.g. \code{input}, \code{input_dim}, \code{preactivation},
+\code{activation_name}, etc.}
 }
 }
 
@@ -44,21 +62,23 @@ The forward function takes an input and forwards it through the layer
 \subsection{Arguments}{
 
 \describe{
-\item{\code{x}}{The input torch tensor of dimensions \emph{(batch_size, in_features)}}
+\item{\code{x}}{The input torch tensor of dimensions
+\emph{(batch_size, in_features)}}
 }
 }
 
 \subsection{Return}{
 
-Returns the output of the layer with respect to the given inputs, with dimensions
-\emph{(batch_size, out_features)}
+Returns the output of the layer with respect to the given inputs, with
+dimensions \emph{(batch_size, out_features)}
 }
 }
 
 \section{\code{self$update_ref()}}{
 
 This function takes the reference input and runs it through
-the layer, updating the the values of \code{input_ref}, \code{preactivation_ref} and \code{output_ref}
+the layer, updating the the values of \code{input_ref}, \code{preactivation_ref}
+and \code{output_ref}
 \subsection{Usage}{
 
 \code{self$update_ref(x_ref)}
@@ -67,7 +87,8 @@ the layer, updating the the values of \code{input_ref}, \code{preactivation_ref}
 \subsection{Arguments}{
 
 \describe{
-\item{\code{x_ref}}{The new reference input, of dimensions \emph{(1, in_features)}}
+\item{\code{x_ref}}{The new reference input, of dimensions
+\emph{(1, in_features)}}
 }
 }
 
@@ -80,8 +101,8 @@ passing through the layer, of dimension \emph{(1, out_features)}
 
 \section{\code{self$get_input_relevances()}}{
 
-This method uses the output layer relevances and calculates the input layer
-relevances using the specified rule.
+This method uses the output layer relevances and calculates the input
+layer relevances using the specified rule.
 \subsection{Usage}{
 
 \verb{self$get_input_relevances(}\cr
@@ -93,12 +114,15 @@ relevances using the specified rule.
 \subsection{Arguments}{
 
 \describe{
-\item{\code{rel_output}}{The output relevances, of dimensions \emph{(batch_size, out_features, model_out)}}
-\item{\code{rule_name}}{The name of the rule, with which the relevance scores are
-calculated. Implemented are \code{"simple"}, \code{"epsilon"}, \code{"alpha_beta"} (default: \code{"simple"}).}
-\item{\code{rule_param}}{The parameter of the selected rule. Note: Only the rules
-\code{"epsilon"} and \code{"alpha_beta"} take use of the parameter. Use the default
-value \code{NULL} for the default parameters (\code{"epsilon"} : \eqn{0.01}, \code{"alpha_beta"} : \eqn{0.5}).}
+\item{\code{rel_output}}{The output relevances, of dimensions
+\emph{(batch_size, out_features, model_out)}}
+\item{\code{rule_name}}{The name of the rule, with which the relevance
+scores are calculated. Implemented are \code{"simple"}, \code{"epsilon"},
+\code{"alpha_beta"} (default: \code{"simple"}).}
+\item{\code{rule_param}}{The parameter of the selected rule. Note: Only the
+rules \code{"epsilon"} and \code{"alpha_beta"} take use of the parameter. Use
+the default value \code{NULL} for the default parameters (\code{"epsilon"} :
+\eqn{0.01}, \code{"alpha_beta"} : \eqn{0.5}).}
 }
 }
 
@@ -112,7 +136,8 @@ torch tensor of size \emph{(batch_size, in_features, model_out)}
 \section{\code{self$get_input_multiplier()}}{
 
 This function is the local implementation of the DeepLift method for this
-layer and returns the multiplier from the input contribution to the output.
+layer and returns the multiplier from the input contribution to the
+output.
 \subsection{Usage}{
 
 \code{self$get_input_multiplier(mult_output, rule_name = "rescale")}
@@ -132,16 +157,18 @@ calculated. Implemented are \code{"rescale"} and \code{"reveal_cancel"}
 
 \subsection{Return}{
 
-Returns the contribution multiplier of the layer's input to the model output
-as torch tensor of dimension \emph{(batch_size, in_features, model_out)}.
+Returns the contribution multiplier of the layer's input to the model
+output as torch tensor of dimension \emph{(batch_size, in_features,
+model_out)}.
 }
 }
 
 \section{\code{self$get_gradient()}}{
 
-This method uses \code{\link[torch]{torch_matmul}} to multiply the input with the
-gradient of a layer's output with respect to the layer's input. This results in the
-gradients of the model output with respect to layer's input.
+This method uses \code{\link[torch]{torch_matmul}} to multiply the input
+with the gradient of a layer's output with respect to the layer's input.
+This results in the gradients of the model output with respect to
+layer's input.
 \subsection{Usage}{
 
 \code{self$get_gradient(input, weight)}
@@ -150,23 +177,26 @@ gradients of the model output with respect to layer's input.
 \subsection{Arguments}{
 
 \describe{
-\item{\code{grad_out}}{The gradients of the upper layer, a tensor of dimension
+\item{\code{grad_out}}{The gradients of the upper layer, a tensor of
+dimension
 \emph{(batch_size, out_features, model_out)}}
-\item{\code{weight}}{A weight tensor of dimensions \emph{(out_features, in_features)}}
+\item{\code{weight}}{A weight tensor of dimensions \emph{(out_features,
+in_features)}}
 }
 }
 
 \subsection{Return}{
 
 Returns the gradient of the model's output with respect to the layer input
-as a torch tensor of dimension \emph{(batch_size, in_features, model_out)}.
+as a torch tensor of dimension \emph{(batch_size, in_features,
+model_out)}.
 }
 }
 
 \section{\code{self$get_pos_and_neg_outputs()}}{
 
-This method separates the linear layer output (i.e. the preactivation) into
-the positive and negative parts.
+This method separates the linear layer output (i.e. the preactivation)
+into the positive and negative parts.
 \subsection{Usage}{
 
 \code{self$get_pos_and_neg_outputs(input, use_bias = FALSE)}
@@ -184,9 +214,10 @@ the positive and negative parts}
 
 \subsection{Return}{
 
-Returns a decomposition of the linear output of this layer with input \code{input}
-into the positive and negative parts. A list of two torch tensors with
-size \emph{(batch_size, out_features)} and keys \verb{$pos} and \verb{$neg}
+Returns a decomposition of the linear output of this layer with
+input \code{input} into the positive and negative parts. A list of two torch
+tensors with size \emph{(batch_size, out_features)} and keys \verb{$pos}
+and \verb{$neg}
 }
 }
 

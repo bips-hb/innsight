@@ -2,62 +2,66 @@
 % Please edit documentation in R/LRP.R
 \name{LRP}
 \alias{LRP}
-\title{Layer-wise Relevance Propagation (LRP) method}
+\title{Layer-wise Relevance Propagation (LRP) Method}
 \description{
-This is an implementation of the \emph{Layer-wise Relevance Propagation (LRP)}
-algorithm introduced by Bach et al. (2015). It's a local method for
-interpreting a single element of the dataset and calculates the relevance scores for
-each input feature. The basic idea of this method is to decompose the
-prediction score of the model with respect to the input features, i.e.
+This is an implementation of the \emph{Layer-wise Relevance Propagation
+(LRP)} algorithm introduced by Bach et al. (2015). It's a local method for
+interpreting a single element of the dataset and calculates the relevance
+scores for each input feature. The basic idea of this method is to decompose
+the prediction score of the model with respect to the input features, i.e.
 \deqn{f(x) = \sum_i R(x_i).}
 Because of the bias vector, this decomposition is generally an approximation.
-There exist several propagation rules to determine the relevance scores. In this
-package are implemented: simple rule ("simple"), epsilon rule ("epsilon") and
-alpha-beta rule ("alpha_beta").
+There exist several propagation rules to determine the relevance scores.
+In this package are implemented: simple rule ("simple"), epsilon rule
+("epsilon") and alpha-beta rule ("alpha_beta").
 }
 \examples{
 library(neuralnet)
 data(iris)
-nn <- neuralnet( Species ~ .,
-                 iris, linear.output = FALSE,
-                 hidden = c(10,8), act.fct = "tanh", rep = 1, threshold = 0.5)
-# create an analyzer for this model
-analyzer = Analyzer$new(nn)
+nn <- neuralnet(Species ~ .,
+  iris,
+  linear.output = FALSE,
+  hidden = c(10, 8), act.fct = "tanh", rep = 1, threshold = 0.5
+)
+# create an converter for this model
+converter <- Converter$new(nn)
 
 # create new instance of 'LRP'
-lrp <- LRP$new(analyzer, iris[,-5], rule_name = "simple")
+lrp <- LRP$new(converter, iris[, -5], rule_name = "simple")
 
 # get the result as an array
 lrp$get_result()
 
 # get the result as a torch tensor
-lrp$get_result(as_torch = TRUE)
+lrp$get_result(type = "torch.tensor")
 
 # use the alpha-beta rule with alpha = 2
-lrp <- LRP$new(analyzer, iris[,-5], rule_name = "alpha_beta", rule_param = 2)
+lrp <- LRP$new(converter, iris[, -5],
+  rule_name = "alpha_beta",
+  rule_param = 2
+)
 
 # include the last activation into the calculation
-lrp <- LRP$new(analyzer, iris[,-5],
-               rule_name = "alpha_beta",
-               rule_param = 2,
-               ignore_last_act = FALSE)
-
-
-
+lrp <- LRP$new(converter, iris[, -5],
+  rule_name = "alpha_beta",
+  rule_param = 2,
+  ignore_last_act = FALSE
+)
 }
 \references{
 S. Bach et al. (2015) \emph{On pixel-wise explanations for non-linear
-classifier decisions by layer-wise relevance propagation.} PLoS ONE 10, p. 1-46
+classifier decisions by layer-wise relevance propagation.} PLoS ONE 10,
+p. 1-46
 }
 \section{Super class}{
-\code{\link[innsight:Interpreting_Method]{innsight::Interpreting_Method}} -> \code{LRP}
+\code{\link[innsight:InterpretingMethod]{innsight::InterpretingMethod}} -> \code{LRP}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{rule_name}}{The name of the rule, with which the relevance scores are
-calculated. Implemented are \code{"simple"}, \code{"epsilon"}, \code{"alpha_beta"},
-(default: \code{"simple"}).}
+\item{\code{rule_name}}{The name of the rule, with which the relevance scores
+are calculated. Implemented are \code{"simple"}, \code{"epsilon"},
+\code{"alpha_beta"} (default: \code{"simple"}).}
 
 \item{\code{rule_param}}{The parameter of the selected rule.}
 }
@@ -67,14 +71,14 @@ calculated. Implemented are \code{"simple"}, \code{"epsilon"}, \code{"alpha_beta
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{LRP$new()}}
-\item \href{#method-plot_relevances}{\code{LRP$plot_relevances()}}
 \item \href{#method-clone}{\code{LRP$clone()}}
 }
 }
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
-\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="Interpreting_Method" data-id="get_result">}\href{../../innsight/html/Interpreting_Method.html#method-get_result}{\code{innsight::Interpreting_Method$get_result()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result">}\href{../../innsight/html/InterpretingMethod.html#method-get_result}{\code{innsight::InterpretingMethod$get_result()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot">}\href{../../innsight/html/InterpretingMethod.html#method-plot}{\code{innsight::InterpretingMethod$plot()}}\out{</span>}
 }
 \out{</details>}
 }
@@ -85,7 +89,7 @@ calculated. Implemented are \code{"simple"}, \code{"epsilon"}, \code{"alpha_beta
 Create a new instance of the LRP-Method.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LRP$new(
-  analyzer,
+  converter,
   data,
   channels_first = TRUE,
   rule_name = "simple",
@@ -98,22 +102,25 @@ Create a new instance of the LRP-Method.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{analyzer}}{An instance of the R6 class \code{\link{Analyzer}}.}
+\item{\code{converter}}{An instance of the R6 class \code{\link{Converter}}.}
 
-\item{\code{data}}{The data for which the relevance scores are to be calculated.
-It has to be an array or array-like format of size (batch_size, model_in).}
+\item{\code{data}}{The data for which the relevance scores are to be
+calculated. It has to be an array or array-like format of size
+(batch_size, dim_in).}
 
-\item{\code{channels_first}}{Set the data format of the given data. Internally the format
-\code{channels_first} is used, therefore the format of the given data is required.
-Also use the default value \code{TRUE} if no convolutional layers are used.}
+\item{\code{channels_first}}{Set the data format of the given data. Internally
+the format \code{channels_first} is used, therefore the format of the given
+data is required. Also use the default value \code{TRUE} if no convolutional
+layers are used.}
 
-\item{\code{rule_name}}{The name of the rule, with which the relevance scores are
-calculated. Implemented are \code{"simple"}, \code{"epsilon"}, \code{"alpha_beta"},
-(default: \code{"simple"}).}
+\item{\code{rule_name}}{The name of the rule, with which the relevance scores
+are calculated. Implemented are \code{"simple"}, \code{"epsilon"},
+\code{"alpha_beta"} (default: \code{"simple"}).}
 
-\item{\code{rule_param}}{The parameter of the selected rule. Note: Only the rules
-\code{"epsilon"} and \code{"alpha_beta"} take use of the parameter. Use the default
-value \code{NULL} for the default parameters ("epsilon" : \eqn{0.01}, "alpha_beta" : \eqn{0.5}).}
+\item{\code{rule_param}}{The parameter of the selected rule. Note: Only the
+rules \code{"epsilon"} and \code{"alpha_beta"} take use of the
+parameter. Use the default value \code{NULL} for the default parameters
+("epsilon" : \eqn{0.01}, "alpha_beta" : \eqn{0.5}).}
 
 \item{\code{ignore_last_act}}{Set this boolean value to include the last
 activation, or not (default: \code{TRUE}). In some cases, the last activation
@@ -127,15 +134,6 @@ leads to a saturation problem.}
 \subsection{Returns}{
 A new instance of the R6 class \code{'LRP'}.
 }
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-plot_relevances"></a>}}
-\if{latex}{\out{\hypertarget{method-plot_relevances}{}}}
-\subsection{Method \code{plot_relevances()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LRP$plot_relevances(i = NULL, j = NULL, rank = FALSE, scale = FALSE, ...)}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/Layer_other.R
 \name{flatten_layer}
 \alias{flatten_layer}
-\title{Torch implementation of a flatten layer}
+\title{Torch implementation of a Flatten Layer}
 \usage{
 flatten_layer(dim_in, dim_out)
 }
@@ -13,10 +13,11 @@ flatten_layer(dim_in, dim_out)
 }
 \description{
 This \code{torch::nn_module} implements a flatten layer. It takes an
-input of dimension \emph{(batch_size, in_channels, dim_1, ..., dim_n)} and flattens
-it to an output of dimensions \emph{(batch_size, in_channels * dim_in * ... * features_n)}.
-Note that in this package all data is transformed into the data format \code{channels_first}, so
-before flattening the transformation must be undone.
+input of dimension \emph{(batch_size, in_channels, dim_1, ..., dim_n)} and
+flattens it to an output of dimensions \emph{(batch_size, in_channels *
+dim_in * ... * features_n)}. Note that in this package all data is
+transformed into the data format \code{channels_first}, so before flattening the
+transformation must be undone.
 }
 \section{Attributes}{
 
@@ -25,16 +26,19 @@ before flattening the transformation must be undone.
 \item{\code{self$input}}{The last recorded input for this layer}
 \item{\code{self$input_ref}}{The last recorded reference input for this layer}
 \item{\code{self$output_dim}}{The dimension of the flattened input}
-\item{\code{self$output}}{The last recorded output of this layer, i.e. the flattened input}
+\item{\code{self$output}}{The last recorded output of this layer, i.e. the
+flattened input}
 \item{\code{self$output_ref}}{The last recored reference output of this layer}
-\item{\code{self$channels_first}}{Boolean that determines whether to unroll values
-beginning at the last layer with \code{TRUE} or at the first layer with \code{FALSE}}
+\item{\code{self$channels_first}}{Boolean that determines whether to unroll
+values beginning at the last layer with \code{TRUE} or at the first
+layer with \code{FALSE}}
 }
 }
 
 \section{\code{self$forward()}}{
 
-This function takes the input and forwards it through the layer, updating the layer's output
+This function takes the input and forwards it through the layer,
+updating the layer's output
 \subsection{Usage}{
 
 \code{self(x, channels_first = TRUE)}
@@ -43,22 +47,24 @@ This function takes the input and forwards it through the layer, updating the la
 \subsection{Arguments}{
 
 \describe{
-\item{\code{x}}{The input of dimension \emph{(batch_size, in_channels, dim_1, ..., dim_n)}}
-\item{\code{channels_first}}{Boolean that determines whether the data format is
-\code{channels_first} or \code{channels_last} (default: \code{TRUE})}
+\item{\code{x}}{The input of dimension \emph{(batch_size, in_channels,
+dim_1, ..., dim_n)}}
+\item{\code{channels_first}}{Boolean that determines whether the data
+format is \code{channels_first} or \code{channels_last} (default: \code{TRUE})}
 }
 }
 
 \subsection{Return}{
 
-Returns the output of the forward pass, of dimensions \emph{(batch_size, in_channels * dim_1 * ... * dim_n)}
+Returns the output of the forward pass, of dimensions \emph{(batch_size,
+in_channels * dim_1 * ... * dim_n)}
 }
 }
 
 \section{\code{self$update_ref()}}{
 
-This function updates the reference input and forwards it through the layer,
-updating the output.
+This function updates the reference input and forwards it through the
+layer, updating the output.
 \subsection{Usage}{
 
 \code{self$update_ref(x_ref, channels_first = TRUE)}
@@ -67,15 +73,17 @@ updating the output.
 \subsection{Arguments}{
 
 \describe{
-\item{\code{x}}{The reference input to be used of shape \emph{(1, in_channels, dim_1, ..., dim_n)}}
-\item{\code{channels_first}}{Boolean that determines whether the data format is
-\code{channels_first} or \code{channels_last} (default: \code{TRUE})}
+\item{\code{x}}{The reference input to be used of shape \emph{(1,
+in_channels, dim_1, ..., dim_n)}}
+\item{\code{channels_first}}{Boolean that determines whether the data
+format is \code{channels_first} or \code{channels_last} (default: \code{TRUE})}
 }
 }
 
 \subsection{Return}{
 
-Returns the output of the forward pass, of dimensions \emph{(1, in_channels * dim_1 * ... * dim_n)}
+Returns the output of the forward pass, of dimensions \emph{(1,
+in_channels * dim_1 * ... * dim_n)}
 }
 }
 
@@ -91,14 +99,16 @@ additional dimension at the end.
 \subsection{Arguments}{
 
 \describe{
-\item{\code{output}}{Torch tensor of size \emph{(batch_size, in_channels * dim_1 * ... * dim_n, model_out)}}
+\item{\code{output}}{Torch tensor of size \emph{(batch_size, in_channels
+* dim_1 * ... * dim_n, model_out)}}
 }
 }
 
 \subsection{Return}{
 
-Reshapes the torch tensor \code{output} to the input dimension with the \code{model_out} axis
-\emph{(batch_size, in_channels, dim_1, ..., dim_n, model_out)}
+Reshapes the torch tensor \code{output} to the input dimension with the
+\code{model_out} axis \emph{(batch_size, in_channels, dim_1, ..., dim_n,
+model_out)}
 }
 }
 

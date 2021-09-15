@@ -2,7 +2,7 @@
 % Please edit documentation in R/Layer_conv1d.R
 \name{conv1d_layer}
 \alias{conv1d_layer}
-\title{One-dimensional convolution layer of a Neural Network}
+\title{One-dimensional Convolution Layer of a Neural Network}
 \usage{
 conv1d_layer(
   weight,
@@ -17,39 +17,52 @@ conv1d_layer(
 )
 }
 \arguments{
-\item{weight}{The weight matrix of dimension \emph{(out_channels, in_channels, kernel_length)}}
+\item{weight}{The weight matrix of dimension \emph{(out_channels,
+in_channels, kernel_length)}}
 
 \item{bias}{The bias vector of dimension \emph{(out_channels)}}
 
-\item{dim_in}{The input dimension of the layer: \emph{(in_channels, in_length)}}
+\item{dim_in}{The input dimension of the layer: \emph{(in_channels,
+in_length)}}
 
-\item{dim_out}{The output dimensions of the layer: \emph{(out_channels, out_length)}}
+\item{dim_out}{The output dimensions of the layer: \emph{(out_channels,
+out_length)}}
 
 \item{stride}{The stride used in the convolution, by default \code{1}}
 
-\item{padding}{The padding of the layer, by default \code{c(0,0)} (left, right), can be an integer or a two-dimensional tuple}
+\item{padding}{The padding of the layer, by default \code{c(0,0)} (left, right),
+can be an integer or a two-dimensional tuple}
 
 \item{dilation}{The dilation of the layer, by default \code{1}}
 
-\item{activation_name}{The name of the activation function used, by default \code{"linear"}}
+\item{activation_name}{The name of the activation function used, by
+default \code{"linear"}}
 
-\item{dtype}{The data type of all the parameters (Use \code{'float'} or \code{'double'})}
+\item{dtype}{The data type of all the parameters (Use \code{'float'} or
+\code{'double'})}
 }
 \description{
-Implementation of a one-dimensional Convolutional Neural Network layer as a \code{\link[torch]{nn_conv1d}} module
-where input, preactivation and output values of the last forward pass are stored
-(same for a reference input, if this is needed). Applies the torch function \code{\link[torch]{nnf_conv1d}} for
-forwarding an input through a 1d convolution followed by an activation function
-\eqn{\sigma} to the input data, i.e.
-\deqn{y= \sigma(\code{nnf_conv1d(x,W,b)})}
+Implementation of a one-dimensional Convolutional Neural Network layer as a
+\code{\link[torch]{nn_conv1d}} module where input, preactivation and output
+values of the last forward pass are stored (same for a reference input,
+if this is needed). Applies the torch function
+\code{\link[torch]{nnf_conv1d}} for forwarding an input through a 1d
+convolution followed by an activation function \eqn{\sigma} to the input
+data, i.e.
+\deqn{
+y= \sigma(\code{nnf_conv1d(x,W,b)})
+}
 }
 \section{Attributes}{
 
 \describe{
-\item{\code{self$W}}{The weight matrix of this layer with shape \emph{(out_channels, in_channels, kernel_length)}}
-\item{\code{self$b}}{The bias vector of this layer with shape \emph{(out_channels)}}
-\item{\code{self$...}}{Many attributes are inherited from the superclass \link{Interpreting_Layer}, e.g.
-\code{input}, \code{input_dim}, \code{preactivation}, \code{activation_name}, etc.}
+\item{\code{self$W}}{The weight matrix of this layer with shape
+\emph{(out_channels, in_channels, kernel_length)}}
+\item{\code{self$b}}{The bias vector of this layer with shape
+\emph{(out_channels)}}
+\item{\code{self$...}}{Many attributes are inherited from the superclass
+\link{InterpretingLayer}, e.g. \code{input}, \code{input_dim}, \code{preactivation},
+\code{activation_name}, etc.}
 }
 }
 
@@ -65,21 +78,23 @@ updating the the values of \code{input}, \code{preactivation} and \code{output}
 \subsection{Arguments}{
 
 \describe{
-\item{\code{x}}{The input torch tensor of dimensions \emph{(batch_size, in_channels, in_length)}}
+\item{\code{x}}{The input torch tensor of dimensions \emph{(batch_size,
+in_channels, in_length)}}
 }
 }
 
 \subsection{Return}{
 
-Returns the output of the layer with respect to the given inputs, with dimensions
-\emph{(batch_size, out_channels, out_length)}
+Returns the output of the layer with respect to the given inputs,
+with dimensions \emph{(batch_size, out_channels, out_length)}
 }
 }
 
 \section{\code{self$update_ref()}}{
 
 This function takes the reference input and runs it through
-the layer, updating the the values of \code{input_ref}, \code{preactivation_ref} and \code{output_ref}
+the layer, updating the the values of \code{input_ref}, \code{preactivation_ref}
+and \code{output_ref}
 \subsection{Usage}{
 
 \code{self$update_ref(x_ref)}
@@ -88,21 +103,23 @@ the layer, updating the the values of \code{input_ref}, \code{preactivation_ref}
 \subsection{Arguments}{
 
 \describe{
-\item{\code{x_ref}}{The new reference input, of dimensions \emph{(1, in_channels, in_length)}}
+\item{\code{x_ref}}{The new reference input, of dimensions \emph{(1,
+in_channels, in_length)}}
 }
 }
 
 \subsection{Return}{
 
 Returns the output of the reference input after
-passing through the layer, of dimension \emph{(1, out_channels, out_length)}
+passing through the layer, of dimension \emph{(1, out_channels,
+out_length)}
 }
 }
 
 \section{\code{self$get_input_relevances()}}{
 
-This method uses the output layer relevances and calculates the input layer
-relevances using the specified rule.
+This method uses the output layer relevances and calculates the input
+layer relevances using the specified rule.
 \subsection{Usage}{
 
 \verb{self$get_input_relevances(}\cr
@@ -114,27 +131,31 @@ relevances using the specified rule.
 \subsection{Arguments}{
 
 \describe{
-\item{\code{rel_output}}{The output relevances, of dimensions \emph{(batch_size, out_channels, out_length, model_out)}}
-\item{\code{rule_name}}{The name of the rule, with which the relevance scores are
-calculated. Implemented are \code{"simple"}, \code{"epsilon"}, \code{"alpha_beta"},
-\code{"ww"} (default: \code{"simple"}).}
-\item{\code{rule_param}}{The parameter of the selected rule. Note: Only the rules
-\code{"epsilon"} and \code{"alpha_beta"} take use of the parameter. Use the default
-value \code{NULL} for the default parameters (\code{"epsilon"} : \eqn{0.01}, \code{"alpha_beta"} : \eqn{0.5}).}
+\item{\code{rel_output}}{The output relevances, of dimensions
+\emph{(batch_size, out_channels, out_length, model_out)}}
+\item{\code{rule_name}}{The name of the rule, with which the relevance
+scores are calculated. Implemented are \code{"simple"}, \code{"epsilon"},
+\code{"alpha_beta"}, \code{"ww"} (default: \code{"simple"}).}
+\item{\code{rule_param}}{The parameter of the selected rule. Note: Only the
+rules \code{"epsilon"} and \code{"alpha_beta"} take use of the parameter. Use the
+default value \code{NULL} for the default parameters (\code{"epsilon"} :
+\eqn{0.01}, \code{"alpha_beta"} : \eqn{0.5}).}
 }
 }
 
 \subsection{Return}{
 
 Returns the relevance score of the layer's input to the model output as a
-torch tensor of size \emph{(batch_size, in_channels, in_length, model_out)}
+torch tensor of size \emph{(batch_size, in_channels, in_length,
+model_out)}
 }
 }
 
 \section{\code{self$get_input_multiplier()}}{
 
 This function is the local implementation of the DeepLift method for this
-layer and returns the multiplier from the input contribution to the output.
+layer and returns the multiplier from the input contribution to the
+output.
 \subsection{Usage}{
 
 \code{self$get_input_multiplier(mult_output, rule_name = "rescale")}
@@ -154,16 +175,18 @@ calculated. Implemented are \code{"rescale"} and \code{"reveal_cancel"}
 
 \subsection{Return}{
 
-Returns the contribution multiplier of the layer's input to the model output
-as torch tensor of dimension \emph{(batch_size, in_channels, in_length, model_out)}.
+Returns the contribution multiplier of the layer's input to the model
+output as torch tensor of dimension \emph{(batch_size, in_channels,
+in_length, model_out)}.
 }
 }
 
 \section{\code{self$get_gradient()}}{
 
-This method uses \code{\link[torch]{nnf_conv_transpose1d}} to multiply the input with the
-gradient of a layer's output with respect to the layer's input. This results in the
-gradients of the model output with respect to layer's input.
+This method uses \code{\link[torch]{nnf_conv_transpose1d}} to multiply
+the input with the gradient of a layer's output with respect to the
+layer's input. This results in the gradients of the model output with
+respect to layer's input.
 \subsection{Usage}{
 
 \code{self$get_gradient(input, weight)}
@@ -172,22 +195,25 @@ gradients of the model output with respect to layer's input.
 \subsection{Arguments}{
 
 \describe{
-\item{\code{input}}{The gradients of the upper layer, a tensor of dimension \emph{(batch_size, out_channels, out_length, model_out)}}
-\item{\code{weight}}{A weight tensor of dimensions \emph{(out_channels, in_channels, kernel_length)}}
+\item{\code{input}}{The gradients of the upper layer, a tensor of dimension
+\emph{(batch_size, out_channels, out_length, model_out)}}
+\item{\code{weight}}{A weight tensor of dimensions \emph{(out_channels,
+in_channels, kernel_length)}}
 }
 }
 
 \subsection{Return}{
 
 Returns the gradient of the model's output with respect to the layer input
-as a torch tensor of dimension \emph{(batch_size, in_channels, in_length, model_out)}.
+as a torch tensor of dimension \emph{(batch_size, in_channels, in_length,
+model_out)}.
 }
 }
 
 \section{\code{self$get_pos_and_neg_outputs()}}{
 
-This method separates the linear layer output (i.e. the preactivation) into
-the positive and negative parts.
+This method separates the linear layer output (i.e. the preactivation)
+into the positive and negative parts.
 \subsection{Usage}{
 
 \code{self$get_pos_and_neg_outputs(input, use_bias = FALSE)}
@@ -205,9 +231,10 @@ the positive and negative parts}
 
 \subsection{Return}{
 
-Returns a decomposition of the linear output of this layer with input \code{input}
-into the positive and negative parts. A list of two torch tensors with
-size \emph{(batch_size, out_channels, out_length)} and keys \verb{$pos} and \verb{$neg}
+Returns a decomposition of the linear output of this layer with input
+\code{input} into the positive and negative parts. A list of two torch
+tensors with size \emph{(batch_size, out_channels, out_length)} and
+keys \verb{$pos} and \verb{$neg}
 }
 }
 
