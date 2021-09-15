@@ -1,6 +1,6 @@
 Type: Package
 Package: innsight
-Title: Model-specific Interpretable Machine Learning (msIML)
+Title: Get the Insights of your Neural Network
 Version: 0.1.0
 Authors@R: 
     person(given = "Niklas",
@@ -8,7 +8,7 @@ Authors@R:
            role = c("aut", "cre"),
            email = "niklas.koenen@gmail.com")
 Description: Interpretability methods to analyze the behavior and
-    predictions of fully connected artificial Neural Networks.
+    predictions of artificial Neural Networks.
     Implemented methods are: Connection Weights described by Olden et al.
     (2004) <doi:10.1016/j.ecolmodel.2004.03.013>, Layer-wise Relevance
     Propagation (LRP) described by Bach et al. (2015)
@@ -34,12 +34,14 @@ LazyData: true
 Roxygen: list(markdown = TRUE, r6 = TRUE)
 RoxygenNote: 7.1.1
 Collate: 
-    'Analyzer.R'
-    'Connection_Weights.R'
+    'ConnectionWeights.R'
+    'Convert_keras.R'
+    'Convert_neuralnet.R'
+    'Converter.R'
     'DeepLift.R'
-    'Gradien_based.R'
-    'Interpreting_Layer.R'
-    'Interpreting_Method.R'
+    'GradienBased.R'
+    'InterpretingLayer.R'
+    'InterpretingMethod.R'
     'LRP.R'
     'Layer_conv1d.R'
     'Layer_conv2d.R'
