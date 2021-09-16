@@ -1,0 +1,102 @@
+---
+title: "Introduction to innsight"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to innsight}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 7,
+  fig.align = "center"
+)
+```
+
+
+In the last decade, there has been a tremendous rush and growth in machine 
+learning. Almost every year, new architectures break records on scientific test
+data sets, and the number of layers continues to grow through regularization 
+methods making today's neural networks far more complex than an original 
+linear or logistic model. Nevertheless, the scientific focus is more on the 
+predictive power than on the interpretability and the respective methods that 
+already exist for the interpretation of single predictions or the whole 
+neural networks are only sparsely or rarely implemented in the R programming
+language. The **`innsight`** package addresses this lack of interpretable 
+machine learning methods in R (similar to 
+[**`iNNvestigate`**](https://github.com/albermax/innvestigate) for Python) and 
+provides the most popular methods for Neural networks trained in R for 
+analysis.
+
+## Methods
+
+First, we want to point out that a very successful Interpretable Machine 
+Learning package for R already exists, namely 
+[**`iml`**](https://github.com/christophM/iml). However, this package deals 
+with so-called model-agnostic methods, which are independent of the 
+given model and do not take into account the internal model structure, 
+such as neural network weights. Our package, on the other hand, deals 
+with methods that can basically only be applied to neural networks.
+The **`innsight`** package provides the following tools for analyzing black box
+neural networks based on dense or convolution layers:
+
+- **`Gradient`** : Calculation of the model output **Gradients** with respect
+to the model inputs including the attribution method **Gradient x Input**:
+$$
+\begin{align}
+\text{Gradient}(x)_i^C &= \frac{\partial f(x)_C}{\partial x_i}\\ 
+\text{Gradient x Input}(x)_i^C &= x_i \cdot \text{Gradient}(x)_i^C
+\end{align}
+$$
+
+- **`SmoothGrad`** : Calculation of the smoothed model output gradients 
+([**SmoothGrad**](https://arxiv.org/abs/1706.03825)) with respect to the model
+inputs by averaging the gradients over number of inputs with added noise 
+(including **SmoothGrad x Input**):
+$$
+\text{SmoothGrad}(x)_i^C = \mathbb{E}_{\varepsilon \sim \mathcal{N}(0, \sigma^2)}\left[\frac{\partial f(x + \varepsilon)_C}{\partial (x + \varepsilon)_i}\right] \approx \frac{1}{n} \sum_{k=1}^n \frac{\partial f(x + \varepsilon_k)_C}{\partial (x + \varepsilon_k)_i}
+$$
+with $\varepsilon_1, \ldots \varepsilon_n \sim \mathcal{N}(0, \sigma^2)$.
+
+- **`LRP`** : Back propagation the model output to the model input neurons to 
+obtain relevance scores for the model prediction which is known as
+[**Layer-wise Relevance Propagation**](https://journals.plos.org/plosone/
+article?id=10.1371/journal.pone.0130140):
+$$
+f(x)_C \approx \sum_{i=1}^d R_i
+$$
+with $R_i$ relevance score for input neuron $i$.
+
+- **`DeepLift`** : Calculation of a decomposition of the model output with
+respect to the model inputs and a reference input which is known as
+Deep Learning Important FeaTures 
+([**DeepLift**](https://arxiv.org/abs/1704.02685)]:
+$$
+\Delta f(x)_C = f(x)_C - f(x_\text{ref}) = \sum_{i=1}^d C_i
+$$
+with $C_i$ contribution score for input neuron $i$ to the 
+difference-from-reference model output.
+
+- **`ConnectionWeights`** : This is a naive and old approach by calculating 
+the product of all weights from an input to an output neuron and then adding
+them up (see [**Connection Weights**](https://www.sciencedirect.com/science/
+article/abs/pii/S0304380004001565)).
+
+## Requirements
+
+Since these methods are a model-specific approach, they also impose 
+requirements on the model that must be fulfilled. Currently, three 
+possibilities are provided in this package to interpret a neural network 
+with the available methods, which are described below with the respective 
+requirements.
+
+### Keras
+
+The model has to be an instance of `keras::keras_model_sequential`.
+
+- The following layer types: 
+  * `layer_conv_1d` and `layer_conv_2d`
