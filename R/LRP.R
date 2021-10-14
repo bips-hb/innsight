@@ -46,6 +46,13 @@
 #'   rule_param = 2,
 #'   ignore_last_act = FALSE
 #' )
+#'
+#' # Plot the result for all classes
+#' plot(lrp, class = 1:3)
+#'
+#' # Plot the Boxplot for the first class
+#' boxplot(lrp)
+#'
 #' @references
 #' S. Bach et al. (2015) \emph{On pixel-wise explanations for non-linear
 #' classifier decisions by layer-wise relevance propagation.} PLoS ONE 10,
@@ -111,6 +118,117 @@ LRP <- R6::R6Class(
       )
 
       self$result <- private$run()
+    },
+
+    #'
+    #' @description
+    #' This method visualizes the result of the selected method in a
+    #' [ggplot2::ggplot]. You can use the argument `datapoint` to select
+    #' the data points in the given data for the plot. In addition, the
+    #' individual classes for the plot can be selected with the argument
+    #' `classes`. The different results for the selected data points and
+    #' classes are visualized using the method [ggplot2::facet_grid].
+    #'
+    #' @param datapoint An integer vector containing the numbers of the data
+    #' points whose result is to be plotted, e.g. `c(1,3)` for the first
+    #' and third data point in the given data. Default: `c(1)`.
+    #' @param classes An integer vector containing the numbers of the classes
+    #' whose result is to be plotted, e.g. `c(1,4)` for the first and fourth
+    #' class. Default: `c(1)`.
+    #' @param aggr_channels Pass a function to aggregate the channels. The
+    #' default function is [base::sum], but you can pass an arbitrary function.
+    #' For example, the maximum `max` or minimum `min` over the channels or
+    #' only individual channels with `function(x) x[1]`.
+    #' @param as_plotly This boolean value (default: `FALSE`) can be used to
+    #' create an interactive plot based on the library `plotly`. This function
+    #' takes use of [plotly::ggplotly], hence make sure that the suggested
+    #' package `plotly` is installed in your R session. Advanced: You can first
+    #' output the results as a ggplot (`as_plotly = FALSE`) and then make
+    #' custom changes to the plot, e.g. other theme or other fill color. Then
+    #' you can manually call the function `ggplotly` to get an interactive
+    #' plotly plot.
+    #'
+    #' @return
+    #' Returns either a [ggplot2::ggplot] (`as_plotly = FALSE`) or a
+    #' [plotly::plot_ly] (`as_plotly = TRUE`) with the plotted results.
+    #'
+    plot = function(datapoint = 1,
+                    classes = 1,
+                    aggr_channels = sum,
+                    as_plotly = FALSE) {
+
+      private$plot(datapoint, classes, aggr_channels,
+                   as_plotly, "Relevance")
+    },
+
+    #'
+    #' @description
+    #' This function visualizes the results of this method in a boxplot, where
+    #' the type of visualization depends on the input dimension of the data.
+    #' By default a [ggplot2::ggplot] is returned, but with the argument
+    #' `as_plotly` an interactive [plotly::plot_ly] plot can be created,
+    #' which however requires a successful installation of the package
+    #' `plotly`.
+    #'
+    #' @param preprocess_FUN This function is applied to the method's result
+    #' before calculating the boxplots. Since positive and negative values
+    #' often cancel each other out, the absolute value (`abs`) is used by
+    #' default. But you can also use the raw data (`function(x) x`) to see the
+    #' results' orientation, the squared data (`function(x) x^2`) to weight
+    #' the outliers higher or any other function.
+    #' @param boxplot_data By default ("all"), all available data is used to
+    #' calculate the boxplot information. However, this parameter can be used
+    #' to select a subset of them by passing the indices. E.g. with
+    #' `boxplot_data = c(1:10, 25, 26)` only the first `10` data points and
+    #' the 25th and 26th are used to calculate the boxplots.
+    #' @param classes An integer vector containing the numbers of the classes
+    #' whose result is to be plotted, e.g. `c(1,4)` for the first and fourth
+    #' class. Default: `c(1)`.
+    #' @param ref_datapoint This integer number determines the index for the
+    #' reference data point. In addition to the boxplots, it is displayed in
+    #' red color and is used to compare an individual result with the summary
+    #' statistics provided by the boxplot. With the default value (`NULL`)
+    #' no individual data point is plotted. This index can be chosen with
+    #' respect to all available data, even if only a subset is selected with
+    #' argument `boxplot_data`.\cr
+    #' **Note:** Because of the complexity of 3D inputs, this argument is used
+    #' only for 1D and 2D inputs and disregarded for 3D inputs.
+    #' @param aggr_channels Pass a function to aggregate the channels. The
+    #' default function is [base::mean], but you can pass an arbitrary
+    #' function. For example, the maximum `max` or minimum `min` over the
+    #' channels or only individual channels with `function(x) x[1]`.\cr
+    #' **Note:** This function is used only for 2D and 3D inputs.
+    #' @param as_plotly This boolean value (default: `FALSE`) can be used to
+    #' create an interactive plot based on the library `plotly` instead of
+    #' `ggplot2`. Make sure that the suggested package `plotly` is installed
+    #' in your R session.
+    #' @param individual_data Only relevant for a `plotly` plot with input
+    #' dimension `1` or `2`! This integer vector of data indices determines
+    #' the available data points in a dropdown menu, which are drawn in
+    #' individually analogous to `ref_datapoint` only for more data points.
+    #' With the default value `NULL` the first `individual_max` data points
+    #' are used.\cr
+    #' **Note:** If `ref_datapoint` is specified, this data point will be
+    #' added to those from `individual_data` in the dropdown menu.
+    #' @param individual_max Only relevant for a `plotly` plot with input
+    #' dimension `1` or `2`! This integer determines the maximum number of
+    #' individual data points in the dropdown menu without counting
+    #' `ref_datapoint`. This means that if `individual_data` has more
+    #' than `individual_max` indices, only the first `individual_max` will
+    #' be used. Too high a number can significantly increase the runtime.
+    #'
+    #'
+    boxplot = function(boxplot_data = "all",
+                       classes = 1,
+                       ref_datapoint = NULL,
+                       aggr_channels = mean,
+                       preprocess_FUN = abs,
+                       as_plotly = FALSE,
+                       individual_data = NULL,
+                       individual_max = 20) {
+      private$boxplot(preprocess_FUN, boxplot_data, classes, ref_datapoint,
+                      aggr_channels, individual_data,
+                      individual_max, as_plotly, "Relevance")
     }
   ),
   private = list(
@@ -152,3 +270,11 @@ LRP <- R6::R6Class(
     }
   )
 )
+
+#'
+#' @importFrom graphics boxplot
+#' @exportS3Method
+#'
+boxplot.LRP <- function(x, ...) {
+  x$boxplot(...)
+}

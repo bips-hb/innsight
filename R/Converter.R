@@ -67,7 +67,7 @@
 #'      * **`dim_out`**: The output dimension of this layer. This value is not
 #'      necessary, but helpful to check the format of the weight matrix.
 #'
-#'   * **Convolutional Layers**
+#'   * **Convolutional Layers:**
 #'      * **`$type`**: `'Conv1D'` or `'Conv2D'`
 #'      * **`$weight`**: The weight array of the convolutional layer with shape
 #'      (`out_channels`, `in_channels`, `kernel_length`) for 1d or
@@ -94,6 +94,12 @@
 #'      * **`$dilation`**: Spacing between kernel elements (single integer for
 #'      1d and tuple of two integers for 2d). If this value is not specified,
 #'      the default values (1d: `1` and 2d: `c(1,1)`) are used.
+#'  * **Flatten Layer:**
+#'
+#'      * **`$dim_in` :** The input dimension of this layer without the batch
+#'      dimension.
+#'      * **`$dim_out` :** The output dimension of this layer without the batch
+#'      dimension.
 #'
 #' **Note:** This package works internally only with the data format 'channels
 #' first', i.e. all input dimensions and weight matrices must be adapted
@@ -199,6 +205,8 @@
 #' # You can use it as a normal torch model
 #' x <- torch::torch_randn(3, 5)
 #' torch_model(x)
+#'
+#'
 #' @references
 #' * J. D. Olden et al. (2004) \emph{An accurate comparison of methods for
 #'  quantifying variable importance in artificial neural networks using

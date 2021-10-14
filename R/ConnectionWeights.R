@@ -24,6 +24,11 @@
 #'
 #' @examples
 #'
+#' # We need libtorch to be installed
+#' if (!torch::torch_is_installed()) {
+#'   torch::install_torch()
+#' }
+#'
 #' #----------------------- Example 1: Neuralnet ------------------------------
 #' library(neuralnet)
 #' data(iris)
@@ -48,7 +53,6 @@
 #' plot(cw)
 #'
 #' #----------------------- Example 2: Keras ----------------------------------
-#' library(keras)
 #'
 #' # Define a model
 #' model <- keras_model_sequential()
@@ -74,6 +78,7 @@
 #'
 #' # Plot the result for all classes
 #' plot(cw, class_id = 1:2)
+#'
 #' @references
 #' * J. D. Olden et al. (2004) \emph{An accurate comparison of methods for
 #'  quantifying variable importance in artificial neural networks using
@@ -115,15 +120,15 @@ ConnectionWeights <- R6::R6Class(
     #'
     #' @description
     #' This function returns the result of the Connection Weights method either
-    #' as an array (`as_torch = FALSE`) or a torch tensor (`as_torch = TRUE`)
-    #' of size (dim_in, dim_out).
+    #' as an array (`array`), a torch tensor (`torch.tensor`) of size
+    #' (dim_in, dim_out) or a data.frame (`data.frame`).
     #'
-    #' @param as_torch Boolean value whether the output is an array or a torch
-    #' tensor.
+    #' @param type The data format of the result. Use one of `'array'`,
+    #' `'torch.tensor'` or `'data.frame'` (default: `'array'`).
     #'
-    #' @return The result of this method.
+    #' @return The result of this method for the given data in the chosen
+    #' format.
     #'
-
     get_result = function(type = "array") {
       checkmate::assertChoice(type, c("array", "data.frame", "torch.tensor"))
 
@@ -142,6 +147,25 @@ ConnectionWeights <- R6::R6Class(
 
       result
     },
+
+    #'
+    #' @description
+    #' This method visualizes the result of the ConnectionWeight method in a
+    #' [ggplot2::ggplot]. You can use the argument `class_id` to select
+    #' the classes for the plot. The different results for the selected classes
+    #' are visualized using the method [ggplot2::facet_grid].
+    #'
+    #' @param class_id An integer vector containing the numbers of the classes
+    #' whose result is to be plotted, e.g. `c(1,4)` for the first and fourth
+    #' class. Default: `c(1)`.
+    #' @param aggr_channels Pass a function to aggregate the channels. The
+    #' default function is [base::sum], but you can pass an arbitrary function.
+    #' For example, the maximum `max` or minimum `min` over the channels or
+    #' only individual channels with `function(x) x[1]`.
+    #'
+    #' @return
+    #' Returns a [ggplot2::ggplot] with the plotted results.
+    #'
     plot = function(class_id = 1, aggr_channels = sum) {
       l <- length(dim(self$result))
       # 1D Input

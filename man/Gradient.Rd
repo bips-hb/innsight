@@ -31,13 +31,13 @@ converter <- Converter$new(nn)
 gradient <- Gradient$new(converter, iris[, -5], times_input = FALSE)
 
 # Plot the result for the first and 60th data point and all classes
-plot(gradient, data_id = c(1, 60), class_id = 1:3)
+# plot(gradient, data_id = c(1, 60), class_id = 1:3)
 
 # Calculate Gradients x Input and do not ignore the last activation
 gradient <- Gradient$new(converter, iris[, -5], ignore_last_act = FALSE)
 
 # Plot the result again
-plot(gradient, data_id = c(1, 60), class_id = 1:3)
+# plot(gradient, data_id = c(1, 60), class_id = 1:3)
 }
 \section{Super classes}{
 \code{\link[innsight:InterpretingMethod]{innsight::InterpretingMethod}} -> \code{\link[innsight:GradientBased]{innsight::GradientBased}} -> \code{Gradient}
@@ -53,7 +53,6 @@ plot(gradient, data_id = c(1, 60), class_id = 1:3)
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
 \item \out{<span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result">}\href{../../innsight/html/InterpretingMethod.html#method-get_result}{\code{innsight::InterpretingMethod$get_result()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot">}\href{../../innsight/html/InterpretingMethod.html#method-plot}{\code{innsight::InterpretingMethod$plot()}}\out{</span>}
 }
 \out{</details>}
 }

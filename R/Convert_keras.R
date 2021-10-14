@@ -83,27 +83,29 @@ convert_keras_dense <- function(layer) {
 
 convert_keras_convolution <- function(layer) {
   act_name <- layer$get_config()$activation
-  kernel_size <- as.numeric(unlist(layer$get_config()$kernel_size))
-  stride <- as.numeric(unlist(layer$get_config()$strides))
+  kernel_size <- as.integer(unlist(layer$get_config()$kernel_size))
+  stride <- as.integer(unlist(layer$get_config()$strides))
   padding <- layer$get_config()$padding
-  dilation <- unlist(layer$get_config()$dilation_rate)
+  dilation <- as.integer(unlist(layer$get_config()$dilation_rate))
 
   # input_shape:
   #     channels_first:  [batch_size, in_channels, in_length]
   #     channels_last:   [batch_size, in_length, in_channels]
-  input_dim <- unlist(layer$input_shape)
-  output_dim <- unlist(layer$output_shape)
+  input_dim <- as.integer(unlist(layer$input_shape))
+  output_dim <- as.integer(unlist(layer$output_shape))
 
   # in this package only 'channels_first'
   if (layer$data_format == "channels_last") {
-    input_dim <- c(rev(input_dim)[1], input_dim[-length(input_dim)])
-    output_dim <- c(rev(output_dim)[1], output_dim[-length(output_dim)])
+    input_dim <-
+      as.integer(c(rev(input_dim)[1], input_dim[-length(input_dim)]))
+    output_dim <-
+      as.integer(c(rev(output_dim)[1], output_dim[-length(output_dim)]))
   }
 
   # padding differs in keras and torch
   checkmate::assertChoice(padding, c("valid", "same"))
   if (padding == "valid") {
-    padding <- rep(c(0, 0), length(kernel_size))
+    padding <- rep(c(0L, 0L), length(kernel_size))
   } else if (padding == "same") {
     padding <- get_same_padding(input_dim, kernel_size, dilation, stride)
   }
@@ -159,7 +161,7 @@ get_same_padding <- function(input_dim, kernel_size, dilation, stride) {
     pad_left <- pad %/% 2
     pad_right <- pad - pad_left
 
-    padding <- c(pad_left, pad_right)
+    padding <- as.integer(c(pad_left, pad_right))
   } else if (length(kernel_size) == 2) {
     in_height <- input_dim[2]
     in_width <- input_dim[3]
@@ -182,7 +184,7 @@ get_same_padding <- function(input_dim, kernel_size, dilation, stride) {
     pad_left <- pad_along_width %/% 2
     pad_right <- pad_along_width - pad_left
 
-    padding <- c(pad_left, pad_right, pad_top, pad_bottom)
+    padding <- as.integer(c(pad_left, pad_right, pad_top, pad_bottom))
   }
 
   padding

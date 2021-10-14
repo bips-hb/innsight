@@ -98,47 +98,9 @@ InterpretingMethod <- R6::R6Class(
       }
 
       result
-    },
-
-    #'
-    #' @description
-    #' This method visualizes the result of the selected method in a
-    #' [ggplot2::ggplot]. You can use the argument `data_id` to select
-    #' the data points in the given data for the plot. In addition, the
-    #' individual classes for the plot can be selected with the argument
-    #' `class_id`. The different results for the selected data points and
-    #' classes are visualized using the method [ggplot2::facet_grid].
-    #'
-    #' @param data_id An integer vector containing the numbers of the data
-    #' points whose result is to be plotted, e.g. `c(1,3)` for the first
-    #' and third data point in the given data. Default: `c(1)`.
-    #' @param class_id An integer vector containing the numbers of the classes
-    #' whose result is to be plotted, e.g. `c(1,4)` for the first and fourth
-    #' class. Default: `c(1)`.
-    #' @param aggr_channels Pass a function to aggregate the channels. The
-    #' default function is [base::sum], but you can pass an arbitrary function.
-    #' For example, the maximum `max` or minimum `min` over the channels or
-    #' only individual channels with `function(x) x[1]`.
-    #'
-    #' @return
-    #' Returns a [ggplot2::ggplot] with the plotted results.
-    #'
-    plot = function(data_id = 1, class_id = 1, aggr_channels = sum) {
-      l <- length(dim(self$result))
-      # 1D Input
-      if (l == 3) {
-        private$plot_1d_input(data_id, class_id)
-      }
-      # 2D Input
-      else if (l == 4) {
-        private$plot_2d_input(data_id, class_id, aggr_channels)
-      }
-      # 3D Input
-      else if (l == 5) {
-        private$plot_3d_input(data_id, class_id, aggr_channels)
-      }
     }
   ),
+
   private = list(
     test_data = function(data, name = "data") {
       if (missing(data)) {
@@ -240,126 +202,115 @@ InterpretingMethod <- R6::R6Class(
       df$value <- as.vector(result)
       df
     },
-    plot_1d_input = function(data_id = 1, class_id = 1, blank = TRUE) {
+
+    # ----------------------- Plot Function ----------------------------------
+
+    plot = function(data_id = 1,
+                    class_id = 1,
+                    aggr_channels = sum,
+                    as_plotly = FALSE,
+                    value_name = "value") {
+
       checkmate::assertNumeric(data_id,
-        lower = 1,
-        upper = dim(self$result)[1]
+                               lower = 1,
+                               upper = dim(self$result)[1]
       )
       checkmate::assertNumeric(class_id,
-        lower = 1,
-        upper = rev(dim(self$result))[1]
+                               lower = 1,
+                               upper = rev(dim(self$result))[1]
       )
+      checkmate::assertFunction(aggr_channels)
+      checkmate::assertLogical(as_plotly)
+
+      num_dims <- length(dim(self$result))
 
       result <- private$get_dataframe()
       output_names <- unlist(self$converter$model_dict$output_names)
       result <- result[result$data %in% paste0("data_", data_id) &
-        result$class %in% output_names[class_id], ]
-      result$x <- as.numeric(result$feature)
+                         result$class %in% output_names[class_id], ]
+      # 1D Input
+      if (num_dims == 3) {
+        p <- plot_1d_input(result, value_name)
+      }
+      # 2D Input
+      else if (num_dims == 4) {
+        p <- plot_2d_input(result, aggr_channels, value_name)
+      }
+      # 3D Input
+      else if (num_dims == 5) {
+        p <- plot_3d_input(result, aggr_channels, value_name)
+      }
 
-      ggplot(data = result) +
-        geom_rect(aes(
-          xmin = x - 0.3,
-          xmax = x + 0.3,
-          ymin = 0,
-          ymax = value,
-          fill = value
-        ),
-        show.legend = FALSE
-        ) +
-        scale_fill_gradient2(low = "#377EB8", mid = "gray", high = "#E41A1C") +
-        scale_x_discrete(limits = levels(result$feature)) +
-        geom_hline(yintercept = 0) +
-        facet_grid(rows = vars(data), cols = vars(class), scales = "free_y")
+      p <- p +
+        ggplot2::theme(
+          strip.text.x = ggplot2::element_text(size = 10),
+          strip.text.y = ggplot2::element_text(size = 10),
+          axis.title.x = ggplot2::element_text(size = 12),
+          axis.title.y = ggplot2::element_text(size = 12))
+
+      if (as_plotly) {
+        p <-
+          plotly::ggplotly(p, tooltip = "text")
+      }
+      p
     },
-    plot_2d_input = function(data_id = 1, class_id = 1, aggr_channel = sum) {
-      checkmate::assertNumeric(data_id,
-        lower = 1,
-        upper = dim(self$result)[1]
+
+    # -------------------- Summary Plots -------------------------------------
+
+    boxplot = function(preprocess_FUN, boxplot_data, class, ref_datapoint,
+                       aggr_channels, individual_data,
+                       individual_max, as_plotly, value_name) {
+
+      checkmate::assertFunction(preprocess_FUN)
+      checkmate::assertFunction(aggr_channels)
+      checkmate::assertLogical(as_plotly)
+      checkmate::assert(
+        checkmate::checkNumeric(boxplot_data,
+                                lower = 1,
+                                upper = dim(self$result)[1]),
+        checkmate::checkChoice(boxplot_data, c("all"))
       )
-      checkmate::assertNumeric(class_id,
-        lower = 1,
-        upper = rev(dim(self$result))[1]
+      checkmate::assertNumeric(class,
+                               lower = 1,
+                               upper = rev(dim(self$result))[1]
       )
+      checkmate::assertInt(ref_datapoint,
+                               lower = 1,
+                               upper = dim(self$result)[1], null.ok = TRUE
+                               )
+      checkmate::checkNumeric(individual_data,
+                              lower = 1,
+                              upper = dim(self$result)[1], null.ok = TRUE)
+
+      if (is.character(boxplot_data) && boxplot_data == "all") {
+        boxplot_data <- 1:dim(self$result)[1]
+      }
+
+      if (is.null(individual_data)) {
+        individual_data <- boxplot_data
+      }
+      if (length(individual_data) > individual_max) {
+        individual_data <- individual_data[1:individual_max]
+      }
+
+      l <- length(dim(self$result))
 
       result <- private$get_dataframe()
       output_names <- unlist(self$converter$model_dict$output_names)
-      result <-
-        result[result$data %in% paste0("data_", data_id) &
-          result$class %in% output_names[class_id], ]
-      result$x <- as.numeric(result$feature)
-      result <-
-        do.call(
-          data.frame,
-          aggregate(list(value = result$value),
-            by = list(
-              data = result$data,
-              feature_l = result$feature_l,
-              class = result$class,
-              x = result$x
-            ), FUN = aggr_channel
-          )
-        )
+      result <- result[result$data %in% paste0("data_", c(boxplot_data, individual_data, ref_datapoint)) &
+                         result$class %in% output_names[class], ]
+      result$summary_data <- result$data %in% paste0("data_", boxplot_data)
+      result$individual_data <- result$data %in% paste0("data_", c(individual_data, ref_datapoint))
 
-      result$value_scaled <- ave(
-        x = result$value, factor(result$data),
-        FUN = function(x) x / max(abs(x))
-      )
+      result$value <- preprocess_FUN(result$value)
 
-      ggplot(data = result) +
-        geom_rect(aes(
-          xmin = x - 0.5,
-          xmax = x + 0.5,
-          ymin = 0,
-          ymax = value,
-          fill = value_scaled
-        ),
-        show.legend = FALSE
-        ) +
-        scale_fill_gradient2(low = "#377EB8", mid = "gray", high = "#E41A1C") +
-        scale_x_discrete(
-          limits = levels(result$feature_l),
-          labels = levels(result$feature_l)
-        ) +
-        geom_hline(yintercept = 0) +
-        facet_grid(rows = vars(data), cols = vars(class), scale = "free_y")
-    },
-    plot_3d_input = function(data_id = 1, class_id = 1, aggr_channel = sum) {
-      checkmate::assertNumeric(data_id,
-        lower = 1,
-        upper = dim(self$result)[1]
-      )
-      checkmate::assertNumeric(class_id,
-        lower = 1,
-        upper = rev(dim(self$result))[1]
-      )
+      if (as_plotly) {
+        p <- summary_plotly(result, aggr_channels, ref_datapoint, value_name)
+      } else {
+        p <- summary_ggplot(result, aggr_channels, ref_datapoint, value_name)
+      }
 
-      result <- private$get_dataframe()
-      output_names <- unlist(self$converter$model_dict$output_names)
-      result <- result[result$data %in% paste0("data_", data_id) &
-        result$class %in% output_names[class_id], ]
-
-      result <- do.call(
-        data.frame,
-        aggregate(list(value = result$value),
-          by = list(
-            data = result$data,
-            feature_h = result$feature_h,
-            feature_w = result$feature_w,
-            class = result$class
-          ),
-          FUN = aggr_channel
-        )
-      )
-
-      result$feature_h <- as.numeric(result$feature_h)
-      result$feature_w <- as.numeric(result$feature_w)
-
-      ggplot(data = result, aes(x = feature_w, y = feature_h, fill = value)) +
-        geom_raster() +
-        scale_fill_gradient2(low = "#377EB8", mid = "gray", high = "#E41A1C") +
-        facet_grid(rows = vars(data), cols = vars(class), scale = "free_y") +
-        xlab("") +
-        ylab("")
+      p
     }
   )
 )

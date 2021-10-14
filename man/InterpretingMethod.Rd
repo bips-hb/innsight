@@ -44,7 +44,6 @@ torch tensor of size (batch_size, dim_in, dim_out).}
 \itemize{
 \item \href{#method-new}{\code{InterpretingMethod$new()}}
 \item \href{#method-get_result}{\code{InterpretingMethod$get_result()}}
-\item \href{#method-plot}{\code{InterpretingMethod$plot()}}
 \item \href{#method-clone}{\code{InterpretingMethod$clone()}}
 }
 }
@@ -106,42 +105,6 @@ size (batch_size, dim_in, dim_out) or a data.frame (\code{'data.frame'}).
 \subsection{Returns}{
 The result of this method for the given data in the chosen
 format.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-plot"></a>}}
-\if{latex}{\out{\hypertarget{method-plot}{}}}
-\subsection{Method \code{plot()}}{
-This method visualizes the result of the selected method in a
-\link[ggplot2:ggplot]{ggplot2::ggplot}. You can use the argument \code{data_id} to select
-the data points in the given data for the plot. In addition, the
-individual classes for the plot can be selected with the argument
-\code{class_id}. The different results for the selected data points and
-classes are visualized using the method \link[ggplot2:facet_grid]{ggplot2::facet_grid}.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{InterpretingMethod$plot(data_id = 1, class_id = 1, aggr_channels = sum)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{data_id}}{An integer vector containing the numbers of the data
-points whose result is to be plotted, e.g. \code{c(1,3)} for the first
-and third data point in the given data. Default: \code{c(1)}.}
-
-\item{\code{class_id}}{An integer vector containing the numbers of the classes
-whose result is to be plotted, e.g. \code{c(1,4)} for the first and fourth
-class. Default: \code{c(1)}.}
-
-\item{\code{aggr_channels}}{Pass a function to aggregate the channels. The
-default function is \link[base:sum]{base::sum}, but you can pass an arbitrary function.
-For example, the maximum \code{max} or minimum \code{min} over the channels or
-only individual channels with \code{function(x) x[1]}.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Returns a \link[ggplot2:ggplot]{ggplot2::ggplot} with the plotted results.
 }
 }
 \if{html}{\out{<hr>}}

@@ -35,6 +35,7 @@ NULL
 #'     `activation_name`, etc.}
 #' }
 #'
+#' @noRd
 #'
 dense_layer <- torch::nn_module(
   classname = "Dense_Layer",

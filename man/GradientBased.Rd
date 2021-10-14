@@ -35,7 +35,6 @@ This method is called 'Gradient x Input'.}
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
 \item \out{<span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result">}\href{../../innsight/html/InterpretingMethod.html#method-get_result}{\code{innsight::InterpretingMethod$get_result()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot">}\href{../../innsight/html/InterpretingMethod.html#method-plot}{\code{innsight::InterpretingMethod$plot()}}\out{</span>}
 }
 \out{</details>}
 }

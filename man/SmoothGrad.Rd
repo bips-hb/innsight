@@ -29,7 +29,7 @@ converter <- Converter$new(nn)
 gradient <- SmoothGrad$new(converter, iris[, -5], times_input = FALSE)
 
 # Plot the result for the first and 60th data point and all classes
-plot(gradient, data_id = c(1, 60), class_id = 1:3)
+# plot(gradient, data_id = c(1, 60), class_id = 1:3)
 }
 \references{
 D. Smilkov et al. (2017) \emph{SmoothGrad: removing noise by adding noise.}
@@ -59,7 +59,6 @@ perturbation, i.e. \eqn{\sigma = (max(x) - min(x)) *} \code{noise_level}.}
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
 \item \out{<span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result">}\href{../../innsight/html/InterpretingMethod.html#method-get_result}{\code{innsight::InterpretingMethod$get_result()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot">}\href{../../innsight/html/InterpretingMethod.html#method-plot}{\code{innsight::InterpretingMethod$plot()}}\out{</span>}
 }
 \out{</details>}
 }

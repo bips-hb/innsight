@@ -6,4 +6,3 @@
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
-utils.R

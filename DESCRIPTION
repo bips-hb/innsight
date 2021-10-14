@@ -22,6 +22,7 @@ Imports:
     torch
 Suggests:
     keras,
+    plotly,
     knitr,
     neuralnet,
     rmarkdown,
@@ -47,3 +48,4 @@ Collate:
     'Layer_conv2d.R'
     'Layer_dense.R'
     'Layer_other.R'
+    'utils.R'

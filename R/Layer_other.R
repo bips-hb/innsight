@@ -25,6 +25,8 @@
 #'     layer with \code{FALSE}}
 #' }
 #'
+#' @noRd
+#'
 flatten_layer <- torch::nn_module(
   classname = "Flatten_Layer",
   input_dim = NULL,

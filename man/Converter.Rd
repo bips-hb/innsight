@@ -69,7 +69,7 @@ necessary, but helpful to check the format of the weight matrix.
 \item \strong{\code{dim_out}}: The output dimension of this layer. This value is not
 necessary, but helpful to check the format of the weight matrix.
 }
-\item \strong{Convolutional Layers}
+\item \strong{Convolutional Layers:}
 \itemize{
 \item \strong{\verb{$type}}: \code{'Conv1D'} or \code{'Conv2D'}
 \item \strong{\verb{$weight}}: The weight array of the convolutional layer with shape
@@ -98,6 +98,13 @@ value is not specified, the default values (1d: \code{c(0,0)} and 2d:
 1d and tuple of two integers for 2d). If this value is not specified,
 the default values (1d: \code{1} and 2d: \code{c(1,1)}) are used.
 }
+}
+\item \strong{Flatten Layer:}
+\itemize{
+\item \strong{\verb{$dim_in} :} The input dimension of this layer without the batch
+dimension.
+\item \strong{\verb{$dim_out} :} The output dimension of this layer without the batch
+dimension.
 }
 }
 
@@ -203,6 +210,8 @@ torch_model <- converter$model
 # You can use it as a normal torch model
 x <- torch::torch_randn(3, 5)
 torch_model(x)
+
+
 }
 \references{
 \itemize{

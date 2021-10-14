@@ -16,6 +16,11 @@ results in a simple matrix multiplication
 }
 \examples{
 
+# We need libtorch to be installed
+if (!torch::torch_is_installed()) {
+  torch::install_torch()
+}
+
 #----------------------- Example 1: Neuralnet ------------------------------
 library(neuralnet)
 data(iris)
@@ -41,6 +46,9 @@ plot(cw)
 
 #----------------------- Example 2: Keras ----------------------------------
 library(keras)
+if (!is_keras_available()) {
+  install_keras()
+}
 
 # Define a model
 model <- keras_model_sequential()
@@ -66,6 +74,7 @@ cw$get_result(type = "data.frame")
 
 # Plot the result for all classes
 plot(cw, class_id = 1:2)
+
 }
 \references{
 \itemize{
@@ -130,8 +139,8 @@ data has no channels, use the default value \code{TRUE}.}
 \if{latex}{\out{\hypertarget{method-get_result}{}}}
 \subsection{Method \code{get_result()}}{
 This function returns the result of the Connection Weights method either
-as an array (\code{as_torch = FALSE}) or a torch tensor (\code{as_torch = TRUE})
-of size (dim_in, dim_out).
+as an array (\code{array}), a torch tensor (\code{torch.tensor}) of size
+(dim_in, dim_out) or a data.frame (\code{data.frame}).
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ConnectionWeights$get_result(type = "array")}\if{html}{\out{</div>}}
 }
@@ -139,23 +148,45 @@ of size (dim_in, dim_out).
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{as_torch}}{Boolean value whether the output is an array or a torch
-tensor.}
+\item{\code{type}}{The data format of the result. Use one of \code{'array'},
+\code{'torch.tensor'} or \code{'data.frame'} (default: \code{'array'}).}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-The result of this method.
+The result of this method for the given data in the chosen
+format.
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-plot"></a>}}
 \if{latex}{\out{\hypertarget{method-plot}{}}}
 \subsection{Method \code{plot()}}{
+This method visualizes the result of the ConnectionWeight method in a
+\link[ggplot2:ggplot]{ggplot2::ggplot}. You can use the argument \code{class_id} to select
+the classes for the plot. The different results for the selected classes
+are visualized using the method \link[ggplot2:facet_grid]{ggplot2::facet_grid}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ConnectionWeights$plot(class_id = 1, aggr_channels = sum)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{class_id}}{An integer vector containing the numbers of the classes
+whose result is to be plotted, e.g. \code{c(1,4)} for the first and fourth
+class. Default: \code{c(1)}.}
+
+\item{\code{aggr_channels}}{Pass a function to aggregate the channels. The
+default function is \link[base:sum]{base::sum}, but you can pass an arbitrary function.
+For example, the maximum \code{max} or minimum \code{min} over the channels or
+only individual channels with \code{function(x) x[1]}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Returns a \link[ggplot2:ggplot]{ggplot2::ggplot} with the plotted results.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

@@ -40,6 +40,7 @@ NULL
 #'     `activation_name`, etc.}
 #' }
 #'
+#' @noRd
 #'
 conv2d_layer <- torch::nn_module(
   classname = "Conv2D_Layer",

@@ -105,13 +105,13 @@ GradientBased <- R6::R6Class(
 #' gradient <- Gradient$new(converter, iris[, -5], times_input = FALSE)
 #'
 #' # Plot the result for the first and 60th data point and all classes
-#' plot(gradient, data_id = c(1, 60), class_id = 1:3)
+#' # plot(gradient, data_id = c(1, 60), class_id = 1:3)
 #'
 #' # Calculate Gradients x Input and do not ignore the last activation
 #' gradient <- Gradient$new(converter, iris[, -5], ignore_last_act = FALSE)
 #'
 #' # Plot the result again
-#' plot(gradient, data_id = c(1, 60), class_id = 1:3)
+#' # plot(gradient, data_id = c(1, 60), class_id = 1:3)
 #' @export
 #'
 
@@ -202,7 +202,7 @@ Gradient <- R6::R6Class(
 #' gradient <- SmoothGrad$new(converter, iris[, -5], times_input = FALSE)
 #'
 #' # Plot the result for the first and 60th data point and all classes
-#' plot(gradient, data_id = c(1, 60), class_id = 1:3)
+#' # plot(gradient, data_id = c(1, 60), class_id = 1:3)
 #' @export
 #'
 SmoothGrad <- R6::R6Class(
