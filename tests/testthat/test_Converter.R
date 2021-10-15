@@ -1,5 +1,6 @@
 
 test_that("Test general errors", {
+
   expect_error(Converter$new(NULL))
   expect_error(Converter$new(NA))
   expect_error(Converter$new(c(3)))
@@ -8,6 +9,8 @@ test_that("Test general errors", {
 
 
 test_that("Test neuralnet model", {
+  skip_on_os("windows")
+
   data(iris)
   #
   # --------------------- positive tests --------------------------------------
@@ -47,6 +50,8 @@ test_that("Test neuralnet model", {
 })
 
 test_that("Test list model: Dense", {
+  skip_on_os("windows")
+
   model <- NULL
   model$input_dim <- 5
   model$input_names <- list(c("Feat1", "Feat2", "Feat3", "Feat4", "Feat5"))
@@ -86,6 +91,8 @@ test_that("Test list model: Dense", {
 })
 
 test_that("Test list model: 2D Convolution", {
+  skip_on_os("windows")
+
   model <- NULL
   model$input_dim <- c(3, 10, 10)
   model$output_dim <- 2
@@ -141,6 +148,7 @@ test_that("Test list model: 2D Convolution", {
 
 
 test_that("Test keras model: Dense", {
+  skip_on_os("windows")
   skip_on_cran()
   #
   # --------------------- Dense Model -----------------------------------------
@@ -197,6 +205,7 @@ test_that("Test keras model: Dense", {
 
 
 test_that("Test keras model: Conv1D with 'valid' padding", {
+  skip_on_os("windows")
   skip_on_cran()
   #
   # --------------------- CNN (1D) Model ("valid" padding) --------------------
@@ -254,6 +263,7 @@ test_that("Test keras model: Conv1D with 'valid' padding", {
 })
 
 test_that("Test keras model: Conv1D with 'same' padding", {
+  skip_on_os("windows")
   skip_on_cran()
   #
   # --------------------- CNN (1D) Model ("same" padding) ---------------------
@@ -313,6 +323,7 @@ test_that("Test keras model: Conv1D with 'same' padding", {
 
 
 test_that("Test keras model: Conv2D with 'valid' padding", {
+  skip_on_os("windows")
   skip_on_cran()
   #
   # --------------------- CNN (2D) Model ("valid" padding) --------------------
@@ -370,6 +381,7 @@ test_that("Test keras model: Conv2D with 'valid' padding", {
 })
 
 test_that("Test keras model: Conv2D with 'same' padding", {
+  skip_on_os("windows")
   skip_on_cran()
   #
   # --------------------- CNN (2D) Model ("same" padding) --------------------

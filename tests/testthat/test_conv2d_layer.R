@@ -1,5 +1,7 @@
 
 test_that("Test initialization and forward for conv2d_layer", {
+  skip_on_os("windows")
+
   batch_size <- 10
   in_channels <- 3
   out_channels <- 4
@@ -90,6 +92,8 @@ test_that("Test initialization and forward for conv2d_layer", {
 })
 
 test_that("Test get_pos_and_neg_outputs and get_gradient", {
+  skip_on_os("windows")
+
   batch_size <- 10
   in_channels <- 3
   out_channels <- 4
@@ -208,6 +212,8 @@ test_that("Test get_pos_and_neg_outputs and get_gradient", {
 
 
 test_that("Test get_input_relevances", {
+  skip_on_os("windows")
+
   batch_size <- 10
   in_channels <- 1
   out_channels <- 1
@@ -344,6 +350,8 @@ test_that("Test get_input_relevances", {
 
 
 test_that("Test get_input_multiplier", {
+  skip_on_os("windows")
+
   batch_size <- 10
   in_channels <- 3
   out_channels <- 1

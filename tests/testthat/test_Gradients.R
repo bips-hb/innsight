@@ -1,5 +1,7 @@
 
 test_that("Gradient: Plot and Boxplot", {
+  skip_on_os("windows")
+
   data(iris)
   data <- iris[sample.int(150, size = 10), -5]
   nn <- neuralnet(Species ~ .,
@@ -57,6 +59,8 @@ test_that("Gradient: Plot and Boxplot", {
 
 
 test_that("Gradient: Dense-Net (Neuralnet)", {
+  skip_on_os("windows")
+
   data(iris)
   data <- iris[sample.int(150, size = 10), -5]
   nn <- neuralnet(Species ~ .,
@@ -82,6 +86,7 @@ test_that("Gradient: Dense-Net (Neuralnet)", {
 
 
 test_that("Gradient: Dense-Net (keras)", {
+  skip_on_os("windows")
   skip_on_cran()
 
   data <- matrix(rnorm(4 * 10), nrow = 10)
@@ -108,6 +113,7 @@ test_that("Gradient: Dense-Net (keras)", {
 })
 
 test_that("SmoothGrad: Dense-Net", {
+  skip_on_os("windows")
   skip_on_cran()
 
   data <- matrix(rnorm(4 * 10), nrow = 10)
@@ -140,6 +146,7 @@ test_that("SmoothGrad: Dense-Net", {
 })
 
 test_that("Gradient: Conv1D-Net", {
+  skip_on_os("windows")
   skip_on_cran()
 
   data <- array(rnorm(4 * 64 * 3), dim = c(4, 64, 3))
@@ -183,6 +190,7 @@ test_that("Gradient: Conv1D-Net", {
 
 
 test_that("SmoothGrad: Conv1D-Net", {
+  skip_on_os("windows")
   skip_on_cran()
 
   data <- array(rnorm(4 * 64 * 3), dim = c(4, 64, 3))
@@ -235,6 +243,7 @@ test_that("SmoothGrad: Conv1D-Net", {
 
 
 test_that("Gradient: Conv2D-Net", {
+  skip_on_os("windows")
   skip_on_cran()
 
   data <- array(rnorm(4 * 32 * 32 * 3), dim = c(4, 32, 32, 3))
@@ -283,6 +292,7 @@ test_that("Gradient: Conv2D-Net", {
 })
 
 test_that("SmoothGrad: Conv2D-Net", {
+  skip_on_os("windows")
   skip_on_cran()
 
   data <- array(rnorm(4 * 32 * 32 * 3), dim = c(4, 32, 32, 3))
@@ -341,6 +351,7 @@ test_that("SmoothGrad: Conv2D-Net", {
 
 
 test_that("LRP: Correctness", {
+  skip_on_os("windows")
   skip_on_cran()
 
   data <- array(rnorm(10 * 32 * 32 * 3), dim = c(10, 32, 32, 3))

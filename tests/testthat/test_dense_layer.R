@@ -1,5 +1,7 @@
 
 test_that("Test initialization and forward of dense_layer", {
+  skip_on_os("windows")
+
   batch_size <- 10
   dim_in <- 20
   dim_out <- 5
@@ -47,6 +49,8 @@ test_that("Test initialization and forward of dense_layer", {
 
 
 test_that("Test get_pos_and_neg_outputs and get_gradient for dense_layer", {
+  skip_on_os("windows")
+
   batch_size <- 10
   dim_in <- 5
   dim_out <- 20
@@ -85,6 +89,8 @@ test_that("Test get_pos_and_neg_outputs and get_gradient for dense_layer", {
 
 
 test_that("Test get_input_relevances for dense_layer", {
+  skip_on_os("windows")
+
   batch_size <- 10
   dim_in <- 50
   dim_out <- 201
@@ -120,6 +126,8 @@ test_that("Test get_input_relevances for dense_layer", {
 
 
 test_that("Test get_input_multiplier for dense_layer", {
+  skip_on_os("windows")
+
   batch_size <- 10
   dim_in <- 201
   dim_out <- 55
