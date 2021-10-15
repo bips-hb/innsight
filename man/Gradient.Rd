@@ -13,6 +13,12 @@ the respective input value (Gradient x Input), i.e.
 \deqn{x_i * d f(x)_j / d x_i.}
 }
 \examples{
+# We need libtorch to be installed
+if (!torch::torch_is_installed()) {
+  torch::install_torch()
+}
+
+# ------------------------- Example 1: Neuralnet ---------------------------
 library(neuralnet)
 data(iris)
 
@@ -31,13 +37,91 @@ converter <- Converter$new(nn)
 gradient <- Gradient$new(converter, iris[, -5], times_input = FALSE)
 
 # Plot the result for the first and 60th data point and all classes
-# plot(gradient, data_id = c(1, 60), class_id = 1:3)
+plot(gradient, datapoint = c(1, 60), classes = 1:3)
 
 # Calculate Gradients x Input and do not ignore the last activation
 gradient <- Gradient$new(converter, iris[, -5], ignore_last_act = FALSE)
 
 # Plot the result again
-# plot(gradient, data_id = c(1, 60), class_id = 1:3)
+plot(gradient, datapoint = c(1, 60), classes = 1:3)
+
+# ------------------------- Example 2: Keras -------------------------------
+library(keras)
+
+if (is_keras_available()) {
+  data <- array(rnorm(64 * 60 * 3), dim = c(64, 60, 3))
+
+  model <- keras_model_sequential()
+  model \%>\%
+    layer_conv_1d(
+      input_shape = c(60, 3), kernel_size = 8, filters = 8,
+      activation = "softplus", padding = "valid"
+    ) \%>\%
+    layer_conv_1d(
+      kernel_size = 8, filters = 4, activation = "tanh",
+      padding = "same"
+    ) \%>\%
+    layer_conv_1d(
+      kernel_size = 4, filters = 2, activation = "relu",
+      padding = "valid"
+    ) \%>\%
+    layer_flatten() \%>\%
+    layer_dense(units = 64, activation = "relu") \%>\%
+    layer_dense(units = 16, activation = "relu") \%>\%
+    layer_dense(units = 3, activation = "softmax")
+
+  # Convert the model
+  converter <- Converter$new(model)
+
+  # Apply the Gradient method
+  gradient <- Gradient$new(converter, data, channels_first = FALSE)
+
+  # Plot the result for the first datapoint and all classes
+  plot(gradient, classes = 1:3)
+
+  # Plot the result as boxplots for first two classes
+  boxplot(gradient, classes = 1:2)
+
+  # You can also create an interactive plot with plotly.
+  # This is a suggested package, so make sure that it is installed
+  library(plotly)
+
+  # Result as boxplots
+  boxplot(gradient, as_plotly = TRUE)
+
+  # Result of the second data point
+  plot(gradient, datapoint = 2, as_plotly = TRUE)
+}
+
+# ------------------------- Advanced: Plotly -------------------------------
+# If you want to create an interactive plot of your results with custom
+# changes, you can take use of the method plotly::ggplotly
+library(ggplot2)
+library(plotly)
+library(neuralnet)
+data(iris)
+
+nn <- neuralnet(Species ~ .,
+  iris,
+  linear.output = FALSE,
+  hidden = c(10, 8), act.fct = "tanh", rep = 1, threshold = 0.5
+)
+# create an converter for this model
+converter <- Converter$new(nn)
+
+# create new instance of 'Gradient'
+gradient <- Gradient$new(converter, iris[, -5])
+
+library(plotly)
+
+# Get the ggplot and add your changes
+p <- plot(gradient, classes = 1, datapoint = 1:2) +
+  theme_bw() +
+  scale_fill_gradient2(low = "green", mid = "black", high = "blue")
+
+# Now apply the method plotly::ggplotly with argument tooltip = "text"
+plotly::ggplotly(p, tooltip = "text")
+
 }
 \section{Super classes}{
 \code{\link[innsight:InterpretingMethod]{innsight::InterpretingMethod}} -> \code{\link[innsight:GradientBased]{innsight::GradientBased}} -> \code{Gradient}
@@ -53,6 +137,8 @@ gradient <- Gradient$new(converter, iris[, -5], ignore_last_act = FALSE)
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
 \item \out{<span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result">}\href{../../innsight/html/InterpretingMethod.html#method-get_result}{\code{innsight::InterpretingMethod$get_result()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="GradientBased" data-id="boxplot">}\href{../../innsight/html/GradientBased.html#method-boxplot}{\code{innsight::GradientBased$boxplot()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="GradientBased" data-id="plot">}\href{../../innsight/html/GradientBased.html#method-plot}{\code{innsight::GradientBased$plot()}}\out{</span>}
 }
 \out{</details>}
 }

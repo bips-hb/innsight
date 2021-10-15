@@ -143,30 +143,32 @@
 #' #----------------------- Example 2: Keras ----------------------------------
 #' library(keras)
 #'
-#' # Define a keras model
-#' model <- keras_model_sequential()
-#' model %>%
-#'   layer_conv_2d(
-#'     input_shape = c(32, 32, 3), kernel_size = 8, filters = 8,
-#'     activation = "relu", padding = "same"
-#'   ) %>%
-#'   layer_conv_2d(
-#'     kernel_size = 8, filters = 4,
-#'     activation = "tanh", padding = "same"
-#'   ) %>%
-#'   layer_conv_2d(
-#'     kernel_size = 4, filters = 2,
-#'     activation = "relu", padding = "same"
-#'   ) %>%
-#'   layer_flatten() %>%
-#'   layer_dense(units = 64, activation = "relu") %>%
-#'   layer_dense(units = 1, activation = "sigmoid")
+#' if (is_keras_available()) {
+#'   # Define a keras model
+#'   model <- keras_model_sequential()
+#'   model %>%
+#'     layer_conv_2d(
+#'       input_shape = c(32, 32, 3), kernel_size = 8, filters = 8,
+#'       activation = "relu", padding = "same"
+#'     ) %>%
+#'     layer_conv_2d(
+#'       kernel_size = 8, filters = 4,
+#'       activation = "tanh", padding = "same"
+#'     ) %>%
+#'     layer_conv_2d(
+#'       kernel_size = 4, filters = 2,
+#'       activation = "relu", padding = "same"
+#'     ) %>%
+#'     layer_flatten() %>%
+#'     layer_dense(units = 64, activation = "relu") %>%
+#'     layer_dense(units = 1, activation = "sigmoid")
 #'
-#' # Convert this model
-#' converter <- Converter$new(model)
+#'   # Convert this model
+#'   converter <- Converter$new(model)
 #'
-#' # Print the converted model as a named list
-#' str(converter$model_dict)
+#'   # Print the converted model as a named list
+#'   str(converter$model_dict)
+#' }
 #'
 #' #----------------------- Example 2: List  ----------------------------------
 #'

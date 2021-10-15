@@ -28,6 +28,8 @@ This method is called 'Gradient x Input'.}
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{GradientBased$new()}}
+\item \href{#method-plot}{\code{GradientBased$plot()}}
+\item \href{#method-boxplot}{\code{GradientBased$boxplot()}}
 \item \href{#method-clone}{\code{GradientBased$clone()}}
 }
 }
@@ -75,6 +77,140 @@ activation leads to a saturation problem.}
 
 \item{\code{times_input}}{Multiplies the gradients with the input features. This
 method is called 'Gradient x Input'.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-plot"></a>}}
+\if{latex}{\out{\hypertarget{method-plot}{}}}
+\subsection{Method \code{plot()}}{
+This method visualizes the result of the selected method in a
+\link[ggplot2:ggplot]{ggplot2::ggplot}. You can use the argument \code{datapoint} to select
+the data points in the given data for the plot. In addition, the
+individual classes for the plot can be selected with the argument
+\code{classes}. The different results for the selected data points and
+classes are visualized using the method \link[ggplot2:facet_grid]{ggplot2::facet_grid}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GradientBased$plot(
+  datapoint = 1,
+  classes = 1,
+  aggr_channels = sum,
+  as_plotly = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{datapoint}}{An integer vector containing the numbers of the data
+points whose result is to be plotted, e.g. \code{c(1,3)} for the first
+and third data point in the given data. Default: \code{c(1)}.}
+
+\item{\code{classes}}{An integer vector containing the numbers of the classes
+whose result is to be plotted, e.g. \code{c(1,4)} for the first and fourth
+class. Default: \code{c(1)}.}
+
+\item{\code{aggr_channels}}{Pass a function to aggregate the channels. The
+default function is \link[base:sum]{base::sum}, but you can pass an arbitrary function.
+For example, the maximum \code{max} or minimum \code{min} over the channels or
+only individual channels with \code{function(x) x[1]}.}
+
+\item{\code{as_plotly}}{This boolean value (default: \code{FALSE}) can be used to
+create an interactive plot based on the library \code{plotly}. This function
+takes use of \link[plotly:ggplotly]{plotly::ggplotly}, hence make sure that the suggested
+package \code{plotly} is installed in your R session. Advanced: You can first
+output the results as a ggplot (\code{as_plotly = FALSE}) and then make
+custom changes to the plot, e.g. other theme or other fill color. Then
+you can manually call the function \code{ggplotly} to get an interactive
+plotly plot.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Returns either a \link[ggplot2:ggplot]{ggplot2::ggplot} (\code{as_plotly = FALSE}) or a
+\link[plotly:plot_ly]{plotly::plot_ly} (\code{as_plotly = TRUE}) with the plotted results.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-boxplot"></a>}}
+\if{latex}{\out{\hypertarget{method-boxplot}{}}}
+\subsection{Method \code{boxplot()}}{
+This function visualizes the results of this method in a boxplot, where
+the type of visualization depends on the input dimension of the data.
+By default a \link[ggplot2:ggplot]{ggplot2::ggplot} is returned, but with the argument
+\code{as_plotly} an interactive \link[plotly:plot_ly]{plotly::plot_ly} plot can be created,
+which however requires a successful installation of the package
+\code{plotly}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GradientBased$boxplot(
+  boxplot_data = "all",
+  classes = 1,
+  ref_datapoint = NULL,
+  aggr_channels = mean,
+  preprocess_FUN = abs,
+  as_plotly = FALSE,
+  individual_data = NULL,
+  individual_max = 20
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{boxplot_data}}{By default ("all"), all available data is used to
+calculate the boxplot information. However, this parameter can be used
+to select a subset of them by passing the indices. E.g. with
+\code{boxplot_data = c(1:10, 25, 26)} only the first \code{10} data points and
+the 25th and 26th are used to calculate the boxplots.}
+
+\item{\code{classes}}{An integer vector containing the numbers of the classes
+whose result is to be plotted, e.g. \code{c(1,4)} for the first and fourth
+class. Default: \code{c(1)}.}
+
+\item{\code{ref_datapoint}}{This integer number determines the index for the
+reference data point. In addition to the boxplots, it is displayed in
+red color and is used to compare an individual result with the summary
+statistics provided by the boxplot. With the default value (\code{NULL})
+no individual data point is plotted. This index can be chosen with
+respect to all available data, even if only a subset is selected with
+argument \code{boxplot_data}.\cr
+\strong{Note:} Because of the complexity of 3D inputs, this argument is used
+only for 1D and 2D inputs and disregarded for 3D inputs.}
+
+\item{\code{aggr_channels}}{Pass a function to aggregate the channels. The
+default function is \link[base:mean]{base::mean}, but you can pass an arbitrary
+function. For example, the maximum \code{max} or minimum \code{min} over the
+channels or only individual channels with \code{function(x) x[1]}.\cr
+\strong{Note:} This function is used only for 2D and 3D inputs.}
+
+\item{\code{preprocess_FUN}}{This function is applied to the method's result
+before calculating the boxplots. Since positive and negative values
+often cancel each other out, the absolute value (\code{abs}) is used by
+default. But you can also use the raw data (\code{function(x) x}) to see the
+results' orientation, the squared data (\code{function(x) x^2}) to weight
+the outliers higher or any other function.}
+
+\item{\code{as_plotly}}{This boolean value (default: \code{FALSE}) can be used to
+create an interactive plot based on the library \code{plotly} instead of
+\code{ggplot2}. Make sure that the suggested package \code{plotly} is installed
+in your R session.}
+
+\item{\code{individual_data}}{Only relevant for a \code{plotly} plot with input
+dimension \code{1} or \code{2}! This integer vector of data indices determines
+the available data points in a dropdown menu, which are drawn in
+individually analogous to \code{ref_datapoint} only for more data points.
+With the default value \code{NULL} the first \code{individual_max} data points
+are used.\cr
+\strong{Note:} If \code{ref_datapoint} is specified, this data point will be
+added to those from \code{individual_data} in the dropdown menu.}
+
+\item{\code{individual_max}}{Only relevant for a \code{plotly} plot with input
+dimension \code{1} or \code{2}! This integer determines the maximum number of
+individual data points in the dropdown menu without counting
+\code{ref_datapoint}. This means that if \code{individual_data} has more
+than \code{individual_max} indices, only the first \code{individual_max} will
+be used. Too high a number can significantly increase the runtime.}
 }
 \if{html}{\out{</div>}}
 }
