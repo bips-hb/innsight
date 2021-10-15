@@ -11,6 +11,12 @@ the classical \link{Gradient} method. It takes the mean of the gradients for
 \deqn{1/n \sum_n d f(x+ \epsilon)_j / d x_j.}
 }
 \examples{
+# Some Windows distributions don’t have the Visual Studio runtime
+# pre-installed which causes an error
+# (See https://github.com/mlverse/torch/issues/246#issuecomment-695097121)
+# Therefore, we have to skip all the examples on Windows
+if (tolower(Sys.info()[["sysname"]]) != "windows") {
+
 # We need libtorch to be installed
 if (!torch::torch_is_installed()) {
   torch::install_torch()
@@ -139,6 +145,7 @@ smoothgrad <- SmoothGrad$new(converter, iris[, -5], times_input = FALSE)
 
 # Plot the result for the first and 60th data point and all classes
 # plot(smoothgrad, data_id = c(1, 60), class_id = 1:3)
+}
 
 }
 \references{

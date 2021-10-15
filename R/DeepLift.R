@@ -18,6 +18,12 @@
 #' activation functions: \emph{Rescale-Rule} and \emph{RevealCancel-Rule}.
 #'
 #' @examples
+#' # Some Windows distributions don’t have the Visual Studio runtime
+#' # pre-installed which causes an error
+#' # (See https://github.com/mlverse/torch/issues/246#issuecomment-695097121)
+#' # Therefore, we have to skip all the examples on Windows
+#' if (tolower(Sys.info()[["sysname"]]) != "windows") {
+#'
 #' # We need libtorch to be installed
 #' if (!torch::torch_is_installed()) {
 #'   torch::install_torch()
@@ -123,6 +129,7 @@
 #'
 #' # Now apply the method plotly::ggplotly with argument tooltip = "text"
 #' plotly::ggplotly(p, tooltip = "text")
+#' }
 #'
 #' @references
 #' A. Shrikumar et al. (2017) \emph{Learning important features through

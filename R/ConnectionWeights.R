@@ -23,6 +23,11 @@
 #' (dim_in, dim_out).
 #'
 #' @examples
+#' # Some Windows distributions don’t have the Visual Studio runtime
+#' # pre-installed which causes an error
+#' # (See https://github.com/mlverse/torch/issues/246#issuecomment-695097121)
+#' # Therefore, we have to skip all the examples on Windows
+#' if (tolower(Sys.info()[["sysname"]]) != "windows") {
 #'
 #' # We need libtorch to be installed
 #' if (!torch::torch_is_installed()) {
@@ -80,7 +85,7 @@
 #'
 #'   # Plot the result for all classes
 #'   plot(cw, class_id = 1:2)
-#' }
+#' }}
 #'
 #' @references
 #' * J. D. Olden et al. (2004) \emph{An accurate comparison of methods for

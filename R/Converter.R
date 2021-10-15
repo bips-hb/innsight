@@ -122,6 +122,11 @@
 #'
 #'
 #' @examples
+#' # Some Windows distributions don’t have the Visual Studio runtime
+#' # pre-installed which causes an error
+#' # (See https://github.com/mlverse/torch/issues/246#issuecomment-695097121)
+#' # Therefore, we have to skip all the examples on Windows
+#' if (tolower(Sys.info()[["sysname"]]) != "windows") {
 #'
 #' #----------------------- Example 1: Neuralnet ------------------------------
 #' library(neuralnet)
@@ -207,7 +212,7 @@
 #' # You can use it as a normal torch model
 #' x <- torch::torch_randn(3, 5)
 #' torch_model(x)
-#'
+#' }
 #'
 #' @references
 #' * J. D. Olden et al. (2004) \emph{An accurate comparison of methods for
@@ -257,7 +262,7 @@ Converter <- R6Class("Converter",
         model_dict <- convert_keras_model(model)
       } else if (is.list(model)) {
         model_dict <- model
-      } else if (inherits(model, "nn_module") && torch::is_nn_module(model)) {
+      } else if (inherits(model, "nn_module") && is_nn_module(model)) {
         #
         # toDo
         #

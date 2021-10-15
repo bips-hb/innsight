@@ -170,17 +170,16 @@ GradientBased <- R6::R6Class(
       }
 
       # Implemented is only the case where the output is one-dimensional
-      checkmate::assertTRUE(length(dim(output)) == 2)
+      assertTRUE(length(dim(output)) == 2)
 
       res <- vector(mode = "list", length = dim(output)[2])
       out_sum <- sum(output, dim = 1)
 
       for (i in 1:dim(output)[2]) {
-        res[[i]] <-
-          torch::autograd_grad(out_sum[i], input, retain_graph = TRUE)[[1]]
+        res[[i]] <- autograd_grad(out_sum[i], input, retain_graph = TRUE)[[1]]
       }
 
-      torch::torch_stack(res, dim = length(dim(input)) + 1)
+      torch_stack(res, dim = length(dim(input)) + 1)
     }
   )
 )
@@ -208,6 +207,12 @@ boxplot.GradientBased <- function(x, ...) {
 #' \deqn{x_i * d f(x)_j / d x_i.}
 #'
 #' @examples
+#' # Some Windows distributions don’t have the Visual Studio runtime
+#' # pre-installed which causes an error
+#' # (See https://github.com/mlverse/torch/issues/246#issuecomment-695097121)
+#' # Therefore, we have to skip all the examples on Windows
+#' if (tolower(Sys.info()[["sysname"]]) != "windows") {
+#'
 #' # We need libtorch to be installed
 #' if (!torch::torch_is_installed()) {
 #'   torch::install_torch()
@@ -316,6 +321,7 @@ boxplot.GradientBased <- function(x, ...) {
 #'
 #' # Now apply the method plotly::ggplotly with argument tooltip = "text"
 #' plotly::ggplotly(p, tooltip = "text")
+#' }
 #'
 #' @export
 #'
@@ -389,6 +395,12 @@ Gradient <- R6::R6Class(
 #' CoRR, abs/1706.03825
 #'
 #' @examples
+#' # Some Windows distributions don’t have the Visual Studio runtime
+#' # pre-installed which causes an error
+#' # (See https://github.com/mlverse/torch/issues/246#issuecomment-695097121)
+#' # Therefore, we have to skip all the examples on Windows
+#' if (tolower(Sys.info()[["sysname"]]) != "windows") {
+#'
 #' # We need libtorch to be installed
 #' if (!torch::torch_is_installed()) {
 #'   torch::install_torch()
@@ -517,6 +529,7 @@ Gradient <- R6::R6Class(
 #'
 #' # Plot the result for the first and 60th data point and all classes
 #' # plot(smoothgrad, data_id = c(1, 60), class_id = 1:3)
+#' }
 #'
 #' @export
 #'

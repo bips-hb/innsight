@@ -13,6 +13,12 @@ the respective input value (Gradient x Input), i.e.
 \deqn{x_i * d f(x)_j / d x_i.}
 }
 \examples{
+# Some Windows distributions don’t have the Visual Studio runtime
+# pre-installed which causes an error
+# (See https://github.com/mlverse/torch/issues/246#issuecomment-695097121)
+# Therefore, we have to skip all the examples on Windows
+if (tolower(Sys.info()[["sysname"]]) != "windows") {
+
 # We need libtorch to be installed
 if (!torch::torch_is_installed()) {
   torch::install_torch()
@@ -121,6 +127,7 @@ p <- plot(gradient, classes = 1, datapoint = 1:2) +
 
 # Now apply the method plotly::ggplotly with argument tooltip = "text"
 plotly::ggplotly(p, tooltip = "text")
+}
 
 }
 \section{Super classes}{

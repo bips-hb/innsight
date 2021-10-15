@@ -127,6 +127,11 @@ following methods:
 }
 }
 \examples{
+# Some Windows distributions don’t have the Visual Studio runtime
+# pre-installed which causes an error
+# (See https://github.com/mlverse/torch/issues/246#issuecomment-695097121)
+# Therefore, we have to skip all the examples on Windows
+if (tolower(Sys.info()[["sysname"]]) != "windows") {
 
 #----------------------- Example 1: Neuralnet ------------------------------
 library(neuralnet)
@@ -212,7 +217,7 @@ torch_model <- converter$model
 # You can use it as a normal torch model
 x <- torch::torch_randn(3, 5)
 torch_model(x)
-
+}
 
 }
 \references{
