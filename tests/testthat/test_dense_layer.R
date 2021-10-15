@@ -1,4 +1,3 @@
-library(torch)
 
 test_that("Test initialization and forward of dense_layer", {
   batch_size <- 10

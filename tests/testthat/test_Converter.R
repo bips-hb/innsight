@@ -1,7 +1,3 @@
-library(torch)
-library(keras)
-library(neuralnet)
-
 
 test_that("Test general errors", {
   expect_error(Converter$new(NULL))
@@ -18,9 +14,9 @@ test_that("Test neuralnet model", {
   #
 
   nn <- neuralnet((Species == "setosa") ~ Petal.Length + Petal.Width,
-    iris,
-    linear.output = FALSE,
-    hidden = c(3, 2), act.fct = "tanh", rep = 1
+                  iris,
+                  linear.output = FALSE,
+                  hidden = c(3, 2), act.fct = "tanh", rep = 1
   )
   converter <- Converter$new(nn)
 
@@ -43,15 +39,109 @@ test_that("Test neuralnet model", {
 
   # doesn't converge
   expect_warning(nn_not_converged <- neuralnet(Species ~ .,
-    iris,
-    linear.output = TRUE,
-    hidden = c(3, 2), act.fct = "tanh", rep = 1, stepmax = 1e+01
+                                               iris,
+                                               linear.output = TRUE,
+                                               hidden = c(3, 2), act.fct = "tanh", rep = 1, stepmax = 1e+01
   ))
   expect_error(Converter$new(nn_not_converged))
 })
 
+test_that("Test list model: Dense", {
+  model <- NULL
+  model$input_dim <- 5
+  model$input_names <- list(c("Feat1", "Feat2", "Feat3", "Feat4", "Feat5"))
+  model$output_dim <- 2
+  model$output_names <- list(c("Cat", "no-Cat"))
+  model$layers$Layer_1 <-
+    list(
+      type = "Dense",
+      weight = matrix(rnorm(5 * 20), 20, 5),
+      bias = rnorm(20),
+      activation_name = "tanh",
+      dim_in = 5L,
+      dim_out = 20L
+    )
+  model$layers$Layer_2 <-
+    list(
+      type = "Dense",
+      weight = matrix(rnorm(20 * 2), 2, 20),
+      bias = rnorm(2),
+      activation_name = "softmax",
+      dim_in = 20L,
+      dim_out = 2L
+    )
+
+  # Convert the model
+  converter <- Converter$new(model)
+  expect_true("Converter" %in% class(converter))
+
+  # get the model
+  model <- converter$model
+
+  # test output dimension
+  input <- torch::torch_randn(10,5)
+  out <- model(input)
+  expect_equal(dim(out), c(10, 2))
+
+})
+
+test_that("Test list model: 2D Convolution", {
+  model <- NULL
+  model$input_dim <- c(3, 10, 10)
+  model$output_dim <- 2
+  model$output_names <- list(c("Cat", "no-Cat"))
+  model$layers$Layer_1 <-
+    list(
+      type = "Conv2D",
+      weight = array(rnorm(8*3*2*2), dim = c(8,3,2,2)),
+      bias = rnorm(8),
+      activation_name = "tanh",
+      dim_in = c(3L, 10L, 10L),
+      dim_out = c(8L, 9L, 9L)
+    )
+  model$layers$Layer_2 <-
+    list(
+      type = "Conv2D",
+      weight = array(rnorm(2*8*2*2), dim = c(2,8,2,2)),
+      bias = rnorm(2),
+      activation_name = "tanh",
+      dim_in = c(8L, 9L, 9L),
+      dim_out = c(2L, 8L, 8L)
+    )
+  model$layers$Layer_3 <-
+    list(
+      type = "Flatten",
+      dim_in = c(2L,8L,8L),
+      dim_out = 128L
+    )
+  model$layers$Layer_4 <-
+    list(
+      type = "Dense",
+      weight = matrix(rnorm(128 * 2), 2, 128),
+      bias = rnorm(2),
+      activation_name = "softmax",
+      dim_in = 128L,
+      dim_out = 2L
+    )
+
+  # Convert the model
+  converter <- Converter$new(model)
+  expect_true("Converter" %in% class(converter))
+
+  # get the model
+  model <- converter$model
+
+  # test output dimension
+  input <- torch::torch_randn(10,3,10,10)
+  out <- model(input)
+  expect_equal(dim(out), c(10, 2))
+
+})
+
+
 
 test_that("Test keras model: Dense", {
+  skip_on_cran()
   #
   # --------------------- Dense Model -----------------------------------------
   #
@@ -70,7 +160,7 @@ test_that("Test keras model: Dense", {
   converter <- Converter$new(model)
 
   # forward method
-  y_true <- predict(model, data)
+  y_true <- as.array(model(data))
   dim_y_true <- dim(y_true)
   y <- as.array(converter$model(torch_tensor(data)))
   dim_y <- dim(y)
@@ -104,7 +194,10 @@ test_that("Test keras model: Dense", {
   }
 })
 
+
+
 test_that("Test keras model: Conv1D with 'valid' padding", {
+  skip_on_cran()
   #
   # --------------------- CNN (1D) Model ("valid" padding) --------------------
   #
@@ -128,7 +221,7 @@ test_that("Test keras model: Conv1D with 'valid' padding", {
   converter <- Converter$new(model)
 
   # forward method
-  y_true <- predict(model, data)
+  y_true <- as.array(model(data))
   dim_y_true <- dim(y_true)
   y <- as.array(converter$model(torch_tensor(data), channels_first = FALSE))
   dim_y <- dim(y)
@@ -139,7 +232,7 @@ test_that("Test keras model: Conv1D with 'valid' padding", {
   # update_ref
   x_ref <- array(rnorm(128 * 4), dim = c(1, 128, 4))
   y_ref <- as.array(converter$model$update_ref(torch_tensor(x_ref),
-    channels_first = FALSE
+                                               channels_first = FALSE
   ))
   dim_y_ref <- dim(y_ref)
   y_ref_true <- as.array(model(x_ref))
@@ -161,6 +254,7 @@ test_that("Test keras model: Conv1D with 'valid' padding", {
 })
 
 test_that("Test keras model: Conv1D with 'same' padding", {
+  skip_on_cran()
   #
   # --------------------- CNN (1D) Model ("same" padding) ---------------------
   #
@@ -190,7 +284,7 @@ test_that("Test keras model: Conv1D with 'same' padding", {
   converter <- Converter$new(model)
 
   # forward method
-  y_true <- predict(model, data)
+  y_true <- as.array(model(data))
   y <- as.array(converter$model(torch_tensor(data), channels_first = FALSE))
   expect_equal(dim(y), dim(y_true))
   expect_lt(mean((y_true - y)^2), 1e-12)
@@ -199,7 +293,7 @@ test_that("Test keras model: Conv1D with 'same' padding", {
   x_ref <- array(rnorm(128 * 4), dim = c(1, 128, 4))
   y_ref <-
     as.array(converter$model$update_ref(torch_tensor(x_ref),
-      channels_first = FALSE
+                                        channels_first = FALSE
     ))
   y_ref_true <- as.array(model(x_ref))
   expect_equal(dim(y_ref), dim(y_ref_true))
@@ -219,6 +313,7 @@ test_that("Test keras model: Conv1D with 'same' padding", {
 
 
 test_that("Test keras model: Conv2D with 'valid' padding", {
+  skip_on_cran()
   #
   # --------------------- CNN (2D) Model ("valid" padding) --------------------
   #
@@ -248,7 +343,7 @@ test_that("Test keras model: Conv2D with 'valid' padding", {
   converter <- Converter$new(model)
 
   # forward method
-  y_true <- predict(model, data)
+  y_true <- as.array(model(data))
   y <- as.array(converter$model(torch_tensor(data), channels_first = FALSE))
   expect_equal(dim(y), dim(y_true))
   expect_lt(mean((y_true - y)^2), 1e-12)
@@ -256,7 +351,7 @@ test_that("Test keras model: Conv2D with 'valid' padding", {
   # update
   x_ref <- array(rnorm(32 * 32 * 3), dim = c(1, 32, 32, 3))
   y_ref <- as.array(converter$model$update_ref(torch_tensor(x_ref),
-    channels_first = FALSE
+                                               channels_first = FALSE
   ))
   y_ref_true <- as.array(model(x_ref))
   expect_equal(dim(y_ref), dim(y_ref_true))
@@ -275,6 +370,7 @@ test_that("Test keras model: Conv2D with 'valid' padding", {
 })
 
 test_that("Test keras model: Conv2D with 'same' padding", {
+  skip_on_cran()
   #
   # --------------------- CNN (2D) Model ("same" padding) --------------------
   #
@@ -304,7 +400,7 @@ test_that("Test keras model: Conv2D with 'same' padding", {
   converter <- Converter$new(model)
 
   # forward method
-  y_true <- predict(model, data)
+  y_true <- as.array(model(data))
   y <- as.array(converter$model(torch_tensor(data), channels_first = FALSE))
   expect_equal(dim(y), dim(y_true))
   expect_lt(mean(abs(y_true - y)^2), 1e-12)
@@ -312,7 +408,7 @@ test_that("Test keras model: Conv2D with 'same' padding", {
   # update
   x_ref <- array(rnorm(32 * 32 * 3), dim = c(1, 32, 32, 3))
   y_ref <- as.array(converter$model$update_ref(torch_tensor(x_ref),
-    channels_first = FALSE
+                                               channels_first = FALSE
   ))
   y_ref_true <- as.array(model(x_ref))
   expect_equal(dim(y_ref), dim(y_ref_true))
@@ -329,3 +425,5 @@ test_that("Test keras model: Conv2D with 'same' padding", {
     expect_equal(module$output_dim, dim(module$output)[-1])
   }
 })
+
+

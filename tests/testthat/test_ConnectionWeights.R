@@ -1,9 +1,6 @@
-library(keras)
-library(neuralnet)
-library(torch)
-
 
 test_that("ConnectionWeights: General errors", {
+  skip_on_cran()
   model <- keras_model_sequential()
   model %>%
     layer_dense(units = 16, activation = "relu", input_shape = c(4)) %>%
@@ -19,6 +16,7 @@ test_that("ConnectionWeights: General errors", {
 
 
 test_that("ConnectionWeights: Dense-Net", {
+  skip_on_cran()
   model <- keras_model_sequential()
   model %>%
     layer_dense(units = 16, activation = "relu", input_shape = c(4)) %>%
@@ -53,6 +51,7 @@ test_that("ConnectionWeights: Dense-Net", {
 })
 
 test_that("ConnectionWeights: Conv1D-Net", {
+  skip_on_cran()
   model <- keras_model_sequential()
   model %>%
     layer_conv_1d(
@@ -94,6 +93,7 @@ test_that("ConnectionWeights: Conv1D-Net", {
 })
 
 test_that("ConnectionWeights: Conv2D-Net", {
+  skip_on_cran()
   model <- keras_model_sequential()
   model %>%
     layer_conv_2d(

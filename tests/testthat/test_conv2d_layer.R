@@ -1,5 +1,3 @@
-library(torch)
-
 
 test_that("Test initialization and forward for conv2d_layer", {
   batch_size <- 10
