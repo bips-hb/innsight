@@ -53,31 +53,34 @@
 #' plot(cw)
 #'
 #' #----------------------- Example 2: Keras ----------------------------------
+#' library(keras)
 #'
-#' # Define a model
-#' model <- keras_model_sequential()
-#' model %>%
-#'   layer_conv_1d(
-#'     input_shape = c(64, 3), kernel_size = 16, filters = 8,
-#'     activation = "softplus"
-#'   ) %>%
-#'   layer_conv_1d(kernel_size = 16, filters = 4, activation = "tanh") %>%
-#'   layer_conv_1d(kernel_size = 16, filters = 2, activation = "relu") %>%
-#'   layer_flatten() %>%
-#'   layer_dense(units = 64, activation = "relu") %>%
-#'   layer_dense(units = 2, activation = "softmax")
+#' if (is_keras_available()) {
+#'   # Define a model
+#'   model <- keras_model_sequential()
+#'   model %>%
+#'     layer_conv_1d(
+#'       input_shape = c(64, 3), kernel_size = 16, filters = 8,
+#'       activation = "softplus"
+#'     ) %>%
+#'     layer_conv_1d(kernel_size = 16, filters = 4, activation = "tanh") %>%
+#'     layer_conv_1d(kernel_size = 16, filters = 2, activation = "relu") %>%
+#'     layer_flatten() %>%
+#'     layer_dense(units = 64, activation = "relu") %>%
+#'     layer_dense(units = 2, activation = "softmax")
 #'
-#' # Convert the model
-#' converter <- Converter$new(model)
+#'   # Convert the model
+#'   converter <- Converter$new(model)
 #'
-#' # Apply the Connection Weights method
-#' cw <- ConnectionWeights$new(converter)
+#'   # Apply the Connection Weights method
+#'   cw <- ConnectionWeights$new(converter)
 #'
-#' # Get the result as data.frame
-#' cw$get_result(type = "data.frame")
+#'   # Get the result as data.frame
+#'   cw$get_result(type = "data.frame")
 #'
-#' # Plot the result for all classes
-#' plot(cw, class_id = 1:2)
+#'   # Plot the result for all classes
+#'   plot(cw, class_id = 1:2)
+#' }
 #'
 #' @references
 #' * J. D. Olden et al. (2004) \emph{An accurate comparison of methods for
@@ -85,7 +88,7 @@
 #'  simulated data.} Ecological Modelling 178, p. 389–397
 #'
 #' @export
-ConnectionWeights <- R6::R6Class(
+ConnectionWeights <- R6Class(
   classname = "ConnectionWeights",
   public = list(
     converter = NULL,
@@ -104,13 +107,13 @@ ConnectionWeights <- R6::R6Class(
     initialize = function(converter,
                           channels_first = TRUE,
                           dtype = "float") {
-      checkmate::assertClass(converter, "Converter")
+      assertClass(converter, "Converter")
       self$converter <- converter
 
-      checkmate::assert_logical(channels_first)
+      assert_logical(channels_first)
       self$channels_first <- channels_first
 
-      checkmate::assertChoice(dtype, c("float", "double"))
+      assertChoice(dtype, c("float", "double"))
       self$dtype <- dtype
       self$converter$model$set_dtype(dtype)
 
@@ -130,7 +133,7 @@ ConnectionWeights <- R6::R6Class(
     #' format.
     #'
     get_result = function(type = "array") {
-      checkmate::assertChoice(type, c("array", "data.frame", "torch.tensor"))
+      assertChoice(type, c("array", "data.frame", "torch.tensor"))
 
       result <- self$result
       if (type == "array") {
@@ -186,13 +189,13 @@ ConnectionWeights <- R6::R6Class(
     run = function() {
       if (self$dtype == "double") {
         grad <-
-          torch::torch_tensor(diag(self$converter$model_dict$output_dim),
-            dtype = torch::torch_double()
+          torch_tensor(diag(self$converter$model_dict$output_dim),
+            dtype = torch_double()
           )$unsqueeze(1)
       } else {
         grad <-
-          torch::torch_tensor(diag(self$converter$model_dict$output_dim),
-            dtype = torch::torch_float()
+          torch_tensor(diag(self$converter$model_dict$output_dim),
+            dtype = torch_float()
           )$unsqueeze(1)
       }
 
@@ -204,7 +207,7 @@ ConnectionWeights <- R6::R6Class(
         }
       }
       if (!self$channels_first) {
-        grad <- torch::torch_movedim(grad, 2, length(dim(grad)) - 1)
+        grad <- torch_movedim(grad, 2, length(dim(grad)) - 1)
       }
 
       grad$squeeze(1)
@@ -256,7 +259,7 @@ ConnectionWeights <- R6::R6Class(
       df
     },
     plot_1d_input = function(class_id = 1, blank = TRUE) {
-      checkmate::assertNumeric(class_id,
+      assertNumeric(class_id,
         lower = 1,
         upper = rev(dim(self$result))[1]
       )
@@ -282,7 +285,7 @@ ConnectionWeights <- R6::R6Class(
         facet_grid(cols = vars(class), scales = "free_y")
     },
     plot_2d_input = function(class_id = 1, aggr_channel = sum) {
-      checkmate::assertNumeric(class_id,
+      assertNumeric(class_id,
         lower = 1,
         upper = rev(dim(self$result))[1]
       )
@@ -327,7 +330,7 @@ ConnectionWeights <- R6::R6Class(
         facet_grid(cols = vars(class), scale = "free_y")
     },
     plot_3d_input = function(class_id = 1, aggr_channel = sum) {
-      checkmate::assertNumeric(class_id,
+      assertNumeric(class_id,
         lower = 1,
         upper = rev(dim(self$result))[1]
       )

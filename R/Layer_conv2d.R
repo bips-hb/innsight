@@ -42,7 +42,7 @@ NULL
 #'
 #' @noRd
 #'
-conv2d_layer <- torch::nn_module(
+conv2d_layer <- nn_module(
   classname = "Conv2D_Layer",
   inherit = InterpretingLayer,
 
@@ -80,13 +80,13 @@ conv2d_layer <- torch::nn_module(
 
     # Check if weight is already a tensor
     if (!inherits(weight, "torch_tensor")) {
-      self$W <- torch::torch_tensor(weight)
+      self$W <- torch_tensor(weight)
     } else {
       self$W <- weight
     }
     # Check if bias is already a tensor
     if (!inherits(bias, "torch_tensor")) {
-      self$b <- torch::torch_tensor(bias)
+      self$b <- torch_tensor(bias)
     } else {
       self$b <- bias
     }
@@ -118,9 +118,9 @@ conv2d_layer <- torch::nn_module(
     self$input <- x
 
     # Apply padding
-    x <- torch::nnf_pad(x, pad = self$padding)
+    x <- nnf_pad(x, pad = self$padding)
     # Apply convolution (2D)
-    self$preactivation <- torch::nnf_conv2d(x, self$W,
+    self$preactivation <- nnf_conv2d(x, self$W,
       bias = self$b,
       stride = self$stride,
       padding = 0,
@@ -157,9 +157,9 @@ conv2d_layer <- torch::nn_module(
   update_ref = function(x_ref) {
     self$input_ref <- x_ref
     # Apply padding
-    x_ref <- torch::nnf_pad(x_ref, pad = self$padding)
+    x_ref <- nnf_pad(x_ref, pad = self$padding)
     # Apply convolution (2D)
-    self$preactivation_ref <- torch::nnf_conv2d(x_ref, self$W,
+    self$preactivation_ref <- nnf_conv2d(x_ref, self$W,
       bias = self$b,
       stride = self$stride,
       padding = 0,
@@ -231,7 +231,7 @@ conv2d_layer <- torch::nn_module(
         self$get_gradient(rel_output / z, self$W) * self$input$unsqueeze(5)
     } else if (rule_name == "epsilon") {
       z <- self$preactivation$unsqueeze(5)
-      z <- z + rule_param * torch::torch_sgn(z) + (z == 0) * 1e-16
+      z <- z + rule_param * torch_sgn(z) + (z == 0) * 1e-16
       rel_input <-
         self$get_gradient(rel_output / z, self$W) * self$input$unsqueeze(5)
     } else if (rule_name == "alpha_beta") {
@@ -413,7 +413,7 @@ conv2d_layer <- torch::nn_module(
       dilation <- c(self$dilation, 1)
     }
 
-    out <- torch::nnf_conv_transpose3d(input, weight$unsqueeze(5),
+    out <- nnf_conv_transpose3d(input, weight$unsqueeze(5),
       bias = NULL,
       stride = stride,
       padding = 0,
@@ -431,7 +431,7 @@ conv2d_layer <- torch::nn_module(
 
     # (begin last axis, end last axis, begin 2nd to last axis, end 2nd to last
     # axis, begin 3rd to last axis, etc.)
-    out <- torch::nnf_pad(out, pad = c(0, 0, 0, lost_w, 0, lost_h))
+    out <- nnf_pad(out, pad = c(0, 0, 0, lost_w, 0, lost_h))
     # Now we have added the missing values such that
     # dim(out) = dim(padded_input)
 
@@ -485,8 +485,8 @@ conv2d_layer <- torch::nn_module(
     }
 
     conv2d <- function(x, W, b) {
-      x <- torch::nnf_pad(x, pad = self$padding)
-      out <- torch::nnf_conv2d(x, W,
+      x <- nnf_pad(x, pad = self$padding)
+      out <- nnf_conv2d(x, W,
         bias = b,
         stride = self$stride,
         padding = 0,
@@ -521,11 +521,11 @@ conv2d_layer <- torch::nn_module(
   #'
   set_dtype = function(dtype) {
     if (dtype == "float") {
-      self$W <- self$W$to(torch::torch_float())
-      self$b <- self$b$to(torch::torch_float())
+      self$W <- self$W$to(torch_float())
+      self$b <- self$b$to(torch_float())
     } else if (dtype == "double") {
-      self$W <- self$W$to(torch::torch_double())
-      self$b <- self$b$to(torch::torch_double())
+      self$W <- self$W$to(torch_double())
+      self$b <- self$b$to(torch_double())
     } else {
       stop(sprintf("Unknown argument for 'dtype' : %s .
                    Use 'float' or 'double' instead", dtype))

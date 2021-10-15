@@ -37,7 +37,7 @@ NULL
 #'
 #' @noRd
 #'
-dense_layer <- torch::nn_module(
+dense_layer <- nn_module(
   classname = "Dense_Layer",
   inherit = InterpretingLayer,
 
@@ -63,13 +63,13 @@ dense_layer <- torch::nn_module(
 
     # Check if weight is already a tensor
     if (!inherits(weight, "torch_tensor")) {
-      self$W <- torch::torch_tensor(weight)
+      self$W <- torch_tensor(weight)
     } else {
       self$W <- weight
     }
     # Check if bias is already a tensor
     if (!inherits(bias, "torch_tensor")) {
-      self$b <- torch::torch_tensor(bias)
+      self$b <- torch_tensor(bias)
     } else {
       self$b <- bias
     }
@@ -99,7 +99,7 @@ dense_layer <- torch::nn_module(
   #'
   forward = function(x) {
     self$input <- x
-    self$preactivation <- torch::nnf_linear(x, self$W, self$b)
+    self$preactivation <- nnf_linear(x, self$W, self$b)
     self$output <- self$activation_f(self$preactivation)
 
     self$output
@@ -128,7 +128,7 @@ dense_layer <- torch::nn_module(
   #'
   update_ref = function(x_ref) {
     self$input_ref <- x_ref
-    self$preactivation_ref <- torch::nnf_linear(x_ref, self$W, self$b)
+    self$preactivation_ref <- nnf_linear(x_ref, self$W, self$b)
     self$output_ref <- self$activation_f(self$preactivation_ref)
 
     self$output_ref
@@ -186,7 +186,7 @@ dense_layer <- torch::nn_module(
       rel_input <-
         self$get_gradient(rel_output / z, self$W) * input
     } else if (rule_name == "epsilon") {
-      z <- z + rule_param * torch::torch_sgn(z) + (z == 0) * 1e-16
+      z <- z + rule_param * torch_sgn(z) + (z == 0) * 1e-16
       rel_input <-
         self$get_gradient(rel_output / z, self$W) * input
     } else if (rule_name == "alpha_beta") {
@@ -336,7 +336,7 @@ dense_layer <- torch::nn_module(
   #' model_out)}.
   #'
   get_gradient = function(grad_out, weight) {
-    grad_in <- torch::torch_matmul(weight$t(), grad_out)
+    grad_in <- torch_matmul(weight$t(), grad_out)
 
     grad_in
   },
@@ -377,12 +377,12 @@ dense_layer <- torch::nn_module(
     W <- self$W
 
     output$pos <-
-      torch::nnf_linear(input * (input > 0), W * (W > 0), bias = b_pos) +
-      torch::nnf_linear(input * (input <= 0), W * (W <= 0), bias = b_pos)
+      nnf_linear(input * (input > 0), W * (W > 0), bias = b_pos) +
+      nnf_linear(input * (input <= 0), W * (W <= 0), bias = b_pos)
 
     output$neg <-
-      torch::nnf_linear(input * (input > 0), W * (W <= 0), bias = b_neg) +
-      torch::nnf_linear(input * (input <= 0), W * (W > 0), bias = b_neg)
+      nnf_linear(input * (input > 0), W * (W <= 0), bias = b_neg) +
+      nnf_linear(input * (input <= 0), W * (W > 0), bias = b_neg)
 
     output
   },
@@ -402,11 +402,11 @@ dense_layer <- torch::nn_module(
   #'
   set_dtype = function(dtype) {
     if (dtype == "float") {
-      self$W <- self$W$to(torch::torch_float())
-      self$b <- self$b$to(torch::torch_float())
+      self$W <- self$W$to(torch_float())
+      self$b <- self$b$to(torch_float())
     } else if (dtype == "double") {
-      self$W <- self$W$to(torch::torch_double())
-      self$b <- self$b$to(torch::torch_double())
+      self$W <- self$W$to(torch_double())
+      self$b <- self$b$to(torch_double())
     } else {
       stop(sprintf("Unknown argument for 'dtype' : %s .
                    Use 'float' or 'double' instead"))

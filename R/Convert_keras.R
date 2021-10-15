@@ -13,7 +13,7 @@ convert_keras_model <- function(model) {
     type <- layer$`__class__`$`__name__`
     name <- paste(type, num, sep = "_")
 
-    checkmate::assertChoice(type, implemented_layers)
+    assertChoice(type, implemented_layers)
 
     if (type == "Dropout" || type == "InputLayer") {
       message(sprintf("Skipping %s-Layer...", type))
@@ -103,7 +103,7 @@ convert_keras_convolution <- function(layer) {
   }
 
   # padding differs in keras and torch
-  checkmate::assertChoice(padding, c("valid", "same"))
+  assertChoice(padding, c("valid", "same"))
   if (padding == "valid") {
     padding <- rep(c(0L, 0L), length(kernel_size))
   } else if (padding == "same") {

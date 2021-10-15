@@ -27,7 +27,7 @@
 #'
 #' @noRd
 #'
-flatten_layer <- torch::nn_module(
+flatten_layer <- nn_module(
   classname = "Flatten_Layer",
   input_dim = NULL,
   input = NULL,
@@ -64,12 +64,12 @@ flatten_layer <- torch::nn_module(
   forward = function(x, channels_first = TRUE) {
     self$input <- x
     if (channels_first == FALSE) {
-      x <- torch::torch_movedim(x, 2, -1)
+      x <- torch_movedim(x, 2, -1)
       self$channels_first <- FALSE
     } else {
       self$channels_first <- TRUE
     }
-    self$output <- torch::torch_flatten(x, start_dim = 2)
+    self$output <- torch_flatten(x, start_dim = 2)
 
     self$output
   },
@@ -96,9 +96,9 @@ flatten_layer <- torch::nn_module(
   update_ref = function(x_ref, channels_first = TRUE) {
     self$input_ref <- x_ref
     if (channels_first == FALSE) {
-      x_ref <- torch::torch_movedim(x_ref, 2, -1)
+      x_ref <- torch_movedim(x_ref, 2, -1)
     }
-    self$output_ref <- torch::torch_flatten(x_ref, start_dim = 2)
+    self$output_ref <- torch_flatten(x_ref, start_dim = 2)
 
     self$output_ref
   },
@@ -136,7 +136,7 @@ flatten_layer <- torch::nn_module(
       in_channels <- self$input_dim[1]
       in_dim <- c(self$input_dim[-1], in_channels)
       input <- output$reshape(c(batch_size, in_dim, model_out))
-      input <- torch::torch_movedim(input, length(self$input_dim) + 1, 2)
+      input <- torch_movedim(input, length(self$input_dim) + 1, 2)
     } else {
       input <- output$reshape(c(batch_size, self$input_dim, model_out))
     }

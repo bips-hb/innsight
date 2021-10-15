@@ -346,18 +346,9 @@ summary_plotly <- function(result, aggr_channels, ref_datapoint, value_name) {
   #
   else if (input_dim == 2) {
     channel_list <- levels(result$channel)
-    #checkmate::assertInt(ref_channel,
-    #  lower = 1, upper = length(channel_list),
-    #  null.ok = TRUE
-    #)
-    #if (is.null(ref_channel)) {
-    #  true_channel <- "aggr"
-    #} else {
-    #  true_channel <- channel_list[ref_channel]
-    #}
     true_channel <- "aggr"
     channels_list <- c(as.character(channel_list), "aggr")
-    names(result)[3] <- "feature"
+    names(result)[2] <- "feature"
     p <- summary_1d_2d_plotly(result, aggr_channels, ref_datapoint, value_name,
       true_channel = true_channel,
       channels_list = channels_list,
@@ -372,15 +363,6 @@ summary_plotly <- function(result, aggr_channels, ref_datapoint, value_name) {
   #
   else {
     channel_list <- as.character(unique(result$channel))
-    #checkmate::assertInt(ref_channel,
-    #  lower = 1, upper = length(channel_list), null.ok = TRUE
-    #)
-
-    #if (is.null(ref_channel)) {
-    #  ref_channel <- "aggr"
-    #} else {
-    #  ref_channel <- paste("C", ref_channel, sep = "")
-    #}
     ref_channel <- "aggr"
 
     channel_list <- c(channel_list, "aggr")
@@ -526,7 +508,7 @@ summary_1d_2d_plotly <- function(result, aggr_channels, ref_datapoint,
     fig <- make_facet_frame(fig,
       xtitle = xtitle,
       annot_text = class,
-      ytitle = paste(value_name, "score"),
+      ytitle = paste(value_name, "Score"),
       xtype = "linear",
       tickvals = seq_len(length(unique(df_class$feature))),
       ticktext = unique(df_class$feature)

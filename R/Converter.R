@@ -223,7 +223,7 @@
 #'
 #' @export
 #'
-Converter <- R6::R6Class("Converter",
+Converter <- R6Class("Converter",
   public = list(
     model = NULL,
     model_dict = NULL,
@@ -244,7 +244,7 @@ Converter <- R6::R6Class("Converter",
     #'
 
     initialize = function(model, dtype = "float") {
-      checkmate::assertChoice(dtype, c("float", "double"))
+      assertChoice(dtype, c("float", "double"))
 
       # Analyze the passed model and store its internal structure in a list of
       # layers
@@ -281,28 +281,28 @@ Converter <- R6::R6Class("Converter",
   private = list(
     create_model_from_dict = function(model_dict, dtype = "float") {
       modules_list <- NULL
-      checkmate::assertChoice("layers", names(model_dict))
+      assertChoice("layers", names(model_dict))
       layer_names <- names(model_dict$layers)
       for (i in seq_along(model_dict$layers)) {
-        checkmate::assertSubset(
+        assertSubset(
           c("type", "dim_in", "dim_out"),
           names(model_dict$layers[[i]])
         )
-        checkmate::assertString(model_dict$layers[[i]]$type)
+        assertString(model_dict$layers[[i]]$type)
         type <- model_dict$layers[[i]]$type
-        checkmate::assertInteger(model_dict$layers[[i]]$dim_in, lower = 1)
+        assertInteger(model_dict$layers[[i]]$dim_in, lower = 1)
         dim_in <- model_dict$layers[[i]]$dim_in
-        checkmate::assertInteger(model_dict$layers[[i]]$dim_out, lower = 1)
+        assertInteger(model_dict$layers[[i]]$dim_out, lower = 1)
         dim_out <- model_dict$layers[[i]]$dim_out
 
         if (type == "Flatten") {
           modules_list[[layer_names[i]]] <- flatten_layer(dim_in, dim_out)
         } else if (type == "Dense") {
-          checkmate::assertSubset(
+          assertSubset(
             c("weight", "bias", "activation_name"),
             names(model_dict$layers[[i]])
           )
-          checkmate::assertArray(model_dict$layers[[i]]$weight,
+          assertArray(model_dict$layers[[i]]$weight,
             mode = "numeric", d = 2
           )
           d <- dim(model_dict$layers[[i]]$weight)
@@ -315,9 +315,9 @@ Converter <- R6::R6Class("Converter",
             ))
           }
           weight <- model_dict$layers[[i]]$weight
-          checkmate::assertVector(model_dict$layers[[i]]$bias, len = dim_out)
+          assertVector(model_dict$layers[[i]]$bias, len = dim_out)
           bias <- model_dict$layers[[i]]$bias
-          checkmate::assertString(model_dict$layers[[i]]$activation_name)
+          assertString(model_dict$layers[[i]]$activation_name)
           activation_name <- model_dict$layers[[i]]$activation_name
 
           modules_list[[layer_names[i]]] <-
@@ -329,32 +329,32 @@ Converter <- R6::R6Class("Converter",
               dtype = dtype
             )
         } else if (type == "Conv1D") {
-          checkmate::assertSubset(
+          assertSubset(
             c("weight", "bias", "activation_name"),
             names(model_dict$layers[[i]])
           )
-          checkmate::assertArray(model_dict$layers[[i]]$weight,
+          assertArray(model_dict$layers[[i]]$weight,
             mode = "numeric", d = 3
           )
           weight <- model_dict$layers[[i]]$weight
-          checkmate::assertVector(model_dict$layers[[i]]$bias,
+          assertVector(model_dict$layers[[i]]$bias,
             len = dim_out[1]
           )
           bias <- model_dict$layers[[i]]$bias
-          checkmate::assertString(model_dict$layers[[i]]$activation_name)
+          assertString(model_dict$layers[[i]]$activation_name)
           activation_name <- model_dict$layers[[i]]$activation_name
 
-          checkmate::assertInt(model_dict$layers[[i]]$stride, null.ok = TRUE)
+          assertInt(model_dict$layers[[i]]$stride, null.ok = TRUE)
           stride <- model_dict$layers[[i]]$stride
           if (is.null(stride)) {
             stride <- 1
           }
-          checkmate::assertInt(model_dict$layers[[i]]$dilation, null.ok = TRUE)
+          assertInt(model_dict$layers[[i]]$dilation, null.ok = TRUE)
           dilation <- model_dict$layers[[i]]$dilation
           if (is.null(dilation)) {
             dilation <- 1
           }
-          checkmate::assertNumeric(model_dict$layers[[i]]$padding,
+          assertNumeric(model_dict$layers[[i]]$padding,
             null.ok = TRUE, lower = 0
           )
           padding <- model_dict$layers[[i]]$padding
@@ -373,36 +373,36 @@ Converter <- R6::R6Class("Converter",
               dtype = dtype
             )
         } else if (type == "Conv2D") {
-          checkmate::assertSubset(
+          assertSubset(
             c("weight", "bias", "activation_name"),
             names(model_dict$layers[[i]])
           )
-          checkmate::assertArray(model_dict$layers[[i]]$weight,
+          assertArray(model_dict$layers[[i]]$weight,
             mode = "numeric", d = 4
           )
           weight <- model_dict$layers[[i]]$weight
-          checkmate::assertVector(model_dict$layers[[i]]$bias,
+          assertVector(model_dict$layers[[i]]$bias,
             len = dim_out[1]
           )
           bias <- model_dict$layers[[i]]$bias
-          checkmate::assertString(model_dict$layers[[i]]$activation_name)
+          assertString(model_dict$layers[[i]]$activation_name)
           activation_name <- model_dict$layers[[i]]$activation_name
 
-          checkmate::assertNumeric(model_dict$layers[[i]]$stride,
+          assertNumeric(model_dict$layers[[i]]$stride,
             null.ok = TRUE, lower = 1
           )
           stride <- model_dict$layers[[i]]$stride
           if (is.null(stride)) {
             stride <- c(1, 1)
           }
-          checkmate::assertNumeric(model_dict$layers[[i]]$dilation,
+          assertNumeric(model_dict$layers[[i]]$dilation,
             null.ok = TRUE, lower = 1
           )
           dilation <- model_dict$layers[[i]]$dilation
           if (is.null(dilation)) {
             dilation <- c(1, 1)
           }
-          checkmate::assertNumeric(model_dict$layers[[i]]$padding,
+          assertNumeric(model_dict$layers[[i]]$padding,
             null.ok = TRUE, lower = 0
           )
           padding <- model_dict$layers[[i]]$padding
@@ -500,7 +500,7 @@ Converter <- R6::R6Class("Converter",
 #'   [torch::torch_double]}
 #' }
 #'
-ConvertedModel <- torch::nn_module(
+ConvertedModel <- nn_module(
   classname = "ConvertedModel",
   modules_list = NULL,
   dtype = NULL,
@@ -536,7 +536,7 @@ ConvertedModel <- torch::nn_module(
   #'
   forward = function(x, channels_first = TRUE) {
     if (channels_first == FALSE) {
-      x <- torch::torch_movedim(x, -1, 2)
+      x <- torch_movedim(x, -1, 2)
     }
 
     for (module in self$modules_list) {
@@ -575,7 +575,7 @@ ConvertedModel <- torch::nn_module(
   #'
   update_ref = function(x_ref, channels_first = TRUE) {
     if (channels_first == FALSE) {
-      x_ref <- torch::torch_movedim(x_ref, -1, 2)
+      x_ref <- torch_movedim(x_ref, -1, 2)
     }
     for (module in self$modules_list) {
       if ("Flatten_Layer" %in% module$.classes) {

@@ -24,7 +24,7 @@
 #'
 #' @import ggplot2
 #'
-InterpretingMethod <- R6::R6Class(
+InterpretingMethod <- R6Class(
   classname = "InterpretingMethod",
   public = list(
     data = NULL,
@@ -52,16 +52,16 @@ InterpretingMethod <- R6::R6Class(
                           channels_first = TRUE,
                           dtype = "float",
                           ignore_last_act = TRUE) {
-      checkmate::assertClass(converter, "Converter")
+      assertClass(converter, "Converter")
       self$converter <- converter
 
-      checkmate::assert_logical(channels_first)
+      assert_logical(channels_first)
       self$channels_first <- channels_first
 
-      checkmate::assert_logical(ignore_last_act)
+      assert_logical(ignore_last_act)
       self$ignore_last_act <- ignore_last_act
 
-      checkmate::assertChoice(dtype, c("float", "double"))
+      assertChoice(dtype, c("float", "double"))
       self$dtype <- dtype
       self$converter$model$set_dtype(dtype)
 
@@ -82,7 +82,7 @@ InterpretingMethod <- R6::R6Class(
     #'
 
     get_result = function(type = "array") {
-      checkmate::assertChoice(type, c("array", "data.frame", "torch.tensor"))
+      assertChoice(type, c("array", "data.frame", "torch.tensor"))
 
       result <- self$result
       if (type == "array") {
@@ -139,13 +139,9 @@ InterpretingMethod <- R6::R6Class(
 
 
       if (self$dtype == "float") {
-        data <- torch::torch_tensor(data,
-          dtype = torch::torch_float()
-        )
+        data <- torch_tensor(data, dtype = torch_float())
       } else {
-        data <- torch::torch_tensor(data,
-          dtype = torch::torch_double()
-        )
+        data <- torch_tensor(data, dtype = torch_double())
       }
 
       data
@@ -211,16 +207,16 @@ InterpretingMethod <- R6::R6Class(
                     as_plotly = FALSE,
                     value_name = "value") {
 
-      checkmate::assertNumeric(data_id,
+      assertNumeric(data_id,
                                lower = 1,
                                upper = dim(self$result)[1]
       )
-      checkmate::assertNumeric(class_id,
+      assertNumeric(class_id,
                                lower = 1,
                                upper = rev(dim(self$result))[1]
       )
-      checkmate::assertFunction(aggr_channels)
-      checkmate::assertLogical(as_plotly)
+      assertFunction(aggr_channels)
+      assertLogical(as_plotly)
 
       num_dims <- length(dim(self$result))
 
@@ -242,13 +238,17 @@ InterpretingMethod <- R6::R6Class(
       }
 
       p <- p +
-        ggplot2::theme(
-          strip.text.x = ggplot2::element_text(size = 10),
-          strip.text.y = ggplot2::element_text(size = 10),
-          axis.title.x = ggplot2::element_text(size = 12),
-          axis.title.y = ggplot2::element_text(size = 12))
+        theme(
+          strip.text.x = element_text(size = 10),
+          strip.text.y = element_text(size = 10),
+          axis.title.x = element_text(size = 12),
+          axis.title.y = element_text(size = 12))
 
       if (as_plotly) {
+        if (!requireNamespace("plotly", quietly = FALSE)) {
+          stop("Please install the 'plotly' package if you want to create an
+         interactive plot.")
+        }
         p <-
           plotly::ggplotly(p, tooltip = "text")
       }
@@ -261,24 +261,24 @@ InterpretingMethod <- R6::R6Class(
                        aggr_channels, individual_data,
                        individual_max, as_plotly, value_name) {
 
-      checkmate::assertFunction(preprocess_FUN)
-      checkmate::assertFunction(aggr_channels)
-      checkmate::assertLogical(as_plotly)
-      checkmate::assert(
-        checkmate::checkNumeric(boxplot_data,
+      assertFunction(preprocess_FUN)
+      assertFunction(aggr_channels)
+      assertLogical(as_plotly)
+      assert(
+        checkNumeric(boxplot_data,
                                 lower = 1,
                                 upper = dim(self$result)[1]),
-        checkmate::checkChoice(boxplot_data, c("all"))
+        checkChoice(boxplot_data, c("all"))
       )
-      checkmate::assertNumeric(class,
+      assertNumeric(class,
                                lower = 1,
                                upper = rev(dim(self$result))[1]
       )
-      checkmate::assertInt(ref_datapoint,
+      assertInt(ref_datapoint,
                                lower = 1,
                                upper = dim(self$result)[1], null.ok = TRUE
                                )
-      checkmate::checkNumeric(individual_data,
+      checkNumeric(individual_data,
                               lower = 1,
                               upper = dim(self$result)[1], null.ok = TRUE)
 

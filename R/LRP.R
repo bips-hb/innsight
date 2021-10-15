@@ -157,7 +157,7 @@
 #'
 #' @export
 
-LRP <- R6::R6Class(
+LRP <- R6Class(
   classname = "LRP",
   inherit = InterpretingMethod,
   public = list(
@@ -204,10 +204,10 @@ LRP <- R6::R6Class(
                           dtype = "float") {
       super$initialize(converter, data, channels_first, dtype, ignore_last_act)
 
-      checkmate::assertChoice(rule_name, c("simple", "epsilon", "alpha_beta"))
+      assertChoice(rule_name, c("simple", "epsilon", "alpha_beta"))
       self$rule_name <- rule_name
 
-      checkmate::assertNumber(rule_param, null.ok = TRUE)
+      assertNumber(rule_param, null.ok = TRUE)
       self$rule_param <- rule_param
 
       self$converter$model$forward(self$data,
@@ -334,9 +334,9 @@ LRP <- R6::R6Class(
       last_layer <- rev_layers[[1]]
 
       if (self$ignore_last_act) {
-        rel <- torch::torch_diag_embed(last_layer$preactivation)
+        rel <- torch_diag_embed(last_layer$preactivation)
       } else {
-        rel <- torch::torch_diag_embed(last_layer$output)
+        rel <- torch_diag_embed(last_layer$output)
 
         # For probabilistic output we need to subtract 0.5, such that
         # 0 means no relevance
@@ -359,7 +359,7 @@ LRP <- R6::R6Class(
         }
       }
       if (!self$channels_first) {
-        rel <- torch::torch_movedim(rel, 2, length(dim(rel)) - 1)
+        rel <- torch_movedim(rel, 2, length(dim(rel)) - 1)
       }
 
 

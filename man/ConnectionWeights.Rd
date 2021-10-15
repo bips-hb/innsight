@@ -46,34 +46,33 @@ plot(cw)
 
 #----------------------- Example 2: Keras ----------------------------------
 library(keras)
-if (!is_keras_available()) {
-  install_keras()
+
+if (is_keras_available()) {
+  # Define a model
+  model <- keras_model_sequential()
+  model \%>\%
+    layer_conv_1d(
+      input_shape = c(64, 3), kernel_size = 16, filters = 8,
+      activation = "softplus"
+    ) \%>\%
+    layer_conv_1d(kernel_size = 16, filters = 4, activation = "tanh") \%>\%
+    layer_conv_1d(kernel_size = 16, filters = 2, activation = "relu") \%>\%
+    layer_flatten() \%>\%
+    layer_dense(units = 64, activation = "relu") \%>\%
+    layer_dense(units = 2, activation = "softmax")
+
+  # Convert the model
+  converter <- Converter$new(model)
+
+  # Apply the Connection Weights method
+  cw <- ConnectionWeights$new(converter)
+
+  # Get the result as data.frame
+  cw$get_result(type = "data.frame")
+
+  # Plot the result for all classes
+  plot(cw, class_id = 1:2)
 }
-
-# Define a model
-model <- keras_model_sequential()
-model \%>\%
-  layer_conv_1d(
-    input_shape = c(64, 3), kernel_size = 16, filters = 8,
-    activation = "softplus"
-  ) \%>\%
-  layer_conv_1d(kernel_size = 16, filters = 4, activation = "tanh") \%>\%
-  layer_conv_1d(kernel_size = 16, filters = 2, activation = "relu") \%>\%
-  layer_flatten() \%>\%
-  layer_dense(units = 64, activation = "relu") \%>\%
-  layer_dense(units = 2, activation = "softmax")
-
-# Convert the model
-converter <- Converter$new(model)
-
-# Apply the Connection Weights method
-cw <- ConnectionWeights$new(converter)
-
-# Get the result as data.frame
-cw$get_result(type = "data.frame")
-
-# Plot the result for all classes
-plot(cw, class_id = 1:2)
 
 }
 \references{

@@ -131,7 +131,7 @@
 #' @export
 #'
 
-DeepLift <- R6::R6Class(
+DeepLift <- R6Class(
   classname = "DeepLift",
   inherit = InterpretingMethod,
   public = list(
@@ -176,7 +176,7 @@ DeepLift <- R6::R6Class(
                           x_ref = NULL) {
       super$initialize(converter, data, channels_first, dtype, ignore_last_act)
 
-      checkmate::assertChoice(rule_name, c("rescale", "reveal_cancel"))
+      assertChoice(rule_name, c("rescale", "reveal_cancel"))
       self$rule_name <- rule_name
 
       if (is.null(x_ref)) {
@@ -313,7 +313,7 @@ DeepLift <- R6::R6Class(
       last_layer <- rev_layers[[1]]
       rev_layers <- rev_layers[-1]
 
-      mul <- torch::torch_diag_embed(torch::torch_ones_like(last_layer$output))
+      mul <- torch_diag_embed(torch_ones_like(last_layer$output))
 
       if (self$ignore_last_act &&
         !("Flatten_Layer" %in% last_layer$".classes")) {
@@ -333,7 +333,7 @@ DeepLift <- R6::R6Class(
         }
       }
       if (!self$channels_first) {
-        mul <- torch::torch_movedim(mul, 2, length(dim(mul)) - 1)
+        mul <- torch_movedim(mul, 2, length(dim(mul)) - 1)
       }
       x_diff <- (self$data - self$x_ref)$unsqueeze(-1)
 

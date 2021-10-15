@@ -520,7 +520,7 @@ Gradient <- R6::R6Class(
 #'
 #' @export
 #'
-SmoothGrad <- R6::R6Class(
+SmoothGrad <- R6Class(
   classname = "SmoothGrad",
   inherit = GradientBased,
   public = list(
@@ -570,8 +570,8 @@ SmoothGrad <- R6::R6Class(
         times_input
       )
 
-      checkmate::assertInt(n, lower = 1)
-      checkmate::assertNumber(noise_level, lower = 0)
+      assertInt(n, lower = 1)
+      assertNumber(noise_level, lower = 0)
       self$n <- n
       self$noise_level <- noise_level
 
@@ -581,21 +581,21 @@ SmoothGrad <- R6::R6Class(
   private = list(
     run = function() {
       data <-
-        torch::torch_repeat_interleave(
+        torch_repeat_interleave(
           self$data,
-          repeats = torch::torch_tensor(self$n, dtype = torch::torch_long()),
+          repeats = torch_tensor(self$n, dtype = torch_long()),
           dim = 1
         )
 
       noise_scale <- self$noise_level * (max(data) - min(data))
 
-      noise <- torch::torch_randn_like(data) * noise_scale
+      noise <- torch_randn_like(data) * noise_scale
 
       gradients <- private$calculate_gradients(data + noise)
 
       smoothgrads <-
-        torch::torch_stack(lapply(gradients$chunk(dim(self$data)[1]),
-          FUN = torch::torch_mean,
+        torch_stack(lapply(gradients$chunk(dim(self$data)[1]),
+          FUN = torch_mean,
           dim = 1
         ),
         dim = 1

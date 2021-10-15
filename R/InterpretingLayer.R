@@ -23,7 +23,7 @@
 #' }
 #'
 #'
-InterpretingLayer <- torch::nn_module(
+InterpretingLayer <- nn_module(
   classname = "InterpretingLayer",
   input_dim = NULL,
   input = NULL,
@@ -70,17 +70,17 @@ get_activation <- function(act_name) {
   result <- NULL
 
   if (act_name == "relu") {
-    act <- torch::nn_relu()
+    act <- nn_relu()
   } else if (act_name == "leaky_relu") {
-    act <- torch::nn_leaky_relu()
+    act <- nn_leaky_relu()
   } else if (act_name == "softplus") {
-    act <- torch::nn_softplus()
+    act <- nn_softplus()
   } else if (act_name %in% c("sigmoid", "logistic")) {
-    act <- torch::nn_sigmoid()
+    act <- nn_sigmoid()
   } else if (act_name == "softmax") {
-    act <- torch::nn_softmax(dim = -1)
+    act <- nn_softmax(dim = -1)
   } else if (act_name == "tanh") {
-    act <- torch::nn_tanh()
+    act <- nn_tanh()
   } else if (act_name == "linear") {
     act <- function(x) x
   } else {
