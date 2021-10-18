@@ -201,20 +201,14 @@ InterpretingMethod <- R6Class(
 
     # ----------------------- Plot Function ----------------------------------
 
-    plot = function(data_id = 1,
-                    class_id = 1,
+    plot = function(datapoint = 1,
+                    classes = 1,
                     aggr_channels = sum,
                     as_plotly = FALSE,
                     value_name = "value") {
 
-      assertNumeric(data_id,
-                               lower = 1,
-                               upper = dim(self$result)[1]
-      )
-      assertNumeric(class_id,
-                               lower = 1,
-                               upper = rev(dim(self$result))[1]
-      )
+      assertNumeric(datapoint, lower = 1, upper = dim(self$result)[1])
+      assertNumeric(classes, lower = 1, upper = rev(dim(self$result))[1])
       assertFunction(aggr_channels)
       assertLogical(as_plotly)
 
@@ -222,19 +216,22 @@ InterpretingMethod <- R6Class(
 
       result <- private$get_dataframe()
       output_names <- unlist(self$converter$model_dict$output_names)
-      result <- result[result$data %in% paste0("data_", data_id) &
-                         result$class %in% output_names[class_id], ]
+      result <- result[result$data %in% paste0("data_", datapoint) &
+                         result$class %in% output_names[classes], ]
       # 1D Input
       if (num_dims == 3) {
         p <- plot_1d_input(result, value_name)
+        dynamicTicks <- FALSE
       }
       # 2D Input
       else if (num_dims == 4) {
         p <- plot_2d_input(result, aggr_channels, value_name)
+        dynamicTicks <- TRUE
       }
       # 3D Input
       else if (num_dims == 5) {
         p <- plot_3d_input(result, aggr_channels, value_name)
+        dynamicTicks <- TRUE
       }
 
       p <- p +
@@ -250,14 +247,14 @@ InterpretingMethod <- R6Class(
          interactive plot.")
         }
         p <-
-          plotly::ggplotly(p, tooltip = "text")
+          plotly::ggplotly(p, tooltip = "text", dynamicTicks = dynamicTicks)
       }
       p
     },
 
     # -------------------- Summary Plots -------------------------------------
 
-    boxplot = function(preprocess_FUN, boxplot_data, class, ref_datapoint,
+    boxplot = function(preprocess_FUN, boxplot_data, classes, ref_datapoint,
                        aggr_channels, individual_data,
                        individual_max, as_plotly, value_name) {
 
@@ -265,15 +262,10 @@ InterpretingMethod <- R6Class(
       assertFunction(aggr_channels)
       assertLogical(as_plotly)
       assert(
-        checkNumeric(boxplot_data,
-                                lower = 1,
-                                upper = dim(self$result)[1]),
+        checkNumeric(boxplot_data, lower = 1, upper = dim(self$result)[1]),
         checkChoice(boxplot_data, c("all"))
       )
-      assertNumeric(class,
-                               lower = 1,
-                               upper = rev(dim(self$result))[1]
-      )
+      assertNumeric(classes, lower = 1, upper = rev(dim(self$result))[1])
       assertInt(ref_datapoint,
                                lower = 1,
                                upper = dim(self$result)[1], null.ok = TRUE
@@ -296,18 +288,20 @@ InterpretingMethod <- R6Class(
       l <- length(dim(self$result))
 
       result <- private$get_dataframe()
+      all_data_ids <- c(boxplot_data, individual_data, ref_datapoint)
       output_names <- unlist(self$converter$model_dict$output_names)
-      result <- result[result$data %in% paste0("data_", c(boxplot_data, individual_data, ref_datapoint)) &
-                         result$class %in% output_names[class], ]
+      result <- result[result$data %in% paste0("data_", all_data_ids) &
+                         result$class %in% output_names[classes], ]
       result$summary_data <- result$data %in% paste0("data_", boxplot_data)
-      result$individual_data <- result$data %in% paste0("data_", c(individual_data, ref_datapoint))
+      result$individual_data <-
+        result$data %in% paste0("data_", c(individual_data, ref_datapoint))
 
       result$value <- preprocess_FUN(result$value)
 
       if (as_plotly) {
-        p <- summary_plotly(result, aggr_channels, ref_datapoint, value_name)
+        p <- boxplot_plotly(result, aggr_channels, ref_datapoint, value_name)
       } else {
-        p <- summary_ggplot(result, aggr_channels, ref_datapoint, value_name)
+        p <- boxplot_ggplot(result, aggr_channels, ref_datapoint, value_name)
       }
 
       p

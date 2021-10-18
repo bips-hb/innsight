@@ -67,7 +67,7 @@ plot_1d_input <- function(result, value_name, no_data = FALSE) {
     ) +
     geom_hline(yintercept = 0) +
     xlab("Feature") +
-    ylab(paste(value_name, "Score"))
+    ylab(value_name)
 
   p
 }
@@ -116,6 +116,9 @@ plot_2d_input <- function(result, aggr_channels, value_name, no_data = FALSE) {
     facet <- facet_grid(data ~ class, scales = "free_y")
   }
 
+  # Make signal length continuous
+  result$feature_l <- as.numeric(result$feature_l)
+
   # For a custom hovertext in the plotly-plot, we have to define the
   # aesthetic "text" what results in a warning "Unknown aesthetics". But as
   # you can see in the documentation of plotly::ggplotly, this is the way
@@ -134,13 +137,11 @@ plot_2d_input <- function(result, aggr_channels, value_name, no_data = FALSE) {
       ) +
       scale_fill_gradient2(low = "blue", mid = "grey", high = "red") +
       facet +
-      scale_x_discrete(
-        limits = levels(result$feature),
-        guide = guide_axis(check.overlap = TRUE)
-      ) +
+      #scale_x_continuous(breaks = unique(result$feature_l),
+      #                   guide = guide_axis(check.overlap = TRUE)) +
       geom_hline(yintercept = 0) +
       xlab("Signal Length") +
-      ylab(paste(value_name, "Score"))
+      ylab(value_name)
   )
   p
 }
@@ -188,6 +189,10 @@ plot_3d_input <- function(result, aggr_channels, value_name, no_data = FALSE) {
     )
     facet <- facet_grid(data ~ class, scales = "free_y")
   }
+
+  # Make axis continuous
+  result$feature_h <- as.numeric(result$feature_h)
+  result$feature_w <- as.numeric(result$feature_w)
   suppressWarnings(
     p <-
       ggplot(data = result) +
@@ -200,10 +205,8 @@ plot_3d_input <- function(result, aggr_channels, value_name, no_data = FALSE) {
         mid = "white",
         high = "red"
       ) +
-      scale_x_discrete(limits = levels(result$feature_w),
-                       guide = guide_axis(check.overlap = TRUE)) +
-      scale_y_discrete(limits = levels(result$feature_h),
-                       guide = guide_axis(check.overlap = TRUE)) +
+      coord_cartesian(xlim = c(2, max(result$feature_w) - 1),
+                      ylim = c(2, max(result$feature_h) - 1)) +
       facet +
       xlab("Image Width") +
       labs(fill = value_name) +
@@ -215,14 +218,14 @@ plot_3d_input <- function(result, aggr_channels, value_name, no_data = FALSE) {
 
 
 ##############################################################################
-#                             Summary Plots
+#                             Boxplot Plots
 ##############################################################################
 
 #
 # ggplot2
 #
 
-summary_ggplot <- function(result, aggr_channels, ref_datapoint, value_name) {
+boxplot_ggplot <- function(result, aggr_channels, ref_datapoint, value_name) {
   # Get the input dimension of the result
   input_dim <- ncol(result) - 5
 
@@ -232,7 +235,12 @@ summary_ggplot <- function(result, aggr_channels, ref_datapoint, value_name) {
   # 1D Input
   #
   if (input_dim == 1) {
-    p <- summary_1d_2d_ggplot(result, "Feature", ref_datapoint, value_name, 0.8)
+    p <- boxplot_1d_2d_ggplot(
+      result = result,
+      xlabel = "Feature",
+      ref_datapoint = ref_datapoint,
+      value_name = value_name,
+      width = 0.8)
   } else if (input_dim == 2) {
     # Aggregate channels
     result <- aggregate(
@@ -246,31 +254,39 @@ summary_ggplot <- function(result, aggr_channels, ref_datapoint, value_name) {
       ),
       FUN = aggr_channels
     )
-    p <-
-      summary_1d_2d_ggplot(result, "Signal Length", ref_datapoint, value_name, 1)
+    p <- boxplot_1d_2d_ggplot(
+      result = result,
+      xlabel = "Signal Length",
+      ref_datapoint = ref_datapoint,
+      value_name = value_name,
+      width = 1)
   } else if (input_dim == 3) {
-    p <- summary_3d_ggplot(result, aggr_channels, value_name)
+    p <- boxplot_3d_ggplot(result, aggr_channels, value_name)
   }
   p
 }
 
 
-summary_1d_2d_ggplot <- function(result, xlabel, ref_datapoint, value_name,
+boxplot_1d_2d_ggplot <- function(result, xlabel, ref_datapoint, value_name,
                                  width) {
   summary_df <- result[result$summary_data, ]
 
+  breaks <- levels(summary_df$feature)
+  if (length(breaks) > 10) {
+    breaks <- breaks[seq(1, length(breaks), by = length(breaks) %/% 10)]
+  }
   p <- ggplot(data = summary_df, aes(x = .data$feature, y = .data$value)) +
     stat_boxplot(geom = "errorbar") +
     geom_boxplot(color = "black", fill = "grey40", width = width) +
     facet_grid(cols = vars(class), scales = "free_y") +
     scale_x_discrete(
-      limits = levels(summary_df$feature),
+      breaks = breaks,
       guide = guide_axis(check.overlap = TRUE)
     ) +
     geom_hline(yintercept = 0) +
     xlab(xlabel) +
     labs(fill = value_name) +
-    ylab(paste(value_name, "Score")) +
+    ylab(value_name) +
     theme(
       strip.text.y = element_text(size = 8),
       axis.title.x = element_text(size = 12),
@@ -296,7 +312,7 @@ summary_1d_2d_ggplot <- function(result, xlabel, ref_datapoint, value_name,
 }
 
 
-summary_3d_ggplot <- function(result, aggr_channels, value_name) {
+boxplot_3d_ggplot <- function(result, aggr_channels, value_name) {
   result <- result[result$summary_data, ]
 
   result <- aggregate(list(value = result$value),
@@ -332,6 +348,15 @@ summary_3d_ggplot <- function(result, aggr_channels, value_name) {
     value_min <- -value_max
   }
 
+  breaks_w <- levels(stats$feature_w)
+  if (length(breaks_w) > 10) {
+    breaks_w <- breaks_w[seq(1, length(breaks_w), by = length(breaks_w) %/% 10)]
+  }
+  breaks_h <- levels(stats$feature_h)
+  if (length(breaks_h) > 10) {
+    breaks_h <- breaks_h[seq(1, length(breaks_h), by = length(breaks_h) %/% 10)]
+  }
+
   p <-
     ggplot(data = stats) +
     geom_raster(
@@ -342,6 +367,14 @@ summary_3d_ggplot <- function(result, aggr_channels, value_name) {
       limits = c(value_min, value_max)
     ) +
     facet_grid(cols = vars(class), scales = "free_y") +
+    scale_x_discrete(
+      breaks = breaks_w,
+      guide = guide_axis(check.overlap = TRUE)
+    ) +
+    scale_y_discrete(
+      breaks = breaks_h,
+      guide = guide_axis(check.overlap = TRUE)
+    ) +
     xlab("Image Width") +
     labs(fill = value_name) +
     ylab("Image Weight") +
@@ -359,7 +392,7 @@ summary_3d_ggplot <- function(result, aggr_channels, value_name) {
 # plotly
 #
 
-summary_plotly <- function(result, aggr_channels, ref_datapoint, value_name) {
+boxplot_plotly <- function(result, aggr_channels, ref_datapoint, value_name) {
   if (!requireNamespace("plotly", quietly = FALSE)) {
     stop("Please install the 'plotly' package if you want to create an
          interactive plot.")
@@ -381,7 +414,7 @@ summary_plotly <- function(result, aggr_channels, ref_datapoint, value_name) {
   if (input_dim == 1) {
     # 1D Input has no channel, hence we add one for the plot function
     result$channel <- "C1"
-    p <- summary_1d_2d_plotly(result, aggr_channels, ref_datapoint, value_name,
+    p <- boxplot_1d_2d_plotly(result, aggr_channels, ref_datapoint, value_name,
       true_channel = "C1",
       channels_list = c("C1"),
       channel_text = FALSE,
@@ -397,8 +430,8 @@ summary_plotly <- function(result, aggr_channels, ref_datapoint, value_name) {
     channel_list <- levels(result$channel)
     true_channel <- "aggr"
     channels_list <- c(as.character(channel_list), "aggr")
-    names(result)[2] <- "feature"
-    p <- summary_1d_2d_plotly(result, aggr_channels, ref_datapoint, value_name,
+    names(result)[which(names(result) == "feature_l")] <- "feature"
+    p <- boxplot_1d_2d_plotly(result, aggr_channels, ref_datapoint, value_name,
       true_channel = true_channel,
       channels_list = channels_list,
       channel_text = TRUE,
@@ -415,13 +448,13 @@ summary_plotly <- function(result, aggr_channels, ref_datapoint, value_name) {
     ref_channel <- "aggr"
 
     channel_list <- c(channel_list, "aggr")
-    p <- summary_3d_plotly(
+    p <- boxplot_3d_plotly(
       result, aggr_channels, ref_channel, value_name, channel_list
     )
   }
 }
 
-summary_1d_2d_plotly <- function(result, aggr_channels, ref_datapoint,
+boxplot_1d_2d_plotly <- function(result, aggr_channels, ref_datapoint,
                                  value_name, true_channel, channels_list,
                                  channel_text, feature_name, xtitle, width) {
   if (ref_datapoint == 0) {
@@ -557,7 +590,7 @@ summary_1d_2d_plotly <- function(result, aggr_channels, ref_datapoint,
     fig <- make_facet_frame(fig,
       xtitle = xtitle,
       annot_text = class,
-      ytitle = paste(value_name, "Score"),
+      ytitle = value_name,
       xtype = "linear",
       tickvals = seq_len(length(unique(df_class$feature))),
       ticktext = unique(df_class$feature)
@@ -634,7 +667,7 @@ summary_1d_2d_plotly <- function(result, aggr_channels, ref_datapoint,
 }
 
 
-summary_3d_plotly <- function(result, aggr_channels, ref_channel, value_name,
+boxplot_3d_plotly <- function(result, aggr_channels, ref_channel, value_name,
                               channel_list) {
   # We don't plot individual results, hence we collect only the summary data
   # from the given data "result"

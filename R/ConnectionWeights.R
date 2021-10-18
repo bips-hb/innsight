@@ -240,14 +240,17 @@ ConnectionWeights <- R6Class(
       # 1D Input
       if (l == 2) {
         p <- plot_1d_input(result, "Relative Importance", TRUE)
+        dynamicTicks <- FALSE
       }
       # 2D Input
       else if (l == 3) {
         p <- plot_2d_input(result, aggr_channels, "Relative Importance", TRUE)
+        dynamicTicks <- TRUE
       }
       # 3D Input
       else if (l == 4) {
         p <- plot_3d_input(result, aggr_channels, "Relative Importance", TRUE)
+        dynamicTicks <- TRUE
       }
 
       if (as_plotly) {
@@ -255,7 +258,10 @@ ConnectionWeights <- R6Class(
           stop("Please install the 'plotly' package if you want to create an
          interactive plot.")
         }
-        p <- plotly::ggplotly(p, tooltip = "text")
+        p <- plotly::ggplotly(p, tooltip = "text", dynamicTicks = dynamicTicks)
+        p <- plotly::layout(p,
+                            xaxis = list(rangemode = "tozero"),
+                            yaxis = list(rangemode = "tozero"))
       }
       p
     }
