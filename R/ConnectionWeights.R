@@ -223,6 +223,14 @@ ConnectionWeights <- R6Class(
                     preprocess_FUN = identity,
                     as_plotly = FALSE) {
 
+      assertNumeric(classes,
+                    lower = 1,
+                    upper = rev(dim(self$result))[1]
+      )
+      assertFunction(aggr_channels)
+      assertFunction(preprocess_FUN)
+      assertLogical(as_plotly)
+
       l <- length(dim(self$result))
       result <- private$get_dataframe()
       output_names <- unlist(self$converter$model_dict$output_names)
