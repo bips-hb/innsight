@@ -76,8 +76,38 @@ if (is_keras_available()) {
   cw$get_result(type = "data.frame")
 
   # Plot the result for all classes
-  plot(cw, class_id = 1:2)
-}}
+  plot(cw, classes = 1:2)
+}
+
+# ------------------------- Advanced: Plotly -------------------------------
+# If you want to create an interactive plot of your results with custom
+# changes, you can take use of the method plotly::ggplotly
+library(ggplot2)
+library(plotly)
+library(neuralnet)
+data(iris)
+
+nn <- neuralnet(Species ~ .,
+  iris,
+  linear.output = FALSE,
+  hidden = c(10, 8), act.fct = "tanh", rep = 1, threshold = 0.5
+)
+# create an converter for this model
+converter <- Converter$new(nn)
+
+# create new instance of 'LRP'
+cw <- ConnectionWeights$new(converter)
+
+library(plotly)
+
+# Get the ggplot and add your changes
+p <- plot(cw, classes = 1) +
+  theme_bw() +
+  scale_fill_gradient2(low = "green", mid = "black", high = "blue")
+
+# Now apply the method plotly::ggplotly with argument tooltip = "text"
+plotly::ggplotly(p, tooltip = "text")
+}
 
 }
 \references{
@@ -167,17 +197,24 @@ format.
 \if{latex}{\out{\hypertarget{method-plot}{}}}
 \subsection{Method \code{plot()}}{
 This method visualizes the result of the ConnectionWeight method in a
-\link[ggplot2:ggplot]{ggplot2::ggplot}. You can use the argument \code{class_id} to select
-the classes for the plot. The different results for the selected classes
-are visualized using the method \link[ggplot2:facet_grid]{ggplot2::facet_grid}.
+\link[ggplot2:ggplot]{ggplot2::ggplot}. You can use the argument \code{classes} to select
+the classes for the plot. By default a \link[ggplot2:ggplot]{ggplot2::ggplot} is returned,
+but with the argument \code{as_plotly} an interactive \link[plotly:plot_ly]{plotly::plot_ly} plot
+can be created, which however requires a successful installation of
+the package \code{plotly}.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ConnectionWeights$plot(class_id = 1, aggr_channels = sum)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ConnectionWeights$plot(
+  classes = 1,
+  aggr_channels = sum,
+  preprocess_FUN = identity,
+  as_plotly = FALSE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{class_id}}{An integer vector containing the numbers of the classes
+\item{\code{classes}}{An integer vector containing the numbers of the classes
 whose result is to be plotted, e.g. \code{c(1,4)} for the first and fourth
 class. Default: \code{c(1)}.}
 
@@ -185,11 +222,25 @@ class. Default: \code{c(1)}.}
 default function is \link[base:sum]{base::sum}, but you can pass an arbitrary function.
 For example, the maximum \code{max} or minimum \code{min} over the channels or
 only individual channels with \code{function(x) x[1]}.}
+
+\item{\code{preprocess_FUN}}{This function is applied to the method's result
+before generating the plot. By default, the identity function
+(\code{identity}) is used.}
+
+\item{\code{as_plotly}}{This boolean value (default: \code{FALSE}) can be used to
+create an interactive plot based on the library \code{plotly}. This function
+takes use of \link[plotly:ggplotly]{plotly::ggplotly}, hence make sure that the suggested
+package \code{plotly} is installed in your R session. Advanced: You can first
+output the results as a ggplot (\code{as_plotly = FALSE}) and then make
+custom changes to the plot, e.g. other theme or other fill color. Then
+you can manually call the function \code{ggplotly} to get an interactive
+plotly plot.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-Returns a \link[ggplot2:ggplot]{ggplot2::ggplot} with the plotted results.
+Returns either a \link[ggplot2:ggplot]{ggplot2::ggplot} (\code{as_plotly = FALSE}) or a
+\link[plotly:plot_ly]{plotly::plot_ly} object (\code{as_plotly = TRUE}) with the plotted results.
 }
 }
 \if{html}{\out{<hr>}}

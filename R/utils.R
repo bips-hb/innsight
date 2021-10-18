@@ -11,16 +11,37 @@
 #                           Individual Plots
 ##############################################################################
 
-plot_1d_input <- function(result, value_name) {
+plot_1d_input <- function(result, value_name, no_data = FALSE) {
   result$x <- as.numeric(result$feature)
 
-  # Normalize the values for each data point to obtain meaningful colorscales
-  result$value_scaled <- ave(
-    x = result$value, factor(result$data),
-    FUN = function(x) x / max(abs(x))
-  )
+  if (!no_data) {
+    # Normalize the values for each data point to obtain meaningful colorscales
+    result$value_scaled <- ave(
+      x = result$value, factor(result$data),
+      FUN = function(x) x / max(abs(x))
+    )
+  } else {
+    result$value_scaled <- result$value
+  }
   result[[value_name]] <- round2(result$value)
 
+  # Define the hovertext
+  if (no_data) {
+    text <- paste(
+      "<b></br>", value_name, ":", result[[value_name]], "</b>\n",
+      "</br> Class:       ", result$class,
+      "</br> Feature:    ", result$feature
+    )
+    facet <- facet_grid(cols = vars(class), scales = "free_y")
+  } else {
+    text <- paste(
+      "<b></br>", value_name, ":", result[[value_name]], "</b>\n",
+      "</br> Datapoint: ", result$data,
+      "</br> Class:       ", result$class,
+      "</br> Feature:    ", result$feature
+    )
+    facet <- facet_grid(data ~ class, scales = "free_y")
+  }
   # For a custom hovertext in the plotly-plot, we have to define the
   # aesthetic "text" what results in a warning "Unknown aesthetics". But as
   # you can see in the documentation of plotly::ggplotly, this is the way
@@ -33,20 +54,13 @@ plot_1d_input <- function(result, value_name) {
         ymin = 0,
         ymax = .data$value,
         fill = .data$value_scaled,
-        text = paste(
-          "<b></br>", value_name, ":", .data[[value_name]], "</b>\n",
-          "</br> Datapoint: ", .data$data,
-          "</br> Class:       ", .data$class,
-          "</br> Feature:    ", .data$feature
-        )
+        text = text
       ),
       show.legend = FALSE
       )
     ) +
     scale_fill_gradient2(low = "blue", mid = "gray", high = "red") +
-    facet_grid(data ~ class,
-      scales = "free_y"
-    ) +
+    facet +
     scale_x_discrete(
       limits = levels(result$feature),
       guide = guide_axis(check.overlap = TRUE)
@@ -54,12 +68,17 @@ plot_1d_input <- function(result, value_name) {
     geom_hline(yintercept = 0) +
     xlab("Feature") +
     ylab(paste(value_name, "Score"))
+
   p
 }
 
 # --------------------------- 2D Plots ----------------------------------
 
-plot_2d_input <- function(result, aggr_channels, value_name) {
+plot_2d_input <- function(result, aggr_channels, value_name, no_data = FALSE) {
+
+  if (no_data) {
+    result$data <- "data_1"
+  }
 
   # aggregate channels
   result$x <- as.numeric(result$feature_l)
@@ -79,6 +98,24 @@ plot_2d_input <- function(result, aggr_channels, value_name) {
 
   result[[value_name]] <- round2(result$value)
 
+  # Define hovertext for plotly
+  if (no_data) {
+    text <- paste(
+      "<b></br>", value_name, ":", result[[value_name]], "</b>\n",
+      "</br> Class:       ", result$class,
+      "</br> Length:     ", result$feature_l
+    )
+    facet <- facet_grid(cols = vars(class), scales = "free_y")
+  } else {
+    text <- paste(
+      "<b></br>", value_name, ":", result[[value_name]], "</b>\n",
+      "</br> Datapoint: ", result$data,
+      "</br> Class:       ", result$class,
+      "</br> Length:     ", result$feature_l
+    )
+    facet <- facet_grid(data ~ class, scales = "free_y")
+  }
+
   # For a custom hovertext in the plotly-plot, we have to define the
   # aesthetic "text" what results in a warning "Unknown aesthetics". But as
   # you can see in the documentation of plotly::ggplotly, this is the way
@@ -91,17 +128,12 @@ plot_2d_input <- function(result, aggr_channels, value_name) {
         ymin = 0,
         ymax = .data$value,
         fill = .data$value_scaled,
-        text = paste(
-          "<b></br>", value_name, ":", .data[[value_name]], "</b>\n",
-          "</br> Datapoint: ", .data$data,
-          "</br> Class:       ", .data$class,
-          "</br> Length:     ", .data$feature_l
-        )
+        text = text
       ),
       show.legend = FALSE
       ) +
       scale_fill_gradient2(low = "blue", mid = "grey", high = "red") +
-      facet_grid(data ~ class, scales = "free_y") +
+      facet +
       scale_x_discrete(
         limits = levels(result$feature),
         guide = guide_axis(check.overlap = TRUE)
@@ -115,7 +147,10 @@ plot_2d_input <- function(result, aggr_channels, value_name) {
 
 # ------------------------- 3D Plots -------------------------------------
 
-plot_3d_input <- function(result, aggr_channels, value_name) {
+plot_3d_input <- function(result, aggr_channels, value_name, no_data = FALSE) {
+  if (no_data) {
+    result$data <- "data_1"
+  }
 
   # Aggregate channels
   result <- aggregate(list(value = result$value),
@@ -133,18 +168,32 @@ plot_3d_input <- function(result, aggr_channels, value_name) {
   # you can see in the documentation of plotly::ggplotly, this is the way
   # to go.
   result[[value_name]] <- round2(result$value)
+
+  # Define hovertext for plotly
+  if (no_data) {
+    text <- paste(
+      "<b></br>", value_name, ":", result[[value_name]], "</b>\n",
+      "</br> Class:       ", result$class,
+      "</br> Height:      ", result$feature_h,
+      "</br> Width:       ", result$feature_w
+    )
+    facet <- facet_grid(cols = vars(class), scales = "free_y")
+  } else {
+    text <- paste(
+      "<b></br>", value_name, ":", result[[value_name]], "</b>\n",
+      "</br> Datapoint: ", result$data,
+      "</br> Class:       ", result$class,
+      "</br> Height:      ", result$feature_h,
+      "</br> Width:       ", result$feature_w
+    )
+    facet <- facet_grid(data ~ class, scales = "free_y")
+  }
   suppressWarnings(
     p <-
       ggplot(data = result) +
       geom_raster(aes(
         x = .data$feature_w, y = .data$feature_h, fill = .data$value,
-        text = paste(
-          "<b></br>", value_name, ":", .data[[value_name]], "</b>\n",
-          "</br> Datapoint: ", .data$data,
-          "</br> Class:       ", .data$class,
-          "</br> Height:      ", .data$feature_h,
-          "</br> Width:       ", .data$feature_w
-        )
+        text = text
       )) +
       scale_fill_gradient2(
         low = "blue",
@@ -155,7 +204,7 @@ plot_3d_input <- function(result, aggr_channels, value_name) {
                        guide = guide_axis(check.overlap = TRUE)) +
       scale_y_discrete(limits = levels(result$feature_h),
                        guide = guide_axis(check.overlap = TRUE)) +
-      facet_grid(data ~ class, scales = "free_y") +
+      facet +
       xlab("Image Width") +
       labs(fill = value_name) +
       ylab("Image Height") +

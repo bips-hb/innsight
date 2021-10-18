@@ -84,8 +84,38 @@
 #'   cw$get_result(type = "data.frame")
 #'
 #'   # Plot the result for all classes
-#'   plot(cw, class_id = 1:2)
-#' }}
+#'   plot(cw, classes = 1:2)
+#' }
+#'
+#' # ------------------------- Advanced: Plotly -------------------------------
+#' # If you want to create an interactive plot of your results with custom
+#' # changes, you can take use of the method plotly::ggplotly
+#' library(ggplot2)
+#' library(plotly)
+#' library(neuralnet)
+#' data(iris)
+#'
+#' nn <- neuralnet(Species ~ .,
+#'   iris,
+#'   linear.output = FALSE,
+#'   hidden = c(10, 8), act.fct = "tanh", rep = 1, threshold = 0.5
+#' )
+#' # create an converter for this model
+#' converter <- Converter$new(nn)
+#'
+#' # create new instance of 'LRP'
+#' cw <- ConnectionWeights$new(converter)
+#'
+#' library(plotly)
+#'
+#' # Get the ggplot and add your changes
+#' p <- plot(cw, classes = 1) +
+#'   theme_bw() +
+#'   scale_fill_gradient2(low = "green", mid = "black", high = "blue")
+#'
+#' # Now apply the method plotly::ggplotly with argument tooltip = "text"
+#' plotly::ggplotly(p, tooltip = "text")
+#' }
 #'
 #' @references
 #' * J. D. Olden et al. (2004) \emph{An accurate comparison of methods for
@@ -159,35 +189,67 @@ ConnectionWeights <- R6Class(
     #'
     #' @description
     #' This method visualizes the result of the ConnectionWeight method in a
-    #' [ggplot2::ggplot]. You can use the argument `class_id` to select
-    #' the classes for the plot. The different results for the selected classes
-    #' are visualized using the method [ggplot2::facet_grid].
+    #' [ggplot2::ggplot]. You can use the argument `classes` to select
+    #' the classes for the plot. By default a [ggplot2::ggplot] is returned,
+    #' but with the argument `as_plotly` an interactive [plotly::plot_ly] plot
+    #' can be created, which however requires a successful installation of
+    #' the package `plotly`.
     #'
-    #' @param class_id An integer vector containing the numbers of the classes
+    #' @param classes An integer vector containing the numbers of the classes
     #' whose result is to be plotted, e.g. `c(1,4)` for the first and fourth
     #' class. Default: `c(1)`.
     #' @param aggr_channels Pass a function to aggregate the channels. The
     #' default function is [base::sum], but you can pass an arbitrary function.
     #' For example, the maximum `max` or minimum `min` over the channels or
     #' only individual channels with `function(x) x[1]`.
+    #' @param as_plotly This boolean value (default: `FALSE`) can be used to
+    #' create an interactive plot based on the library `plotly`. This function
+    #' takes use of [plotly::ggplotly], hence make sure that the suggested
+    #' package `plotly` is installed in your R session. Advanced: You can first
+    #' output the results as a ggplot (`as_plotly = FALSE`) and then make
+    #' custom changes to the plot, e.g. other theme or other fill color. Then
+    #' you can manually call the function `ggplotly` to get an interactive
+    #' plotly plot.
+    #' @param preprocess_FUN This function is applied to the method's result
+    #' before generating the plot. By default, the identity function
+    #' (`identity`) is used.
     #'
     #' @return
-    #' Returns a [ggplot2::ggplot] with the plotted results.
+    #' Returns either a [ggplot2::ggplot] (`as_plotly = FALSE`) or a
+    #' [plotly::plot_ly] object (`as_plotly = TRUE`) with the plotted results.
     #'
-    plot = function(class_id = 1, aggr_channels = sum) {
+    plot = function(classes = 1,
+                    aggr_channels = sum,
+                    preprocess_FUN = identity,
+                    as_plotly = FALSE) {
+
       l <- length(dim(self$result))
+      result <- private$get_dataframe()
+      output_names <- unlist(self$converter$model_dict$output_names)
+      result <- result[result$class %in% output_names[classes], ]
+      result$value <- preprocess_FUN(result$value)
+
       # 1D Input
       if (l == 2) {
-        private$plot_1d_input(class_id)
+        p <- plot_1d_input(result, "Relative Importance", TRUE)
       }
       # 2D Input
       else if (l == 3) {
-        private$plot_2d_input(class_id, aggr_channels)
+        p <- plot_2d_input(result, aggr_channels, "Relative Importance", TRUE)
       }
       # 3D Input
       else if (l == 4) {
-        private$plot_3d_input(class_id, aggr_channels)
+        p <- plot_3d_input(result, aggr_channels, "Relative Importance", TRUE)
       }
+
+      if (as_plotly) {
+        if (!requireNamespace("plotly", quietly = FALSE)) {
+          stop("Please install the 'plotly' package if you want to create an
+         interactive plot.")
+        }
+        p <- plotly::ggplotly(p, tooltip = "text")
+      }
+      p
     }
   ),
   private = list(
@@ -262,109 +324,7 @@ ConnectionWeights <- R6Class(
       }
       df$value <- as.vector(result)
       df
-    },
-    plot_1d_input = function(class_id = 1, blank = TRUE) {
-      assertNumeric(class_id,
-        lower = 1,
-        upper = rev(dim(self$result))[1]
-      )
-
-      result <- private$get_dataframe()
-      output_names <- unlist(self$converter$model_dict$output_names)
-      result <- result[result$class %in% output_names[class_id], ]
-      result$x <- as.numeric(result$feature)
-
-      ggplot(data = result) +
-        geom_rect(aes(
-          xmin = x - 0.3,
-          xmax = x + 0.3,
-          ymin = 0,
-          ymax = value,
-          fill = value
-        ),
-        show.legend = FALSE
-        ) +
-        scale_fill_gradient2(low = "#377EB8", mid = "gray", high = "#E41A1C") +
-        scale_x_discrete(limits = levels(result$feature)) +
-        geom_hline(yintercept = 0) +
-        facet_grid(cols = vars(class), scales = "free_y")
-    },
-    plot_2d_input = function(class_id = 1, aggr_channel = sum) {
-      assertNumeric(class_id,
-        lower = 1,
-        upper = rev(dim(self$result))[1]
-      )
-
-      result <- private$get_dataframe()
-      output_names <- unlist(self$converter$model_dict$output_names)
-      result <-
-        result[result$class %in% output_names[class_id], ]
-      result$x <- as.numeric(result$feature)
-      result <-
-        do.call(
-          data.frame,
-          aggregate(list(value = result$value),
-            by = list(
-              feature_l = result$feature_l,
-              class = result$class,
-              x = result$x
-            ), FUN = aggr_channel
-          )
-        )
-
-      result$value_scaled <- ave(
-        x = result$value, FUN = function(x) x / max(abs(x))
-      )
-
-      ggplot(data = result) +
-        geom_rect(aes(
-          xmin = x - 0.5,
-          xmax = x + 0.5,
-          ymin = 0,
-          ymax = value,
-          fill = value_scaled
-        ),
-        show.legend = FALSE
-        ) +
-        scale_fill_gradient2(low = "#377EB8", mid = "gray", high = "#E41A1C") +
-        scale_x_discrete(
-          limits = levels(result$feature_l),
-          labels = levels(result$feature_l)
-        ) +
-        geom_hline(yintercept = 0) +
-        facet_grid(cols = vars(class), scale = "free_y")
-    },
-    plot_3d_input = function(class_id = 1, aggr_channel = sum) {
-      assertNumeric(class_id,
-        lower = 1,
-        upper = rev(dim(self$result))[1]
-      )
-
-      result <- private$get_dataframe()
-      output_names <- unlist(self$converter$model_dict$output_names)
-      result <- result[result$class %in% output_names[class_id], ]
-
-      result <- do.call(
-        data.frame,
-        aggregate(list(value = result$value),
-          by = list(
-            feature_h = result$feature_h,
-            feature_w = result$feature_w,
-            class = result$class
-          ),
-          FUN = aggr_channel
-        )
-      )
-
-      result$feature_h <- as.numeric(result$feature_h)
-      result$feature_w <- as.numeric(result$feature_w)
-
-      ggplot(data = result, aes(x = feature_w, y = feature_h, fill = value)) +
-        geom_raster() +
-        scale_fill_gradient2(low = "#377EB8", mid = "gray", high = "#E41A1C") +
-        facet_grid(cols = vars(class), scale = "free_y") +
-        xlab("") +
-        ylab("")
     }
   )
 )
+
