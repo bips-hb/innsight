@@ -127,12 +127,7 @@ following methods:
 }
 }
 \examples{
-# Some Windows distributions don’t have the Visual Studio runtime
-# pre-installed which causes an error
-# (See https://github.com/mlverse/torch/issues/246#issuecomment-695097121)
-# Therefore, we have to skip all the examples on Windows
-if (tolower(Sys.info()[["sysname"]]) != "windows") {
-
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 #----------------------- Example 1: Neuralnet ------------------------------
 library(neuralnet)
 data(iris)
@@ -217,8 +212,7 @@ torch_model <- converter$model
 # You can use it as a normal torch model
 x <- torch::torch_randn(3, 5)
 torch_model(x)
-}
-
+\dontshow{\}) # examplesIf}
 }
 \references{
 \itemize{

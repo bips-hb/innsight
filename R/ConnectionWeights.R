@@ -22,18 +22,7 @@
 #' @field result The methods result as a torch tensor of size
 #' (dim_in, dim_out).
 #'
-#' @examples
-#' # Some Windows distributions don’t have the Visual Studio runtime
-#' # pre-installed which causes an error
-#' # (See https://github.com/mlverse/torch/issues/246#issuecomment-695097121)
-#' # Therefore, we have to skip all the examples on Windows
-#' if (tolower(Sys.info()[["sysname"]]) != "windows") {
-#'
-#' # We need libtorch to be installed
-#' if (!torch::torch_is_installed()) {
-#'   torch::install_torch()
-#' }
-#'
+#' @examplesIf torch::torch_is_installed()
 #' #----------------------- Example 1: Neuralnet ------------------------------
 #' library(neuralnet)
 #' data(iris)
@@ -115,7 +104,6 @@
 #'
 #' # Now apply the method plotly::ggplotly with argument tooltip = "text"
 #' plotly::ggplotly(p, tooltip = "text")
-#' }
 #'
 #' @references
 #' * J. D. Olden et al. (2004) \emph{An accurate comparison of methods for

@@ -15,17 +15,7 @@ results in a simple matrix multiplication
 \deqn{W_1 * W_2 * W_3. }
 }
 \examples{
-# Some Windows distributions don’t have the Visual Studio runtime
-# pre-installed which causes an error
-# (See https://github.com/mlverse/torch/issues/246#issuecomment-695097121)
-# Therefore, we have to skip all the examples on Windows
-if (tolower(Sys.info()[["sysname"]]) != "windows") {
-
-# We need libtorch to be installed
-if (!torch::torch_is_installed()) {
-  torch::install_torch()
-}
-
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 #----------------------- Example 1: Neuralnet ------------------------------
 library(neuralnet)
 data(iris)
@@ -107,8 +97,7 @@ p <- plot(cw, classes = 1) +
 
 # Now apply the method plotly::ggplotly with argument tooltip = "text"
 plotly::ggplotly(p, tooltip = "text")
-}
-
+\dontshow{\}) # examplesIf}
 }
 \references{
 \itemize{
