@@ -11,7 +11,9 @@ methods of interpretable machine learning are provided, which give a better
 understanding of the whole model or individual predictions.
 You can use models from the following libraries:
 \itemize{
-\item \code{\link[keras]{keras}},
+\item \code{torch} (\code{\link[torch]{nn_sequential}})
+\item \code{\link[keras]{keras}} (\code{\link[keras]{keras_model}},
+\code{\link[keras]{keras_model_sequential}}),
 \item \code{\link[neuralnet]{neuralnet}}
 }
 
@@ -32,6 +34,7 @@ named list has the form as described in the next section.
 \subsection{Implemented libraries}{
 
 The converter is implemented for models from the libraries
+\code{\link[torch]{nn_sequential}},
 \code{\link[neuralnet]{neuralnet}} and \code{\link[keras]{keras}}. But you
 can also write a wrapper for other libraries because a model can be passed
 as a named list with the following components:
@@ -40,15 +43,15 @@ as a named list with the following components:
 An integer vector with the model input dimension, e.g. for
 a dense layer with 5 input features use \code{c(5)} or for  a 1d-convolutional
 layer with signal length 50 and 4 channels use \code{c(4,50)}.
-\item \strong{\verb{$input_names}}\cr
+\item \strong{\verb{$input_names}} (optional)\cr
 A list with the names for each input dimension, e.g. for
 a dense layer with 3 input features use \code{list(c("X1", "X2", "X3"))} or for a
 1d-convolutional layer with signal length 5 and 2 channels use
 \code{list(c("C1", "C2"), c("L1","L2","L3","L4","L5"))}.
-\item \strong{\verb{$output_dim}}\cr
+\item \strong{\verb{$output_dim}} (optional)\cr
 An integer vector with the model output dimension
 analogous to \verb{$input_dim}.
-\item \strong{\verb{$output_names}}\cr
+\item \strong{\verb{$output_names}} (optional)\cr
 A list with the names for each output dimension
 analogous to \verb{$input_names}.
 \item \strong{\verb{$layers}}\cr
@@ -64,9 +67,9 @@ another list that requires the following entries depending on the type:
 \code{dim_out}.
 \item \strong{\code{activation_name}}: The name of the activation function for this
 dense layer, e.g. \code{'relu'}, \code{'tanh'} or \code{'softmax'}.
-\item \strong{\code{dim_in}}: The input dimension of this layer. This value is not
+\item \strong{\code{dim_in}}(optional): The input dimension of this layer. This value is not
 necessary, but helpful to check the format of the weight matrix.
-\item \strong{\code{dim_out}}: The output dimension of this layer. This value is not
+\item \strong{\code{dim_out}}(optional): The output dimension of this layer. This value is not
 necessary, but helpful to check the format of the weight matrix.
 }
 \item \strong{Convolutional Layers:}
@@ -79,31 +82,32 @@ necessary, but helpful to check the format of the weight matrix.
 \item \strong{\verb{$bias}}: The bias vector of the layer with length \code{out_channels}.
 \item \strong{\verb{$activation_name}}: The name of the activation function for this
 layer, e.g. \code{'relu'}, \code{'tanh'} or \code{'softmax'}.
-\item \strong{\verb{$dim_in}}: The input dimension of this layer according to the
+\item \strong{\verb{$dim_in}}(optional): The input dimension of this layer according to the
 format (\code{in_channels}, \code{in_length}) for 1d or
 (\code{in_channels}, \code{in_height}, \code{in_width}) for 2d.
-\item \strong{\verb{$dim_out}}: The output dimension of this layer according to the
+\item \strong{\verb{$dim_out}}(optional): The output dimension of this layer according to the
 format (\code{out_channels}, \code{out_length}) for 1d or
 (\code{out_channels}, \code{out_height}, \code{out_width}) for 2d.
-\item \strong{\verb{$stride}}: The stride of the convolution (single integer for 1d
+\item \strong{\verb{$stride}}(optional): The stride of the convolution (single integer for 1d
 and tuple of two integers for 2d). If this value is not specified, the
 default values (1d: \code{1} and 2d: \code{c(1,1)}) are used.
-\item \strong{\verb{$padding}}: Zero-padding added to the sides of the input before
+\item \strong{\verb{$padding}}(optional): Zero-padding added to the sides of the input before
 convolution. For 1d-convolution a tuple of the form
 (\code{pad_left}, \code{pad_right}) and for 2d-convolution
 (\code{pad_left}, \code{pad_right}, \code{pad_top}, \code{pad_bottom}) is required. If this
 value is not specified, the default values (1d: \code{c(0,0)} and 2d:
 \code{c(0,0,0,0)}) are used.
-\item \strong{\verb{$dilation}}: Spacing between kernel elements (single integer for
+\item \strong{\verb{$dilation}}(optional): Spacing between kernel elements (single integer for
 1d and tuple of two integers for 2d). If this value is not specified,
 the default values (1d: \code{1} and 2d: \code{c(1,1)}) are used.
 }
 }
 \item \strong{Flatten Layer:}
 \itemize{
-\item \strong{\verb{$dim_in} :} The input dimension of this layer without the batch
+\item \strong{\verb{$type}}: \code{'Flatten'}
+\item \strong{\verb{$dim_in}}(optional): The input dimension of this layer without the batch
 dimension.
-\item \strong{\verb{$dim_out} :} The output dimension of this layer without the batch
+\item \strong{\verb{$dim_out}}(optional): The output dimension of this layer without the batch
 dimension.
 }
 }
@@ -266,9 +270,33 @@ Create a new Converter for a given neural network.
 \describe{
 \item{\code{model}}{A trained neural network for classification or regression
 tasks to be interpreted. Only models from the following types or
-packages are allowed: \code{\link[keras]{keras_model}},
+packages are allowed: \code{\link[torch]{nn_sequential}},
+\code{\link[keras]{keras_model}},
 \code{\link[keras]{keras_model_sequential}} or
 \code{\link[neuralnet]{neuralnet}}.}
+
+\item{\code{input_dim}}{An integer vector with the model input dimension
+excluding the batch dimension, e.g. for a dense layer with \code{5} input
+features use \code{c(5)} or for a 1D convolutional layer with signal
+length \code{50} and \code{4} channels use \code{c(4, 50)}. \cr
+\strong{Note:} This argument is only necessary for \code{torch::nn_sequential},
+for all others it is automatically extracted from the passed model.
+In addition, the input dimension \code{input_dim} has to be in the format
+channels first.}
+
+\item{\code{input_names}}{(Optional) A list with the names for each input dimension, e.g.
+for a dense layer with \code{3} input features use \code{list(c("X1", "X2", "X3"))}
+or for a 1D convolutional layer with signal length \code{5} and \code{2} channels
+use \code{list(c("C1", "C2"), c("L1","L2","L3","L4","L5"))}.\cr
+\strong{Note:} This argument is optional and otherwise the names are
+generated automatically. But if this argument is set, all found
+input names in the passed model will be disregarded.}
+
+\item{\code{output_names}}{(Optional) A list with the names for the output, e.g.
+for a model with \code{3} outputs use \code{list(c("Y1", "Y2", "Y3"))}.\cr
+\strong{Note:} This argument is optional and otherwise the names are
+generated automatically. But if this argument is set, all found
+output names in the passed model will be disregarded.}
 
 \item{\code{dtype}}{The data type for the calculations. Use either \code{'float'}
 or \code{'double'}}

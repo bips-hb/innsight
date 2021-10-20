@@ -7,7 +7,9 @@
 #' methods of interpretable machine learning are provided, which give a better
 #' understanding of the whole model or individual predictions.
 #' You can use models from the following libraries:
-#' * \code{\link[keras]{keras}},
+#' * `torch` (\code{\link[torch]{nn_sequential}})
+#' * \code{\link[keras]{keras}} (\code{\link[keras]{keras_model}},
+#' \code{\link[keras]{keras_model_sequential}}),
 #' * \code{\link[neuralnet]{neuralnet}}
 #'
 #' Furthermore, a model can be passed as a list (see details for more
@@ -28,6 +30,7 @@
 #'
 #' ## Implemented libraries
 #' The converter is implemented for models from the libraries
+#' \code{\link[torch]{nn_sequential}},
 #' \code{\link[neuralnet]{neuralnet}} and \code{\link[keras]{keras}}. But you
 #' can also write a wrapper for other libraries because a model can be passed
 #' as a named list with the following components:
@@ -37,17 +40,17 @@
 #' a dense layer with 5 input features use `c(5)` or for  a 1d-convolutional
 #' layer with signal length 50 and 4 channels use `c(4,50)`.
 #'
-#' * **`$input_names`**\cr
+#' * **`$input_names`** (optional)\cr
 #' A list with the names for each input dimension, e.g. for
 #' a dense layer with 3 input features use `list(c("X1", "X2", "X3"))` or for a
 #' 1d-convolutional layer with signal length 5 and 2 channels use
 #' `list(c("C1", "C2"), c("L1","L2","L3","L4","L5"))`.
 #'
-#' * **`$output_dim`**\cr
+#' * **`$output_dim`** (optional)\cr
 #' An integer vector with the model output dimension
 #' analogous to `$input_dim`.
 #'
-#' * **`$output_names`**\cr
+#' * **`$output_names`** (optional)\cr
 #' A list with the names for each output dimension
 #' analogous to `$input_names`.
 #'
@@ -62,9 +65,9 @@
 #'      `dim_out`.
 #'      * **`activation_name`**: The name of the activation function for this
 #'      dense layer, e.g. `'relu'`, `'tanh'` or `'softmax'`.
-#'      * **`dim_in`**: The input dimension of this layer. This value is not
+#'      * **`dim_in`**(optional): The input dimension of this layer. This value is not
 #'      necessary, but helpful to check the format of the weight matrix.
-#'      * **`dim_out`**: The output dimension of this layer. This value is not
+#'      * **`dim_out`**(optional): The output dimension of this layer. This value is not
 #'      necessary, but helpful to check the format of the weight matrix.
 #'
 #'   * **Convolutional Layers:**
@@ -76,29 +79,29 @@
 #'      * **`$bias`**: The bias vector of the layer with length `out_channels`.
 #'      * **`$activation_name`**: The name of the activation function for this
 #'      layer, e.g. `'relu'`, `'tanh'` or `'softmax'`.
-#'      * **`$dim_in`**: The input dimension of this layer according to the
+#'      * **`$dim_in`**(optional): The input dimension of this layer according to the
 #'      format (`in_channels`, `in_length`) for 1d or
 #'      (`in_channels`, `in_height`, `in_width`) for 2d.
-#'      * **`$dim_out`**: The output dimension of this layer according to the
+#'      * **`$dim_out`**(optional): The output dimension of this layer according to the
 #'      format (`out_channels`, `out_length`) for 1d or
 #'      (`out_channels`, `out_height`, `out_width`) for 2d.
-#'      * **`$stride`**: The stride of the convolution (single integer for 1d
+#'      * **`$stride`**(optional): The stride of the convolution (single integer for 1d
 #'      and tuple of two integers for 2d). If this value is not specified, the
 #'      default values (1d: `1` and 2d: `c(1,1)`) are used.
-#'      * **`$padding`**: Zero-padding added to the sides of the input before
+#'      * **`$padding`**(optional): Zero-padding added to the sides of the input before
 #'      convolution. For 1d-convolution a tuple of the form
 #'      (`pad_left`, `pad_right`) and for 2d-convolution
 #'      (`pad_left`, `pad_right`, `pad_top`, `pad_bottom`) is required. If this
 #'      value is not specified, the default values (1d: `c(0,0)` and 2d:
 #'      `c(0,0,0,0)`) are used.
-#'      * **`$dilation`**: Spacing between kernel elements (single integer for
+#'      * **`$dilation`**(optional): Spacing between kernel elements (single integer for
 #'      1d and tuple of two integers for 2d). If this value is not specified,
 #'      the default values (1d: `1` and 2d: `c(1,1)`) are used.
 #'  * **Flatten Layer:**
-#'
-#'      * **`$dim_in` :** The input dimension of this layer without the batch
+#'      * **`$type`**: `'Flatten'`
+#'      * **`$dim_in`**(optional): The input dimension of this layer without the batch
 #'      dimension.
-#'      * **`$dim_out` :** The output dimension of this layer without the batch
+#'      * **`$dim_out`**(optional): The output dimension of this layer without the batch
 #'      dimension.
 #'
 #' **Note:** This package works internally only with the data format 'channels
@@ -232,9 +235,30 @@ Converter <- R6Class("Converter",
     #'
     #' @param model A trained neural network for classification or regression
     #' tasks to be interpreted. Only models from the following types or
-    #' packages are allowed: \code{\link[keras]{keras_model}},
+    #' packages are allowed: \code{\link[torch]{nn_sequential}},
+    #' \code{\link[keras]{keras_model}},
     #' \code{\link[keras]{keras_model_sequential}} or
     #' \code{\link[neuralnet]{neuralnet}}.
+    #' @param input_dim An integer vector with the model input dimension
+    #' excluding the batch dimension, e.g. for a dense layer with `5` input
+    #' features use `c(5)` or for a 1D convolutional layer with signal
+    #' length `50` and `4` channels use `c(4, 50)`. \cr
+    #' **Note:** This argument is only necessary for `torch::nn_sequential`,
+    #' for all others it is automatically extracted from the passed model.
+    #' In addition, the input dimension `input_dim` has to be in the format
+    #' channels first.
+    #' @param input_names (Optional) A list with the names for each input dimension, e.g.
+    #' for a dense layer with `3` input features use `list(c("X1", "X2", "X3"))`
+    #' or for a 1D convolutional layer with signal length `5` and `2` channels
+    #' use `list(c("C1", "C2"), c("L1","L2","L3","L4","L5"))`.\cr
+    #' **Note:** This argument is optional and otherwise the names are
+    #' generated automatically. But if this argument is set, all found
+    #' input names in the passed model will be disregarded.
+    #' @param output_names (Optional) A list with the names for the output, e.g.
+    #' for a model with `3` outputs use `list(c("Y1", "Y2", "Y3"))`.\cr
+    #' **Note:** This argument is optional and otherwise the names are
+    #' generated automatically. But if this argument is set, all found
+    #' output names in the passed model will be disregarded.
     #' @param dtype The data type for the calculations. Use either `'float'`
     #' or `'double'`
     #'
