@@ -7,6 +7,125 @@ test_that("Test general errors", {
   expect_error(Converter$new("124"))
 })
 
+test_that("Test torch sequential model: Dense", {
+  library(torch)
+
+  model <- nn_sequential(
+    nn_linear(5, 20),
+    nn_relu(),
+    nn_linear(20, 10, FALSE),
+    nn_tanh(),
+    nn_linear(10, 1),
+    nn_sigmoid()
+  )
+  input <- torch_randn(10, 5)
+
+  expect_error(Converter$new(model))
+
+  converter <- Converter$new(model, input_dim = c(5))
+  y_true <- as_array(model(input))
+  y <- as_array(converter$model(input))
+
+  expect_equal(dim(y), dim(y_true))
+  expect_lt(mean((y - y_true)^2), 1e-12)
+
+})
+
+test_that("Test torch sequential model: 1D Conv", {
+  library(torch)
+
+  # See issue #716 (https://github.com/mlverse/torch/issues/716)
+  nn_flatten <- nn_module(
+    classname = "nn_flatten",
+    initialize = function(start_dim = 2, end_dim = -1) {
+      self$start_dim <- start_dim
+      self$end_dim <- end_dim
+    },
+    forward = function(x) {
+      torch_flatten(x, start_dim = self$start_dim, end_dim = self$end_dim)
+    }
+  )
+
+  input <- torch_randn(10, 3, 100)
+
+  model <- nn_sequential(
+    nn_conv1d(3,10,10),
+    nn_relu(),
+    nn_conv1d(10,8,8, stride = 2),
+    nn_softplus(),
+    nn_conv1d(8,6,6, padding = 2),
+    nn_softplus(),
+    nn_conv1d(6,4,4, dilation = 2),
+    nn_softplus(),
+    nn_conv1d(4,2,2, bias = FALSE),
+    nn_softplus(),
+    nn_flatten(),
+    nn_linear(68, 32),
+    nn_tanh(),
+    nn_linear(32, 2)
+  )
+
+  expect_error(Converter$new(model))
+
+  converter <- Converter$new(model, input_dim = c(3, 100))
+  y_true <- as_array(model(input))
+  y <- as_array(converter$model(input))
+
+  expect_equal(dim(y), dim(y_true))
+  expect_lt(mean((y - y_true)^2), 1e-12)
+
+})
+
+
+test_that("Test torch sequential model: 2D Conv", {
+  library(torch)
+
+  # See issue #716 (https://github.com/mlverse/torch/issues/716)
+  nn_flatten <- nn_module(
+    classname = "nn_flatten",
+    initialize = function(start_dim = 2, end_dim = -1) {
+      self$start_dim <- start_dim
+      self$end_dim <- end_dim
+    },
+    forward = function(x) {
+      torch_flatten(x, start_dim = self$start_dim, end_dim = self$end_dim)
+    }
+  )
+
+  input <- torch_randn(10, 3, 30, 30)
+
+  model <- nn_sequential(
+    nn_conv2d(3,10,5),
+    nn_relu(),
+    nn_conv2d(10,8,4, stride = c(2,1)),
+    nn_relu(),
+    nn_conv2d(8,8,4, stride = 2),
+    nn_relu(),
+    nn_conv2d(8,6,3, padding = c(5,4)),
+    nn_relu(),
+    nn_conv2d(6,6,3, padding = 3),
+    nn_relu(),
+    nn_conv2d(6,4,2, dilation = 2),
+    nn_relu(),
+    nn_conv2d(4,4,2, dilation = c(1,2)),
+    nn_relu(),
+    nn_conv2d(4,2,1, bias = FALSE),
+    nn_relu(),
+    nn_flatten(),
+    nn_linear(448, 64),
+    nn_linear(64, 2)
+  )
+
+  expect_error(Converter$new(model))
+
+  converter <- Converter$new(model, input_dim = c(3, 30, 30))
+  y_true <- as_array(model(input))
+  y <- as_array(converter$model(input))
+
+  expect_equal(dim(y), dim(y_true))
+  expect_lt(mean((y - y_true)^2), 1e-12)
+
+})
 
 test_that("Test neuralnet model", {
   library(neuralnet)
@@ -119,7 +238,7 @@ test_that("Test list model: 2D Convolution", {
   model$layers$Layer_3 <-
     list(
       type = "Flatten",
-      dim_in = c(2L,8L,8L),
+      dim_in = c(2,8,8),
       dim_out = 128L
     )
   model$layers$Layer_4 <-
