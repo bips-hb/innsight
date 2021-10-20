@@ -619,6 +619,15 @@ Converter <- R6Class("Converter",
                     .var.name = paste0("model_dict$output_dim"))
       }
 
+      # Check for classification output
+      if (length(model_dict$output_dim) != 1) {
+        stop(paste0(
+          "This package only allows models with classification or regression ",
+          "output, i.e. the model output dimension has to be one. ",
+          "But your model has an output dimension of '",
+          length(model_dict$output_dim), "'!"))
+      }
+
       # Check input names
       if (is.null(model_dict$input_names)) {
         model_dict$input_names <- private$get_input_names(model_dict)
