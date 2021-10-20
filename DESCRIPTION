@@ -43,6 +43,7 @@ Collate:
     'ConnectionWeights.R'
     'Convert_keras.R'
     'Convert_neuralnet.R'
+    'Convert_torch.R'
     'Converter.R'
     'DeepLift.R'
     'GradienBased.R'

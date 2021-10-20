@@ -241,7 +241,8 @@ Converter <- R6Class("Converter",
     #' @return A new instance of the R6 class \code{'Converter'}.
     #'
 
-    initialize = function(model, dtype = "float") {
+    initialize = function(model, input_dim = NULL, input_names = NULL,
+                          output_names = NULL, dtype = "float") {
       assertChoice(dtype, c("float", "double"))
 
       # Analyze the passed model and store its internal structure in a list of
@@ -256,9 +257,15 @@ Converter <- R6Class("Converter",
       } else if (is.list(model)) {
         model_dict <- model
       } else if (inherits(model, "nn_module") && is_nn_module(model)) {
-        #
-        # toDo
-        #
+        if (inherits(model, "nn_sequential")) {
+          if (!testNumeric(input_dim, lower = 1)) {
+            stop("For a 'torch' model you have to specify the argument 'input_dim'!")
+          }
+          model_dict <- convert_torch_sequential(model)
+          model_dict$input_dim <- input_dim
+        } else {
+          stop("At the moment only sequential models are allowed!")
+        }
       } else {
         stop(sprintf(
           "Unknown model of class \"%s\".",
@@ -266,11 +273,11 @@ Converter <- R6Class("Converter",
         ))
       }
 
-      if (is.null(model_dict$input_names)) {
-        model_dict$input_names <- private$get_input_names(model_dict)
+      if (!is.null(input_names)) {
+        model_dict$input_names <- input_names
       }
-      if (is.null(model_dict$output_names)) {
-        model_dict$output_names <- private$get_output_names(model_dict)
+      if (!is.null(output_names)) {
+        model_dict$output_names <- output_names
       }
 
       private$create_model_from_dict(model_dict, dtype)
@@ -279,194 +286,392 @@ Converter <- R6Class("Converter",
   private = list(
     create_model_from_dict = function(model_dict, dtype = "float") {
       modules_list <- NULL
+      input <- torch_randn(c(2, model_dict$input_dim))
+
       assertChoice("layers", names(model_dict))
-      layer_names <- names(model_dict$layers)
       for (i in seq_along(model_dict$layers)) {
-        assertSubset(
-          c("type", "dim_in", "dim_out"),
-          names(model_dict$layers[[i]])
-        )
         assertString(model_dict$layers[[i]]$type)
         type <- model_dict$layers[[i]]$type
-        assertInteger(model_dict$layers[[i]]$dim_in, lower = 1)
         dim_in <- model_dict$layers[[i]]$dim_in
-        assertInteger(model_dict$layers[[i]]$dim_out, lower = 1)
         dim_out <- model_dict$layers[[i]]$dim_out
 
+        #
+        # ---------------------- Flatten Layer -------------------------------
+        #
         if (type == "Flatten") {
-          modules_list[[layer_names[i]]] <- flatten_layer(dim_in, dim_out)
-        } else if (type == "Dense") {
+          # Create Layer
+          layer <- flatten_layer(dim_in, dim_out)
+
+          # Test Layer and register dim_in and dim_out if needed
+          # Input dimension
+          calculated_dim_in <- dim(input)[-1]
+          if (!is.null(dim_in)) {
+            assertSetEqual(dim_in, calculated_dim_in,
+              ordered = TRUE,
+              .var.name = paste0("model_dict$layers[[",i, "]]$dim_in"))
+          } else {
+            layer$input_dim <- calculated_dim_in
+            model_dict$layers[[i]]$dim_in <- calculated_dim_in
+          }
+          # Layer works properly
+          tryCatch(input <- layer(input))
+          # Output dimension
+          calculated_dim_out <- dim(input)[-1]
+          if (!is.null(dim_out)) {
+            assertSetEqual(dim_out, calculated_dim_out,
+                        ordered = TRUE,
+                        .var.name = paste0("model_dict$layers[[",i, "]]$dim_out"))
+          } else {
+            layer$output_dim <- calculated_dim_out
+            model_dict$layers[[i]]$dim_out <- calculated_dim_out
+          }
+
+          modules_list[[paste0("Flatten_", i)]] <- layer
+        }
+        #
+        # ------------------------ Dense Layer -------------------------------
+        #
+        else if (type == "Dense") {
+          # Check for required keys
           assertSubset(
             c("weight", "bias", "activation_name"),
             names(model_dict$layers[[i]])
           )
-          assertArray(model_dict$layers[[i]]$weight,
-            mode = "numeric", d = 2
-          )
-          d <- dim(model_dict$layers[[i]]$weight)
-          if (d[1] != dim_out || d[2] != dim_in) {
-            stop(sprintf(
-              "Missmatch between ('dim_out', 'dim_in') (%s, %s) and weight
-              matrix (%s,%s) for layer with index %s. Remember: The weight
-              matrix for a dense layer has to be stored as an array with shape
-              (dim_out, dim_in)!", dim_out, dim_in, d[1], d[2], i
-            ))
-          }
-          weight <- model_dict$layers[[i]]$weight
+          assertArray(model_dict$layers[[i]]$weight, mode = "numeric", d = 2)
           assertVector(model_dict$layers[[i]]$bias, len = dim_out)
-          bias <- model_dict$layers[[i]]$bias
           assertString(model_dict$layers[[i]]$activation_name)
+
+          weight <- model_dict$layers[[i]]$weight
+          bias <- model_dict$layers[[i]]$bias
           activation_name <- model_dict$layers[[i]]$activation_name
 
-          modules_list[[layer_names[i]]] <-
-            dense_layer(weight,
-              bias,
-              activation_name,
-              dim_in,
-              dim_out,
-              dtype = dtype
-            )
-        } else if (type == "Conv1D") {
+          # Create the dense layer
+          layer <- dense_layer(weight,
+                               bias,
+                               activation_name,
+                               dim_in,
+                               dim_out,
+                               dtype = dtype)
+
+          # Test Layer and register dim_in and dim_out if needed
+          # Input dimension
+          calculated_dim_in <- dim(input)[-1]
+          if (!is.null(dim_in)) {
+            assertSetEqual(dim_in, calculated_dim_in,
+                        ordered = TRUE,
+                        .var.name = paste0("model_dict$layers[[",i, "]]$dim_in"))
+          } else {
+            layer$input_dim <- calculated_dim_in
+            model_dict$layers[[i]]$dim_in <- calculated_dim_in
+          }
+
+          # Layer works properly
+          tryCatch(
+            input <- layer(input),
+            error =
+              function(e) {
+                e$message <-
+                  paste0("Could not create dense layer from list entry ",
+                      "'model_dict$layers[[",i, "]]'. Maybe you have a wrong ",
+                      "dimension order of your weight matrix. Remember: The ",
+                      "weight matrix for a dense layer has to be stored as ",
+                      "an array with shape (dim_out, dim_in)!\n\n",
+                      "Original message:\n", e)
+                stop(e)
+              }
+          )
+
+          # Output dimension
+          calculated_dim_out <- dim(input)[-1]
+          if (!is.null(dim_out)) {
+            assertSetEqual(dim_out, calculated_dim_out,
+                        ordered = TRUE,
+                        .var.name = paste0("model_dict$layers[[",i, "]]$dim_out"))
+          } else {
+            layer$output_dim <- calculated_dim_out
+            model_dict$layers[[i]]$dim_out <- calculated_dim_out
+          }
+
+          modules_list[[paste0("Dense_", i)]] <- layer
+
+        }
+        #
+        # ------------------------ Conv1D Layer -------------------------------
+        #
+        else if (type == "Conv1D") {
+          # Check for required keys
           assertSubset(
             c("weight", "bias", "activation_name"),
             names(model_dict$layers[[i]])
           )
-          assertArray(model_dict$layers[[i]]$weight,
-            mode = "numeric", d = 3
-          )
-          weight <- model_dict$layers[[i]]$weight
-          assertVector(model_dict$layers[[i]]$bias,
-            len = dim_out[1]
-          )
-          bias <- model_dict$layers[[i]]$bias
+          assertArray(model_dict$layers[[i]]$weight, mode = "numeric", d = 3)
+          assertVector(model_dict$layers[[i]]$bias, len = dim_out[1])
           assertString(model_dict$layers[[i]]$activation_name)
-          activation_name <- model_dict$layers[[i]]$activation_name
-
           assertInt(model_dict$layers[[i]]$stride, null.ok = TRUE)
-          stride <- model_dict$layers[[i]]$stride
-          if (is.null(stride)) {
-            stride <- 1
-          }
           assertInt(model_dict$layers[[i]]$dilation, null.ok = TRUE)
-          dilation <- model_dict$layers[[i]]$dilation
-          if (is.null(dilation)) {
-            dilation <- 1
-          }
           assertNumeric(model_dict$layers[[i]]$padding,
-            null.ok = TRUE, lower = 0
+                        null.ok = TRUE, lower = 0
           )
+
+          weight <- model_dict$layers[[i]]$weight
+          bias <- model_dict$layers[[i]]$bias
+          activation_name <- model_dict$layers[[i]]$activation_name
+          stride <- model_dict$layers[[i]]$stride
+          dilation <- model_dict$layers[[i]]$dilation
           padding <- model_dict$layers[[i]]$padding
-          if (is.null(padding)) {
-            padding <- c(0, 0)
+
+          if (is.null(stride)) stride <- 1
+          if (is.null(dilation)) dilation <- 1
+          if (is.null(padding)) padding <- c(0, 0)
+
+          if (length(padding) == 1) {
+            padding <- rep(padding, 2)
+          } else if (length(padding) != 2) {
+            stop(paste0(
+              "Expected a padding vector in 'model_dict$layers[[",i,"]] ",
+              "of length:\n", "   - 1: same padding for each side\n",
+              "   - 2: first value: padding for left side; second value: padding for right side\n",
+              "But your length: ", length(padding))
+            )
           }
 
-          modules_list[[layer_names[i]]] <-
-            conv1d_layer(weight,
-              bias, dim_in,
-              dim_out,
-              stride,
-              padding,
-              dilation,
-              activation_name,
-              dtype = dtype
-            )
-        } else if (type == "Conv2D") {
+          model_dict$layers[[i]]$stride <- stride
+          model_dict$layers[[i]]$stride <- padding
+          model_dict$layers[[i]]$stride <- dilation
+
+
+          layer <- conv1d_layer(weight, bias, dim_in, dim_out, stride,
+                                padding, dilation, activation_name,
+                                dtype = dtype
+          )
+
+          # Test Layer and register dim_in and dim_out if needed
+          # Input dimension
+          calculated_dim_in <- dim(input)[-1]
+          if (!is.null(dim_in)) {
+            assertSetEqual(dim_in, calculated_dim_in,
+                        ordered = TRUE,
+                        .var.name = paste0("model_dict$layers[[",i, "]]$dim_in"))
+          } else {
+            layer$input_dim <- calculated_dim_in
+            model_dict$layers[[i]]$dim_in <- calculated_dim_in
+          }
+
+          # Layer works properly
+          tryCatch(
+            input <- layer(input),
+            error =
+              function(e) {
+                e$message <-
+                  paste0("Could not create 1d convolutional layer from list entry ",
+                         "'model_dict$layers[[",i, "]]'. Maybe you have a wrong ",
+                         "dimension order of your weight matrix. Remember: The ",
+                         "weight matrix for this layer has to be stored as ",
+                         "an array with shape (out_channels, in_channels, ",
+                         "kernel_length)!\n\n", "Original message:\n", e$message)
+                stop(e)
+              }
+          )
+
+          # Output dimension
+          calculated_dim_out <- dim(input)[-1]
+          if (!is.null(dim_out)) {
+            assertSetEqual(dim_out, calculated_dim_out,
+                        ordered = TRUE,
+                        .var.name = paste0("model_dict$layers[[",i, "]]$dim_out"))
+          } else {
+            layer$output_dim <- calculated_dim_out
+            model_dict$layers[[i]]$dim_out <- calculated_dim_out
+          }
+
+          modules_list[[paste0("Conv1D_", i)]] <- layer
+
+        }
+        #
+        # ------------------------ Conv2D Layer -------------------------------
+        #
+        else if (type == "Conv2D") {
           assertSubset(
             c("weight", "bias", "activation_name"),
             names(model_dict$layers[[i]])
           )
-          assertArray(model_dict$layers[[i]]$weight,
-            mode = "numeric", d = 4
-          )
-          weight <- model_dict$layers[[i]]$weight
-          assertVector(model_dict$layers[[i]]$bias,
-            len = dim_out[1]
-          )
-          bias <- model_dict$layers[[i]]$bias
+          assertArray(model_dict$layers[[i]]$weight, mode = "numeric", d = 4)
+          assertVector(model_dict$layers[[i]]$bias, len = dim_out[1])
           assertString(model_dict$layers[[i]]$activation_name)
-          activation_name <- model_dict$layers[[i]]$activation_name
-
           assertNumeric(model_dict$layers[[i]]$stride,
-            null.ok = TRUE, lower = 1
+                        null.ok = TRUE, lower = 1
           )
-          stride <- model_dict$layers[[i]]$stride
-          if (is.null(stride)) {
-            stride <- c(1, 1)
-          }
           assertNumeric(model_dict$layers[[i]]$dilation,
-            null.ok = TRUE, lower = 1
+                        null.ok = TRUE, lower = 1
           )
-          dilation <- model_dict$layers[[i]]$dilation
-          if (is.null(dilation)) {
-            dilation <- c(1, 1)
-          }
           assertNumeric(model_dict$layers[[i]]$padding,
-            null.ok = TRUE, lower = 0
+                        null.ok = TRUE, lower = 0
           )
+
+          weight <- model_dict$layers[[i]]$weight
+          bias <- model_dict$layers[[i]]$bias
+          activation_name <- model_dict$layers[[i]]$activation_name
+          stride <- model_dict$layers[[i]]$stride
+          dilation <- model_dict$layers[[i]]$dilation
           padding <- model_dict$layers[[i]]$padding
-          if (is.null(padding)) {
-            padding <- c(0, 0, 0, 0)
+
+          if (is.null(stride)) stride <- c(1, 1)
+          if (is.null(dilation)) dilation <- c(1, 1)
+          if (is.null(padding)) padding <- c(0, 0, 0, 0)
+
+          if (length(padding) == 1) {
+            padding <- rep(padding, 4)
+          } else if (length(padding) == 2) {
+            padding <- rep(padding, each = 2)
+          } else if (length(padding) != 4) {
+            stop(paste0(
+              "Expected a padding vector in 'model_dict$layers[[",i,"]] ",
+              "of length:\n", "   - 1: same padding on each side\n",
+              "   - 2: first value: pad_left and pad_right; second value: pad_top and pad_bottom\n",
+              "   - 4: (pad_left, pad_right, pad_top, pad_bottom)\n",
+              "But your length: ", length(padding))
+            )
+          }
+          if (length(stride) == 1) {
+            stride <- rep(stride, 2)
+          } else if (length(stride) != 2) {
+            stop(paste0(
+              "Expected a stride vector in 'model_dict$layers[[",i,"]] ",
+              "of length:\n", "   - 1: same stride for image heigth and width\n",
+              "   - 2: first value: strides for height; second value: strides for width\n",
+              "But your length: ", length(stride))
+            )
+          }
+          if (length(dilation) == 1) {
+            dilation <- rep(dilation, 2)
+          } else if (length(dilation) != 2) {
+            stop(paste0(
+              "Expected a dilation vector in 'model_dict$layers[[",i,"]] ",
+              "of length:\n", "   - 1: same dilation for image heigth and width\n",
+              "   - 2: first value: dilation for height; second value: dilation for width\n",
+              "But your length: ", length(dilation))
+            )
           }
 
-          modules_list[[layer_names[i]]] <-
-            conv2d_layer(weight,
-              bias,
-              dim_in,
-              dim_out,
-              stride,
-              padding,
-              dilation,
-              activation_name,
-              dtype = dtype
-            )
+          model_dict$layers[[i]]$stride <- stride
+          model_dict$layers[[i]]$stride <- padding
+          model_dict$layers[[i]]$stride <- dilation
+
+          layer <- conv2d_layer(weight, bias, dim_in, dim_out, stride,
+                                padding, dilation, activation_name,
+                                dtype = dtype
+          )
+
+          # Test Layer and register dim_in and dim_out if needed
+          # Input dimension
+          calculated_dim_in <- dim(input)[-1]
+          if (!is.null(dim_in)) {
+            assertSetEqual(dim_in, calculated_dim_in,
+                        ordered = TRUE,
+                        .var.name = paste0("model_dict$layers[[",i, "]]$dim_in"))
+          } else {
+            layer$input_dim <- calculated_dim_in
+            model_dict$layers[[i]]$dim_in <- calculated_dim_in
+          }
+
+          # Layer works properly
+          tryCatch(
+            input <- layer(input),
+            error =
+              function(e) {
+                e$message <-
+                  paste0("Could not create 2d convolutional layer from list entry ",
+                         "'model_dict$layers[[",i, "]]'. Maybe you have a wrong ",
+                         "dimension order of your weight matrix. Remember: The ",
+                         "weight matrix for this layer has to be stored as ",
+                         "an array with shape (out_channels, in_channels, ",
+                         "kernel_height, kernel_width)!\n\n",
+                         "Original message:\n", e$message)
+                stop(e)
+              }
+          )
+
+          # Output dimension
+          calculated_dim_out <- dim(input)[-1]
+          if (!is.null(dim_out)) {
+            assertSetEqual(dim_out, calculated_dim_out,
+                        ordered = TRUE,
+                        .var.name = paste0("model_dict$layers[[",i, "]]$dim_out"))
+          } else {
+            layer$output_dim <- calculated_dim_out
+            model_dict$layers[[i]]$dim_out <- calculated_dim_out
+          }
+
+          modules_list[[paste0("Conv2D_", i)]] <- layer
         } else {
           stop(sprintf("Unknown layer type '%s' in model dictionary. Only the
                        types 'Dense', 'Conv1D', 'Conv2D' and 'Flatten'
                        are allowed!", type))
         }
       }
+
+      # Check output dimension
+      if (is.null(model_dict$output_dim)) {
+        model_dict$output_dim <- dim(input)[-1]
+      } else {
+        assertSetEqual(model_dict$output_dim, dim(input)[-1],
+                    ordered = TRUE,
+                    .var.name = paste0("model_dict$output_dim"))
+      }
+
+      # Check input names
+      if (is.null(model_dict$input_names)) {
+        model_dict$input_names <- private$get_input_names(model_dict)
+      } else {
+        input_names <- model_dict$input_names
+        assertList(input_names)
+        assertSetEqual(sapply(input_names, length), model_dict$input_dim,
+                       ordered = TRUE)
+      }
+
+      # Check output names
+      if (is.null(model_dict$output_names)) {
+        model_dict$output_names <- private$get_output_names(model_dict)
+      } else {
+        output_names <- model_dict$output_names
+        assertList(output_names)
+        assertSetEqual(sapply(output_names, length), model_dict$output_dim,
+                       ordered = TRUE)
+      }
+
+      # Save model_dict and create torch model
       self$model_dict <- model_dict
       self$model <- ConvertedModel(modules_list, dtype = dtype)
 
       invisible(self)
     },
     get_input_names = function(model_dict) {
-      if (is.null(model_dict$input_dim)) {
-        stop("The input dimension '$input_dim' in the model list has to be
-             specified and not 'NULL'.")
+      input_dim <- model_dict$input_dim
+      if (length(input_dim) == 1) {
+        short_names <- c("X")
+      } else if (length(input_dim) == 2) {
+        short_names <- c("C", "L")
+      } else if (length(input_dim) == 3) {
+        short_names <- c("C", "H", "W")
       } else {
-        input_dim <- model_dict$input_dim
-        if (length(input_dim) == 1) {
-          short_names <- c("X")
-        } else if (length(input_dim) == 2) {
-          short_names <- c("C", "L")
-        } else if (length(input_dim) == 3) {
-          short_names <- c("C", "H", "W")
-        } else {
-          stop(sprintf("Too many input dimensions. This package only allows
-                       model inputs with '1', '2' or '3' dimensions and not
-                       '%s'", length(imput_dim)))
-        }
-        input_names <-
-          mapply(function(x, y) paste0(rep(y, times = x), 1:x),
-            input_dim,
-            short_names,
-            SIMPLIFY = FALSE
-          )
+        stop(sprintf("Too many input dimensions. This package only allows
+                     model inputs with '1', '2' or '3' dimensions and not
+                     '%s'", length(imput_dim)))
       }
+      input_names <-
+        mapply(function(x, y) paste0(rep(y, times = x), 1:x),
+          input_dim,
+          short_names,
+          SIMPLIFY = FALSE
+        )
       input_names
     },
     get_output_names = function(model_dict) {
-      if (is.null(model_dict$output_dim)) {
-        stop("The output dimension '$output_dim' in the model list has to be
-             specified and not 'NULL'.")
-      } else {
-        output_names <-
+      output_names <-
           lapply(
             model_dict$output_dim,
             function(x) paste0(rep("Y", times = x), 1:x)
           )
-      }
       output_names
     }
   )

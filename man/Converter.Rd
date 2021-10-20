@@ -252,7 +252,13 @@ information).}
 \subsection{Method \code{new()}}{
 Create a new Converter for a given neural network.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Converter$new(model, dtype = "float")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Converter$new(
+  model,
+  input_dim = NULL,
+  input_names = NULL,
+  output_names = NULL,
+  dtype = "float"
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
