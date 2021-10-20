@@ -9,7 +9,8 @@ test_that("Test general errors", {
 
 
 test_that("Test neuralnet model", {
-  skip_on_os("windows")
+  library(neuralnet)
+  library(torch)
 
   data(iris)
   #
@@ -50,7 +51,7 @@ test_that("Test neuralnet model", {
 })
 
 test_that("Test list model: Dense", {
-  skip_on_os("windows")
+  library(torch)
 
   model <- NULL
   model$input_dim <- 5
@@ -84,14 +85,14 @@ test_that("Test list model: Dense", {
   model <- converter$model
 
   # test output dimension
-  input <- torch::torch_randn(10,5)
+  input <- torch_randn(10,5)
   out <- model(input)
   expect_equal(dim(out), c(10, 2))
 
 })
 
 test_that("Test list model: 2D Convolution", {
-  skip_on_os("windows")
+  library(torch)
 
   model <- NULL
   model$input_dim <- c(3, 10, 10)
@@ -139,7 +140,7 @@ test_that("Test list model: 2D Convolution", {
   model <- converter$model
 
   # test output dimension
-  input <- torch::torch_randn(10,3,10,10)
+  input <- torch_randn(10,3,10,10)
   out <- model(input)
   expect_equal(dim(out), c(10, 2))
 
@@ -148,11 +149,8 @@ test_that("Test list model: 2D Convolution", {
 
 
 test_that("Test keras model: Dense", {
-  skip_on_os("windows")
-  skip_on_cran()
-  #
-  # --------------------- Dense Model -----------------------------------------
-  #
+  library(keras)
+  library(torch)
 
   data <- matrix(rnorm(4 * 10), nrow = 10)
 
@@ -205,11 +203,8 @@ test_that("Test keras model: Dense", {
 
 
 test_that("Test keras model: Conv1D with 'valid' padding", {
-  skip_on_os("windows")
-  skip_on_cran()
-  #
-  # --------------------- CNN (1D) Model ("valid" padding) --------------------
-  #
+  library(keras)
+  library(torch)
 
   data <- array(rnorm(64 * 128 * 4), dim = c(64, 128, 4))
 
@@ -263,11 +258,8 @@ test_that("Test keras model: Conv1D with 'valid' padding", {
 })
 
 test_that("Test keras model: Conv1D with 'same' padding", {
-  skip_on_os("windows")
-  skip_on_cran()
-  #
-  # --------------------- CNN (1D) Model ("same" padding) ---------------------
-  #
+  library(keras)
+  library(torch)
 
   data <- array(rnorm(64 * 128 * 4), dim = c(64, 128, 4))
 
@@ -323,11 +315,8 @@ test_that("Test keras model: Conv1D with 'same' padding", {
 
 
 test_that("Test keras model: Conv2D with 'valid' padding", {
-  skip_on_os("windows")
-  skip_on_cran()
-  #
-  # --------------------- CNN (2D) Model ("valid" padding) --------------------
-  #
+  library(keras)
+  library(torch)
 
   data <- array(rnorm(64 * 32 * 32 * 3), dim = c(64, 32, 32, 3))
 
@@ -381,11 +370,8 @@ test_that("Test keras model: Conv2D with 'valid' padding", {
 })
 
 test_that("Test keras model: Conv2D with 'same' padding", {
-  skip_on_os("windows")
-  skip_on_cran()
-  #
-  # --------------------- CNN (2D) Model ("same" padding) --------------------
-  #
+  library(keras)
+  library(torch)
 
   data <- array(rnorm(64 * 32 * 32 * 3), dim = c(64, 32, 32, 3))
 

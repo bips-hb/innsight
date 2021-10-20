@@ -1,6 +1,6 @@
 
 test_that("Test initialization and forward of dense_layer", {
-  skip_on_os("windows")
+  library(torch)
 
   batch_size <- 10
   dim_in <- 20
@@ -49,7 +49,7 @@ test_that("Test initialization and forward of dense_layer", {
 
 
 test_that("Test get_pos_and_neg_outputs and get_gradient for dense_layer", {
-  skip_on_os("windows")
+  library(torch)
 
   batch_size <- 10
   dim_in <- 5
@@ -89,7 +89,7 @@ test_that("Test get_pos_and_neg_outputs and get_gradient for dense_layer", {
 
 
 test_that("Test get_input_relevances for dense_layer", {
-  skip_on_os("windows")
+  library(torch)
 
   batch_size <- 10
   dim_in <- 50
@@ -126,7 +126,7 @@ test_that("Test get_input_relevances for dense_layer", {
 
 
 test_that("Test get_input_multiplier for dense_layer", {
-  skip_on_os("windows")
+  library(torch)
 
   batch_size <- 10
   dim_in <- 201

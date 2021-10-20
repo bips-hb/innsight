@@ -7,14 +7,19 @@ Authors@R:
            family = "Koenen",
            role = c("aut", "cre"),
            email = "niklas.koenen@gmail.com")
-Description: Interpretability methods to analyze the behavior and
-    predictions of artificial Neural Networks.
-    Implemented methods are: Connection Weights described by Olden et al.
-    (2004) <doi:10.1016/j.ecolmodel.2004.03.013>, Layer-wise Relevance
+Description: Interpretability methods to analyze the behavior and individual
+    predictions of modern Neural Networks. Implemented methods are: Connection 
+    Weights described by Olden et al. (2004) 
+    <doi:10.1016/j.ecolmodel.2004.03.013>, Layer-wise Relevance
     Propagation (LRP) described by Bach et al. (2015)
-    <doi:0.1371/journal.pone.0130140> and Deep Learning Important Features
-    (DeepLIFT) described by Shrikumar et al.  (2017) <arXiv:1704.02685>.
+    <doi:10.1371/journal.pone.0130140>, Deep Learning Important Features
+    (DeepLIFT) described by Shrikumar et al.  (2017) <arXiv:1704.02685> and
+    gradient-based methods like SmoothGrad described by Smilkov et al. (2017) 
+    <arXiv:1706.03825>, Gradient x Input described by Baehrens et al. (2009)
+    <arXiv:0912.1128> or Vanilla Gradient.
 License: MIT + file LICENSE
+URL: https://github.com/bips-hb/innsight/
+BugReports: https://github.com/bips-hb/innsight/issues/
 Imports:
     checkmate,
     ggplot2,
@@ -33,7 +38,7 @@ Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE, r6 = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Collate: 
     'ConnectionWeights.R'
     'Convert_keras.R'

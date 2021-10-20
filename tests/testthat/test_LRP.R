@@ -1,7 +1,7 @@
 
 test_that("LRP: General errors", {
-  skip_on_os("windows")
-  skip_on_cran()
+  library(keras)
+  library(torch)
 
   data <- matrix(rnorm(4 * 10), nrow = 10)
   model <- keras_model_sequential()
@@ -22,7 +22,8 @@ test_that("LRP: General errors", {
 
 
 test_that("LRP: Plot and Boxplot", {
-  skip_on_os("windows")
+  library(neuralnet)
+  library(torch)
 
   data(iris)
   data <- iris[sample.int(150, size = 10), -5]
@@ -81,7 +82,8 @@ test_that("LRP: Plot and Boxplot", {
 
 
 test_that("LRP: Dense-Net (Neuralnet)", {
-  skip_on_os("windows")
+  library(neuralnet)
+  library(torch)
 
   data(iris)
   data <- iris[sample.int(150, size = 10), -5]
@@ -141,8 +143,8 @@ test_that("LRP: Dense-Net (Neuralnet)", {
 
 
 test_that("LRP: Dense-Net (keras)", {
-  skip_on_os("windows")
-  skip_on_cran()
+  library(keras)
+  library(torch)
 
   data <- matrix(rnorm(4 * 10), nrow = 10)
 
@@ -200,8 +202,8 @@ test_that("LRP: Dense-Net (keras)", {
 })
 
 test_that("LRP: Conv1D-Net", {
-  skip_on_os("windows")
-  skip_on_cran()
+  library(keras)
+  library(torch)
 
   data <- array(rnorm(4 * 64 * 3), dim = c(4, 64, 3))
 
@@ -275,8 +277,8 @@ test_that("LRP: Conv1D-Net", {
 })
 
 test_that("LRP: Conv2D-Net", {
-  skip_on_os("windows")
-  skip_on_cran()
+  library(keras)
+  library(torch)
 
   data <- array(rnorm(4 * 32 * 32 * 3), dim = c(4, 32, 32, 3))
 
@@ -361,8 +363,8 @@ test_that("LRP: Conv2D-Net", {
 })
 
 test_that("LRP: Correctness", {
-  skip_on_os("windows")
-  skip_on_cran()
+  library(keras)
+  library(torch)
 
   data <- array(rnorm(10 * 32 * 32 * 3), dim = c(10, 32, 32, 3))
 

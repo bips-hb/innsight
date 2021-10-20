@@ -1,7 +1,7 @@
 
 test_that("DeepLift: General errors", {
-  skip_on_os("windows")
-  skip_on_cran()
+  library(keras)
+  library(torch)
 
   data <- matrix(rnorm(4 * 10), nrow = 10)
   model <- keras_model_sequential()
@@ -22,7 +22,8 @@ test_that("DeepLift: General errors", {
 })
 
 test_that("DeepLift: Plot and Boxplot", {
-  skip_on_os("windows")
+  library(neuralnet)
+  library(torch)
 
   data(iris)
   data <- iris[sample.int(150, size = 10), -5]
@@ -81,7 +82,8 @@ test_that("DeepLift: Plot and Boxplot", {
 })
 
 test_that("DeepLift: Dense-Net (Neuralnet)", {
-  skip_on_os("windows")
+  library(neuralnet)
+  library(torch)
 
   data(iris)
 
@@ -157,8 +159,8 @@ test_that("DeepLift: Dense-Net (Neuralnet)", {
 })
 
 test_that("DeepLift: Dense-Net (keras)", {
-  skip_on_os("windows")
-  skip_on_cran()
+  library(keras)
+  library(torch)
 
   data <- matrix(rnorm(4 * 10), nrow = 10)
 
@@ -233,8 +235,8 @@ test_that("DeepLift: Dense-Net (keras)", {
 })
 
 test_that("DeepLift: Conv1D-Net", {
-  skip_on_os("windows")
-  skip_on_cran()
+  library(keras)
+  library(torch)
 
   data <- array(rnorm(4 * 64 * 3), dim = c(4, 64, 3))
 
@@ -316,8 +318,8 @@ test_that("DeepLift: Conv1D-Net", {
 })
 
 test_that("DeepLift: Conv2D-Net", {
-  skip_on_os("windows")
-  skip_on_cran()
+  library(keras)
+  library(torch)
 
   data <- array(rnorm(4 * 32 * 32 * 3), dim = c(4, 32, 32, 3))
 
