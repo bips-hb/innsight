@@ -23,7 +23,33 @@
 #' (dim_in, dim_out).
 #'
 #' @examplesIf torch::torch_is_installed()
-#' #----------------------- Example 1: Neuralnet ------------------------------
+#' #----------------------- Example 1: Torch ----------------------------------
+#' library(torch)
+#'
+#' # Create nn_sequential model
+#' model <- nn_sequential(
+#'   nn_linear(5, 12),
+#'   nn_relu(),
+#'   nn_linear(12, 1),
+#'   nn_sigmoid()
+#' )
+#'
+#' # Create Converter with input names
+#' converter <- Converter$new(model,
+#'   input_dim = c(5),
+#'   input_names = list(c("Car", "Cat", "Dog", "Plane", "Horse"))
+#' )
+#'
+#' # Apply method Connection Weights
+#' cw <- ConnectionWeights$new(converter)
+#'
+#' # Print the result as a data.frame
+#' cw$get_result("data.frame")
+#'
+#' # Plot the result
+#' plot(cw)
+#'
+#' #----------------------- Example 2: Neuralnet ------------------------------
 #' library(neuralnet)
 #' data(iris)
 #'
@@ -46,7 +72,7 @@
 #' # Plot the result
 #' plot(cw)
 #'
-#' #----------------------- Example 2: Keras ----------------------------------
+#' #----------------------- Example 3: Keras ----------------------------------
 #' library(keras)
 #'
 #' if (is_keras_available()) {

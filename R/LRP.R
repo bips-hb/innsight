@@ -15,7 +15,34 @@
 #' ("epsilon") and alpha-beta rule ("alpha_beta").
 #'
 #' @examplesIf torch::torch_is_installed()
-#' # ------------------------- Example 1: Neuralnet ---------------------------
+#'  #----------------------- Example 1: Torch ----------------------------------
+#' library(torch)
+#'
+#' # Create nn_sequential model and data
+#' model <- nn_sequential(
+#'   nn_linear(5, 12),
+#'   nn_relu(),
+#'   nn_linear(12, 2),
+#'   nn_softmax(dim = 2)
+#' )
+#' data <- torch_randn(25, 5)
+#'
+#' # Create Converter
+#' converter <- Converter$new(model, input_dim = c(5))
+#'
+#' # Apply method LRP with simple rule (default)
+#' lrp <- LRP$new(converter, data)
+#'
+#' # Print the result as an array
+#' lrp$get_result()
+#'
+#' # Plot the result for both classes
+#' plot(lrp, classes = 1:2)
+#'
+#' # Plot the boxplot of all datapoints without preprocess function
+#' boxplot(lrp, classes = 1:2, preprocess_FUN = identity)
+#'
+#' # ------------------------- Example 2: Neuralnet ---------------------------
 #' library(neuralnet)
 #' data(iris)
 #' nn <- neuralnet(Species ~ .,
@@ -64,11 +91,11 @@
 #' # Result of the second data point
 #' plot(lrp, datapoint = 2, as_plotly = TRUE)
 #'
-#' # ------------------------- Example 2: Keras -------------------------------
+#' # ------------------------- Example 3: Keras -------------------------------
 #' library(keras)
 #'
 #' if (is_keras_available()) {
-#'   data <- array(rnorm(64 * 60 * 3), dim = c(64, 60, 3))
+#'   data <- array(rnorm(10 * 60 * 3), dim = c(10, 60, 3))
 #'
 #'   model <- keras_model_sequential()
 #'   model %>%

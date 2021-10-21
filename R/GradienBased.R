@@ -207,7 +207,38 @@ boxplot.GradientBased <- function(x, ...) {
 #' \deqn{x_i * d f(x)_j / d x_i.}
 #'
 #' @examplesIf torch::torch_is_installed()
-#' # ------------------------- Example 1: Neuralnet ---------------------------
+#' #----------------------- Example 1: Torch ----------------------------------
+#' library(torch)
+#'
+#' # Create nn_sequential model and data
+#' model <- nn_sequential(
+#'   nn_linear(5, 12),
+#'   nn_relu(),
+#'   nn_linear(12, 2),
+#'   nn_softmax(dim = 2)
+#' )
+#' data <- torch_randn(25, 5)
+#'
+#' # Create Converter with input and output names
+#' converter <- Converter$new(model,
+#'   input_dim = c(5),
+#'   input_names = list(c("Car", "Cat", "Dog", "Plane", "Horse")),
+#'   output_names = list(c("Buy it!", "Don't buy it!"))
+#' )
+#'
+#' # Calculate the Gradients
+#' grad <- Gradient$new(converter, data)
+#'
+#' # Print the result as a data.frame
+#' grad$get_result("data.frame")
+#'
+#' # Plot the result for both classes
+#' plot(grad, classes = 1:2)
+#'
+#' # Plot the boxplot of all datapoints
+#' boxplot(grad, classes = 1:2)
+#'
+#' # ------------------------- Example 2: Neuralnet ---------------------------
 #' library(neuralnet)
 #' data(iris)
 #'
@@ -223,7 +254,7 @@ boxplot.GradientBased <- function(x, ...) {
 #' converter <- Converter$new(nn)
 #'
 #' # Calculate the gradients
-#' gradient <- Gradient$new(converter, iris[, -5], times_input = FALSE)
+#' gradient <- Gradient$new(converter, iris[, -5], times_input = TRUE)
 #'
 #' # Plot the result for the first and 60th data point and all classes
 #' plot(gradient, datapoint = c(1, 60), classes = 1:3)
@@ -234,7 +265,7 @@ boxplot.GradientBased <- function(x, ...) {
 #' # Plot the result again
 #' plot(gradient, datapoint = c(1, 60), classes = 1:3)
 #'
-#' # ------------------------- Example 2: Keras -------------------------------
+#' # ------------------------- Example 3: Keras -------------------------------
 #' library(keras)
 #'
 #' if (is_keras_available()) {
@@ -383,7 +414,34 @@ Gradient <- R6::R6Class(
 #' CoRR, abs/1706.03825
 #'
 #' @examplesIf torch::torch_is_installed()
-#' # ------------------------- Example 1: Neuralnet ---------------------------
+#' # ------------------------- Example 1: Torch -------------------------------
+#' library(torch)
+#'
+#' # Create nn_sequential model and data
+#' model <- nn_sequential(
+#'   nn_linear(5, 10),
+#'   nn_relu(),
+#'   nn_linear(10, 2),
+#'   nn_sigmoid()
+#' )
+#' data <- torch_randn(25, 5)
+#'
+#' # Create Converter
+#' converter <- Converter$new(model, input_dim = c(5))
+#'
+#' # Calculate the smoothed Gradients
+#' smoothgrad <- SmoothGrad$new(converter, data)
+#'
+#' # Print the result as a data.frame
+#' smoothgrad$get_result("data.frame")
+#'
+#' # Plot the result for both classes
+#' plot(smoothgrad, classes = 1:2)
+#'
+#' # Plot the boxplot of all datapoints
+#' boxplot(smoothgrad, classes = 1:2)
+#'
+#' # ------------------------- Example 2: Neuralnet ---------------------------
 #' library(neuralnet)
 #' data(iris)
 #'
@@ -410,7 +468,7 @@ Gradient <- R6::R6Class(
 #' # Plot the result again
 #' plot(smoothgrad, datapoint = c(1, 60), classes = 1:3)
 #'
-#' # ------------------------- Example 2: Keras -------------------------------
+#' # ------------------------- Example 3: Keras -------------------------------
 #' library(keras)
 #'
 #' if (is_keras_available()) {

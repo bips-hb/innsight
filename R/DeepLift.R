@@ -18,7 +18,35 @@
 #' activation functions: \emph{Rescale-Rule} and \emph{RevealCancel-Rule}.
 #'
 #' @examplesIf torch::torch_is_installed()
-#' # ------------------------- Example 1: Neuralnet ---------------------------
+#' #----------------------- Example 1: Torch ----------------------------------
+#' library(torch)
+#'
+#' # Create nn_sequential model and data
+#' model <- nn_sequential(
+#'   nn_linear(5, 12),
+#'   nn_relu(),
+#'   nn_linear(12, 2),
+#'   nn_softmax(dim = 2)
+#' )
+#' data <- torch_randn(25, 5)
+#' ref <- torch_randn(1, 5)
+#'
+#' # Create Converter
+#' converter <- Converter$new(model, input_dim = c(5))
+#'
+#' # Apply method DeepLift
+#' deeplift <- DeepLift$new(converter, data, x_ref = ref)
+#'
+#' # Print the result as a torch tensor
+#' deeplift$get_result("torch.tensor")
+#'
+#' # Plot the result for both classes
+#' plot(deeplift, classes = 1:2)
+#'
+#' # Plot the boxplot of all datapoints
+#' boxplot(deeplift, classes = 1:2)
+#'
+#' # ------------------------- Example 2: Neuralnet ---------------------------
 #' library(neuralnet)
 #' data(iris)
 #'
@@ -46,11 +74,11 @@
 #' # Plot the result as boxplots
 #' boxplot(deeplift_rescale)
 #'
-#' # ------------------------- Example 2: Keras -------------------------------
+#' # ------------------------- Example 3: Keras -------------------------------
 #' library(keras)
 #'
 #' if (is_keras_available()) {
-#'   data <- array(rnorm(64 * 32 * 32 * 3), dim = c(64, 32, 32, 3))
+#'   data <- array(rnorm(10 * 32 * 32 * 3), dim = c(10, 32, 32, 3))
 #'
 #'   model <- keras_model_sequential()
 #'   model %>%

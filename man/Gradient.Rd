@@ -14,7 +14,38 @@ the respective input value (Gradient x Input), i.e.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-# ------------------------- Example 1: Neuralnet ---------------------------
+#----------------------- Example 1: Torch ----------------------------------
+library(torch)
+
+# Create nn_sequential model and data
+model <- nn_sequential(
+  nn_linear(5, 12),
+  nn_relu(),
+  nn_linear(12, 2),
+  nn_softmax(dim = 2)
+)
+data <- torch_randn(25, 5)
+
+# Create Converter with input and output names
+converter <- Converter$new(model,
+  input_dim = c(5),
+  input_names = list(c("Car", "Cat", "Dog", "Plane", "Horse")),
+  output_names = list(c("Buy it!", "Don't buy it!"))
+)
+
+# Calculate the Gradients
+grad <- Gradient$new(converter, data)
+
+# Print the result as a data.frame
+grad$get_result("data.frame")
+
+# Plot the result for both classes
+plot(grad, classes = 1:2)
+
+# Plot the boxplot of all datapoints
+boxplot(grad, classes = 1:2)
+
+# ------------------------- Example 2: Neuralnet ---------------------------
 library(neuralnet)
 data(iris)
 
@@ -30,7 +61,7 @@ nn <- neuralnet(Species ~ ., iris,
 converter <- Converter$new(nn)
 
 # Calculate the gradients
-gradient <- Gradient$new(converter, iris[, -5], times_input = FALSE)
+gradient <- Gradient$new(converter, iris[, -5], times_input = TRUE)
 
 # Plot the result for the first and 60th data point and all classes
 plot(gradient, datapoint = c(1, 60), classes = 1:3)
@@ -41,7 +72,7 @@ gradient <- Gradient$new(converter, iris[, -5], ignore_last_act = FALSE)
 # Plot the result again
 plot(gradient, datapoint = c(1, 60), classes = 1:3)
 
-# ------------------------- Example 2: Keras -------------------------------
+# ------------------------- Example 3: Keras -------------------------------
 library(keras)
 
 if (is_keras_available()) {

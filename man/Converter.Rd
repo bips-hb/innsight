@@ -132,7 +132,28 @@ following methods:
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-#----------------------- Example 1: Neuralnet ------------------------------
+#----------------------- Example 1: Torch ----------------------------------
+library(torch)
+
+model <- nn_sequential(
+  nn_linear(5, 10),
+  nn_relu(),
+  nn_linear(10, 2, bias = FALSE),
+  nn_softmax(dim = 2)
+)
+data <- torch_randn(25, 5)
+
+# Convert the model (for torch models is 'input_dim' required!)
+converter <- Converter$new(model, input_dim = c(5))
+
+# Get the converted model
+converted_model <- converter$model
+
+# Test it with the original model
+mean(abs(converted_model(data) - model(data)))
+
+
+#----------------------- Example 2: Neuralnet ------------------------------
 library(neuralnet)
 data(iris)
 
@@ -149,7 +170,7 @@ converter <- Converter$new(nn)
 # Print all the layers
 converter$model$modules_list
 
-#----------------------- Example 2: Keras ----------------------------------
+#----------------------- Example 3: Keras ----------------------------------
 library(keras)
 
 if (is_keras_available()) {
@@ -179,7 +200,7 @@ if (is_keras_available()) {
   str(converter$model_dict)
 }
 
-#----------------------- Example 2: List  ----------------------------------
+#----------------------- Example 4: List  ----------------------------------
 
 # Define a model
 
@@ -194,17 +215,17 @@ model$layers$Layer_1 <-
     weight = matrix(rnorm(5 * 20), 20, 5),
     bias = rnorm(20),
     activation_name = "tanh",
-    dim_in = 5L,
-    dim_out = 20L
+    dim_in = 5,
+    dim_out = 20
   )
 model$layers$Layer_2 <-
   list(
     type = "Dense",
     weight = matrix(rnorm(20 * 2), 2, 20),
     bias = rnorm(2),
-    activation_name = "softmax",
-    dim_in = 20L,
-    dim_out = 2L
+    activation_name = "softmax"#,
+    #dim_in = 20, # These values are optional, but
+    #dim_out = 2  # useful for internal checks
   )
 
 # Convert the model
