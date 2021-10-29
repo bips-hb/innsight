@@ -80,6 +80,54 @@ convert_torch_sequential <- function(model) {
         dilation = modul$dilation
       )
       num <- num + 1
+    } else if ("nn_avg_pool1d" %in% classes) {
+      if (sum(modul$padding) != 0) {
+        stop("Padding for pooling layers is not implemented yet!")
+      }
+      model_dict$layers[[num]] <- list(
+        type = "AveragePooling1D",
+        kernel_size = modul$kernel_size,
+        dim_in = NULL,
+        dim_out = NULL,
+        strides = modul$stride
+      )
+      num <- num + 1
+    } else if ("nn_avg_pool2d" %in% classes) {
+      if (sum(modul$padding) != 0) {
+        stop("Padding for pooling layers is not implemented yet!")
+      }
+      model_dict$layers[[num]] <- list(
+        type = "AveragePooling2D",
+        kernel_size = modul$kernel_size,
+        dim_in = NULL,
+        dim_out = NULL,
+        strides = modul$stride
+      )
+      num <- num + 1
+    } else if ("nn_max_pool1d" %in% classes) {
+      if (sum(modul$padding) != 0) {
+        stop("Padding for pooling layers is not implemented yet!")
+      }
+      model_dict$layers[[num]] <- list(
+        type = "MaxPooling1D",
+        kernel_size = modul$kernel_size,
+        dim_in = NULL,
+        dim_out = NULL,
+        strides = modul$stride
+      )
+      num <- num + 1
+    } else if ("nn_max_pool2d" %in% classes) {
+      if (sum(modul$padding) != 0) {
+        stop("Padding for pooling layers is not implemented yet!")
+      }
+      model_dict$layers[[num]] <- list(
+        type = "MaxPooling2D",
+        kernel_size = modul$kernel_size,
+        dim_in = NULL,
+        dim_out = NULL,
+        strides = modul$stride
+      )
+      num <- num + 1
     } else if ("nn_dropout" %in% classes) {
       message("Skipping Dropout-Layer...")
     } else if ("nn_relu" %in% classes) {

@@ -1,5 +1,6 @@
 implemented_layers <- c(
-  "Dense", "Dropout", "InputLayer", "Conv1D", "Conv2D", "Flatten"
+  "Dense", "Dropout", "InputLayer", "Conv1D", "Conv2D", "Flatten",
+  "MaxPooling1D", "MaxPooling2D", "AveragePooling1D", "AveragePooling2D"
 )
 
 convert_keras_model <- function(model) {
@@ -41,6 +42,27 @@ convert_keras_model <- function(model) {
 
       model_dict$layers[[name]] <-
         list(type = type, dim_in = input_dim, dim_out = output_dim)
+      num <- num + 1
+    } else if (type %in% c("MaxPooling1D", "MaxPooling2D",
+                           "AveragePooling1D", "AveragePooling2D")) {
+      input_dim <- unlist(layer$input_shape)
+      output_dim <- unlist(layer$output_shape)
+      kernel_size <- unlist(layer$pool_size)
+      strides <- unlist(layer$strides)
+
+      if (layer$padding != "valid") {
+        stop(sprintf("Padding mode '%s' is not implemented yet!", layer$padding))
+      }
+
+      # in this package only 'channels_first'
+      if (layer$data_format == "channels_last") {
+        input_dim <- c(rev(input_dim)[1], input_dim[-length(input_dim)])
+        output_dim <- c(rev(output_dim)[1], output_dim[-length(output_dim)])
+      }
+
+      model_dict$layers[[name]] <-
+        list(type = type, dim_in = input_dim, dim_out = output_dim,
+             kernel_size = kernel_size, strides = strides)
       num <- num + 1
     }
   }

@@ -127,6 +127,68 @@ test_that("Test torch sequential model: 2D Conv", {
 
 })
 
+test_that("Test torch sequential model: 2D Conv with pooling", {
+  library(torch)
+
+  # See issue #716 (https://github.com/mlverse/torch/issues/716)
+  nn_flatten <- nn_module(
+    classname = "nn_flatten",
+    initialize = function(start_dim = 2, end_dim = -1) {
+      self$start_dim <- start_dim
+      self$end_dim <- end_dim
+    },
+    forward = function(x) {
+      torch_flatten(x, start_dim = self$start_dim, end_dim = self$end_dim)
+    }
+  )
+
+  input <- torch_randn(10, 3, 30, 30)
+
+  model <- nn_sequential(
+    nn_conv2d(3,10,5),
+    nn_relu(),
+    nn_avg_pool2d(c(2,2)),
+    nn_relu(),
+    nn_conv2d(10,8,4, padding = c(4, 5)),
+    nn_relu(),
+    nn_max_pool2d(c(2,2), stride = c(2,3)),
+    nn_relu(),
+    nn_flatten(),
+    nn_linear(504, 64),
+    nn_linear(64, 2)
+  )
+
+  expect_error(Converter$new(model))
+
+  converter <- Converter$new(model, input_dim = c(3, 30, 30))
+  y_true <- as_array(model(input))
+  y <- as_array(converter$model(input))
+
+  expect_equal(dim(y), dim(y_true))
+  expect_lt(mean((y - y_true)^2), 1e-12)
+
+  x_ref <- array(rnorm(3 * 30 * 30), dim = c(1, 3, 30, 30))
+  y_ref <- as.array(converter$model$update_ref(torch_tensor(x_ref)))
+  dim_y_ref <- dim(y_ref)
+  y_ref_true <- as.array(model(x_ref))
+  dim_y_ref_true <- dim(y_ref_true)
+
+  expect_equal(dim_y_ref_true, dim_y_ref)
+  expect_lt(mean((y_ref - y_ref_true)^2), 1e-12)
+
+  ## other attributes
+  # input dimension
+  expect_equal(converter$model_dict$input_dim, c(3, 30, 30))
+  # output dimension
+  expect_equal(converter$model_dict$output_dim, 2)
+
+  for (module in converter$model$modules_list) {
+    expect_equal(module$input_dim, dim(module$input)[-1])
+    expect_equal(module$output_dim, dim(module$output)[-1])
+  }
+
+})
+
 test_that("Test neuralnet model", {
   library(neuralnet)
   library(torch)
@@ -543,4 +605,59 @@ test_that("Test keras model: Conv2D with 'same' padding", {
   }
 })
 
+test_that("Test keras model: CNN with average pooling", {
+  library(torch)
+  library(keras)
 
+  data <- array(rnorm(64 * 32 * 32 * 3), dim = c(64, 32, 32, 3))
+
+  model <- keras_model_sequential()
+  model %>%
+    layer_conv_2d(
+      input_shape = c(32, 32, 3), kernel_size = 4, filters = 8,
+      activation = "softplus", padding = "valid"
+    ) %>%
+    layer_average_pooling_2d(strides = 3) %>%
+    layer_conv_2d(
+      kernel_size = 4, filters = 4, activation = "tanh",
+      padding = "valid"
+    ) %>%
+    layer_average_pooling_2d(pool_size = c(1, 3)) %>%
+    layer_conv_2d(
+      kernel_size = 2, filters = 2, activation = "relu",
+      padding = "valid"
+    ) %>%
+    layer_flatten() %>%
+    layer_dense(units = 64, activation = "relu") %>%
+    layer_dense(units = 16, activation = "relu") %>%
+    layer_dense(units = 1, activation = "sigmoid")
+
+  converter <- Converter$new(model)
+
+  # forward method
+  y_true <- as.array(model(data))
+  y <- as.array(converter$model(torch_tensor(data), channels_first = FALSE))
+  expect_equal(dim(y), dim(y_true))
+  expect_lt(mean(abs(y_true - y)^2), 1e-12)
+
+  # update
+  x_ref <- array(rnorm(32 * 32 * 3), dim = c(1, 32, 32, 3))
+  y_ref <- as.array(converter$model$update_ref(torch_tensor(x_ref),
+                                               channels_first = FALSE
+  ))
+  y_ref_true <- as.array(model(x_ref))
+  expect_equal(dim(y_ref), dim(y_ref_true))
+  expect_lt((y_ref_true - y_ref)^2, 1e-12)
+
+  ## other attributes
+  # input dimension
+  expect_equal(converter$model_dict$input_dim, c(3, 32, 32))
+  # output dimension
+  expect_equal(converter$model_dict$output_dim, 1)
+
+  for (module in converter$model$modules_list) {
+    expect_equal(module$input_dim, dim(module$input)[-1])
+    expect_equal(module$output_dim, dim(module$output)[-1])
+  }
+
+})

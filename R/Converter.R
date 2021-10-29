@@ -648,9 +648,75 @@ Converter <- R6Class("Converter",
           }
 
           modules_list[[paste0("Conv2D_", i)]] <- layer
+        }
+        #
+        # ------------------------ Pooling Layers -------------------------------
+        #
+        else if (type %in% c("MaxPooling1D", "MaxPooling2D",
+                             "AveragePooling1D", "AveragePooling2D")) {
+          # Check for required keys
+          assertSubset(c("kernel_size"), names(model_dict$layers[[i]]))
+          assertVector(model_dict$layers[[i]]$kernel_size, min.len = 1, max.len = 2)
+
+          kernel_size <- model_dict$layers[[i]]$kernel_size
+          strides <- model_dict$layers[[i]]$strides
+
+          if (is.null(strides)) strides <- kernel_size
+
+          if (type == "MaxPooling1D") {
+            assertSetEqual(length(kernel_size), 1)
+            assertSetEqual(length(strides), 1)
+
+            layer <- max_pool1d_layer(kernel_size, dim_in, dim_out, strides)
+          } else if (type == "AveragePooling1D") {
+            assertSetEqual(length(kernel_size), 1)
+            assertSetEqual(length(strides), 1)
+
+            layer <- avg_pool1d_layer(kernel_size, dim_in, dim_out, strides)
+          } else if (type == "MaxPooling2D") {
+            assertSetEqual(length(kernel_size), 2)
+            assertSetEqual(length(strides), 2)
+
+            layer <- max_pool2d_layer(kernel_size, dim_in, dim_out, strides)
+          } else if (type == "AveragePooling2D") {
+            assertSetEqual(length(kernel_size), 2)
+            assertSetEqual(length(strides), 2)
+
+            layer <- avg_pool2d_layer(kernel_size, dim_in, dim_out, strides)
+          }
+
+          # Test Layer and register dim_in and dim_out if needed
+          # Input dimension
+          calculated_dim_in <- dim(input)[-1]
+          if (!is.null(dim_in)) {
+            assertSetEqual(dim_in, calculated_dim_in,
+                           ordered = TRUE,
+                           .var.name = paste0("model_dict$layers[[",i, "]]$dim_in"))
+          } else {
+            layer$input_dim <- calculated_dim_in
+            model_dict$layers[[i]]$dim_in <- calculated_dim_in
+          }
+
+          # Layer works properly
+          tryCatch(input <- layer(input))
+
+          # Output dimension
+          calculated_dim_out <- dim(input)[-1]
+          if (!is.null(dim_out)) {
+            assertSetEqual(dim_out, calculated_dim_out,
+                           ordered = TRUE,
+                           .var.name = paste0("model_dict$layers[[",i, "]]$dim_out"))
+          } else {
+            layer$output_dim <- calculated_dim_out
+            model_dict$layers[[i]]$dim_out <- calculated_dim_out
+          }
+
+          modules_list[[paste0(type, "_", i)]] <- layer
+
         } else {
           stop(sprintf("Unknown layer type '%s' in model dictionary. Only the
-                       types 'Dense', 'Conv1D', 'Conv2D' and 'Flatten'
+                       types 'Dense', 'Conv1D', 'Conv2D', 'Flatten', 'AveragePooling1D',
+                       'AveragePooling2D', 'MaxPooling1D' and 'MaxPooling2D'
                        are allowed!", type))
         }
       }
