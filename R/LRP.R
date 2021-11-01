@@ -215,6 +215,9 @@ LRP <- R6Class(
     #' leads to a saturation problem.
     #' @param dtype The data type for the calculations. Use either `'float'` or
     #' `'double'`.
+    #' @param output_id This vector determines for which outputs the method
+    #' will be applied. By default (`NULL`), all outputs (but limited to the
+    #' first 10) are considered.
     #'
     #' @return A new instance of the R6 class `'LRP'`.
     #'
@@ -223,8 +226,10 @@ LRP <- R6Class(
                           rule_name = "simple",
                           rule_param = NULL,
                           ignore_last_act = TRUE,
-                          dtype = "float") {
-      super$initialize(converter, data, channels_first, dtype, ignore_last_act)
+                          dtype = "float",
+                          output_id = NULL) {
+      super$initialize(converter, data, channels_first, dtype, ignore_last_act,
+                       output_id)
 
       assertChoice(rule_name, c("simple", "epsilon", "alpha_beta"))
       self$rule_name <- rule_name
@@ -368,6 +373,13 @@ LRP <- R6Class(
         }
       }
 
+      rel <- rel[,,self$output_id, drop = FALSE]
+
+      message("Backwardpass 'LRP':")
+      # Define Progressbar
+      pb <- txtProgressBar(min = 0, max = length(rev_layers), style = 3)
+      i <- 0
+
       # other layers
       for (layer in rev_layers) {
         if ("Flatten_Layer" %in% layer$".classes") {
@@ -379,10 +391,14 @@ LRP <- R6Class(
             self$rule_param
           )
         }
+        i <- i + 1
+        setTxtProgressBar(pb, i)
       }
       if (!self$channels_first) {
         rel <- torch_movedim(rel, 2, length(dim(rel)) - 1)
       }
+
+      close(pb)
 
 
       rel

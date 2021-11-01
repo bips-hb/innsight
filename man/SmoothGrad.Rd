@@ -191,7 +191,8 @@ Create a new instance of this class.
   ignore_last_act = TRUE,
   times_input = TRUE,
   n = 50,
-  noise_level = 0.1
+  noise_level = 0.1,
+  output_id = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -222,6 +223,10 @@ features. This method is called 'SmoothGrad x Input'.}
 
 \item{\code{noise_level}}{Determines the standard deviation of the gaussian
 perturbation, i.e. \eqn{\sigma = (max(x) - min(x)) *} \code{noise_level}.}
+
+\item{\code{output_id}}{This vector determines for which outputs the method
+will be applied. By default (\code{NULL}), all outputs (but limited to the
+first 10) are considered.}
 }
 \if{html}{\out{</div>}}
 }

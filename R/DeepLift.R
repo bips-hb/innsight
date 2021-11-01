@@ -190,14 +190,19 @@ DeepLift <- R6Class(
     #' of zeros.
     #' @param rule_name Name of the applied rule to calculate the
     #' contributions. Use one of `'rescale'` and `'reveal_cancel'`.
+    #' @param output_id This vector determines for which outputs the method
+    #' will be applied. By default (`NULL`), all outputs (but limited to the
+    #' first 10) are considered.
     #'
     initialize = function(converter, data,
                           channels_first = TRUE,
                           dtype = "float",
                           ignore_last_act = TRUE,
                           rule_name = "rescale",
-                          x_ref = NULL) {
-      super$initialize(converter, data, channels_first, dtype, ignore_last_act)
+                          x_ref = NULL,
+                          output_id = NULL) {
+      super$initialize(converter, data, channels_first, dtype, ignore_last_act,
+                       output_id)
 
       assertChoice(rule_name, c("rescale", "reveal_cancel"))
       self$rule_name <- rule_name
@@ -338,6 +343,13 @@ DeepLift <- R6Class(
 
       mul <- torch_diag_embed(torch_ones_like(last_layer$output))
 
+      mul <- mul[,,self$output_id, drop = FALSE]
+
+      message("Backwardpass 'DeepLift':")
+      # Define Progressbar
+      pb <- txtProgressBar(min = 0, max = length(rev_layers) + 1, style = 3)
+      i <- 0
+
       if (self$ignore_last_act &&
         !("Flatten_Layer" %in% last_layer$".classes")) {
         mul <- last_layer$get_input_multiplier(mul,
@@ -347,6 +359,9 @@ DeepLift <- R6Class(
         mul <- last_layer$get_input_multiplier(mul, self$rule_name)
       }
 
+      i <- i + 1
+      setTxtProgressBar(pb, i)
+
       # other layers
       for (layer in rev_layers) {
         if ("Flatten_Layer" %in% layer$".classes") {
@@ -354,11 +369,16 @@ DeepLift <- R6Class(
         } else {
           mul <- layer$get_input_multiplier(mul, self$rule_name)
         }
+
+        i <- i + 1
+        setTxtProgressBar(pb, i)
       }
       if (!self$channels_first) {
         mul <- torch_movedim(mul, 2, length(dim(mul)) - 1)
       }
       x_diff <- (self$data - self$x_ref)$unsqueeze(-1)
+
+      close(pb)
 
       mul * x_diff
     }

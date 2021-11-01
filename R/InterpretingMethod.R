@@ -21,6 +21,8 @@
 #' activation leads to a saturation problem.
 #' @field result The methods result of the given data as a
 #' torch tensor of size (batch_size, dim_in, dim_out).
+#' @field output_id This vector determines for which outputs the method
+#' will be applied.
 #'
 #' @import ggplot2
 #'
@@ -33,6 +35,7 @@ InterpretingMethod <- R6Class(
     dtype = NULL,
     ignore_last_act = NULL,
     result = NULL,
+    output_id = NULL,
 
     #' @description
     #' Create a new instance of this class.
@@ -47,11 +50,15 @@ InterpretingMethod <- R6Class(
     #' @param ignore_last_act A boolean value to include the last
     #' activation into all the calculations, or not. In some cases, the last
     #' activation leads to a saturation problem.
+    #' @param output_id This vector determines for which outputs the method
+    #' will be applied. By default (`NULL`), all outputs (but limited to the
+    #' first 10) are considered.
 
     initialize = function(converter, data,
                           channels_first = TRUE,
                           dtype = "float",
-                          ignore_last_act = TRUE) {
+                          ignore_last_act = TRUE,
+                          output_id = NULL) {
       assertClass(converter, "Converter")
       self$converter <- converter
 
@@ -64,6 +71,14 @@ InterpretingMethod <- R6Class(
       assertChoice(dtype, c("float", "double"))
       self$dtype <- dtype
       self$converter$model$set_dtype(dtype)
+
+      assertIntegerish(output_id, null.ok = TRUE, lower = 1,
+                       upper = converter$model_dict$output_dim)
+
+
+      if (is.null(output_id)) output_id <-
+        1:min(converter$model_dict$output_dim, 10)
+      self$output_id <- output_id
 
       self$data <- private$test_data(data)
     },
@@ -151,12 +166,13 @@ InterpretingMethod <- R6Class(
       input_names <- self$converter$model_dict$input_names
       num_data <- dim(result)[1]
       data_names <- paste0("data_", 1:num_data)
+      class <- unlist(self$converter$model_dict$output_names)[self$output_id]
 
       if (length(input_names) == 1) {
         df <- expand.grid(
           data = data_names,
           feature = input_names[[1]],
-          class = unlist(self$converter$model_dict$output_names)
+          class = class
         )
       }
       # input (channels, signal_length)
@@ -166,14 +182,14 @@ InterpretingMethod <- R6Class(
             data = data_names,
             channel = input_names[[1]],
             feature_l = input_names[[2]],
-            class = unlist(self$converter$model_dict$output_names)
+            class = class
           )
         } else {
           df <- expand.grid(
             data = data_names,
             feature_l = input_names[[2]],
             channel = input_names[[1]],
-            class = unlist(self$converter$model_dict$output_names)
+            class = class
           )
         }
       } else if (length(input_names) == 3) {
@@ -183,7 +199,7 @@ InterpretingMethod <- R6Class(
             channel = input_names[[1]],
             feature_h = input_names[[2]],
             feature_w = input_names[[3]],
-            class = unlist(self$converter$model_dict$output_names)
+            class = class
           )
         } else {
           df <- expand.grid(
@@ -191,7 +207,7 @@ InterpretingMethod <- R6Class(
             feature_h = input_names[[2]],
             feature_w = input_names[[3]],
             channel = input_names[[1]],
-            class = unlist(self$converter$model_dict$output_names)
+            class = class
           )
         }
       }

@@ -223,7 +223,8 @@ Create a new instance of the LRP-Method.
   rule_name = "simple",
   rule_param = NULL,
   ignore_last_act = TRUE,
-  dtype = "float"
+  dtype = "float",
+  output_id = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -256,6 +257,10 @@ leads to a saturation problem.}
 
 \item{\code{dtype}}{The data type for the calculations. Use either \code{'float'} or
 \code{'double'}.}
+
+\item{\code{output_id}}{This vector determines for which outputs the method
+will be applied. By default (\code{NULL}), all outputs (but limited to the
+first 10) are considered.}
 }
 \if{html}{\out{</div>}}
 }

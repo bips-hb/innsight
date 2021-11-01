@@ -36,6 +36,9 @@ activation leads to a saturation problem.}
 
 \item{\code{result}}{The methods result of the given data as a
 torch tensor of size (batch_size, dim_in, dim_out).}
+
+\item{\code{output_id}}{This vector determines for which outputs the method
+will be applied.}
 }
 \if{html}{\out{</div>}}
 }
@@ -58,7 +61,8 @@ Create a new instance of this class.
   data,
   channels_first = TRUE,
   dtype = "float",
-  ignore_last_act = TRUE
+  ignore_last_act = TRUE,
+  output_id = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -79,6 +83,10 @@ data has no channels, use the default value \code{TRUE}.}
 \item{\code{ignore_last_act}}{A boolean value to include the last
 activation into all the calculations, or not. In some cases, the last
 activation leads to a saturation problem.}
+
+\item{\code{output_id}}{This vector determines for which outputs the method
+will be applied. By default (\code{NULL}), all outputs (but limited to the
+first 10) are considered.}
 }
 \if{html}{\out{</div>}}
 }

@@ -33,13 +33,18 @@ GradientBased <- R6::R6Class(
     #' activation leads to a saturation problem.
     #' @param times_input Multiplies the gradients with the input features. This
     #' method is called 'Gradient x Input'.
+    #' @param output_id This vector determines for which outputs the method
+    #' will be applied. By default (`NULL`), all outputs (but limited to the
+    #' first 10) are considered.
     #'
     initialize = function(converter, data,
                           channels_first = TRUE,
                           dtype = "float",
                           ignore_last_act = TRUE,
-                          times_input = TRUE) {
-      super$initialize(converter, data, channels_first, dtype, ignore_last_act)
+                          times_input = TRUE,
+                          output_id = NULL) {
+      super$initialize(converter, data, channels_first, dtype, ignore_last_act,
+                       output_id)
 
       checkmate::assert_logical(times_input)
       self$times_input <- times_input
@@ -171,15 +176,19 @@ GradientBased <- R6::R6Class(
 
       # Implemented is only the case where the output is one-dimensional
       assertTRUE(length(dim(output)) == 2)
-
-      res <- vector(mode = "list", length = dim(output)[2])
       out_sum <- sum(output, dim = 1)
 
-      for (i in 1:dim(output)[2]) {
-        res[[i]] <- autograd_grad(out_sum[i], input, retain_graph = TRUE)[[1]]
-      }
+      # Define Progressbar
+      pb <- txtProgressBar(min = 0, max = length(self$output_id), style = 3)
 
-      torch_stack(res, dim = length(dim(input)) + 1)
+      res <- lapply(seq_len(length(self$output_id)), function(i) {
+        setTxtProgressBar(pb, i)
+        autograd_grad(out_sum[self$output_id[i]], input, retain_graph = TRUE)[[1]]
+      })
+
+      close(pb)
+
+      torch_stack(res, dim = -1)
     }
   )
 )
@@ -367,19 +376,24 @@ Gradient <- R6::R6Class(
     #' last activation leads to a saturation problem. Default: `TRUE`.
     #' @param times_input Multiplies the gradients with the input features.
     #' This method is called 'Gradient x Input'. Default: `TRUE`.
+    #' @param output_id This vector determines for which outputs the method
+    #' will be applied. By default (`NULL`), all outputs (but limited to the
+    #' first 10) are considered.
     #'
     initialize = function(converter, data,
                           channels_first = TRUE,
                           dtype = "float",
                           ignore_last_act = TRUE,
-                          times_input = TRUE) {
+                          times_input = TRUE,
+                          output_id = NULL) {
       super$initialize(
         converter,
         data,
         channels_first,
         dtype,
         ignore_last_act,
-        times_input
+        times_input,
+        output_id
       )
 
       self$result <- private$run()
@@ -387,6 +401,7 @@ Gradient <- R6::R6Class(
   ),
   private = list(
     run = function() {
+      message("Backwardpass 'Gradient':")
       gradients <- private$calculate_gradients(self$data)
 
       if (self$times_input) {
@@ -579,6 +594,9 @@ SmoothGrad <- R6Class(
     #' @param n Number of perturbations of the input data (default: \eqn{50}).
     #' @param noise_level Determines the standard deviation of the gaussian
     #' perturbation, i.e. \eqn{\sigma = (max(x) - min(x)) *} `noise_level`.
+    #' @param output_id This vector determines for which outputs the method
+    #' will be applied. By default (`NULL`), all outputs (but limited to the
+    #' first 10) are considered.
     #'
     #'
     initialize = function(converter, data,
@@ -587,14 +605,16 @@ SmoothGrad <- R6Class(
                           ignore_last_act = TRUE,
                           times_input = TRUE,
                           n = 50,
-                          noise_level = 0.1) {
+                          noise_level = 0.1,
+                          output_id = NULL) {
       super$initialize(
         converter,
         data,
         channels_first,
         dtype,
         ignore_last_act,
-        times_input
+        times_input,
+        output_id
       )
 
       assertInt(n, lower = 1)
@@ -618,6 +638,7 @@ SmoothGrad <- R6Class(
 
       noise <- torch_randn_like(data) * noise_scale
 
+      message("Backwardpass 'SmoothGrad':")
       gradients <- private$calculate_gradients(data + noise)
 
       smoothgrads <-

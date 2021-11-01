@@ -199,7 +199,8 @@ Create a new instance of the DeepLift method.
   dtype = "float",
   ignore_last_act = TRUE,
   rule_name = "rescale",
-  x_ref = NULL
+  x_ref = NULL,
+  output_id = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -230,6 +231,10 @@ contributions. Use one of \code{'rescale'} and \code{'reveal_cancel'}.}
 \item{\code{x_ref}}{The reference input of size (1, dim_in) for the
 interpretation. With the default value \code{NULL} you use an input
 of zeros.}
+
+\item{\code{output_id}}{This vector determines for which outputs the method
+will be applied. By default (\code{NULL}), all outputs (but limited to the
+first 10) are considered.}
 }
 \if{html}{\out{</div>}}
 }

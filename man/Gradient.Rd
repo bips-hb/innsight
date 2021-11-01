@@ -181,7 +181,8 @@ Create a new instance of this class.
   channels_first = TRUE,
   dtype = "float",
   ignore_last_act = TRUE,
-  times_input = TRUE
+  times_input = TRUE,
+  output_id = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -207,6 +208,10 @@ last activation leads to a saturation problem. Default: \code{TRUE}.}
 
 \item{\code{times_input}}{Multiplies the gradients with the input features.
 This method is called 'Gradient x Input'. Default: \code{TRUE}.}
+
+\item{\code{output_id}}{This vector determines for which outputs the method
+will be applied. By default (\code{NULL}), all outputs (but limited to the
+first 10) are considered.}
 }
 \if{html}{\out{</div>}}
 }
