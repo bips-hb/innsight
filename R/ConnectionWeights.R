@@ -21,6 +21,8 @@
 #' for [torch::torch_float] or `'double'` for [torch::torch_double]).
 #' @field result The methods result as a torch tensor of size
 #' (dim_in, dim_out).
+#' @field output_id This vector determines for which outputs the method
+#' will be applied
 #'
 #' @examplesIf torch::torch_is_installed()
 #' #----------------------- Example 1: Torch ----------------------------------
@@ -144,9 +146,13 @@ ConnectionWeights <- R6Class(
     channels_first = NULL,
     dtype = NULL,
     result = NULL,
+    output_id = NULL,
 
     #' @param converter The converter of class [Converter] with the stored and
     #' torch-converted model.
+    #' @param output_id This vector determines for which outputs the method
+    #' will be applied. By default (`NULL`), all outputs (but limited to the
+    #' first 10) are considered.
     #' @param channels_first The data format of the result, i.e. channels on
     #' last dimension (`FALSE`) or on the first dimension (`TRUE`). If the
     #' data has no channels, use the default value `TRUE`.
@@ -154,10 +160,19 @@ ConnectionWeights <- R6Class(
     #' (either `'float'` or `'double'`).
     #'
     initialize = function(converter,
+                          output_id = NULL,
                           channels_first = TRUE,
                           dtype = "float") {
       assertClass(converter, "Converter")
       self$converter <- converter
+
+      assertIntegerish(output_id, null.ok = TRUE, lower = 1,
+                       upper = converter$model_dict$output_dim)
+
+
+      if (is.null(output_id)) output_id <-
+        1:min(converter$model_dict$output_dim, 10)
+      self$output_id <- output_id
 
       assert_logical(channels_first)
       self$channels_first <- channels_first
@@ -294,23 +309,36 @@ ConnectionWeights <- R6Class(
           )$unsqueeze(1)
       }
 
-      for (layer in rev(self$converter$model$modules_list)) {
+      index <- torch_tensor(self$output_id, dtype = torch_long())
+      grad <- grad[,,index, drop = FALSE]
+
+      layers <- rev(self$converter$model$modules_list)
+      message("Backwardpass 'ConnectionWeights':")
+      # Define Progressbar
+      pb <- txtProgressBar(min = 0, max = length(layers), style = 3)
+      i <- 0
+
+      for (layer in layers) {
         if ("Flatten_Layer" %in% layer$".classes") {
           grad <- layer$reshape_to_input(grad)
         } else {
           grad <- layer$get_gradient(grad, layer$W)
         }
+
+        i <- i + 1
+        setTxtProgressBar(pb, i)
       }
       if (!self$channels_first) {
         grad <- torch_movedim(grad, 2, length(dim(grad)) - 1)
       }
+      close(pb)
 
       grad$squeeze(1)
     },
     get_dataframe = function() {
       result <- as.array(self$result)
       input_names <- self$converter$model_dict$input_names
-      class <- unlist(self$converter$model_dict$output_names)
+      class <- unlist(self$converter$model_dict$output_names)[self$output_id]
 
       if (length(input_names) == 1) {
         df <- expand.grid(
@@ -355,4 +383,3 @@ ConnectionWeights <- R6Class(
     }
   )
 )
-

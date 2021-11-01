@@ -147,6 +147,9 @@ for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for \link[to
 
 \item{\code{result}}{The methods result as a torch tensor of size
 (dim_in, dim_out).}
+
+\item{\code{output_id}}{This vector determines for which outputs the method
+will be applied}
 }
 \if{html}{\out{</div>}}
 }
@@ -164,7 +167,12 @@ for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for \link[to
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ConnectionWeights$new(converter, channels_first = TRUE, dtype = "float")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ConnectionWeights$new(
+  converter,
+  output_id = NULL,
+  channels_first = TRUE,
+  dtype = "float"
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -172,6 +180,10 @@ for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for \link[to
 \describe{
 \item{\code{converter}}{The converter of class \link{Converter} with the stored and
 torch-converted model.}
+
+\item{\code{output_id}}{This vector determines for which outputs the method
+will be applied. By default (\code{NULL}), all outputs (but limited to the
+first 10) are considered.}
 
 \item{\code{channels_first}}{The data format of the result, i.e. channels on
 last dimension (\code{FALSE}) or on the first dimension (\code{TRUE}). If the
