@@ -72,12 +72,16 @@ InterpretingMethod <- R6Class(
       self$dtype <- dtype
       self$converter$model$set_dtype(dtype)
 
-      assertIntegerish(output_id, null.ok = TRUE, lower = 1,
-                       upper = converter$model_dict$output_dim)
+      assertIntegerish(output_id,
+        null.ok = TRUE, lower = 1,
+        upper = converter$model_dict$output_dim
+      )
 
 
-      if (is.null(output_id)) output_id <-
-        1:min(converter$model_dict$output_dim, 10)
+      if (is.null(output_id)) {
+        output_id <-
+          1:min(converter$model_dict$output_dim, 10)
+      }
       self$output_id <- output_id
 
       self$data <- private$test_data(data)
@@ -107,7 +111,7 @@ InterpretingMethod <- R6Class(
       } else if (type != "torch.tensor") {
         stop(sprintf(
           "Unknown data format '%s'! Use for argument 'type' one
-                     of 'array', 'data.frame' or 'torch.tensor' instead.",
+          of 'array', 'data.frame' or 'torch.tensor' instead.",
           type
         ))
       }
@@ -115,7 +119,6 @@ InterpretingMethod <- R6Class(
       result
     }
   ),
-
   private = list(
     test_data = function(data, name = "data") {
       if (missing(data)) {
@@ -223,40 +226,92 @@ InterpretingMethod <- R6Class(
                     as_plotly = FALSE,
                     value_name = "value") {
 
+      # Check correctness of arguments
       assertNumeric(datapoint, lower = 1, upper = dim(self$result)[1])
       assertNumeric(classes, lower = 1, upper = rev(dim(self$result))[1])
       assertFunction(aggr_channels)
       assertLogical(as_plotly)
 
-      num_dims <- length(dim(self$result))
+      # The input and output names are used for every plot-function
+      input_names <- self$converter$model_dict$input_names
+      output_names <- unlist(self$converter$model_dict$output_names)[classes]
 
-      result <- private$get_dataframe()
-      output_names <- unlist(self$converter$model_dict$output_names)
-      result <- result[result$data %in% paste0("data_", datapoint) &
-                         result$class %in% output_names[classes], ]
+      # Depending on the number of dimensions, a different plot-function
+      # is used
+      num_dims <- length(dim(self$result))
       # 1D Input
       if (num_dims == 3) {
-        p <- plot_1d_input(result, value_name)
+        # Filter all results by the given 'datapoint' and 'classes'
+        res <- self$result[datapoint, , classes, drop = FALSE]
+        # Plot the result
+        p <- plot_1d_input(
+          res, value_name, paste0("data_", datapoint),
+          input_names,
+          output_names,
+          self$channels_first, FALSE
+        )
         dynamicTicks <- FALSE
       }
       # 2D Input
       else if (num_dims == 4) {
-        p <- plot_2d_input(result, aggr_channels, value_name)
+        # Filter all results by the given 'datapoint' and 'classes'
+        res <- as_array(self$result[datapoint, , , classes, drop = FALSE])
+
+        # Depending on the dataformat the channels are on axis '2' or '3'
+        if (self$channels_first) {
+          dims <- c(1, 3, 4)
+          d <- 2
+        } else {
+          dims <- c(1, 2, 4)
+          d <- 3
+        }
+        # Summarize the channels by function 'aggr_channels'
+        res <- torch_tensor(apply(res, dims, aggr_channels))$unsqueeze(d)
+        # Modify input names because we changed the number of channels
+        input_names[[1]] <- c("aggr")
+
+        # Plot the result
+        p <- plot_2d_input(
+          res, value_name, paste0("data_", datapoint), input_names,
+          output_names, self$channels_first, FALSE
+        )
         dynamicTicks <- TRUE
       }
       # 3D Input
       else if (num_dims == 5) {
-        p <- plot_3d_input(result, aggr_channels, value_name)
+        # Filter all results by the given 'datapoint' and 'classes'
+        res <- as_array(self$result[datapoint, , , , classes, drop = FALSE])
+        # Depending on the dataformat the channels are on axis '2' or '3'
+        if (self$channels_first) {
+          dims <- c(1, 3, 4, 5)
+          d <- 2
+        } else {
+          dims <- c(1, 2, 3, 5)
+          d <- 4
+        }
+        # Summarize the channels by function 'aggr_channels'
+        res <- torch_tensor(apply(res, dims, aggr_channels))$unsqueeze(d)
+        # Modify input names because we changed the number of channels
+        input_names[[1]] <- c("aggr")
+        # Plot the result
+        p <- plot_3d_input(
+          res, value_name, paste0("data_", datapoint), input_names,
+          output_names, self$channels_first, FALSE
+        )
         dynamicTicks <- TRUE
       }
 
+      # Set the size of labels and titles
       p <- p +
         theme(
           strip.text.x = element_text(size = 10),
           strip.text.y = element_text(size = 10),
           axis.title.x = element_text(size = 12),
-          axis.title.y = element_text(size = 12))
+          axis.title.y = element_text(size = 12)
+        )
 
+      # If 'as_plotly = TRUE', we transform the ggplot into a plotly plot by
+      # using 'plotly::ggplotly'
       if (as_plotly) {
         if (!requireNamespace("plotly", quietly = FALSE)) {
           stop("Please install the 'plotly' package if you want to create an
@@ -268,12 +323,12 @@ InterpretingMethod <- R6Class(
       p
     },
 
-    # -------------------- Summary Plots -------------------------------------
+    # ------------------------ Boxplots -------------------------------------
 
     boxplot = function(preprocess_FUN, boxplot_data, classes, ref_datapoint,
                        aggr_channels, individual_data,
                        individual_max, as_plotly, value_name) {
-
+      # Check correctness of arguments
       assertFunction(preprocess_FUN)
       assertFunction(aggr_channels)
       assertLogical(as_plotly)
@@ -283,17 +338,18 @@ InterpretingMethod <- R6Class(
       )
       assertNumeric(classes, lower = 1, upper = rev(dim(self$result))[1])
       assertInt(ref_datapoint,
-                               lower = 1,
-                               upper = dim(self$result)[1], null.ok = TRUE
-                               )
+        lower = 1, upper = dim(self$result)[1], null.ok = TRUE
+      )
       checkNumeric(individual_data,
-                              lower = 1,
-                              upper = dim(self$result)[1], null.ok = TRUE)
+        lower = 1, upper = dim(self$result)[1], null.ok = TRUE
+      )
 
+      # Set default value for 'boxplot_data'
       if (is.character(boxplot_data) && boxplot_data == "all") {
         boxplot_data <- 1:dim(self$result)[1]
       }
 
+      # Set default for 'individual_data' (only for plotly plots)
       if (is.null(individual_data)) {
         individual_data <- boxplot_data
       }
@@ -301,23 +357,26 @@ InterpretingMethod <- R6Class(
         individual_data <- individual_data[1:individual_max]
       }
 
-      l <- length(dim(self$result))
-
-      result <- private$get_dataframe()
-      all_data_ids <- c(boxplot_data, individual_data, ref_datapoint)
-      output_names <- unlist(self$converter$model_dict$output_names)
-      result <- result[result$data %in% paste0("data_", all_data_ids) &
-                         result$class %in% output_names[classes], ]
-      result$summary_data <- result$data %in% paste0("data_", boxplot_data)
-      result$individual_data <-
-        result$data %in% paste0("data_", c(individual_data, ref_datapoint))
-
-      result$value <- preprocess_FUN(result$value)
-
       if (as_plotly) {
+        result <- private$get_dataframe()
+        all_data_ids <- c(boxplot_data, individual_data, ref_datapoint)
+        output_names <- unlist(self$converter$model_dict$output_names)
+        result <- result[result$data %in% paste0("data_", all_data_ids) &
+          result$class %in% output_names[classes], ]
+        result$summary_data <- result$data %in% paste0("data_", boxplot_data)
+        result$individual_data <-
+          result$data %in% paste0("data_", c(individual_data, ref_datapoint))
+
+        result$value <- preprocess_FUN(result$value)
         p <- boxplot_plotly(result, aggr_channels, ref_datapoint, value_name)
       } else {
-        p <- boxplot_ggplot(result, aggr_channels, ref_datapoint, value_name)
+        output_names <- unlist(self$converter$model_dict$output_names)[classes]
+        input_names <- self$converter$model_dict$input_names
+        p <- boxplot_ggplot(
+          self$result, aggr_channels, ref_datapoint, value_name,
+          boxplot_data, classes, input_names, output_names,
+          preprocess_FUN, self$channels_first
+        )
       }
 
       p

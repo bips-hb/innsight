@@ -11,28 +11,33 @@
 #                           Individual Plots
 ##############################################################################
 
-plot_1d_input <- function(result, value_name, no_data = FALSE) {
-  result$x <- as.numeric(result$feature)
+plot_1d_input <- function(result, value_name, data_names, input_names,
+                          output_names, channels_first, no_data) {
 
-  if (!no_data) {
-    # Normalize the values for each data point to obtain meaningful colorscales
-    result$value_scaled <- ave(
-      x = result$value, factor(result$data),
-      FUN = function(x) x / max(abs(x))
-    )
-  } else {
-    result$value_scaled <- result$value
-  }
+  # For nice fills, rescale result for each datapoint individually
+  result_scaled <-
+    result / torch_amax(torch_abs(result), dim = 2:3, keepdim = TRUE)
+  # Store the number of datapoints
+  num_data <- dim(result)[1]
+  # Transform the result in a data.frame and add new column with the
+  # rescaled values
+  result <- get_dataframe(
+    result, data_names, input_names, output_names,
+    channels_first
+  )
+  result$value_scaled <- as.vector(as_array(result_scaled))
+
+  result$x <- as.numeric(result$feature)
   result[[value_name]] <- round2(result$value)
 
-  # Define the hovertext
+  # Define the hovertext for plotly
+  # If 'no_data = TRUE', there will be no datapoint in the hovertext
   if (no_data) {
     text <- paste(
       "<b></br>", value_name, ":", result[[value_name]], "</b>\n",
       "</br> Class:       ", result$class,
       "</br> Feature:    ", result$feature
     )
-    facet <- facet_grid(cols = vars(class), scales = "free_y")
   } else {
     text <- paste(
       "<b></br>", value_name, ":", result[[value_name]], "</b>\n",
@@ -40,6 +45,11 @@ plot_1d_input <- function(result, value_name, no_data = FALSE) {
       "</br> Class:       ", result$class,
       "</br> Feature:    ", result$feature
     )
+  }
+  # Create facets
+  if (num_data == 1) {
+    facet <- facet_grid(cols = vars(class), scales = "free_y")
+  } else {
     facet <- facet_grid(data ~ class, scales = "free_y")
   }
   # For a custom hovertext in the plotly-plot, we have to define the
@@ -73,39 +83,33 @@ plot_1d_input <- function(result, value_name, no_data = FALSE) {
 }
 
 # --------------------------- 2D Plots ----------------------------------
+plot_2d_input <- function(result, value_name, data_names, input_names,
+                          output_names, channels_first, no_data) {
 
-plot_2d_input <- function(result, aggr_channels, value_name, no_data = FALSE) {
+  # For nice fills, rescale result for each datapoint individually
+  result_scaled <-
+    result / torch_amax(torch_abs(result), dim = 2:4, keepdim = TRUE)
+  # Store the number of datapoints
+  num_data <- dim(result)[1]
+  # Transform the result in a data.frame and add new column with the
+  # rescaled values
+  result <- get_dataframe(
+    result, data_names, input_names, output_names,
+    channels_first
+  )
+  result$value_scaled <- as.vector(as_array(result_scaled))
 
-  if (no_data) {
-    result$data <- "data_1"
-  }
-
-  # aggregate channels
   result$x <- as.numeric(result$feature_l)
-  result <- aggregate(list(value = result$value),
-    by = list(
-      data = result$data,
-      feature_l = result$feature_l,
-      class = result$class,
-      x = result$x
-    ), FUN = aggr_channels
-  )
-  # Normalize the values for each data point to obtain meaningful colorscales
-  result$value_scaled <- ave(
-    x = result$value, factor(result$data),
-    FUN = function(x) x / max(abs(x))
-  )
-
   result[[value_name]] <- round2(result$value)
 
-  # Define hovertext for plotly
+  # Define the hovertext for plotly
+  # If 'no_data = TRUE', there will be no datapoint in the hovertext
   if (no_data) {
     text <- paste(
       "<b></br>", value_name, ":", result[[value_name]], "</b>\n",
       "</br> Class:       ", result$class,
       "</br> Length:     ", result$feature_l
     )
-    facet <- facet_grid(cols = vars(class), scales = "free_y")
   } else {
     text <- paste(
       "<b></br>", value_name, ":", result[[value_name]], "</b>\n",
@@ -113,6 +117,12 @@ plot_2d_input <- function(result, aggr_channels, value_name, no_data = FALSE) {
       "</br> Class:       ", result$class,
       "</br> Length:     ", result$feature_l
     )
+  }
+
+  # Create facets
+  if (num_data == 1) {
+    facet <- facet_grid(cols = vars(class), scales = "free_y")
+  } else {
     facet <- facet_grid(data ~ class, scales = "free_y")
   }
 
@@ -137,8 +147,6 @@ plot_2d_input <- function(result, aggr_channels, value_name, no_data = FALSE) {
       ) +
       scale_fill_gradient2(low = "blue", mid = "grey", high = "red") +
       facet +
-      #scale_x_continuous(breaks = unique(result$feature_l),
-      #                   guide = guide_axis(check.overlap = TRUE)) +
       geom_hline(yintercept = 0) +
       xlab("Signal Length") +
       ylab(value_name)
@@ -147,30 +155,24 @@ plot_2d_input <- function(result, aggr_channels, value_name, no_data = FALSE) {
 }
 
 # ------------------------- 3D Plots -------------------------------------
+plot_3d_input <- function(result, value_name, data_names, input_names,
+                          output_names, channels_first, no_data) {
 
-plot_3d_input <- function(result, aggr_channels, value_name, no_data = FALSE) {
-  if (no_data) {
-    result$data <- "data_1"
-  }
-
-  # Aggregate channels
-  result <- aggregate(list(value = result$value),
-    by = list(
-      data = result$data,
-      feature_h = result$feature_h,
-      feature_w = result$feature_w,
-      class = result$class
-    ),
-    FUN = aggr_channels
+  # For nice fills, rescale result for each datapoint individually
+  result_scaled <-
+    result / torch_amax(torch_abs(result), dim = 2:5, keepdim = TRUE)
+  num_data <- dim(result)[1]
+  # Transform the result in a data.frame and add new column with the
+  # rescaled values
+  result <- get_dataframe(
+    result, data_names, input_names, output_names,
+    channels_first
   )
-
-  # For a custom hovertext in the plotly-plot, we have to define the
-  # aesthetic "text" what results in a warning "Unknown aesthetics". But as
-  # you can see in the documentation of plotly::ggplotly, this is the way
-  # to go.
+  result$value_scaled <- as.vector(as_array(result_scaled))
   result[[value_name]] <- round2(result$value)
 
-  # Define hovertext for plotly
+  # Define the hovertext for plotly
+  # If 'no_data = TRUE', there will be no datapoint in the hovertext
   if (no_data) {
     text <- paste(
       "<b></br>", value_name, ":", result[[value_name]], "</b>\n",
@@ -178,7 +180,6 @@ plot_3d_input <- function(result, aggr_channels, value_name, no_data = FALSE) {
       "</br> Height:      ", result$feature_h,
       "</br> Width:       ", result$feature_w
     )
-    facet <- facet_grid(cols = vars(class), scales = "free_y")
   } else {
     text <- paste(
       "<b></br>", value_name, ":", result[[value_name]], "</b>\n",
@@ -187,8 +188,18 @@ plot_3d_input <- function(result, aggr_channels, value_name, no_data = FALSE) {
       "</br> Height:      ", result$feature_h,
       "</br> Width:       ", result$feature_w
     )
+  }
+
+  # Create facets
+  if (num_data == 1) {
+    facet <- facet_grid(cols = vars(class), scales = "free_y")
+  } else {
     facet <- facet_grid(data ~ class, scales = "free_y")
   }
+
+  # Define color
+  col <- colorRamp(c("blue", "black", "red"))
+
 
   # Make axis continuous
   result$feature_h <- as.numeric(result$feature_h)
@@ -200,13 +211,13 @@ plot_3d_input <- function(result, aggr_channels, value_name, no_data = FALSE) {
         x = .data$feature_w, y = .data$feature_h, fill = .data$value,
         text = text
       )) +
-      scale_fill_gradient2(
-        low = "blue",
-        mid = "white",
-        high = "red"
+      scale_fill_gradientn(
+        colours = rgb(col(seq(0, 1, length.out = 50)) / 255)
       ) +
-      coord_cartesian(xlim = c(2, max(result$feature_w) - 1),
-                      ylim = c(2, max(result$feature_h) - 1)) +
+      coord_cartesian(
+        xlim = c(2, max(result$feature_w) - 1),
+        ylim = c(2, max(result$feature_h) - 1)
+      ) +
       facet +
       xlab("Image Width") +
       labs(fill = value_name) +
@@ -216,7 +227,6 @@ plot_3d_input <- function(result, aggr_channels, value_name, no_data = FALSE) {
   p
 }
 
-
 ##############################################################################
 #                             Boxplot Plots
 ##############################################################################
@@ -224,60 +234,142 @@ plot_3d_input <- function(result, aggr_channels, value_name, no_data = FALSE) {
 #
 # ggplot2
 #
-
-boxplot_ggplot <- function(result, aggr_channels, ref_datapoint, value_name) {
-  # Get the input dimension of the result
-  input_dim <- ncol(result) - 5
+boxplot_ggplot <- function(result, aggr_channels, ref_datapoint, value_name,
+                           boxplot_data, classes, input_names, output_names,
+                           preprocess_FUN, channels_first) {
+  # Get the number of input dimension of the result
+  num_dims <- length(dim(result)) - 2
 
   # Plot the result stratified by the input dimension
 
   #
   # 1D Input
   #
-  if (input_dim == 1) {
+  if (num_dims == 1) {
+    # Filter the result for datapoints 'boxplot_data' and class 'classes'
+    # In addition, apply the preprocess function 'preprocess_FUN'
+    res <- preprocess_FUN(result[boxplot_data, , classes, drop = FALSE])
+    # If a reference datapoint should be plotted, filter for this specific
+    # datapoint and create a data.frame from it
+    if (length(ref_datapoint) > 0) {
+      res_ref <- preprocess_FUN(result[ref_datapoint, , classes, drop = FALSE])
+      res_ref <- get_dataframe(
+        res_ref, paste0("data_", ref_datapoint),
+        input_names, output_names, channels_first
+      )
+    } else {
+      res_ref <- NULL
+    }
+
+    # Get a data.frame with the boxplot information and another one
+    # for the outliers
+    res <- get_boxplot_df(res, input_names[[1]], output_names)
+
+    # Plot the result
     p <- boxplot_1d_2d_ggplot(
-      result = result,
-      xlabel = "Feature",
-      ref_datapoint = ref_datapoint,
-      value_name = value_name,
-      width = 0.8)
-  } else if (input_dim == 2) {
-    # Aggregate channels
-    result <- aggregate(
-      list(value = result$value),
-      by = list(
-        data = result$data,
-        feature = result$feature_l,
-        class = result$class,
-        summary_data = result$summary_data,
-        individual_data = result$individual_data
-      ),
-      FUN = aggr_channels
+      res[[1]], res[[2]], res_ref, value_name,
+      "Feature", 0.8
     )
+  }
+  #
+  # 2D Input
+  #
+  else if (num_dims == 2) {
+    # Filter the result for datapoints 'boxplot_data' and class 'classes'
+    # In addition, apply the preprocess function 'preprocess_FUN'
+    res <-
+      as_array(preprocess_FUN(result[boxplot_data, , , classes, drop = FALSE]))
+
+    # Aggregate the channels with function 'aggr_channels'
+    if (channels_first) {
+      dims <- c(1, 3, 4)
+    } else {
+      dims <- c(1, 2, 4)
+    }
+    res <- torch_tensor(apply(res, dims, aggr_channels))
+
+    # If a reference datapoint should be plotted, filter for this specific
+    # datapoint, aggregate channels and then create a data.frame from it
+    if (length(ref_datapoint) > 0) {
+      res_ref <- as_array(
+        preprocess_FUN(result[ref_datapoint, , , classes, drop = FALSE])
+      )
+      res_ref <- apply(res_ref, dims, aggr_channels)
+      res_ref <- get_dataframe(
+        res_ref, paste0("data_", ref_datapoint),
+        input_names[2], output_names, channels_first
+      )
+    } else {
+      res_ref <- NULL
+    }
+
+    # Get a data.frame with the boxplot information and another one
+    # for the outliers
+    res <- get_boxplot_df(res, input_names[[2]], output_names)
+
+    # Plot the result
     p <- boxplot_1d_2d_ggplot(
-      result = result,
-      xlabel = "Signal Length",
-      ref_datapoint = ref_datapoint,
-      value_name = value_name,
-      width = 1)
-  } else if (input_dim == 3) {
-    p <- boxplot_3d_ggplot(result, aggr_channels, value_name)
+      res[[1]], res[[2]], res_ref, value_name,
+      "Signal Length", 1
+    )
+  }
+  #
+  # 3D Input
+  #
+  else if (num_dims == 3) {
+    # Filter the result for datapoints 'boxplot_data' and class 'classes'
+    # In addition, apply the preprocess function 'preprocess_FUN'
+    res <- preprocess_FUN(
+      as_array(result[boxplot_data, , , , classes, drop = FALSE])
+    )
+    # Aggregate the channels with function 'aggr_channels'
+    if (channels_first) {
+      dims <- c(1, 3, 4, 5)
+      d <- 2
+    } else {
+      dims <- c(1, 2, 3, 5)
+      d <- 4
+    }
+    res <- torch_tensor(apply(res, dims, aggr_channels))$unsqueeze(d)
+
+    # Calculate the median value
+    res <- torch_median(res, dim = 1, keepdim = TRUE)[[1]]
+    input_names[[1]] <- c("aggr")
+
+    # Get a data.frame for the median value
+    res <- get_dataframe(
+      res, list("data_1"), input_names, output_names,
+      channels_first
+    )
+
+    # Plot the result
+    p <- boxplot_3d_ggplot(res, value_name)
   }
   p
 }
 
 
-boxplot_1d_2d_ggplot <- function(result, xlabel, ref_datapoint, value_name,
+boxplot_1d_2d_ggplot <- function(res, outliers, res_ref, value_name, xlabel,
                                  width) {
-  summary_df <- result[result$summary_data, ]
-
-  breaks <- levels(summary_df$feature)
+  # Create boxplots without outliers
+  breaks <- levels(res$feature)
   if (length(breaks) > 10) {
     breaks <- breaks[seq(1, length(breaks), by = length(breaks) %/% 10)]
   }
-  p <- ggplot(data = summary_df, aes(x = .data$feature, y = .data$value)) +
-    stat_boxplot(geom = "errorbar") +
-    geom_boxplot(color = "black", fill = "grey40", width = width) +
+  mapping <- aes(
+    x = .data$feature, ymin = .data$min,
+    lower = .data$lower, middle = .data$median,
+    upper = .data$upper, ymax = .data$max
+  )
+  p <- ggplot() +
+    geom_errorbar(data = res, aes(
+      x = .data$feature, ymin = .data$min,
+      ymax = .data$max
+    ), width = 0.8) +
+    geom_boxplot(
+      data = res, mapping = mapping, color = "black",
+      fill = "grey40", width = width, stat = "identity"
+    ) +
     facet_grid(cols = vars(class), scales = "free_y") +
     scale_x_discrete(
       breaks = breaks,
@@ -293,10 +385,15 @@ boxplot_1d_2d_ggplot <- function(result, xlabel, ref_datapoint, value_name,
       axis.title.y = element_text(size = 12)
     )
 
-  if (!is.null(ref_datapoint)) {
-    one_data <-
-      result[result$data == paste("data_", ref_datapoint, sep = ""), ]
-    one_data <- one_data[rep(seq_len(nrow(one_data)), each = 2), ]
+  # Add outliers
+  if (nrow(outliers) > 0) {
+    p <- p +
+      geom_point(data = outliers, aes(x = .data$feature, y = .data$value))
+  }
+
+  # Add reference datapoint
+  if (!is.null(res_ref)) {
+    one_data <- res_ref[rep(seq_len(nrow(res_ref)), each = 2), ]
     one_data$x <- as.numeric(one_data$feature) + c(-width / 2, width / 2)
 
     p <- p +
@@ -312,53 +409,36 @@ boxplot_1d_2d_ggplot <- function(result, xlabel, ref_datapoint, value_name,
 }
 
 
-boxplot_3d_ggplot <- function(result, aggr_channels, value_name) {
-  result <- result[result$summary_data, ]
-
-  result <- aggregate(list(value = result$value),
-    by = list(
-      data = result$data,
-      feature_h = result$feature_h,
-      feature_w = result$feature_w,
-      class = result$class
-    ), FUN = aggr_channels
-  )
-
-  stats <- aggregate(list(value = result$value),
-    by = list(
-      feature_w = result$feature_w,
-      feature_h = result$feature_h,
-      class = result$class
-    ),
-    FUN = median
-  )
+boxplot_3d_ggplot <- function(result, value_name) {
 
   # Set the colorbar for the plot
-  if (min(stats$value) >= 0) {
+  if (min(result$value) >= 0) {
     col <- colorRamp(c("black", "red"))
-    value_max <- max(stats$value)
+    value_max <- max(result$value)
     value_min <- 0
-  } else if (max(stats$value) <= 0) {
+  } else if (max(result$value) <= 0) {
     col <- colorRamp(c("blue", "black"))
     value_max <- 0
-    value_min <- min(stats$value)
+    value_min <- min(result$value)
   } else {
     col <- colorRamp(c("blue", "black", "red"))
-    value_max <- max(abs(stats$value))
+    value_max <- max(abs(result$value))
     value_min <- -value_max
   }
 
-  breaks_w <- levels(stats$feature_w)
+  breaks_w <- levels(result$feature_w)
   if (length(breaks_w) > 10) {
-    breaks_w <- breaks_w[seq(1, length(breaks_w), by = length(breaks_w) %/% 10)]
+    breaks_w <-
+      breaks_w[seq(1, length(breaks_w), by = length(breaks_w) %/% 10)]
   }
-  breaks_h <- levels(stats$feature_h)
+  breaks_h <- levels(result$feature_h)
   if (length(breaks_h) > 10) {
-    breaks_h <- breaks_h[seq(1, length(breaks_h), by = length(breaks_h) %/% 10)]
+    breaks_h <-
+      breaks_h[seq(1, length(breaks_h), by = length(breaks_h) %/% 10)]
   }
 
   p <-
-    ggplot(data = stats) +
+    ggplot(data = result) +
     geom_raster(
       aes(x = .data$feature_w, y = .data$feature_h, fill = .data$value)
     ) +
@@ -377,7 +457,7 @@ boxplot_3d_ggplot <- function(result, aggr_channels, value_name) {
     ) +
     xlab("Image Width") +
     labs(fill = value_name) +
-    ylab("Image Weight") +
+    ylab("Image Height") +
     theme(
       strip.text.y = element_text(size = 8),
       axis.title.x = element_text(size = 12),
@@ -387,6 +467,7 @@ boxplot_3d_ggplot <- function(result, aggr_channels, value_name) {
 
   p
 }
+
 
 #
 # plotly
@@ -791,7 +872,7 @@ boxplot_3d_plotly <- function(result, aggr_channels, ref_channel, value_name,
   }
 
   # Create a bigplot with subplots for each class
-  fig <- plotly::subplot(subplot_list, nrows = 1, shareY = TRUE, shareX = TRUE)
+  fig <- plotly::subplot(subplot_list, nrows = 1, shareY = TRUE)
 
   # Create slider for the boxplot values and buttons for the channels
   fig_names <- sapply(fig$x$data, FUN = function(x) x$name)
@@ -926,6 +1007,57 @@ make_facet_frame <- function(fig, annot_text = "", xtitle = "x", ytitle = "y",
   )
 }
 
+get_dataframe <- function(result, data_names, input_names, output_names,
+                          channels_first) {
+  result <- as.array(result)
+
+  if (length(input_names) == 1) {
+    df <- expand.grid(
+      data = data_names,
+      feature = input_names[[1]],
+      class = output_names
+    )
+  }
+  # input (channels, signal_length)
+  else if (length(input_names) == 2) {
+    if (channels_first) {
+      df <- expand.grid(
+        data = data_names,
+        channel = input_names[[1]],
+        feature_l = input_names[[2]],
+        class = output_names
+      )
+    } else {
+      df <- expand.grid(
+        data = data_names,
+        feature_l = input_names[[2]],
+        channel = input_names[[1]],
+        class = output_names
+      )
+    }
+  } else if (length(input_names) == 3) {
+    if (channels_first) {
+      df <- expand.grid(
+        data = data_names,
+        channel = input_names[[1]],
+        feature_h = input_names[[2]],
+        feature_w = input_names[[3]],
+        class = output_names
+      )
+    } else {
+      df <- expand.grid(
+        data = data_names,
+        feature_h = input_names[[2]],
+        feature_w = input_names[[3]],
+        channel = input_names[[1]],
+        class = output_names
+      )
+    }
+  }
+  df$value <- as.vector(result)
+  df
+}
+
 
 round2 <- function(value) {
   rounded_value <-
@@ -933,4 +1065,34 @@ round2 <- function(value) {
     round(value, 2) * ((abs(value) < 100) & (abs(value) >= 1)) +
     round(value, 4) * (abs(value) < 1)
   rounded_value
+}
+
+get_boxplot_df <- function(res, input_names, output_names) {
+  summary_df <- apply(
+    as_array(res), c(2, 3),
+    function(x) boxplot.stats(x, do.conf = FALSE)$stats
+  )
+  df <- expand.grid(feature = input_names, class = output_names)
+  df$min <- as.vector(summary_df[1, , ])
+  df$lower <- as.vector(summary_df[2, , ])
+  df$median <- as.vector(summary_df[3, , ])
+  df$upper <- as.vector(summary_df[4, , ])
+  df$max <- as.vector(summary_df[5, , ])
+
+  out_names <- rep(output_names, each = length(input_names))
+  in_names <- rep(input_names, times = length(output_names))
+  outliers <- apply(
+    as_array(res), 2:3,
+    function(x) boxplot.stats(x, do.conf = FALSE)$out
+  )
+  k <- sapply(outliers, length)
+  num <- rep(1:(length(in_names)), k)
+
+  outliers <- data.frame(
+    value = unlist(outliers[k >= 1]),
+    feature = in_names[num],
+    class = out_names[num]
+  )
+
+  list(df, outliers)
 }
