@@ -256,29 +256,69 @@ ConnectionWeights <- R6Class(
                     lower = 1,
                     upper = rev(dim(self$result))[1]
       )
-      assertFunction(aggr_channels)
+      assert(
+        checkFunction(aggr_channels),
+        checkChoice(aggr_channels, c("norm", "sum", "mean"))
+      )
       assertFunction(preprocess_FUN)
       assertLogical(as_plotly)
 
+      if (!is.function(aggr_channels)) {
+        if (aggr_channels == "norm") {
+          aggr_channels <- function(x) sum(x^2)^0.5
+        } else if (aggr_channels == "sum") {
+          aggr_channels <- sum
+        } else if (aggr_channels == "mean") {
+          aggr_channels <- mean
+        }
+      }
+
       l <- length(dim(self$result))
-      result <- private$get_dataframe()
-      output_names <- unlist(self$converter$model_dict$output_names)
-      result <- result[result$class %in% output_names[classes], ]
-      result$value <- preprocess_FUN(result$value)
+      output_names <- unlist(self$converter$model_dict$output_names)[classes]
+      input_names <- self$converter$model_dict$input_names
+      result <- preprocess_FUN(self$result)
 
       # 1D Input
       if (l == 2) {
-        p <- plot_1d_input(result, "Relative Importance", TRUE)
+        result <- result[,classes, drop = FALSE]$unsqueeze(1)
+        p <- plot_1d_input(result, "Relative Importance", "data_1",
+                           input_names, output_names, TRUE, TRUE)
         dynamicTicks <- FALSE
       }
       # 2D Input
       else if (l == 3) {
-        p <- plot_2d_input(result, aggr_channels, "Relative Importance", TRUE)
+        result <- as_array(result[, , classes, drop = FALSE]$unsqueeze(1))
+        if (self$channels_first) {
+          dims <- c(1, 3, 4)
+          d <- 2
+        } else {
+          dims <- c(1, 2, 3)
+          d <- 4
+        }
+
+        # Summarize the channels by function 'aggr_channels'
+        result <- torch_tensor(apply(result, dims, aggr_channels))$unsqueeze(d)
+        input_names[[1]] <- c("aggr")
+        p <- plot_2d_input(result, "Relative Importance", "data_1", input_names,
+                           output_names, self$channels_first, TRUE)
         dynamicTicks <- TRUE
       }
       # 3D Input
       else if (l == 4) {
-        p <- plot_3d_input(result, aggr_channels, "Relative Importance", TRUE)
+        result <- as_array(result[, , , classes, drop = FALSE]$unsqueeze(1))
+        if (self$channels_first) {
+          dims <- c(1, 3, 4, 5)
+          d <- 2
+        } else {
+          dims <- c(1, 2, 3, 4)
+          d <- 4
+        }
+
+        # Summarize the channels by function 'aggr_channels'
+        result <- torch_tensor(apply(result, dims, aggr_channels))$unsqueeze(d)
+        input_names[[1]] <- c("aggr")
+        p <- plot_3d_input(result, "Relative Importance", "data_1", input_names,
+                           output_names, self$channels_first, TRUE)
         dynamicTicks <- TRUE
       }
 

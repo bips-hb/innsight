@@ -198,7 +198,23 @@ plot_3d_input <- function(result, value_name, data_names, input_names,
   }
 
   # Define color
-  col <- colorRamp(c("blue", "black", "red"))
+  if (min(result$value_scaled) >= 0) {
+    col <- colorRamp(c("white", "red"))
+    colors <- seq(0, 1, length.out = 50)^0.8
+    value_max <- max(result$value_scaled)
+    value_min <- 0
+  } else if (max(result$value_scaled) <= 0) {
+    col <- colorRamp(c("blue", "white"))
+    colors <- seq(0, 1, length.out = 50)^0.8
+    value_max <- 0
+    value_min <- min(result$value_scaled)
+  } else {
+    col <- colorRamp(c("blue", "white", "red"))
+    colors <- seq(-1, 1, length.out = 50)
+    colors <- abs(colors)^0.8 * sign(colors) * 0.5 + 0.5
+    value_max <- max(abs(result$value_scaled))
+    value_min <- -value_max
+  }
 
 
   # Make axis continuous
@@ -208,11 +224,14 @@ plot_3d_input <- function(result, value_name, data_names, input_names,
     p <-
       ggplot(data = result) +
       geom_raster(aes(
-        x = .data$feature_w, y = .data$feature_h, fill = .data$value,
+        x = .data$feature_w, y = .data$feature_h, fill = .data$value_scaled,
         text = text
       )) +
       scale_fill_gradientn(
-        colours = rgb(col(seq(0, 1, length.out = 50)) / 255)
+        colours = rgb(col(colors) / 255),
+        limits = c(value_min, value_max),
+        labels = c("<0","0", ">0"),
+        n.breaks = 3
       ) +
       coord_cartesian(
         xlim = c(2, max(result$feature_w) - 1),
@@ -386,7 +405,7 @@ boxplot_1d_2d_ggplot <- function(res, outliers, res_ref, value_name, xlabel,
     )
 
   # Add outliers
-  if (nrow(outliers) > 0) {
+  if (!is.null(outliers)) {
     p <- p +
       geom_point(data = outliers, aes(x = .data$feature, y = .data$value))
   }
@@ -443,7 +462,7 @@ boxplot_3d_ggplot <- function(result, value_name) {
       aes(x = .data$feature_w, y = .data$feature_h, fill = .data$value)
     ) +
     scale_fill_gradientn(
-      colors = rgb(col(seq(0, 1, length.out = 100)) / 255),
+      colors = rgb(col(seq(0, 1, length.out = 50)) / 255),
       limits = c(value_min, value_max)
     ) +
     facet_grid(cols = vars(class), scales = "free_y") +
@@ -1060,11 +1079,16 @@ get_dataframe <- function(result, data_names, input_names, output_names,
 
 
 round2 <- function(value) {
-  rounded_value <-
-    round(value, 0) * (abs(value) >= 100) +
-    round(value, 2) * ((abs(value) < 100) & (abs(value) >= 1)) +
-    round(value, 4) * (abs(value) < 1)
+  #rounded_value <-
+  #  round(value, 0) * (abs(value) >= 100) +
+  #  round(value, 2) * ((abs(value) < 100) & (abs(value) >= 1)) +
+  #  round(value, 4) * ((abs(value) < 1) & (abs(value) >= 0.0001)) +
+  rounded_value <- as.numeric(formatC(value))
+  if (is.array(value)) {
+    rounded_value <- array(rounded_value, dim = dim(value))
+  }
   rounded_value
+
 }
 
 get_boxplot_df <- function(res, input_names, output_names) {
@@ -1085,14 +1109,18 @@ get_boxplot_df <- function(res, input_names, output_names) {
     as_array(res), 2:3,
     function(x) boxplot.stats(x, do.conf = FALSE)$out
   )
-  k <- sapply(outliers, length)
-  num <- rep(1:(length(in_names)), k)
+  if (length(outliers) != 0) {
+    k <- sapply(outliers, length)
+    num <- rep(1:(length(in_names)), k)
 
-  outliers <- data.frame(
-    value = unlist(outliers[k >= 1]),
-    feature = in_names[num],
-    class = out_names[num]
-  )
+    outliers <- data.frame(
+      value = unlist(outliers[k >= 1]),
+      feature = in_names[num],
+      class = out_names[num]
+    )
+  } else {
+    outliers <- NULL
+  }
 
   list(df, outliers)
 }
