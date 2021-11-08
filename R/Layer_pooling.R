@@ -52,7 +52,7 @@ avg_pool1d_layer <- nn_module(
     z <- self$output$unsqueeze(-1)
     # Apply rule
     if (rule_name == "epsilon") {
-      z <- z + rule_param * torch_sgn(z)
+      z <- z + rule_param * torch_sgn(z) + (z == 0) * 1e-12
       rel_input <- self$get_gradient(rel_output / z) * self$input$unsqueeze(-1)
     } else if (rule_name == "alpha_beta") {
       pos_input <- self$input * (self$input >= 0)
@@ -163,7 +163,7 @@ avg_pool2d_layer <- nn_module(
       z <- self$output$unsqueeze(-1)
       # Apply rule
       if (rule_name == "epsilon") {
-        z <- z + rule_param * torch_sgn(z)
+        z <- z + rule_param * torch_sgn(z) + (z == 0) * 1e-12
         rel_input <- self$get_gradient(rel_output / z) * self$input$unsqueeze(-1)
       } else if (rule_name == "alpha_beta") {
         pos_input <- self$input * (self$input >= 0)
@@ -278,7 +278,7 @@ max_pool1d_layer <- nn_module(
 
     # Apply rule
     if (rule_name == "epsilon") {
-      z <- z + rule_param * torch_sgn(z)
+      z <- z + rule_param * torch_sgn(z) + (z == 0) * 1e-12
       rel_input <- self$get_gradient(rel_output / z) * self$input$unsqueeze(-1)
 
     } else if (rule_name == "alpha_beta") {
@@ -389,7 +389,7 @@ max_pool2d_layer <- nn_module(
     # Apply rule
     if (rule_name == "epsilon") {
       z <- nnf_avg_pool2d(self$input, self$kernel_size, self$strides)$unsqueeze(-1)
-      z <- z + rule_param * torch_sgn(z)
+      z <- z + rule_param * torch_sgn(z) + (z == 0) * 1e-12
       rel_input <- self$get_gradient(rel_output / z) * self$input$unsqueeze(-1)
     } else if (rule_name == "alpha_beta") {
       pos_input <- self$input * (self$input >= 0)
