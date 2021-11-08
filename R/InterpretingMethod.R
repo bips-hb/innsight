@@ -222,15 +222,28 @@ InterpretingMethod <- R6Class(
 
     plot = function(datapoint = 1,
                     classes = 1,
-                    aggr_channels = sum,
+                    aggr_channels = 'sum',
                     as_plotly = FALSE,
                     value_name = "value") {
 
       # Check correctness of arguments
       assertNumeric(datapoint, lower = 1, upper = dim(self$result)[1])
       assertNumeric(classes, lower = 1, upper = rev(dim(self$result))[1])
-      assertFunction(aggr_channels)
+      assert(
+        checkFunction(aggr_channels),
+        checkChoice(aggr_channels, c("norm", "sum", "mean"))
+      )
       assertLogical(as_plotly)
+
+      if (!is.function(aggr_channels)) {
+        if (aggr_channels == "norm") {
+          aggr_channels <- function(x) sum(x^2)^0.5
+        } else if (aggr_channels == "sum") {
+          aggr_channels <- sum
+        } else if (aggr_channels == "mean") {
+          aggr_channels <- mean
+        }
+      }
 
       # The input and output names are used for every plot-function
       input_names <- self$converter$model_dict$input_names
