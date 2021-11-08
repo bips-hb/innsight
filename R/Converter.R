@@ -296,7 +296,8 @@ Converter <- R6Class("Converter",
         model_dict <- convert_neuralnet_model(model)
       } else if (inherits(model, c(
         "keras.engine.sequential.Sequential",
-        "keras.engine.functional.Functional"
+        "keras.engine.functional.Functional",
+        "keras.engine.training.Model"
       ))) {
         model_dict <- convert_keras_model(model)
       } else if (is.list(model)) {
