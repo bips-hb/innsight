@@ -33,10 +33,7 @@ interpretability methods based on Neural Networks in R, e.g.,
 
 Example results for these methods on ImageNet with pretrained network Vgg16:
 ```{r, echo = FALSE, fig.align='center'}
-knitr::include_graphics(c("man/images/vgg16_1.png",
-                          "man/images/vgg16_2.png",
-                          "man/images/vgg16_3.png",
-                          "man/images/vgg16_dog.png"))
+knitr::include_graphics("man/images/vgg16.png")
 ```
 
 

@@ -26,7 +26,7 @@ e.g.,
 
 Example results for these methods on ImageNet with pretrained network
 Vgg16:
-<img src="man/images/vgg16_1.png" width="100%" style="display: block; margin: auto;" /><img src="man/images/vgg16_2.png" width="100%" style="display: block; margin: auto;" /><img src="man/images/vgg16_3.png" width="100%" style="display: block; margin: auto;" /><img src="man/images/vgg16_dog.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/images/vgg16.png" width="100%" style="display: block; margin: auto;" />
 
 The package `innsight` aims to be as flexible as possible and
 independent of a specific deep learning package in which the passed
