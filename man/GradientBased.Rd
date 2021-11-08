@@ -53,7 +53,7 @@ Create a new instance of this class.
   dtype = "float",
   ignore_last_act = TRUE,
   times_input = TRUE,
-  output_id = NULL
+  output_idx = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -79,7 +79,7 @@ activation leads to a saturation problem.}
 \item{\code{times_input}}{Multiplies the gradients with the input features. This
 method is called 'Gradient x Input'.}
 
-\item{\code{output_id}}{This vector determines for which outputs the method
+\item{\code{output_idx}}{This vector determines for which outputs the method
 will be applied. By default (\code{NULL}), all outputs (but limited to the
 first 10) are considered.}
 }
@@ -99,7 +99,7 @@ classes are visualized using the method \link[ggplot2:facet_grid]{ggplot2::facet
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GradientBased$plot(
   datapoint = 1,
-  classes = 1,
+  output_idx = c(),
   aggr_channels = sum,
   as_plotly = FALSE
 )}\if{html}{\out{</div>}}
@@ -112,7 +112,7 @@ classes are visualized using the method \link[ggplot2:facet_grid]{ggplot2::facet
 points whose result is to be plotted, e.g. \code{c(1,3)} for the first
 and third data point in the given data. Default: \code{c(1)}.}
 
-\item{\code{classes}}{An integer vector containing the numbers of the classes
+\item{\code{output_idx}}{An integer vector containing the numbers of the classes
 whose result is to be plotted, e.g. \code{c(1,4)} for the first and fourth
 class. Default: \code{c(1)}.}
 

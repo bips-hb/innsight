@@ -47,7 +47,7 @@ test_that("DeepLift: Plot and Boxplot", {
   expect_error(plot(d, datapoint = c(1,11)))
   expect_error(boxplot(d, boxplot_data = 1:11))
   # Non-existing class
-  expect_error(plot(d, classes = c(5)))
+  expect_error(plot(d, output_idx = c(5)))
   expect_error(boxplot(d, classes = c(5)))
 
   p <- plot(d)
@@ -58,7 +58,7 @@ test_that("DeepLift: Plot and Boxplot", {
   boxp <- boxplot(d, boxplot_data = 1:4)
   expect_true("ggplot" %in% class(p))
   expect_true("ggplot" %in% class(boxp))
-  p <- plot(d, datapoint = 1:3, classes = 1:3)
+  p <- plot(d, datapoint = 1:3, output_idx = 1:3)
   boxp <- boxplot(d, boxplot_data = 1:5, classes = 1:3)
   expect_true("ggplot" %in% class(p))
   expect_true("ggplot" %in% class(boxp))
@@ -74,7 +74,7 @@ test_that("DeepLift: Plot and Boxplot", {
   boxp <- boxplot(d, boxplot_data = 1:4, as_plotly = TRUE)
   expect_true("plotly" %in% class(p))
   expect_true("plotly" %in% class(boxp))
-  p <- plot(d, datapoint = 1:3, classes = 1:3, as_plotly = TRUE)
+  p <- plot(d, datapoint = 1:3, output_idx = 1:3, as_plotly = TRUE)
   boxp <- boxplot(d, boxplot_data = 1:5, classes = 1:3, as_plotly = TRUE)
   expect_true("plotly" %in% class(p))
   expect_true("plotly" %in% class(boxp))

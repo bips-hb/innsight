@@ -163,7 +163,7 @@ converter = Converter$new(model, input_dim = c(4),
 lrp_eps <- LRP$new(converter, iris[,-5], rule_name = "epsilon")
 
 # Plot the individual result for two datapoints and all classes
-p1 <- plot(lrp_eps, datapoint = c(1,102), classes = 1:3) +
+p1 <- plot(lrp_eps, datapoint = c(1,102), output_idx = 1:3) +
   ggplot2::labs(title = "LRP ('epsilon')")
 
 # Plot the boxplot statistic for all datapoints and all classes

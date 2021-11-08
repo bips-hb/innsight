@@ -37,7 +37,7 @@
 #' lrp$get_result()
 #'
 #' # Plot the result for both classes
-#' plot(lrp, classes = 1:2)
+#' plot(lrp, output_idx = 1:2)
 #'
 #' # Plot the boxplot of all datapoints without preprocess function
 #' boxplot(lrp, classes = 1:2, preprocess_FUN = identity)
@@ -76,7 +76,7 @@
 #' )
 #'
 #' # Plot the result for all classes
-#' plot(lrp, class = 1:3)
+#' plot(lrp, output_idx = 1:3)
 #'
 #' # Plot the Boxplot for the first class
 #' boxplot(lrp)
@@ -127,7 +127,7 @@
 #'   )
 #'
 #'   # Plot the result for the first datapoint and all classes
-#'   plot(lrp_eps, classes = 1:3)
+#'   plot(lrp_eps, output_idx = 1:3)
 #'
 #'   # Plot the result as boxplots for first two classes
 #'   boxplot(lrp_eps, classes = 1:2)
@@ -165,7 +165,7 @@
 #' library(plotly)
 #'
 #' # Get the ggplot and add your changes
-#' p <- plot(lrp, classes = 1, datapoint = 1:2) +
+#' p <- plot(lrp, output_idx = 1, datapoint = 1:2) +
 #'   theme_bw() +
 #'   scale_fill_gradient2(low = "green", mid = "black", high = "blue")
 #'
@@ -215,7 +215,7 @@ LRP <- R6Class(
     #' leads to a saturation problem.
     #' @param dtype The data type for the calculations. Use either `'float'` or
     #' `'double'`.
-    #' @param output_id This vector determines for which outputs the method
+    #' @param output_idx This vector determines for which outputs the method
     #' will be applied. By default (`NULL`), all outputs (but limited to the
     #' first 10) are considered.
     #'
@@ -227,9 +227,9 @@ LRP <- R6Class(
                           rule_param = NULL,
                           ignore_last_act = TRUE,
                           dtype = "float",
-                          output_id = NULL) {
+                          output_idx = NULL) {
       super$initialize(converter, data, channels_first, dtype, ignore_last_act,
-                       output_id)
+                       output_idx)
 
       assertChoice(rule_name, c("simple", "epsilon", "alpha_beta"))
       self$rule_name <- rule_name
@@ -256,7 +256,7 @@ LRP <- R6Class(
     #' @param datapoint An integer vector containing the numbers of the data
     #' points whose result is to be plotted, e.g. `c(1,3)` for the first
     #' and third data point in the given data. Default: `c(1)`.
-    #' @param classes An integer vector containing the numbers of the classes
+    #' @param output_idx An integer vector containing the numbers of the classes
     #' whose result is to be plotted, e.g. `c(1,4)` for the first and fourth
     #' class. Default: `c(1)`.
     #' @param aggr_channels Pass a function to aggregate the channels. The
@@ -277,11 +277,11 @@ LRP <- R6Class(
     #' [plotly::plot_ly] (`as_plotly = TRUE`) with the plotted results.
     #'
     plot = function(datapoint = 1,
-                    classes = 1,
+                    output_idx = c(),
                     aggr_channels = sum,
                     as_plotly = FALSE) {
 
-      private$plot(datapoint, classes, aggr_channels,
+      private$plot(datapoint, output_idx, aggr_channels,
                    as_plotly, "Relevance")
     },
 
@@ -373,7 +373,7 @@ LRP <- R6Class(
         }
       }
 
-      rel <- rel[,,self$output_id, drop = FALSE]
+      rel <- rel[,,self$output_idx, drop = FALSE]
 
       message("Backwardpass 'LRP':")
       # Define Progressbar

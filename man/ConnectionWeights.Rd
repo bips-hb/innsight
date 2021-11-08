@@ -92,7 +92,7 @@ if (is_keras_available()) {
   cw$get_result(type = "data.frame")
 
   # Plot the result for all classes
-  plot(cw, classes = 1:2)
+  plot(cw, output_idx = 1:2)
 }
 
 # ------------------------- Advanced: Plotly -------------------------------
@@ -117,7 +117,7 @@ cw <- ConnectionWeights$new(converter)
 library(plotly)
 
 # Get the ggplot and add your changes
-p <- plot(cw, classes = 1) +
+p <- plot(cw, output_idx = 1) +
   theme_bw() +
   scale_fill_gradient2(low = "green", mid = "black", high = "blue")
 
@@ -148,7 +148,7 @@ for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for \link[to
 \item{\code{result}}{The methods result as a torch tensor of size
 (dim_in, dim_out).}
 
-\item{\code{output_id}}{This vector determines for which outputs the method
+\item{\code{output_idx}}{This vector determines for which outputs the method
 will be applied}
 }
 \if{html}{\out{</div>}}
@@ -169,7 +169,7 @@ will be applied}
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ConnectionWeights$new(
   converter,
-  output_id = NULL,
+  output_idx = NULL,
   channels_first = TRUE,
   dtype = "float"
 )}\if{html}{\out{</div>}}
@@ -181,9 +181,9 @@ will be applied}
 \item{\code{converter}}{The converter of class \link{Converter} with the stored and
 torch-converted model.}
 
-\item{\code{output_id}}{This vector determines for which outputs the method
-will be applied. By default (\code{NULL}), all outputs (but limited to the
-first 10) are considered.}
+\item{\code{output_idx}}{This vector determines for which output indices the
+method will be applied. By default (\code{NULL}), all outputs (but limited
+to the first 10) are considered.}
 
 \item{\code{channels_first}}{The data format of the result, i.e. channels on
 last dimension (\code{FALSE}) or on the first dimension (\code{TRUE}). If the
@@ -231,7 +231,7 @@ can be created, which however requires a successful installation of
 the package \code{plotly}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ConnectionWeights$plot(
-  classes = 1,
+  output_idx = c(),
   aggr_channels = sum,
   preprocess_FUN = identity,
   as_plotly = FALSE
@@ -241,7 +241,7 @@ the package \code{plotly}.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{classes}}{An integer vector containing the numbers of the classes
+\item{\code{output_idx}}{An integer vector containing the numbers of the classes
 whose result is to be plotted, e.g. \code{c(1,4)} for the first and fourth
 class. Default: \code{c(1)}.}
 

@@ -39,7 +39,7 @@ lrp <- LRP$new(converter, data)
 lrp$get_result()
 
 # Plot the result for both classes
-plot(lrp, classes = 1:2)
+plot(lrp, output_idx = 1:2)
 
 # Plot the boxplot of all datapoints without preprocess function
 boxplot(lrp, classes = 1:2, preprocess_FUN = identity)
@@ -78,7 +78,7 @@ lrp <- LRP$new(converter, iris[, -5],
 )
 
 # Plot the result for all classes
-plot(lrp, class = 1:3)
+plot(lrp, output_idx = 1:3)
 
 # Plot the Boxplot for the first class
 boxplot(lrp)
@@ -129,7 +129,7 @@ if (is_keras_available()) {
   )
 
   # Plot the result for the first datapoint and all classes
-  plot(lrp_eps, classes = 1:3)
+  plot(lrp_eps, output_idx = 1:3)
 
   # Plot the result as boxplots for first two classes
   boxplot(lrp_eps, classes = 1:2)
@@ -167,7 +167,7 @@ lrp <- LRP$new(converter, iris[, -5])
 library(plotly)
 
 # Get the ggplot and add your changes
-p <- plot(lrp, classes = 1, datapoint = 1:2) +
+p <- plot(lrp, output_idx = 1, datapoint = 1:2) +
   theme_bw() +
   scale_fill_gradient2(low = "green", mid = "black", high = "blue")
 
@@ -224,7 +224,7 @@ Create a new instance of the LRP-Method.
   rule_param = NULL,
   ignore_last_act = TRUE,
   dtype = "float",
-  output_id = NULL
+  output_idx = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -258,7 +258,7 @@ leads to a saturation problem.}
 \item{\code{dtype}}{The data type for the calculations. Use either \code{'float'} or
 \code{'double'}.}
 
-\item{\code{output_id}}{This vector determines for which outputs the method
+\item{\code{output_idx}}{This vector determines for which outputs the method
 will be applied. By default (\code{NULL}), all outputs (but limited to the
 first 10) are considered.}
 }
@@ -279,7 +279,12 @@ individual classes for the plot can be selected with the argument
 \code{classes}. The different results for the selected data points and
 classes are visualized using the method \link[ggplot2:facet_grid]{ggplot2::facet_grid}.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LRP$plot(datapoint = 1, classes = 1, aggr_channels = sum, as_plotly = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LRP$plot(
+  datapoint = 1,
+  output_idx = c(),
+  aggr_channels = sum,
+  as_plotly = FALSE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -289,7 +294,7 @@ classes are visualized using the method \link[ggplot2:facet_grid]{ggplot2::facet
 points whose result is to be plotted, e.g. \code{c(1,3)} for the first
 and third data point in the given data. Default: \code{c(1)}.}
 
-\item{\code{classes}}{An integer vector containing the numbers of the classes
+\item{\code{output_idx}}{An integer vector containing the numbers of the classes
 whose result is to be plotted, e.g. \code{c(1,4)} for the first and fourth
 class. Default: \code{c(1)}.}
 

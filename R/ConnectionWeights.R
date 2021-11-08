@@ -21,7 +21,7 @@
 #' for [torch::torch_float] or `'double'` for [torch::torch_double]).
 #' @field result The methods result as a torch tensor of size
 #' (dim_in, dim_out).
-#' @field output_id This vector determines for which outputs the method
+#' @field output_idx This vector determines for which outputs the method
 #' will be applied
 #'
 #' @examplesIf torch::torch_is_installed()
@@ -101,7 +101,7 @@
 #'   cw$get_result(type = "data.frame")
 #'
 #'   # Plot the result for all classes
-#'   plot(cw, classes = 1:2)
+#'   plot(cw, output_idx = 1:2)
 #' }
 #'
 #' # ------------------------- Advanced: Plotly -------------------------------
@@ -126,7 +126,7 @@
 #' library(plotly)
 #'
 #' # Get the ggplot and add your changes
-#' p <- plot(cw, classes = 1) +
+#' p <- plot(cw, output_idx = 1) +
 #'   theme_bw() +
 #'   scale_fill_gradient2(low = "green", mid = "black", high = "blue")
 #'
@@ -146,13 +146,13 @@ ConnectionWeights <- R6Class(
     channels_first = NULL,
     dtype = NULL,
     result = NULL,
-    output_id = NULL,
+    output_idx = NULL,
 
     #' @param converter The converter of class [Converter] with the stored and
     #' torch-converted model.
-    #' @param output_id This vector determines for which outputs the method
-    #' will be applied. By default (`NULL`), all outputs (but limited to the
-    #' first 10) are considered.
+    #' @param output_idx This vector determines for which output indices the
+    #' method will be applied. By default (`NULL`), all outputs (but limited
+    #' to the first 10) are considered.
     #' @param channels_first The data format of the result, i.e. channels on
     #' last dimension (`FALSE`) or on the first dimension (`TRUE`). If the
     #' data has no channels, use the default value `TRUE`.
@@ -160,19 +160,19 @@ ConnectionWeights <- R6Class(
     #' (either `'float'` or `'double'`).
     #'
     initialize = function(converter,
-                          output_id = NULL,
+                          output_idx = NULL,
                           channels_first = TRUE,
                           dtype = "float") {
       assertClass(converter, "Converter")
       self$converter <- converter
 
-      assertIntegerish(output_id, null.ok = TRUE, lower = 1,
+      assertIntegerish(output_idx, null.ok = TRUE, lower = 1,
                        upper = converter$model_dict$output_dim)
 
 
-      if (is.null(output_id)) output_id <-
+      if (is.null(output_idx)) output_idx <-
         1:min(converter$model_dict$output_dim, 10)
-      self$output_id <- output_id
+      self$output_idx <- output_idx
 
       assert_logical(channels_first)
       self$channels_first <- channels_first
@@ -224,7 +224,7 @@ ConnectionWeights <- R6Class(
     #' can be created, which however requires a successful installation of
     #' the package `plotly`.
     #'
-    #' @param classes An integer vector containing the numbers of the classes
+    #' @param output_idx An integer vector containing the numbers of the classes
     #' whose result is to be plotted, e.g. `c(1,4)` for the first and fourth
     #' class. Default: `c(1)`.
     #' @param aggr_channels Pass a function to aggregate the channels. The
@@ -247,21 +247,26 @@ ConnectionWeights <- R6Class(
     #' Returns either a [ggplot2::ggplot] (`as_plotly = FALSE`) or a
     #' [plotly::plot_ly] object (`as_plotly = TRUE`) with the plotted results.
     #'
-    plot = function(classes = 1,
+    plot = function(output_idx = c(),
                     aggr_channels = sum,
                     preprocess_FUN = identity,
                     as_plotly = FALSE) {
 
-      assertNumeric(classes,
-                    lower = 1,
-                    upper = rev(dim(self$result))[1]
-      )
+      assertSubset(output_idx, self$output_idx)
       assert(
         checkFunction(aggr_channels),
         checkChoice(aggr_channels, c("norm", "sum", "mean"))
       )
       assertFunction(preprocess_FUN)
       assertLogical(as_plotly)
+
+      if (length(output_idx) == 0) {
+        classes <- self$output_idx[1]
+        classes_idx <- 1
+      } else {
+        classes <- output_idx
+        classes_idx <- match(classes, self$output_idx)
+      }
 
       if (!is.function(aggr_channels)) {
         if (aggr_channels == "norm") {
@@ -280,14 +285,14 @@ ConnectionWeights <- R6Class(
 
       # 1D Input
       if (l == 2) {
-        result <- result[,classes, drop = FALSE]$unsqueeze(1)
+        result <- result[,classes_idx, drop = FALSE]$unsqueeze(1)
         p <- plot_1d_input(result, "Relative Importance", "data_1",
                            input_names, output_names, TRUE, TRUE)
         dynamicTicks <- FALSE
       }
       # 2D Input
       else if (l == 3) {
-        result <- as_array(result[, , classes, drop = FALSE]$unsqueeze(1))
+        result <- as_array(result[, , classes_idx, drop = FALSE]$unsqueeze(1))
         if (self$channels_first) {
           dims <- c(1, 3, 4)
           d <- 2
@@ -305,7 +310,7 @@ ConnectionWeights <- R6Class(
       }
       # 3D Input
       else if (l == 4) {
-        result <- as_array(result[, , , classes, drop = FALSE]$unsqueeze(1))
+        result <- as_array(result[, , , classes_idx, drop = FALSE]$unsqueeze(1))
         if (self$channels_first) {
           dims <- c(1, 3, 4, 5)
           d <- 2
@@ -349,7 +354,7 @@ ConnectionWeights <- R6Class(
           )$unsqueeze(1)
       }
 
-      index <- torch_tensor(self$output_id, dtype = torch_long())
+      index <- torch_tensor(self$output_idx, dtype = torch_long())
       grad <- grad[,,index, drop = FALSE]
 
       layers <- rev(self$converter$model$modules_list)
@@ -378,7 +383,7 @@ ConnectionWeights <- R6Class(
     get_dataframe = function() {
       result <- as.array(self$result)
       input_names <- self$converter$model_dict$input_names
-      class <- unlist(self$converter$model_dict$output_names)[self$output_id]
+      class <- unlist(self$converter$model_dict$output_names)[self$output_idx]
 
       if (length(input_names) == 1) {
         df <- expand.grid(

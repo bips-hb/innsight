@@ -34,7 +34,7 @@ smoothgrad <- SmoothGrad$new(converter, data)
 smoothgrad$get_result("data.frame")
 
 # Plot the result for both classes
-plot(smoothgrad, classes = 1:2)
+plot(smoothgrad, output_idx = 1:2)
 
 # Plot the boxplot of all datapoints
 boxplot(smoothgrad, classes = 1:2)
@@ -58,13 +58,13 @@ converter <- Converter$new(nn)
 smoothgrad <- SmoothGrad$new(converter, iris[, -5], times_input = FALSE)
 
 # Plot the result for the first and 60th data point and all classes
-plot(smoothgrad, datapoint = c(1, 60), classes = 1:3)
+plot(smoothgrad, datapoint = c(1, 60), output_idx = 1:3)
 
 # Calculate SmoothGrad x Input and do not ignore the last activation
 smoothgrad <- SmoothGrad$new(converter, iris[, -5], ignore_last_act = FALSE)
 
 # Plot the result again
-plot(smoothgrad, datapoint = c(1, 60), classes = 1:3)
+plot(smoothgrad, datapoint = c(1, 60), output_idx = 1:3)
 
 # ------------------------- Example 3: Keras -------------------------------
 library(keras)
@@ -98,7 +98,7 @@ if (is_keras_available()) {
   smoothgrad <- SmoothGrad$new(converter, data, channels_first = FALSE)
 
   # Plot the result for the first datapoint and all classes
-  plot(smoothgrad, classes = 1:3)
+  plot(smoothgrad, output_idx = 1:3)
 
   # Plot the result as boxplots for first two classes
   boxplot(smoothgrad, classes = 1:2)
@@ -136,7 +136,7 @@ smoothgrad <- SmoothGrad$new(converter, iris[, -5])
 library(plotly)
 
 # Get the ggplot and add your changes
-p <- plot(smoothgrad, classes = 1, datapoint = 1:2) +
+p <- plot(smoothgrad, output_idx = 1, datapoint = 1:2) +
   theme_bw() +
   scale_fill_gradient2(low = "green", mid = "black", high = "blue")
 
@@ -192,7 +192,7 @@ Create a new instance of this class.
   times_input = TRUE,
   n = 50,
   noise_level = 0.1,
-  output_id = NULL
+  output_idx = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -224,7 +224,7 @@ features. This method is called 'SmoothGrad x Input'.}
 \item{\code{noise_level}}{Determines the standard deviation of the gaussian
 perturbation, i.e. \eqn{\sigma = (max(x) - min(x)) *} \code{noise_level}.}
 
-\item{\code{output_id}}{This vector determines for which outputs the method
+\item{\code{output_idx}}{This vector determines for which outputs the method
 will be applied. By default (\code{NULL}), all outputs (but limited to the
 first 10) are considered.}
 }

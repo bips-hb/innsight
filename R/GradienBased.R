@@ -33,7 +33,7 @@ GradientBased <- R6::R6Class(
     #' activation leads to a saturation problem.
     #' @param times_input Multiplies the gradients with the input features. This
     #' method is called 'Gradient x Input'.
-    #' @param output_id This vector determines for which outputs the method
+    #' @param output_idx This vector determines for which outputs the method
     #' will be applied. By default (`NULL`), all outputs (but limited to the
     #' first 10) are considered.
     #'
@@ -42,9 +42,9 @@ GradientBased <- R6::R6Class(
                           dtype = "float",
                           ignore_last_act = TRUE,
                           times_input = TRUE,
-                          output_id = NULL) {
+                          output_idx = NULL) {
       super$initialize(converter, data, channels_first, dtype, ignore_last_act,
-                       output_id)
+                       output_idx)
 
       checkmate::assert_logical(times_input)
       self$times_input <- times_input
@@ -62,7 +62,7 @@ GradientBased <- R6::R6Class(
     #' @param datapoint An integer vector containing the numbers of the data
     #' points whose result is to be plotted, e.g. `c(1,3)` for the first
     #' and third data point in the given data. Default: `c(1)`.
-    #' @param classes An integer vector containing the numbers of the classes
+    #' @param output_idx An integer vector containing the numbers of the classes
     #' whose result is to be plotted, e.g. `c(1,4)` for the first and fourth
     #' class. Default: `c(1)`.
     #' @param aggr_channels Pass a function to aggregate the channels. The
@@ -83,11 +83,11 @@ GradientBased <- R6::R6Class(
     #' [plotly::plot_ly] (`as_plotly = TRUE`) with the plotted results.
     #'
     plot = function(datapoint = 1,
-                    classes = 1,
+                    output_idx = c(),
                     aggr_channels = sum,
                     as_plotly = FALSE) {
 
-      private$plot(datapoint, classes, aggr_channels,
+      private$plot(datapoint, output_idx, aggr_channels,
                    as_plotly, "Gradient")
     },
 
@@ -179,11 +179,11 @@ GradientBased <- R6::R6Class(
       out_sum <- sum(output, dim = 1)
 
       # Define Progressbar
-      pb <- txtProgressBar(min = 0, max = length(self$output_id), style = 3)
+      pb <- txtProgressBar(min = 0, max = length(self$output_idx), style = 3)
 
-      res <- lapply(seq_len(length(self$output_id)), function(i) {
+      res <- lapply(seq_len(length(self$output_idx)), function(i) {
         setTxtProgressBar(pb, i)
-        autograd_grad(out_sum[self$output_id[i]], input, retain_graph = TRUE)[[1]]
+        autograd_grad(out_sum[self$output_idx[i]], input, retain_graph = TRUE)[[1]]
       })
 
       close(pb)
@@ -242,7 +242,7 @@ boxplot.GradientBased <- function(x, ...) {
 #' grad$get_result("data.frame")
 #'
 #' # Plot the result for both classes
-#' plot(grad, classes = 1:2)
+#' plot(grad, output_idx = 1:2)
 #'
 #' # Plot the boxplot of all datapoints
 #' boxplot(grad, classes = 1:2)
@@ -266,13 +266,13 @@ boxplot.GradientBased <- function(x, ...) {
 #' gradient <- Gradient$new(converter, iris[, -5], times_input = TRUE)
 #'
 #' # Plot the result for the first and 60th data point and all classes
-#' plot(gradient, datapoint = c(1, 60), classes = 1:3)
+#' plot(gradient, datapoint = c(1, 60), output_idx = 1:3)
 #'
 #' # Calculate Gradients x Input and do not ignore the last activation
 #' gradient <- Gradient$new(converter, iris[, -5], ignore_last_act = FALSE)
 #'
 #' # Plot the result again
-#' plot(gradient, datapoint = c(1, 60), classes = 1:3)
+#' plot(gradient, datapoint = c(1, 60), output_idx = 1:3)
 #'
 #' # ------------------------- Example 3: Keras -------------------------------
 #' library(keras)
@@ -306,7 +306,7 @@ boxplot.GradientBased <- function(x, ...) {
 #'   gradient <- Gradient$new(converter, data, channels_first = FALSE)
 #'
 #'   # Plot the result for the first datapoint and all classes
-#'   plot(gradient, classes = 1:3)
+#'   plot(gradient, output_idx = 1:3)
 #'
 #'   # Plot the result as boxplots for first two classes
 #'   boxplot(gradient, classes = 1:2)
@@ -344,7 +344,7 @@ boxplot.GradientBased <- function(x, ...) {
 #' library(plotly)
 #'
 #' # Get the ggplot and add your changes
-#' p <- plot(gradient, classes = 1, datapoint = 1:2) +
+#' p <- plot(gradient, output_idx = 1, datapoint = 1:2) +
 #'   theme_bw() +
 #'   scale_fill_gradient2(low = "green", mid = "black", high = "blue")
 #'
@@ -376,7 +376,7 @@ Gradient <- R6::R6Class(
     #' last activation leads to a saturation problem. Default: `TRUE`.
     #' @param times_input Multiplies the gradients with the input features.
     #' This method is called 'Gradient x Input'. Default: `TRUE`.
-    #' @param output_id This vector determines for which outputs the method
+    #' @param output_idx This vector determines for which outputs the method
     #' will be applied. By default (`NULL`), all outputs (but limited to the
     #' first 10) are considered.
     #'
@@ -385,7 +385,7 @@ Gradient <- R6::R6Class(
                           dtype = "float",
                           ignore_last_act = TRUE,
                           times_input = TRUE,
-                          output_id = NULL) {
+                          output_idx = NULL) {
       super$initialize(
         converter,
         data,
@@ -393,7 +393,7 @@ Gradient <- R6::R6Class(
         dtype,
         ignore_last_act,
         times_input,
-        output_id
+        output_idx
       )
 
       self$result <- private$run()
@@ -451,7 +451,7 @@ Gradient <- R6::R6Class(
 #' smoothgrad$get_result("data.frame")
 #'
 #' # Plot the result for both classes
-#' plot(smoothgrad, classes = 1:2)
+#' plot(smoothgrad, output_idx = 1:2)
 #'
 #' # Plot the boxplot of all datapoints
 #' boxplot(smoothgrad, classes = 1:2)
@@ -475,13 +475,13 @@ Gradient <- R6::R6Class(
 #' smoothgrad <- SmoothGrad$new(converter, iris[, -5], times_input = FALSE)
 #'
 #' # Plot the result for the first and 60th data point and all classes
-#' plot(smoothgrad, datapoint = c(1, 60), classes = 1:3)
+#' plot(smoothgrad, datapoint = c(1, 60), output_idx = 1:3)
 #'
 #' # Calculate SmoothGrad x Input and do not ignore the last activation
 #' smoothgrad <- SmoothGrad$new(converter, iris[, -5], ignore_last_act = FALSE)
 #'
 #' # Plot the result again
-#' plot(smoothgrad, datapoint = c(1, 60), classes = 1:3)
+#' plot(smoothgrad, datapoint = c(1, 60), output_idx = 1:3)
 #'
 #' # ------------------------- Example 3: Keras -------------------------------
 #' library(keras)
@@ -515,7 +515,7 @@ Gradient <- R6::R6Class(
 #'   smoothgrad <- SmoothGrad$new(converter, data, channels_first = FALSE)
 #'
 #'   # Plot the result for the first datapoint and all classes
-#'   plot(smoothgrad, classes = 1:3)
+#'   plot(smoothgrad, output_idx = 1:3)
 #'
 #'   # Plot the result as boxplots for first two classes
 #'   boxplot(smoothgrad, classes = 1:2)
@@ -553,7 +553,7 @@ Gradient <- R6::R6Class(
 #' library(plotly)
 #'
 #' # Get the ggplot and add your changes
-#' p <- plot(smoothgrad, classes = 1, datapoint = 1:2) +
+#' p <- plot(smoothgrad, output_idx = 1, datapoint = 1:2) +
 #'   theme_bw() +
 #'   scale_fill_gradient2(low = "green", mid = "black", high = "blue")
 #'
@@ -594,7 +594,7 @@ SmoothGrad <- R6Class(
     #' @param n Number of perturbations of the input data (default: \eqn{50}).
     #' @param noise_level Determines the standard deviation of the gaussian
     #' perturbation, i.e. \eqn{\sigma = (max(x) - min(x)) *} `noise_level`.
-    #' @param output_id This vector determines for which outputs the method
+    #' @param output_idx This vector determines for which outputs the method
     #' will be applied. By default (`NULL`), all outputs (but limited to the
     #' first 10) are considered.
     #'
@@ -606,7 +606,7 @@ SmoothGrad <- R6Class(
                           times_input = TRUE,
                           n = 50,
                           noise_level = 0.1,
-                          output_id = NULL) {
+                          output_idx = NULL) {
       super$initialize(
         converter,
         data,
@@ -614,7 +614,7 @@ SmoothGrad <- R6Class(
         dtype,
         ignore_last_act,
         times_input,
-        output_id
+        output_idx
       )
 
       assertInt(n, lower = 1)

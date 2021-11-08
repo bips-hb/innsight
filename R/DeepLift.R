@@ -41,7 +41,7 @@
 #' deeplift$get_result("torch.tensor")
 #'
 #' # Plot the result for both classes
-#' plot(deeplift, classes = 1:2)
+#' plot(deeplift, output_idx = 1:2)
 #'
 #' # Plot the boxplot of all datapoints
 #' boxplot(deeplift, classes = 1:2)
@@ -109,7 +109,7 @@
 #'   )
 #'
 #'   # Plot the result for the first image and both classes
-#'   plot(deeplift_revcancel, classes = 1:2)
+#'   plot(deeplift_revcancel, output_idx = 1:2)
 #'
 #'   # Plot the result as boxplots for first class
 #'   boxplot(deeplift_revcancel, classes = 1)
@@ -140,7 +140,7 @@
 #' deeplift <- DeepLift$new(converter, iris[, -5])
 #'
 #' # Get the ggplot and add your changes
-#' p <- plot(deeplift, classes = 1, datapoint = 1:2) +
+#' p <- plot(deeplift, output_idx = 1, datapoint = 1:2) +
 #'   theme_bw() +
 #'   scale_fill_gradient2(low = "green", mid = "black", high = "blue")
 #'
@@ -190,7 +190,7 @@ DeepLift <- R6Class(
     #' of zeros.
     #' @param rule_name Name of the applied rule to calculate the
     #' contributions. Use one of `'rescale'` and `'reveal_cancel'`.
-    #' @param output_id This vector determines for which outputs the method
+    #' @param output_idx This vector determines for which outputs the method
     #' will be applied. By default (`NULL`), all outputs (but limited to the
     #' first 10) are considered.
     #'
@@ -200,9 +200,9 @@ DeepLift <- R6Class(
                           ignore_last_act = TRUE,
                           rule_name = "rescale",
                           x_ref = NULL,
-                          output_id = NULL) {
+                          output_idx = NULL) {
       super$initialize(converter, data, channels_first, dtype, ignore_last_act,
-                       output_id)
+                       output_idx)
 
       assertChoice(rule_name, c("rescale", "reveal_cancel"))
       self$rule_name <- rule_name
@@ -236,7 +236,7 @@ DeepLift <- R6Class(
     #' @param datapoint An integer vector containing the numbers of the data
     #' points whose result is to be plotted, e.g. `c(1,3)` for the first
     #' and third data point in the given data. Default: `c(1)`.
-    #' @param classes An integer vector containing the numbers of the classes
+    #' @param output_idx An integer vector containing the numbers of the classes
     #' whose result is to be plotted, e.g. `c(1,4)` for the first and fourth
     #' class. Default: `c(1)`.
     #' @param aggr_channels Pass a function to aggregate the channels. The
@@ -257,11 +257,11 @@ DeepLift <- R6Class(
     #' [plotly::plot_ly] (`as_plotly = TRUE`) with the plotted results.
     #'
     plot = function(datapoint = 1,
-                    classes = 1,
+                    output_idx = c(),
                     aggr_channels = sum,
                     as_plotly = FALSE) {
 
-      private$plot(datapoint, classes, aggr_channels,
+      private$plot(datapoint, output_idx, aggr_channels,
                    as_plotly, "Contribution")
     },
 
@@ -343,7 +343,7 @@ DeepLift <- R6Class(
 
       mul <- torch_diag_embed(torch_ones_like(last_layer$output))
 
-      mul <- mul[,,self$output_id, drop = FALSE]
+      mul <- mul[,,self$output_idx, drop = FALSE]
 
       message("Backwardpass 'DeepLift':")
       # Define Progressbar

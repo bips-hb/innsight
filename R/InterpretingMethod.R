@@ -21,7 +21,7 @@
 #' activation leads to a saturation problem.
 #' @field result The methods result of the given data as a
 #' torch tensor of size (batch_size, dim_in, dim_out).
-#' @field output_id This vector determines for which outputs the method
+#' @field output_idx This vector determines for which outputs the method
 #' will be applied.
 #'
 #' @import ggplot2
@@ -35,7 +35,7 @@ InterpretingMethod <- R6Class(
     dtype = NULL,
     ignore_last_act = NULL,
     result = NULL,
-    output_id = NULL,
+    output_idx = NULL,
 
     #' @description
     #' Create a new instance of this class.
@@ -50,15 +50,15 @@ InterpretingMethod <- R6Class(
     #' @param ignore_last_act A boolean value to include the last
     #' activation into all the calculations, or not. In some cases, the last
     #' activation leads to a saturation problem.
-    #' @param output_id This vector determines for which outputs the method
-    #' will be applied. By default (`NULL`), all outputs (but limited to the
-    #' first 10) are considered.
+    #' @param output_idx This vector determines for which output indices the
+    #' method will be applied. By default (`NULL`), all outputs (but limited to
+    #' the first 10) are considered.
 
     initialize = function(converter, data,
                           channels_first = TRUE,
                           dtype = "float",
                           ignore_last_act = TRUE,
-                          output_id = NULL) {
+                          output_idx = NULL) {
       assertClass(converter, "Converter")
       self$converter <- converter
 
@@ -72,17 +72,17 @@ InterpretingMethod <- R6Class(
       self$dtype <- dtype
       self$converter$model$set_dtype(dtype)
 
-      assertIntegerish(output_id,
+      assertIntegerish(output_idx,
         null.ok = TRUE, lower = 1,
         upper = converter$model_dict$output_dim
       )
 
 
-      if (is.null(output_id)) {
-        output_id <-
+      if (is.null(output_idx)) {
+        output_idx <-
           1:min(converter$model_dict$output_dim, 10)
       }
-      self$output_id <- output_id
+      self$output_idx <- output_idx
 
       self$data <- private$test_data(data)
     },
@@ -169,7 +169,7 @@ InterpretingMethod <- R6Class(
       input_names <- self$converter$model_dict$input_names
       num_data <- dim(result)[1]
       data_names <- paste0("data_", 1:num_data)
-      class <- unlist(self$converter$model_dict$output_names)[self$output_id]
+      class <- unlist(self$converter$model_dict$output_names)[self$output_idx]
 
       if (length(input_names) == 1) {
         df <- expand.grid(
@@ -221,19 +221,27 @@ InterpretingMethod <- R6Class(
     # ----------------------- Plot Function ----------------------------------
 
     plot = function(datapoint = 1,
-                    classes = 1,
+                    output_idx = c(),
                     aggr_channels = 'sum',
                     as_plotly = FALSE,
                     value_name = "value") {
 
       # Check correctness of arguments
       assertNumeric(datapoint, lower = 1, upper = dim(self$result)[1])
-      assertNumeric(classes, lower = 1, upper = rev(dim(self$result))[1])
+      assertSubset(output_idx, self$output_idx)
       assert(
         checkFunction(aggr_channels),
         checkChoice(aggr_channels, c("norm", "sum", "mean"))
       )
       assertLogical(as_plotly)
+
+      if (length(output_idx) == 0) {
+        classes <- self$output_idx[1]
+        classes_idx <- 1
+      } else {
+        classes <- output_idx
+        classes_idx <- match(classes, self$output_idx)
+      }
 
       if (!is.function(aggr_channels)) {
         if (aggr_channels == "norm") {
@@ -255,7 +263,7 @@ InterpretingMethod <- R6Class(
       # 1D Input
       if (num_dims == 3) {
         # Filter all results by the given 'datapoint' and 'classes'
-        res <- self$result[datapoint, , classes, drop = FALSE]
+        res <- self$result[datapoint, , classes_idx, drop = FALSE]
         # Plot the result
         p <- plot_1d_input(
           res, value_name, paste0("data_", datapoint),
@@ -268,7 +276,7 @@ InterpretingMethod <- R6Class(
       # 2D Input
       else if (num_dims == 4) {
         # Filter all results by the given 'datapoint' and 'classes'
-        res <- as_array(self$result[datapoint, , , classes, drop = FALSE])
+        res <- as_array(self$result[datapoint, , , classes_idx, drop = FALSE])
 
         # Depending on the dataformat the channels are on axis '2' or '3'
         if (self$channels_first) {
@@ -293,7 +301,7 @@ InterpretingMethod <- R6Class(
       # 3D Input
       else if (num_dims == 5) {
         # Filter all results by the given 'datapoint' and 'classes'
-        res <- as_array(self$result[datapoint, , , , classes, drop = FALSE])
+        res <- as_array(self$result[datapoint, , , , classes_idx, drop = FALSE])
         # Depending on the dataformat the channels are on axis '2' or '3'
         if (self$channels_first) {
           dims <- c(1, 3, 4, 5)

@@ -40,7 +40,7 @@ grad <- Gradient$new(converter, data)
 grad$get_result("data.frame")
 
 # Plot the result for both classes
-plot(grad, classes = 1:2)
+plot(grad, output_idx = 1:2)
 
 # Plot the boxplot of all datapoints
 boxplot(grad, classes = 1:2)
@@ -64,13 +64,13 @@ converter <- Converter$new(nn)
 gradient <- Gradient$new(converter, iris[, -5], times_input = TRUE)
 
 # Plot the result for the first and 60th data point and all classes
-plot(gradient, datapoint = c(1, 60), classes = 1:3)
+plot(gradient, datapoint = c(1, 60), output_idx = 1:3)
 
 # Calculate Gradients x Input and do not ignore the last activation
 gradient <- Gradient$new(converter, iris[, -5], ignore_last_act = FALSE)
 
 # Plot the result again
-plot(gradient, datapoint = c(1, 60), classes = 1:3)
+plot(gradient, datapoint = c(1, 60), output_idx = 1:3)
 
 # ------------------------- Example 3: Keras -------------------------------
 library(keras)
@@ -104,7 +104,7 @@ if (is_keras_available()) {
   gradient <- Gradient$new(converter, data, channels_first = FALSE)
 
   # Plot the result for the first datapoint and all classes
-  plot(gradient, classes = 1:3)
+  plot(gradient, output_idx = 1:3)
 
   # Plot the result as boxplots for first two classes
   boxplot(gradient, classes = 1:2)
@@ -142,7 +142,7 @@ gradient <- Gradient$new(converter, iris[, -5])
 library(plotly)
 
 # Get the ggplot and add your changes
-p <- plot(gradient, classes = 1, datapoint = 1:2) +
+p <- plot(gradient, output_idx = 1, datapoint = 1:2) +
   theme_bw() +
   scale_fill_gradient2(low = "green", mid = "black", high = "blue")
 
@@ -182,7 +182,7 @@ Create a new instance of this class.
   dtype = "float",
   ignore_last_act = TRUE,
   times_input = TRUE,
-  output_id = NULL
+  output_idx = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -209,7 +209,7 @@ last activation leads to a saturation problem. Default: \code{TRUE}.}
 \item{\code{times_input}}{Multiplies the gradients with the input features.
 This method is called 'Gradient x Input'. Default: \code{TRUE}.}
 
-\item{\code{output_id}}{This vector determines for which outputs the method
+\item{\code{output_idx}}{This vector determines for which outputs the method
 will be applied. By default (\code{NULL}), all outputs (but limited to the
 first 10) are considered.}
 }

@@ -44,7 +44,7 @@ deeplift <- DeepLift$new(converter, data, x_ref = ref)
 deeplift$get_result("torch.tensor")
 
 # Plot the result for both classes
-plot(deeplift, classes = 1:2)
+plot(deeplift, output_idx = 1:2)
 
 # Plot the boxplot of all datapoints
 boxplot(deeplift, classes = 1:2)
@@ -112,7 +112,7 @@ if (is_keras_available()) {
   )
 
   # Plot the result for the first image and both classes
-  plot(deeplift_revcancel, classes = 1:2)
+  plot(deeplift_revcancel, output_idx = 1:2)
 
   # Plot the result as boxplots for first class
   boxplot(deeplift_revcancel, classes = 1)
@@ -143,7 +143,7 @@ converter <- Converter$new(nn)
 deeplift <- DeepLift$new(converter, iris[, -5])
 
 # Get the ggplot and add your changes
-p <- plot(deeplift, classes = 1, datapoint = 1:2) +
+p <- plot(deeplift, output_idx = 1, datapoint = 1:2) +
   theme_bw() +
   scale_fill_gradient2(low = "green", mid = "black", high = "blue")
 
@@ -200,7 +200,7 @@ Create a new instance of the DeepLift method.
   ignore_last_act = TRUE,
   rule_name = "rescale",
   x_ref = NULL,
-  output_id = NULL
+  output_idx = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -232,7 +232,7 @@ contributions. Use one of \code{'rescale'} and \code{'reveal_cancel'}.}
 interpretation. With the default value \code{NULL} you use an input
 of zeros.}
 
-\item{\code{output_id}}{This vector determines for which outputs the method
+\item{\code{output_idx}}{This vector determines for which outputs the method
 will be applied. By default (\code{NULL}), all outputs (but limited to the
 first 10) are considered.}
 }
@@ -252,7 +252,7 @@ classes are visualized using the method \link[ggplot2:facet_grid]{ggplot2::facet
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DeepLift$plot(
   datapoint = 1,
-  classes = 1,
+  output_idx = c(),
   aggr_channels = sum,
   as_plotly = FALSE
 )}\if{html}{\out{</div>}}
@@ -265,7 +265,7 @@ classes are visualized using the method \link[ggplot2:facet_grid]{ggplot2::facet
 points whose result is to be plotted, e.g. \code{c(1,3)} for the first
 and third data point in the given data. Default: \code{c(1)}.}
 
-\item{\code{classes}}{An integer vector containing the numbers of the classes
+\item{\code{output_idx}}{An integer vector containing the numbers of the classes
 whose result is to be plotted, e.g. \code{c(1,4)} for the first and fourth
 class. Default: \code{c(1)}.}
 
