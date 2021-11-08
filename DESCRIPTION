@@ -54,5 +54,6 @@ Collate:
     'Layer_conv2d.R'
     'Layer_dense.R'
     'Layer_other.R'
+    'Layer_pooling.R'
     'innsight.R'
     'utils.R'
