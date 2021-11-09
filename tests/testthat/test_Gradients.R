@@ -21,22 +21,22 @@ test_that("Gradient: Plot and Boxplot", {
   # ggplot2
 
   # Non-existing data points
-  expect_error(plot(grad, datapoint = c(1,11)))
-  expect_error(boxplot(grad, boxplot_data = 1:11))
+  expect_error(plot(grad, data_idx = c(1,11)))
+  expect_error(boxplot(grad, data_idx = 1:11))
   # Non-existing class
   expect_error(plot(grad, output_idx = c(5)))
-  expect_error(boxplot(grad, classes = c(5)))
+  expect_error(boxplot(grad, output_idx = c(5)))
 
   p <- plot(grad)
   boxp <- boxplot(grad)
   expect_true("ggplot" %in% class(p))
   expect_true("ggplot" %in% class(boxp))
-  p <- plot(grad, datapoint = 1:3)
-  boxp <- boxplot(grad, boxplot_data = 1:4)
+  p <- plot(grad, data_idx = 1:3)
+  boxp <- boxplot(grad, data_idx = 1:4)
   expect_true("ggplot" %in% class(p))
   expect_true("ggplot" %in% class(boxp))
-  p <- plot(grad, datapoint = 1:3, output_idx = 1:3)
-  boxp <- boxplot(grad, boxplot_data = 1:5, classes = 1:3)
+  p <- plot(grad, data_idx = 1:3, output_idx = 1:3)
+  boxp <- boxplot(grad, data_idx = 1:5, output_idx = 1:3)
   expect_true("ggplot" %in% class(p))
   expect_true("ggplot" %in% class(boxp))
 
@@ -47,12 +47,12 @@ test_that("Gradient: Plot and Boxplot", {
   boxp <- boxplot(grad, as_plotly = TRUE)
   expect_true("plotly" %in% class(p))
   expect_true("plotly" %in% class(boxp))
-  p <- plot(grad, datapoint = 1:3, as_plotly = TRUE)
-  boxp <- boxplot(grad, boxplot_data = 1:4, as_plotly = TRUE)
+  p <- plot(grad, data_idx = 1:3, as_plotly = TRUE)
+  boxp <- boxplot(grad, data_idx = 1:4, as_plotly = TRUE)
   expect_true("plotly" %in% class(p))
   expect_true("plotly" %in% class(boxp))
-  p <- plot(grad, datapoint = 1:3, output_idx = 1:3, as_plotly = TRUE)
-  boxp <- boxplot(grad, boxplot_data = 1:5, classes = 1:3, as_plotly = TRUE)
+  p <- plot(grad, data_idx = 1:3, output_idx = 1:3, as_plotly = TRUE)
+  boxp <- boxplot(grad, data_idx = 1:5, output_idx = 1:3, as_plotly = TRUE)
   expect_true("plotly" %in% class(p))
   expect_true("plotly" %in% class(boxp))
 

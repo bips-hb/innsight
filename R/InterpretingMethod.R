@@ -56,9 +56,9 @@ InterpretingMethod <- R6Class(
 
     initialize = function(converter, data,
                           channels_first = TRUE,
-                          dtype = "float",
+                          output_idx = NULL,
                           ignore_last_act = TRUE,
-                          output_idx = NULL) {
+                          dtype = "float") {
       assertClass(converter, "Converter")
       self$converter <- converter
 
@@ -77,10 +77,8 @@ InterpretingMethod <- R6Class(
         upper = converter$model_dict$output_dim
       )
 
-
       if (is.null(output_idx)) {
-        output_idx <-
-          1:min(converter$model_dict$output_dim, 10)
+        output_idx <-1:min(converter$model_dict$output_dim)
       }
       self$output_idx <- output_idx
 
@@ -133,7 +131,7 @@ InterpretingMethod <- R6Class(
         error = function(e) {
           stop(sprintf("Failed to convert the argument '%s' to an array using
                        the function 'base::as.array'. The class of your '%s':
-                       %s", name, name, class(data)))
+                       %s", name, name, paste(class(data), collapse = ", ")))
         }
       )
 
@@ -220,14 +218,14 @@ InterpretingMethod <- R6Class(
 
     # ----------------------- Plot Function ----------------------------------
 
-    plot = function(datapoint = 1,
+    plot = function(data_idx = 1,
                     output_idx = c(),
                     aggr_channels = 'sum',
                     as_plotly = FALSE,
                     value_name = "value") {
 
       # Check correctness of arguments
-      assertNumeric(datapoint, lower = 1, upper = dim(self$result)[1])
+      assertNumeric(data_idx, lower = 1, upper = dim(self$result)[1])
       assertSubset(output_idx, self$output_idx)
       assert(
         checkFunction(aggr_channels),
@@ -262,11 +260,11 @@ InterpretingMethod <- R6Class(
       num_dims <- length(dim(self$result))
       # 1D Input
       if (num_dims == 3) {
-        # Filter all results by the given 'datapoint' and 'classes'
-        res <- self$result[datapoint, , classes_idx, drop = FALSE]
+        # Filter all results by the given 'data_idx' and 'classes'
+        res <- self$result[data_idx, , classes_idx, drop = FALSE]
         # Plot the result
         p <- plot_1d_input(
-          res, value_name, paste0("data_", datapoint),
+          res, value_name, paste0("data_", data_idx),
           input_names,
           output_names,
           self$channels_first, FALSE
@@ -275,8 +273,8 @@ InterpretingMethod <- R6Class(
       }
       # 2D Input
       else if (num_dims == 4) {
-        # Filter all results by the given 'datapoint' and 'classes'
-        res <- as_array(self$result[datapoint, , , classes_idx, drop = FALSE])
+        # Filter all results by the given 'data_idx' and 'classes'
+        res <- as_array(self$result[data_idx, , , classes_idx, drop = FALSE])
 
         # Depending on the dataformat the channels are on axis '2' or '3'
         if (self$channels_first) {
@@ -293,15 +291,15 @@ InterpretingMethod <- R6Class(
 
         # Plot the result
         p <- plot_2d_input(
-          res, value_name, paste0("data_", datapoint), input_names,
+          res, value_name, paste0("data_", data_idx), input_names,
           output_names, self$channels_first, FALSE
         )
         dynamicTicks <- TRUE
       }
       # 3D Input
       else if (num_dims == 5) {
-        # Filter all results by the given 'datapoint' and 'classes'
-        res <- as_array(self$result[datapoint, , , , classes_idx, drop = FALSE])
+        # Filter all results by the given 'data_idx' and 'classes'
+        res <- as_array(self$result[data_idx, , , , classes_idx, drop = FALSE])
         # Depending on the dataformat the channels are on axis '2' or '3'
         if (self$channels_first) {
           dims <- c(1, 3, 4, 5)
@@ -316,7 +314,7 @@ InterpretingMethod <- R6Class(
         input_names[[1]] <- c("aggr")
         # Plot the result
         p <- plot_3d_input(
-          res, value_name, paste0("data_", datapoint), input_names,
+          res, value_name, paste0("data_", data_idx), input_names,
           output_names, self$channels_first, FALSE
         )
         dynamicTicks <- TRUE
@@ -346,56 +344,67 @@ InterpretingMethod <- R6Class(
 
     # ------------------------ Boxplots -------------------------------------
 
-    boxplot = function(preprocess_FUN, boxplot_data, classes, ref_datapoint,
-                       aggr_channels, individual_data,
-                       individual_max, as_plotly, value_name) {
+    boxplot = function(output_idx, data_idx, ref_data_idx, aggr_channels,
+                       preprocess_FUN, as_plotly, individual_data_idx,
+                       individual_max, value_name) {
+
       # Check correctness of arguments
+      dim_result <- dim(self$result)
       assertFunction(preprocess_FUN)
       assertFunction(aggr_channels)
       assertLogical(as_plotly)
       assert(
-        checkNumeric(boxplot_data, lower = 1, upper = dim(self$result)[1]),
-        checkChoice(boxplot_data, c("all"))
+        checkNumeric(data_idx, lower = 1, upper = dim_result[1]),
+        checkChoice(data_idx, c("all"))
       )
-      assertNumeric(classes, lower = 1, upper = rev(dim(self$result))[1])
-      assertInt(ref_datapoint,
-        lower = 1, upper = dim(self$result)[1], null.ok = TRUE
+      assertSubset(output_idx, self$output_idx)
+      assertInt(ref_data_idx,
+        lower = 1, upper = dim_result[1], null.ok = TRUE
       )
-      checkNumeric(individual_data,
-        lower = 1, upper = dim(self$result)[1], null.ok = TRUE
+      checkNumeric(individual_data_idx,
+        lower = 1, upper = dim_result[1], null.ok = TRUE
       )
 
-      # Set default value for 'boxplot_data'
-      if (is.character(boxplot_data) && boxplot_data == "all") {
-        boxplot_data <- 1:dim(self$result)[1]
+      # Set default value for 'data_idx'
+      if (is.character(data_idx) && data_idx == "all") {
+        data_idx <- 1:(dim_result[1])
       }
 
-      # Set default for 'individual_data' (only for plotly plots)
-      if (is.null(individual_data)) {
-        individual_data <- boxplot_data
+      # Set default value for 'output_idx'
+      if (length(output_idx) == 0) {
+        classes <- self$output_idx[1]
+        classes_idx <- 1
+      } else {
+        classes <- output_idx
+        classes_idx <- match(classes, self$output_idx)
       }
-      if (length(individual_data) > individual_max) {
-        individual_data <- individual_data[1:individual_max]
+
+      # Set default for 'individual_data_idx' (only for plotly plots)
+      if (is.null(individual_data_idx)) {
+        individual_data_idx <- data_idx
+      }
+      if (length(individual_data_idx) > individual_max) {
+        individual_data_idx <- individual_data_idx[1:individual_max]
       }
 
       if (as_plotly) {
         result <- private$get_dataframe()
-        all_data_ids <- c(boxplot_data, individual_data, ref_datapoint)
+        all_data_ids <- c(data_idx, individual_data_idx, ref_data_idx)
         output_names <- unlist(self$converter$model_dict$output_names)
         result <- result[result$data %in% paste0("data_", all_data_ids) &
           result$class %in% output_names[classes], ]
-        result$summary_data <- result$data %in% paste0("data_", boxplot_data)
+        result$summary_data <- result$data %in% paste0("data_", data_idx)
         result$individual_data <-
-          result$data %in% paste0("data_", c(individual_data, ref_datapoint))
+          result$data %in% paste0("data_", c(individual_data_idx, ref_data_idx))
 
         result$value <- preprocess_FUN(result$value)
-        p <- boxplot_plotly(result, aggr_channels, ref_datapoint, value_name)
+        p <- boxplot_plotly(result, aggr_channels, ref_data_idx, value_name)
       } else {
         output_names <- unlist(self$converter$model_dict$output_names)[classes]
         input_names <- self$converter$model_dict$input_names
         p <- boxplot_ggplot(
-          self$result, aggr_channels, ref_datapoint, value_name,
-          boxplot_data, classes, input_names, output_names,
+          self$result, aggr_channels, ref_data_idx, value_name,
+          data_idx, classes_idx, input_names, output_names,
           preprocess_FUN, self$channels_first
         )
       }

@@ -42,22 +42,22 @@ test_that("LRP: Plot and Boxplot", {
   # ggplot2
 
   # Non-existing data points
-  expect_error(plot(lrp, datapoint = c(1,11)))
-  expect_error(boxplot(lrp, boxplot_data = 1:11))
+  expect_error(plot(lrp, data_idx = c(1,11)))
+  expect_error(boxplot(lrp, data_idx = 1:11))
   # Non-existing class
   expect_error(plot(lrp, output_idx = c(5)))
-  expect_error(boxplot(lrp, classes = c(5)))
+  expect_error(boxplot(lrp, output_idx = c(5)))
 
   p <- plot(lrp)
   boxp <- boxplot(lrp)
   expect_true("ggplot" %in% class(p))
   expect_true("ggplot" %in% class(boxp))
-  p <- plot(lrp, datapoint = 1:3)
-  boxp <- boxplot(lrp, boxplot_data = 1:4)
+  p <- plot(lrp, data_idx = 1:3)
+  boxp <- boxplot(lrp, data_idx = 1:4)
   expect_true("ggplot" %in% class(p))
   expect_true("ggplot" %in% class(boxp))
-  p <- plot(lrp, datapoint = 1:3, output_idx = 1:3)
-  boxp <- boxplot(lrp, boxplot_data = 1:5, classes = 1:3)
+  p <- plot(lrp, data_idx = 1:3, output_idx = 1:3)
+  boxp <- boxplot(lrp, data_idx = 1:5, output_idx = 1:3)
   expect_true("ggplot" %in% class(p))
   expect_true("ggplot" %in% class(boxp))
 
@@ -68,12 +68,12 @@ test_that("LRP: Plot and Boxplot", {
   boxp <- boxplot(lrp, as_plotly = TRUE)
   expect_true("plotly" %in% class(p))
   expect_true("plotly" %in% class(boxp))
-  p <- plot(lrp, datapoint = 1:3, as_plotly = TRUE)
-  boxp <- boxplot(lrp, boxplot_data = 1:4, as_plotly = TRUE)
+  p <- plot(lrp, data_idx = 1:3, as_plotly = TRUE)
+  boxp <- boxplot(lrp, data_idx = 1:4, as_plotly = TRUE)
   expect_true("plotly" %in% class(p))
   expect_true("plotly" %in% class(boxp))
-  p <- plot(lrp, datapoint = 1:3, output_idx = 1:3, as_plotly = TRUE)
-  boxp <- boxplot(lrp, boxplot_data = 1:5, classes = 1:3, as_plotly = TRUE)
+  p <- plot(lrp, data_idx = 1:3, output_idx = 1:3, as_plotly = TRUE)
+  boxp <- boxplot(lrp, data_idx = 1:5, output_idx = 1:3, as_plotly = TRUE)
   expect_true("plotly" %in% class(p))
   expect_true("plotly" %in% class(boxp))
 

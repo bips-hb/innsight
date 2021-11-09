@@ -60,9 +60,9 @@ Create a new instance of this class.
   converter,
   data,
   channels_first = TRUE,
-  dtype = "float",
+  output_idx = NULL,
   ignore_last_act = TRUE,
-  output_idx = NULL
+  dtype = "float"
 )}\if{html}{\out{</div>}}
 }
 
@@ -78,15 +78,15 @@ with the selected method.}
 last dimension (\code{FALSE}) or after the batch dimension (\code{TRUE}). If the
 data has no channels, use the default value \code{TRUE}.}
 
-\item{\code{dtype}}{The type of the data (either \code{'float'} or \code{'double'}).}
+\item{\code{output_idx}}{This vector determines for which output indices the
+method will be applied. By default (\code{NULL}), all outputs (but limited to
+the first 10) are considered.}
 
 \item{\code{ignore_last_act}}{A boolean value to include the last
 activation into all the calculations, or not. In some cases, the last
 activation leads to a saturation problem.}
 
-\item{\code{output_idx}}{This vector determines for which output indices the
-method will be applied. By default (\code{NULL}), all outputs (but limited to
-the first 10) are considered.}
+\item{\code{dtype}}{The type of the data (either \code{'float'} or \code{'double'}).}
 }
 \if{html}{\out{</div>}}
 }

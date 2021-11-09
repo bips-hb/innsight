@@ -40,7 +40,7 @@
 #' plot(lrp, output_idx = 1:2)
 #'
 #' # Plot the boxplot of all datapoints without preprocess function
-#' boxplot(lrp, classes = 1:2, preprocess_FUN = identity)
+#' boxplot(lrp, output_idx = 1:2, preprocess_FUN = identity)
 #'
 #' # ------------------------- Example 2: Neuralnet ---------------------------
 #' library(neuralnet)
@@ -89,7 +89,7 @@
 #' boxplot(lrp, as_plotly = TRUE)
 #'
 #' # Result of the second data point
-#' plot(lrp, datapoint = 2, as_plotly = TRUE)
+#' plot(lrp, data_idx = 2, as_plotly = TRUE)
 #'
 #' # ------------------------- Example 3: Keras -------------------------------
 #' library(keras)
@@ -130,7 +130,7 @@
 #'   plot(lrp_eps, output_idx = 1:3)
 #'
 #'   # Plot the result as boxplots for first two classes
-#'   boxplot(lrp_eps, classes = 1:2)
+#'   boxplot(lrp_eps, output_idx = 1:2)
 #'
 #'   # You can also create an interactive plot with plotly.
 #'   # This is a suggested package, so make sure that it is installed
@@ -140,7 +140,7 @@
 #'   boxplot(lrp_eps, as_plotly = TRUE)
 #'
 #'   # Result of the second data point
-#'   plot(lrp_eps, datapoint = 2, as_plotly = TRUE)
+#'   plot(lrp_eps, data_idx = 2, as_plotly = TRUE)
 #' }
 #'
 #' # ------------------------- Advanced: Plotly -------------------------------
@@ -165,7 +165,7 @@
 #' library(plotly)
 #'
 #' # Get the ggplot and add your changes
-#' p <- plot(lrp, output_idx = 1, datapoint = 1:2) +
+#' p <- plot(lrp, output_idx = 1, data_idx = 1:2) +
 #'   theme_bw() +
 #'   scale_fill_gradient2(low = "green", mid = "black", high = "blue")
 #'
@@ -223,13 +223,13 @@ LRP <- R6Class(
     #'
     initialize = function(converter, data,
                           channels_first = TRUE,
+                          output_idx = NULL,
+                          ignore_last_act = TRUE,
                           rule_name = "simple",
                           rule_param = NULL,
-                          ignore_last_act = TRUE,
-                          dtype = "float",
-                          output_idx = NULL) {
-      super$initialize(converter, data, channels_first, dtype, ignore_last_act,
-                       output_idx)
+                          dtype = "float") {
+      super$initialize(converter, data, channels_first, output_idx,
+                       ignore_last_act, dtype)
 
       assertChoice(rule_name, c("simple", "epsilon", "alpha_beta"))
       self$rule_name <- rule_name
@@ -247,13 +247,13 @@ LRP <- R6Class(
     #'
     #' @description
     #' This method visualizes the result of the selected method in a
-    #' [ggplot2::ggplot]. You can use the argument `datapoint` to select
+    #' [ggplot2::ggplot]. You can use the argument `data_idx` to select
     #' the data points in the given data for the plot. In addition, the
     #' individual classes for the plot can be selected with the argument
-    #' `classes`. The different results for the selected data points and
+    #' `output_idx`. The different results for the selected data points and
     #' classes are visualized using the method [ggplot2::facet_grid].
     #'
-    #' @param datapoint An integer vector containing the numbers of the data
+    #' @param data_idx An integer vector containing the numbers of the data
     #' points whose result is to be plotted, e.g. `c(1,3)` for the first
     #' and third data point in the given data. Default: `c(1)`.
     #' @param output_idx An integer vector containing the numbers of the classes
@@ -276,12 +276,12 @@ LRP <- R6Class(
     #' Returns either a [ggplot2::ggplot] (`as_plotly = FALSE`) or a
     #' [plotly::plot_ly] (`as_plotly = TRUE`) with the plotted results.
     #'
-    plot = function(datapoint = 1,
+    plot = function(data_idx = 1,
                     output_idx = c(),
                     aggr_channels = sum,
                     as_plotly = FALSE) {
 
-      private$plot(datapoint, output_idx, aggr_channels,
+      private$plot(data_idx, output_idx, aggr_channels,
                    as_plotly, "Relevance")
     },
 
@@ -300,21 +300,21 @@ LRP <- R6Class(
     #' default. But you can also use the raw data (`function(x) x`) to see the
     #' results' orientation, the squared data (`function(x) x^2`) to weight
     #' the outliers higher or any other function.
-    #' @param boxplot_data By default ("all"), all available data is used to
+    #' @param data_idx By default ("all"), all available data is used to
     #' calculate the boxplot information. However, this parameter can be used
     #' to select a subset of them by passing the indices. E.g. with
-    #' `boxplot_data = c(1:10, 25, 26)` only the first `10` data points and
+    #' `data_idx = c(1:10, 25, 26)` only the first `10` data points and
     #' the 25th and 26th are used to calculate the boxplots.
-    #' @param classes An integer vector containing the numbers of the classes
+    #' @param output_idx An integer vector containing the numbers of the classes
     #' whose result is to be plotted, e.g. `c(1,4)` for the first and fourth
     #' class. Default: `c(1)`.
-    #' @param ref_datapoint This integer number determines the index for the
+    #' @param ref_data_idx This integer number determines the index for the
     #' reference data point. In addition to the boxplots, it is displayed in
     #' red color and is used to compare an individual result with the summary
     #' statistics provided by the boxplot. With the default value (`NULL`)
     #' no individual data point is plotted. This index can be chosen with
     #' respect to all available data, even if only a subset is selected with
-    #' argument `boxplot_data`.\cr
+    #' argument `data_idx`.\cr
     #' **Note:** Because of the complexity of 3D inputs, this argument is used
     #' only for 1D and 2D inputs and disregarded for 3D inputs.
     #' @param aggr_channels Pass a function to aggregate the channels. The
@@ -326,33 +326,33 @@ LRP <- R6Class(
     #' create an interactive plot based on the library `plotly` instead of
     #' `ggplot2`. Make sure that the suggested package `plotly` is installed
     #' in your R session.
-    #' @param individual_data Only relevant for a `plotly` plot with input
+    #' @param individual_data_idx Only relevant for a `plotly` plot with input
     #' dimension `1` or `2`! This integer vector of data indices determines
     #' the available data points in a dropdown menu, which are drawn in
-    #' individually analogous to `ref_datapoint` only for more data points.
+    #' individually analogous to `ref_data_idx` only for more data points.
     #' With the default value `NULL` the first `individual_max` data points
     #' are used.\cr
-    #' **Note:** If `ref_datapoint` is specified, this data point will be
-    #' added to those from `individual_data` in the dropdown menu.
+    #' **Note:** If `ref_data_idx` is specified, this data point will be
+    #' added to those from `individual_data_idx` in the dropdown menu.
     #' @param individual_max Only relevant for a `plotly` plot with input
     #' dimension `1` or `2`! This integer determines the maximum number of
     #' individual data points in the dropdown menu without counting
-    #' `ref_datapoint`. This means that if `individual_data` has more
+    #' `ref_data_idx`. This means that if `individual_data_idx` has more
     #' than `individual_max` indices, only the first `individual_max` will
     #' be used. Too high a number can significantly increase the runtime.
     #'
     #'
-    boxplot = function(boxplot_data = "all",
-                       classes = 1,
-                       ref_datapoint = NULL,
-                       aggr_channels = mean,
+    boxplot = function(output_idx = c(),
+                       data_idx = "all",
+                       ref_data_idx = NULL,
+                       aggr_channels = sum,
                        preprocess_FUN = abs,
                        as_plotly = FALSE,
-                       individual_data = NULL,
+                       individual_data_idx = NULL,
                        individual_max = 20) {
-      private$boxplot(preprocess_FUN, boxplot_data, classes, ref_datapoint,
-                      aggr_channels, individual_data,
-                      individual_max, as_plotly, "Relevance")
+      private$boxplot(output_idx, data_idx, ref_data_idx, aggr_channels,
+                      preprocess_FUN, as_plotly, individual_data_idx,
+                      individual_max, "Relevance")
     }
   ),
   private = list(

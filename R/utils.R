@@ -432,15 +432,15 @@ boxplot_3d_ggplot <- function(result, value_name) {
 
   # Set the colorbar for the plot
   if (min(result$value) >= 0) {
-    col <- colorRamp(c("black", "red"))
+    col <- colorRamp(c("white", "red"))
     value_max <- max(result$value)
     value_min <- 0
   } else if (max(result$value) <= 0) {
-    col <- colorRamp(c("blue", "black"))
+    col <- colorRamp(c("blue", "white"))
     value_max <- 0
     value_min <- min(result$value)
   } else {
-    col <- colorRamp(c("blue", "black", "red"))
+    col <- colorRamp(c("blue", "white", "red"))
     value_max <- max(abs(result$value))
     value_min <- -value_max
   }
@@ -782,15 +782,15 @@ boxplot_3d_plotly <- function(result, aggr_channels, ref_channel, value_name,
 
   # Set the colorbar for the plot
   if (min(result$value) >= 0) {
-    col <- colorRamp(c("black", "red"))
+    col <- colorRamp(c("white", "red"))
     value_max <- max(result$value)
     value_min <- 0
   } else if (max(result$value) <= 0) {
-    col <- colorRamp(c("blue", "black"))
+    col <- colorRamp(c("blue", "white"))
     value_max <- 0
     value_min <- min(result$value)
   } else {
-    col <- colorRamp(c("blue", "black", "red"))
+    col <- colorRamp(c("blue", "white", "red"))
     value_max <- max(abs(result$value))
     value_min <- -value_max
   }

@@ -50,10 +50,10 @@ Create a new instance of this class.
   converter,
   data,
   channels_first = TRUE,
-  dtype = "float",
+  output_idx = NULL,
   ignore_last_act = TRUE,
   times_input = TRUE,
-  output_idx = NULL
+  dtype = "float"
 )}\if{html}{\out{</div>}}
 }
 
@@ -70,7 +70,9 @@ with the selected gradient-based method.}
 last dimension (\code{FALSE}) or after the batch dimension (\code{TRUE}). If the
 data has no channels, use the default value \code{TRUE}.}
 
-\item{\code{dtype}}{The type of the data (either \code{'float'} or \code{'double'}).}
+\item{\code{output_idx}}{This vector determines for which outputs the method
+will be applied. By default (\code{NULL}), all outputs (but limited to the
+first 10) are considered.}
 
 \item{\code{ignore_last_act}}{A boolean value to include the last
 activation into all the calculations, or not. In some cases, the last
@@ -79,9 +81,7 @@ activation leads to a saturation problem.}
 \item{\code{times_input}}{Multiplies the gradients with the input features. This
 method is called 'Gradient x Input'.}
 
-\item{\code{output_idx}}{This vector determines for which outputs the method
-will be applied. By default (\code{NULL}), all outputs (but limited to the
-first 10) are considered.}
+\item{\code{dtype}}{The type of the data (either \code{'float'} or \code{'double'}).}
 }
 \if{html}{\out{</div>}}
 }
@@ -91,14 +91,14 @@ first 10) are considered.}
 \if{latex}{\out{\hypertarget{method-plot}{}}}
 \subsection{Method \code{plot()}}{
 This method visualizes the result of the selected method in a
-\link[ggplot2:ggplot]{ggplot2::ggplot}. You can use the argument \code{datapoint} to select
+\link[ggplot2:ggplot]{ggplot2::ggplot}. You can use the argument \code{data_idx} to select
 the data points in the given data for the plot. In addition, the
 individual classes for the plot can be selected with the argument
-\code{classes}. The different results for the selected data points and
+\code{output_idx}. The different results for the selected data points and
 classes are visualized using the method \link[ggplot2:facet_grid]{ggplot2::facet_grid}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GradientBased$plot(
-  datapoint = 1,
+  data_idx = 1,
   output_idx = c(),
   aggr_channels = sum,
   as_plotly = FALSE
@@ -108,7 +108,7 @@ classes are visualized using the method \link[ggplot2:facet_grid]{ggplot2::facet
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{datapoint}}{An integer vector containing the numbers of the data
+\item{\code{data_idx}}{An integer vector containing the numbers of the data
 points whose result is to be plotted, e.g. \code{c(1,3)} for the first
 and third data point in the given data. Default: \code{c(1)}.}
 
@@ -149,13 +149,13 @@ which however requires a successful installation of the package
 \code{plotly}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GradientBased$boxplot(
-  boxplot_data = "all",
-  classes = 1,
-  ref_datapoint = NULL,
-  aggr_channels = mean,
+  output_idx = c(),
+  data_idx = "all",
+  ref_data_idx = NULL,
+  aggr_channels = sum,
   preprocess_FUN = abs,
   as_plotly = FALSE,
-  individual_data = NULL,
+  individual_data_idx = NULL,
   individual_max = 20
 )}\if{html}{\out{</div>}}
 }
@@ -163,23 +163,23 @@ which however requires a successful installation of the package
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{boxplot_data}}{By default ("all"), all available data is used to
-calculate the boxplot information. However, this parameter can be used
-to select a subset of them by passing the indices. E.g. with
-\code{boxplot_data = c(1:10, 25, 26)} only the first \code{10} data points and
-the 25th and 26th are used to calculate the boxplots.}
-
-\item{\code{classes}}{An integer vector containing the numbers of the classes
+\item{\code{output_idx}}{An integer vector containing the numbers of the classes
 whose result is to be plotted, e.g. \code{c(1,4)} for the first and fourth
 class. Default: \code{c(1)}.}
 
-\item{\code{ref_datapoint}}{This integer number determines the index for the
+\item{\code{data_idx}}{By default ("all"), all available data is used to
+calculate the boxplot information. However, this parameter can be used
+to select a subset of them by passing the indices. E.g. with
+\code{data_idx = c(1:10, 25, 26)} only the first \code{10} data points and
+the 25th and 26th are used to calculate the boxplots.}
+
+\item{\code{ref_data_idx}}{This integer number determines the index for the
 reference data point. In addition to the boxplots, it is displayed in
 red color and is used to compare an individual result with the summary
 statistics provided by the boxplot. With the default value (\code{NULL})
 no individual data point is plotted. This index can be chosen with
 respect to all available data, even if only a subset is selected with
-argument \code{boxplot_data}.\cr
+argument \code{data_idx}.\cr
 \strong{Note:} Because of the complexity of 3D inputs, this argument is used
 only for 1D and 2D inputs and disregarded for 3D inputs.}
 
@@ -201,19 +201,19 @@ create an interactive plot based on the library \code{plotly} instead of
 \code{ggplot2}. Make sure that the suggested package \code{plotly} is installed
 in your R session.}
 
-\item{\code{individual_data}}{Only relevant for a \code{plotly} plot with input
+\item{\code{individual_data_idx}}{Only relevant for a \code{plotly} plot with input
 dimension \code{1} or \code{2}! This integer vector of data indices determines
 the available data points in a dropdown menu, which are drawn in
-individually analogous to \code{ref_datapoint} only for more data points.
+individually analogous to \code{ref_data_idx} only for more data points.
 With the default value \code{NULL} the first \code{individual_max} data points
 are used.\cr
-\strong{Note:} If \code{ref_datapoint} is specified, this data point will be
-added to those from \code{individual_data} in the dropdown menu.}
+\strong{Note:} If \code{ref_data_idx} is specified, this data point will be
+added to those from \code{individual_data_idx} in the dropdown menu.}
 
 \item{\code{individual_max}}{Only relevant for a \code{plotly} plot with input
 dimension \code{1} or \code{2}! This integer determines the maximum number of
 individual data points in the dropdown menu without counting
-\code{ref_datapoint}. This means that if \code{individual_data} has more
+\code{ref_data_idx}. This means that if \code{individual_data_idx} has more
 than \code{individual_max} indices, only the first \code{individual_max} will
 be used. Too high a number can significantly increase the runtime.}
 }

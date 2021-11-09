@@ -43,7 +43,7 @@ grad$get_result("data.frame")
 plot(grad, output_idx = 1:2)
 
 # Plot the boxplot of all datapoints
-boxplot(grad, classes = 1:2)
+boxplot(grad, output_idx = 1:2)
 
 # ------------------------- Example 2: Neuralnet ---------------------------
 library(neuralnet)
@@ -64,13 +64,13 @@ converter <- Converter$new(nn)
 gradient <- Gradient$new(converter, iris[, -5], times_input = TRUE)
 
 # Plot the result for the first and 60th data point and all classes
-plot(gradient, datapoint = c(1, 60), output_idx = 1:3)
+plot(gradient, data_idx = c(1, 60), output_idx = 1:3)
 
 # Calculate Gradients x Input and do not ignore the last activation
 gradient <- Gradient$new(converter, iris[, -5], ignore_last_act = FALSE)
 
 # Plot the result again
-plot(gradient, datapoint = c(1, 60), output_idx = 1:3)
+plot(gradient, data_idx = c(1, 60), output_idx = 1:3)
 
 # ------------------------- Example 3: Keras -------------------------------
 library(keras)
@@ -107,7 +107,7 @@ if (is_keras_available()) {
   plot(gradient, output_idx = 1:3)
 
   # Plot the result as boxplots for first two classes
-  boxplot(gradient, classes = 1:2)
+  boxplot(gradient, output_idx = 1:2)
 
   # You can also create an interactive plot with plotly.
   # This is a suggested package, so make sure that it is installed
@@ -117,7 +117,7 @@ if (is_keras_available()) {
   boxplot(gradient, as_plotly = TRUE)
 
   # Result of the second data point
-  plot(gradient, datapoint = 2, as_plotly = TRUE)
+  plot(gradient, data_idx = 2, as_plotly = TRUE)
 }
 
 # ------------------------- Advanced: Plotly -------------------------------
@@ -142,7 +142,7 @@ gradient <- Gradient$new(converter, iris[, -5])
 library(plotly)
 
 # Get the ggplot and add your changes
-p <- plot(gradient, output_idx = 1, datapoint = 1:2) +
+p <- plot(gradient, output_idx = 1, data_idx = 1:2) +
   theme_bw() +
   scale_fill_gradient2(low = "green", mid = "black", high = "blue")
 
@@ -179,10 +179,10 @@ Create a new instance of this class.
   converter,
   data,
   channels_first = TRUE,
-  dtype = "float",
+  output_idx = NULL,
   ignore_last_act = TRUE,
   times_input = TRUE,
-  output_idx = NULL
+  dtype = "float"
 )}\if{html}{\out{</div>}}
 }
 
@@ -199,8 +199,9 @@ with the this method.}
 last dimension (\code{FALSE}) or after the batch dimension (\code{TRUE}). If the
 data has no channels, use the default value \code{TRUE}.}
 
-\item{\code{dtype}}{The type of the data (either \code{'float'} or \code{'double'}).
-Default: \code{'float'}.}
+\item{\code{output_idx}}{This vector determines for which outputs the method
+will be applied. By default (\code{NULL}), all outputs (but limited to the
+first 10) are considered.}
 
 \item{\code{ignore_last_act}}{A boolean value to include the last
 activation into all the calculations, or not. In some cases, the
@@ -209,9 +210,8 @@ last activation leads to a saturation problem. Default: \code{TRUE}.}
 \item{\code{times_input}}{Multiplies the gradients with the input features.
 This method is called 'Gradient x Input'. Default: \code{TRUE}.}
 
-\item{\code{output_idx}}{This vector determines for which outputs the method
-will be applied. By default (\code{NULL}), all outputs (but limited to the
-first 10) are considered.}
+\item{\code{dtype}}{The type of the data (either \code{'float'} or \code{'double'}).
+Default: \code{'float'}.}
 }
 \if{html}{\out{</div>}}
 }

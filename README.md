@@ -130,12 +130,12 @@ converter = Converter$new(model, input_dim = c(4),
 lrp_eps <- LRP$new(converter, iris[,-5], rule_name = "epsilon")
 
 # Plot the individual result for two datapoints and all classes
-p1 <- plot(lrp_eps, datapoint = c(1,102), output_idx = 1:3) +
+p1 <- plot(lrp_eps, data_idx = c(1,102), output_idx = 1:3) +
   ggplot2::labs(title = "LRP ('epsilon')")
 
 # Plot the boxplot statistic for all datapoints and all classes
 # without a preprocess function
-p2 <- boxplot(lrp_eps, classes = 1:3, ref_datapoint = 1, preprocess_FUN = identity) 
+p2 <- boxplot(lrp_eps, output_idx = 1:3, ref_data_idx = 1, preprocess_FUN = identity) 
 
 gridExtra::grid.arrange(p1,p2, ncol = 1, layout_matrix = matrix(c(1,1,1,2,2), ncol = 1))
 ```
