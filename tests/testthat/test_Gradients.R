@@ -39,6 +39,7 @@ test_that("Gradient: Plot and Boxplot", {
   boxp <- boxplot(grad, data_idx = 1:5, output_idx = 1:3)
   expect_true("ggplot" %in% class(p))
   expect_true("ggplot" %in% class(boxp))
+  boxp <- boxplot(grad, ref_data_idx = c(4))
 
   # plotly
   library(plotly)
@@ -48,7 +49,8 @@ test_that("Gradient: Plot and Boxplot", {
   expect_true("plotly" %in% class(p))
   expect_true("plotly" %in% class(boxp))
   p <- plot(grad, data_idx = 1:3, as_plotly = TRUE)
-  boxp <- boxplot(grad, data_idx = 1:4, as_plotly = TRUE)
+  boxp <- boxplot(grad, data_idx = 1:4, as_plotly = TRUE, individual_max = 2,
+                  individual_data_idx = c(1,2,5,6))
   expect_true("plotly" %in% class(p))
   expect_true("plotly" %in% class(boxp))
   p <- plot(grad, data_idx = 1:3, output_idx = 1:3, as_plotly = TRUE)
@@ -101,6 +103,8 @@ test_that("Gradient: Dense-Net (keras)", {
 
   converter <- Converter$new(model)
 
+  expect_error(Gradient$new(converter))
+
   grad <- Gradient$new(converter, data)
   expect_equal(dim(grad$get_result()), c(10, 4, 3))
 
@@ -112,6 +116,15 @@ test_that("Gradient: Dense-Net (keras)", {
 
   grad <- Gradient$new(converter, data, ignore_last_act = FALSE)
   expect_equal(dim(grad$get_result()), c(10, 4, 3))
+
+  # Test get_result
+  res_array <- grad$get_result()
+  expect_true(is.array(res_array))
+  res_dataframe <- grad$get_result(type = "data.frame")
+  expect_true(is.data.frame(res_dataframe))
+  res_torch <- grad$get_result(type = "torch.tensor")
+  expect_true(inherits(res_torch, "torch_tensor"))
+  expect_error(grad$get_result(type = "adsf"))
 })
 
 test_that("SmoothGrad: Dense-Net", {
@@ -188,6 +201,73 @@ test_that("Gradient: Conv1D-Net", {
     channels_first = FALSE
   )
   expect_equal(dim(grad$get_result()), c(4, 64, 3, 1))
+
+  # Test get_result
+  res_array <- grad$get_result()
+  expect_true(is.array(res_array))
+  res_dataframe <- grad$get_result(type = "data.frame")
+  expect_true(is.data.frame(res_dataframe))
+  res_torch <- grad$get_result(type = "torch.tensor")
+  expect_true(inherits(res_torch, "torch_tensor"))
+  expect_error(grad$get_result(type = "adsf"))
+
+  # Same for data with channels first
+  data <- array(rnorm(4 * 64 * 3), dim = c(4, 3, 64))
+  grad_last <- Gradient$new(converter, data)
+
+  res_array <- grad_last$get_result()
+  expect_true(is.array(res_array))
+  res_dataframe <- grad_last$get_result(type = "data.frame")
+  expect_true(is.data.frame(res_dataframe))
+  res_torch <- grad_last$get_result(type = "torch.tensor")
+  expect_true(inherits(res_torch, "torch_tensor"))
+  expect_error(grad_last$get_result(type = "adsf"))
+
+  # Test plot and boxplot functions
+  p <- plot(grad)
+  expect_true(inherits(p, "ggplot"))
+  p <- plot(grad_last)
+  expect_true(inherits(p, "ggplot"))
+  p <- plot(grad, output_idx = c(1))
+  expect_true(inherits(p, "ggplot"))
+  p <- plot(grad, aggr_channels = "sum",
+            data_idx = c(1,2))
+  expect_true(inherits(p, "ggplot"))
+  p <- plot(grad, aggr_channels = "mean")
+  expect_true(inherits(p, "ggplot"))
+  p <- plot(grad, aggr_channels = "norm")
+  expect_true(inherits(p, "ggplot"))
+  p <- plot(grad, aggr_channels = mean)
+  expect_true(inherits(p, "ggplot"))
+
+  p <- boxplot(grad)
+  expect_true(inherits(p, "ggplot"))
+  p <- boxplot(grad_last)
+  expect_true(inherits(p, "ggplot"))
+  p <- boxplot(grad, output_idx = c(1))
+  expect_true(inherits(p, "ggplot"))
+  p <- boxplot(grad, data_idx = 1:3)
+  expect_true(inherits(p, "ggplot"))
+  p <- boxplot(grad, individual_max = 2, individual_data_idx = 1:5 )
+  expect_true(inherits(p, "ggplot"))
+  p <- boxplot(grad, ref_data_idx = c(4))
+  expect_true(inherits(p, "ggplot"))
+
+  skip_if_not_installed("plotly")
+  p <- plot(grad, as_plotly = TRUE)
+  expect_true(inherits(p, "plotly"))
+
+  p <- boxplot(grad, as_plotly = TRUE)
+  expect_true(inherits(p, "plotly"))
+  p <- boxplot(grad, output_idx = c(1), as_plotly = TRUE)
+  expect_true(inherits(p, "plotly"))
+  p <- boxplot(grad, data_idx = 1:3, as_plotly = TRUE)
+  expect_true(inherits(p, "plotly"))
+  p <- boxplot(grad, individual_max = 2, individual_data_idx = 1:5,
+               as_plotly = TRUE)
+  expect_true(inherits(p, "plotly"))
+  p <- boxplot(grad, as_plotly = TRUE, ref_data_idx = c(3))
+  expect_true(inherits(p, "plotly"))
 })
 
 
@@ -291,6 +371,74 @@ test_that("Gradient: Conv2D-Net", {
     channels_first = FALSE
   )
   expect_equal(dim(grad$get_result()), c(4, 32, 32, 3, 2))
+
+  # Test get_result
+  res_array <- grad$get_result()
+  expect_true(is.array(res_array))
+  res_dataframe <- grad$get_result(type = "data.frame")
+  expect_true(is.data.frame(res_dataframe))
+  res_torch <- grad$get_result(type = "torch.tensor")
+  expect_true(inherits(res_torch, "torch_tensor"))
+  expect_error(grad$get_result(type = "adsf"))
+
+  # Same for data with channels first
+  data <- array(rnorm(4 * 32 * 32 * 3), dim = c(4, 3, 32, 32))
+  grad_first <- Gradient$new(converter, data)
+
+  res_array <- grad_first$get_result()
+  expect_true(is.array(res_array))
+  res_dataframe <- grad_first$get_result(type = "data.frame")
+  expect_true(is.data.frame(res_dataframe))
+  res_torch <- grad_first$get_result(type = "torch.tensor")
+  expect_true(inherits(res_torch, "torch_tensor"))
+  expect_error(grad_first$get_result(type = "adsf"))
+
+  # Test plot function
+  p <- plot(grad)
+  expect_true(inherits(p, "ggplot"))
+  p <- plot(grad_first)
+  expect_true(inherits(p, "ggplot"))
+  p <- plot(grad, output_idx = c(1))
+  expect_true(inherits(p, "ggplot"))
+  p <- plot(grad, aggr_channels = "sum", data_idx = 1:2)
+  expect_true(inherits(p, "ggplot"))
+  p <- plot(grad, aggr_channels = "mean")
+  expect_true(inherits(p, "ggplot"))
+  p <- plot(grad, aggr_channels = "norm")
+  expect_true(inherits(p, "ggplot"))
+  p <- plot(grad, aggr_channels = function(x) -abs(sum(x)))
+  expect_true(inherits(p, "ggplot"))
+
+  p <- boxplot(grad)
+  expect_true(inherits(p, "ggplot"))
+  p <- boxplot(grad, preprocess_FUN = identity)
+  expect_true(inherits(p, "ggplot"))
+  p <- boxplot(grad, preprocess_FUN = function(x) -abs(x))
+  expect_true(inherits(p, "ggplot"))
+  p <- boxplot(grad_first)
+  expect_true(inherits(p, "ggplot"))
+  p <- boxplot(grad, output_idx = c(1))
+  expect_true(inherits(p, "ggplot"))
+  p <- boxplot(grad, data_idx = 1:3)
+  expect_true(inherits(p, "ggplot"))
+  p <- boxplot(grad, individual_max = 2, individual_data_idx = 1:5 )
+  expect_true(inherits(p, "ggplot"))
+
+  skip_if_not_installed("plotly")
+  p <- plot(grad, as_plotly = TRUE)
+  expect_true(inherits(p, "plotly"))
+
+  p <- boxplot(grad, as_plotly = TRUE)
+  expect_true(inherits(p, "plotly"))
+  p <- boxplot(grad, output_idx = c(1), as_plotly = TRUE)
+  expect_true(inherits(p, "plotly"))
+  p <- boxplot(grad, data_idx = 1:3, as_plotly = TRUE)
+  expect_true(inherits(p, "plotly"))
+  p <- boxplot(grad, individual_max = 2, individual_data_idx = 1:5,
+               as_plotly = TRUE)
+  expect_true(inherits(p, "plotly"))
+  p <- boxplot(grad, as_plotly = TRUE, ref_data_idx = c(3))
+  expect_true(inherits(p, "plotly"))
 })
 
 test_that("SmoothGrad: Conv2D-Net", {
