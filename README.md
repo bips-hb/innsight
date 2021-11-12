@@ -10,7 +10,7 @@ model-specific interpretability methods based on Neural Networks in R,
 e.g.,
 
 -   Layer-wise Relevance Propagation
-    ([LRP](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0130140))
+    ([LRP](https://doi.org/10.1371/journal.pone.0130140))
     -   Including propagation rules: *ε*-rule and *α*-*β*-rule
 -   Deep Learning Important Features
     ([DeepLift](https://arxiv.org/abs/1704.02685))
@@ -33,7 +33,7 @@ independent of a specific deep learning package in which the passed
 network has been learned. Basically, a Neural Network of the libraries
 [`torch`](https://torch.mlverse.org/),
 [`keras`](https://keras.rstudio.com/) and
-[`neuralnet`](https://cran.r-project.org/web/packages/neuralnet/) can be
+[`neuralnet`](https://CRAN.R-project.org/package=neuralnet) can be
 passed, which is internally converted into a
 [`torch`](https://torch.mlverse.org/) model with special insights needed
 for interpretation. Currently, the following model and layer types are
@@ -79,7 +79,7 @@ Visual Studio runtime is not pre-installed. See the issue on GitHub
 [here](https://github.com/mlverse/torch/issues/246#issuecomment-695097121)
 or for more information and other problems with installing `torch` see
 the official installation
-[vignette](https://cran.r-project.org/web/packages/torch/vignettes/installation.html)
+[vignette](https://CRAN.R-project.org/package=torch/vignettes/installation.html)
 of `torch`
 
 ## Usage

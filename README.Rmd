@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 predictions of modern Neural Networks. It implements several model-specific 
 interpretability methods based on Neural Networks in R, e.g., 
 
-* Layer-wise Relevance Propagation ([LRP](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0130140))
+* Layer-wise Relevance Propagation ([LRP](https://doi.org/10.1371/journal.pone.0130140))
   * Including propagation rules: $\varepsilon$-rule and $\alpha$-$\beta$-rule
 * Deep Learning Important Features ([DeepLift](https://arxiv.org/abs/1704.02685))
   * Including propagation rules for non-linearities: rescale rule and reveal-cancel rule
@@ -39,7 +39,7 @@ knitr::include_graphics("man/images/vgg16.png")
 
 The package `innsight` aims to be as flexible as possible and independent of a 
 specific deep learning package in which the passed network has been learned. 
-Basically, a Neural Network of the libraries [`torch`](https://torch.mlverse.org/), [`keras`](https://keras.rstudio.com/) and [`neuralnet`](https://cran.r-project.org/web/packages/neuralnet/)
+Basically, a Neural Network of the libraries [`torch`](https://torch.mlverse.org/), [`keras`](https://keras.rstudio.com/) and [`neuralnet`](https://CRAN.R-project.org/package=neuralnet)
 can be passed, which is internally converted into a [`torch`](https://torch.mlverse.org/) model with special
 insights needed for interpretation. Currently, the following model and layer types 
 are accepted:
@@ -74,7 +74,7 @@ torch::install_torch()
 Studio runtime is not pre-installed. See the issue on GitHub [here](https://github.com/mlverse/torch/issues/246#issuecomment-695097121) or
 for more information and other problems with installing `torch` see the official
 installation
-[vignette](https://cran.r-project.org/web/packages/torch/vignettes/installation.html)
+[vignette](https://CRAN.R-project.org/package=torch/vignettes/installation.html)
 of `torch`
 
 ## Usage

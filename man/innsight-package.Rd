@@ -7,15 +7,15 @@
 \title{Make machine learning models and predictions interpretable}
 \description{
 Interpretability methods to analyze the behavior and individual
-    predictions of modern Neural Networks. Implemented methods are: Connection 
-    Weights described by Olden et al. (2004) 
+    predictions of modern Neural Networks. Implemented methods are: 'Connection
+    Weights' described by Olden et al. (2004) 
     <doi:10.1016/j.ecolmodel.2004.03.013>, Layer-wise Relevance
-    Propagation (LRP) described by Bach et al. (2015)
+    Propagation ('LRP') described by Bach et al. (2015)
     <doi:10.1371/journal.pone.0130140>, Deep Learning Important Features
-    (DeepLIFT) described by Shrikumar et al.  (2017) <arXiv:1704.02685> and
-    gradient-based methods like SmoothGrad described by Smilkov et al. (2017) 
-    <arXiv:1706.03825>, Gradient x Input described by Baehrens et al. (2009)
-    <arXiv:0912.1128> or Vanilla Gradient.
+    ('DeepLIFT') described by Shrikumar et al.  (2017) <arXiv:1704.02685> and
+    gradient-based methods like 'SmoothGrad' described by Smilkov et al. (2017) 
+    <arXiv:1706.03825>, 'Gradient x Input' described by Baehrens et al. (2009)
+    <arXiv:0912.1128> or 'Vanilla Gradient'.
 }
 \seealso{
 Useful links:
@@ -26,6 +26,6 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Niklas Koenen \email{niklas.koenen@gmail.com}
+\strong{Maintainer}: Niklas Koenen \email{niklas.koenen@gmail.com} (\href{https://orcid.org/0000-0002-4623-8271}{ORCID})
 
 }
