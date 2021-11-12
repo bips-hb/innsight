@@ -213,10 +213,16 @@ DeepLift <- R6Class(
       self$x_ref <- private$test_data(x_ref, name = "x_ref")
 
       self$converter$model$forward(self$data,
-        channels_first = self$channels_first
+        channels_first = self$channels_first,
+        save_input = TRUE,
+        save_preactivation = TRUE,
+        save_output = TRUE
       )
       self$converter$model$update_ref(self$x_ref,
-        channels_first = self$channels_first
+        channels_first = self$channels_first,
+        save_input = TRUE,
+        save_preactivation = TRUE,
+        save_output = TRUE
       )
 
 
@@ -358,6 +364,7 @@ DeepLift <- R6Class(
       } else {
         mul <- last_layer$get_input_multiplier(mul, self$rule_name)
       }
+      last_layer$reset()
 
       i <- i + 1
       setTxtProgressBar(pb, i)
@@ -369,6 +376,7 @@ DeepLift <- R6Class(
         } else {
           mul <- layer$get_input_multiplier(mul, self$rule_name)
         }
+        layer$reset()
 
         i <- i + 1
         setTxtProgressBar(pb, i)

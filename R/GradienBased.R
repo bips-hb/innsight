@@ -166,7 +166,12 @@ GradientBased <- R6::R6Class(
     calculate_gradients = function(input) {
       input$requires_grad <- TRUE
 
-      out <- self$converter$model(input, channels_first = self$channels_first)
+      out <- self$converter$model(input,
+                                  channels_first = self$channels_first,
+                                  save_input = FALSE,
+                                  save_preactivation = FALSE,
+                                  save_output = FALSE,
+                                  save_last_layer = TRUE)
 
 
       if (self$ignore_last_act) {
@@ -391,6 +396,7 @@ Gradient <- R6::R6Class(
                        ignore_last_act, times_input, dtype)
 
       self$result <- private$run()
+      self$converter$model$reset()
     }
   ),
   private = list(
@@ -610,6 +616,7 @@ SmoothGrad <- R6Class(
       self$noise_level <- noise_level
 
       self$result <- private$run()
+      self$converter$model$reset()
     }
   ),
   private = list(

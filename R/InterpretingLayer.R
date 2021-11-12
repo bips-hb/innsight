@@ -35,10 +35,22 @@ InterpretingLayer <- nn_module(
   output_ref = NULL,
   activation_f = NULL,
   activation_name = NULL,
+
   initialize = function() {
   },
+
   forward = function() {
   },
+
+  reset = function() {
+    self$input <- NULL
+    self$input_ref <- NULL
+    self$preactivation <- NULL
+    self$preactivation_ref <- NULL
+    self$output <- NULL
+    self$output_ref <- NULL
+  },
+
   get_activation = function(act_name) {
     activation <- get_activation(act_name)
 

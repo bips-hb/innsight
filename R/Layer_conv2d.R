@@ -114,22 +114,31 @@ conv2d_layer <- nn_module(
   #' Returns the output of the layer with respect to the given inputs, with
   #' dimensions \emph{(batch_size, out_channels, out_height, out_width)}
   #'
-  forward = function(x) {
-    self$input <- x
+  forward = function(x, save_input = TRUE, save_preactivation = TRUE,
+                     save_output = TRUE) {
+    if (save_input) {
+      self$input <- x
+    }
 
     # Apply padding
     x <- nnf_pad(x, pad = self$padding)
     # Apply convolution (2D)
-    self$preactivation <- nnf_conv2d(x, self$W,
+    preactivation <- nnf_conv2d(x, self$W,
       bias = self$b,
       stride = self$stride,
       padding = 0,
       dilation = self$dilation
     )
+    if (save_preactivation) {
+      self$preactivation <- preactivation
+    }
     # Apply non-linearity
-    self$output <- self$activation_f(self$preactivation)
+    output <- self$activation_f(preactivation)
+    if (save_output) {
+      self$output <- output
+    }
 
-    self$output
+    output
   },
 
   #
@@ -154,21 +163,30 @@ conv2d_layer <- nn_module(
   #' passing through the layer, of dimension \emph{(1, out_channels,
   #' out_height, out_width)}
   #'
-  update_ref = function(x_ref) {
-    self$input_ref <- x_ref
+  update_ref = function(x_ref, save_input = TRUE, save_preactivation = TRUE,
+                        save_output = TRUE) {
+    if (save_input) {
+      self$input_ref <- x_ref
+    }
     # Apply padding
     x_ref <- nnf_pad(x_ref, pad = self$padding)
     # Apply convolution (2D)
-    self$preactivation_ref <- nnf_conv2d(x_ref, self$W,
+    preactivation_ref <- nnf_conv2d(x_ref, self$W,
       bias = self$b,
       stride = self$stride,
       padding = 0,
       dilation = self$dilation
     )
+    if (save_preactivation) {
+      self$preactivation_ref <- preactivation_ref
+    }
     # Apply non-linearity
-    self$output_ref <- self$activation_f(self$preactivation_ref)
+    output_ref <- self$activation_f(preactivation_ref)
+    if (save_output) {
+      self$output_ref <- output_ref
+    }
 
-    self$output_ref
+    output_ref
   },
 
   # Arguments:

@@ -103,6 +103,10 @@ test_that("DeepLift: Dense-Net (Neuralnet)", {
                     dtype = "double",
                     ignore_last_act = FALSE
   )
+  converter$model(torch_tensor(t(data), dtype = torch_double())$t(), TRUE,
+                  TRUE, TRUE, TRUE)
+  converter$model$update_ref(torch_tensor(x_ref, dtype = torch_double()),
+                             TRUE, TRUE, TRUE, TRUE)
 
   last_layer <- rev(converter$model$modules_list)[[1]]
   contrib_true <- last_layer$output - last_layer$output_ref
@@ -179,6 +183,11 @@ test_that("DeepLift: Dense-Net (keras)", {
     dtype = "double",
     ignore_last_act = FALSE
   )
+
+  converter$model(torch_tensor(data, dtype = torch_double()), TRUE,
+                  TRUE, TRUE, TRUE)
+  converter$model$update_ref(torch_tensor(x_ref, dtype = torch_double()),
+                             TRUE, TRUE, TRUE, TRUE)
 
   last_layer <- rev(converter$model$modules_list)[[1]]
   contrib_true <- last_layer$output - last_layer$output_ref
@@ -263,6 +272,11 @@ test_that("DeepLift: Conv1D-Net", {
     channels_first = FALSE,
     ignore_last_act = FALSE
   )
+
+  converter$model(torch_tensor(data, dtype = torch_double()), FALSE,
+                  TRUE, TRUE, TRUE)
+  converter$model$update_ref(torch_tensor(x_ref, dtype = torch_double()),
+                             FALSE, TRUE, TRUE, TRUE)
 
   last_layer <- rev(converter$model$modules_list)[[1]]
   contrib_true <- last_layer$output - last_layer$output_ref
@@ -354,6 +368,11 @@ test_that("DeepLift: Conv2D-Net", {
     channels_first = FALSE,
     ignore_last_act = FALSE
   )
+
+  converter$model(torch_tensor(data, dtype = torch_double()), FALSE,
+                  TRUE, TRUE, TRUE)
+  converter$model$update_ref(torch_tensor(x_ref, dtype = torch_double()),
+                             FALSE, TRUE, TRUE, TRUE)
 
   last_layer <- rev(converter$model$modules_list)[[1]]
   contrib_true <- last_layer$output - last_layer$output_ref

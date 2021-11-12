@@ -392,6 +392,7 @@ test_that("LRP: Correctness", {
   converter <- Converter$new(model)
 
   lrp <- LRP$new(converter, data, channels_first = FALSE)
+  converter$model(data, channels_first = FALSE, save_last_layer = TRUE)
   out <- converter$model$modules_list[[7]]$preactivation
   lrp_result_sum <-
     lrp$get_result(type = "torch.tensor")$sum(dim = c(2, 3, 4))
@@ -399,6 +400,7 @@ test_that("LRP: Correctness", {
 
   lrp <-
     LRP$new(converter, data, channels_first = FALSE, ignore_last_act = FALSE)
+  converter$model(data, channels_first = FALSE, save_last_layer = TRUE)
   out <- converter$model$modules_list[[7]]$output - 0.5
   lrp_result_no_last_act_sum <-
     lrp$get_result(type = "torch.tensor")$sum(dim = c(2, 3, 4))

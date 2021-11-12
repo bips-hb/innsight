@@ -23,18 +23,30 @@ avg_pool1d_layer <- nn_module(
     }
   },
 
-  forward = function(x) {
-    self$input <- x
-    self$output <- nnf_avg_pool1d(x, self$kernel_size, self$strides)
+  forward = function(x, save_input = TRUE, save_preactivation = TRUE,
+                     save_output = TRUE) {
+    if (save_input) {
+      self$input <- x
+    }
+    output <- nnf_avg_pool1d(x, self$kernel_size, self$strides)
+    if (save_output) {
+      self$output <- output
+    }
 
-    self$output
+    output
   },
 
-  update_ref = function(x_ref) {
-    self$input_ref <- x_ref
-    self$output_ref <- nnf_avg_pool1d(x_ref, self$kernel_size, self$strides)
+  update_ref = function(x_ref, save_input = TRUE, save_preactivation = TRUE,
+                        save_output = TRUE) {
+    if (save_input) {
+      self$input_ref <- x_ref
+    }
+    output_ref <- nnf_avg_pool1d(x_ref, self$kernel_size, self$strides)
+    if (save_output) {
+      self$output_ref <- output_ref
+    }
 
-    self$output_ref
+    output_ref
   },
 
 
@@ -110,6 +122,13 @@ avg_pool1d_layer <- nn_module(
 
   set_dtype = function(dtype) {
     self$dtype <- dtype
+  },
+
+  reset = function() {
+    self$input <- NULL
+    self$input_ref <- NULL
+    self$output <- NULL
+    self$output_ref <- NULL
   }
 )
 
@@ -134,20 +153,31 @@ avg_pool2d_layer <- nn_module(
       }
     },
 
-    forward = function(x) {
-      self$input <- x
-      self$output <- nnf_avg_pool2d(x, self$kernel_size, self$strides)
+    forward = function(x, save_input = TRUE, save_preactivation = TRUE,
+                       save_output = TRUE) {
+      if (save_input) {
+        self$input <- x
+      }
+      output <- nnf_avg_pool2d(x, self$kernel_size, self$strides)
+      if (save_output) {
+        self$output <- output
+      }
 
-      self$output
+      output
     },
 
-    update_ref = function(x_ref) {
-      self$input_ref <- x_ref
-      self$output_ref <- nnf_avg_pool2d(x_ref, self$kernel_size, self$strides)
+    update_ref = function(x_ref, save_input = TRUE, save_preactivation = TRUE,
+                          save_output = TRUE) {
+      if (save_input) {
+        self$input_ref <- x_ref
+      }
+      output_ref <- nnf_avg_pool2d(x_ref, self$kernel_size, self$strides)
+      if (save_output) {
+        self$output_ref <- output_ref
+      }
 
-      self$output_ref
+      output_ref
     },
-
 
     get_input_relevances = function(rel_output, rule_name = "simple", rule_param = NULL) {
 
@@ -222,6 +252,13 @@ avg_pool2d_layer <- nn_module(
 
     set_dtype = function(dtype) {
       self$dtype <- dtype
+    },
+
+    reset = function() {
+      self$input <- NULL
+      self$input_ref <- NULL
+      self$output <- NULL
+      self$output_ref <- NULL
     }
 )
 
@@ -249,18 +286,30 @@ max_pool1d_layer <- nn_module(
     }
   },
 
-  forward = function(x) {
-    self$input <- x
-    self$output <- nnf_max_pool1d(x, self$kernel_size, self$strides)
+  forward = function(x, save_input = TRUE, save_preactivation = TRUE,
+                     save_output = TRUE) {
+    if (save_input) {
+      self$input <- x
+    }
+    output <- nnf_max_pool1d(x, self$kernel_size, self$strides)
+    if (save_output) {
+      self$output <- output
+    }
 
-    self$output
+    output
   },
 
-  update_ref = function(x_ref) {
-    self$input_ref <- x_ref
-    self$output_ref <- nnf_max_pool1d(x_ref, self$kernel_size, self$strides)
+  update_ref = function(x_ref, save_input = TRUE, save_preactivation = TRUE,
+                        save_output = TRUE) {
+    if (save_input) {
+      self$input_ref <- x_ref
+    }
+    output_ref <- nnf_max_pool1d(x_ref, self$kernel_size, self$strides)
+    if (save_output) {
+      self$output_ref <- output_ref
+    }
 
-    self$output_ref
+    output_ref
   },
 
   get_input_relevances = function(rel_output, rule_name = "simple", rule_param = NULL) {
@@ -336,6 +385,13 @@ max_pool1d_layer <- nn_module(
 
   set_dtype = function(dtype) {
     self$dtype <- dtype
+  },
+
+  reset = function() {
+    self$input <- NULL
+    self$input_ref <- NULL
+    self$output <- NULL
+    self$output_ref <- NULL
   }
 )
 
@@ -360,18 +416,30 @@ max_pool2d_layer <- nn_module(
     }
   },
 
-  forward = function(x) {
-    self$input <- x
-    self$output <- nnf_max_pool2d(x, self$kernel_size, self$strides)
+  forward = function(x, save_input = TRUE, save_preactivation = TRUE,
+                     save_output = TRUE) {
+    if (save_input) {
+      self$input <- x
+    }
+    output <- nnf_max_pool2d(x, self$kernel_size, self$strides)
+    if (save_output) {
+      self$output <- output
+    }
 
-    self$output
+    output
   },
 
-  update_ref = function(x_ref) {
-    self$input_ref <- x_ref
-    self$output_ref <- nnf_max_pool2d(x_ref, self$kernel_size, self$strides)
+  update_ref = function(x_ref, save_input = TRUE, save_preactivation = TRUE,
+                        save_output = TRUE) {
+    if (save_input) {
+      self$input_ref <- x_ref
+    }
+    output_ref <- nnf_max_pool2d(x_ref, self$kernel_size, self$strides)
+    if (save_output) {
+      self$output_ref <- output_ref
+    }
 
-    self$output_ref
+    output_ref
   },
 
 
@@ -449,5 +517,12 @@ max_pool2d_layer <- nn_module(
 
   set_dtype = function(dtype) {
     self$dtype <- dtype
+  },
+
+  reset = function() {
+    self$input <- NULL
+    self$input_ref <- NULL
+    self$output <- NULL
+    self$output_ref <- NULL
   }
 )

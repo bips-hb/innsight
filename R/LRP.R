@@ -238,7 +238,11 @@ LRP <- R6Class(
       self$rule_param <- rule_param
 
       self$converter$model$forward(self$data,
-        channels_first = self$channels_first
+        channels_first = self$channels_first,
+        save_input = TRUE,
+        save_preactivation = TRUE,
+        save_output = FALSE,
+        save_last_layer = TRUE
       )
 
       self$result <- private$run()
@@ -384,12 +388,14 @@ LRP <- R6Class(
       for (layer in rev_layers) {
         if ("Flatten_Layer" %in% layer$".classes") {
           rel <- layer$reshape_to_input(rel)
+          layer$reset()
         } else {
           rel <- layer$get_input_relevances(
             rel,
             self$rule_name,
             self$rule_param
           )
+          layer$reset()
         }
         i <- i + 1
         setTxtProgressBar(pb, i)

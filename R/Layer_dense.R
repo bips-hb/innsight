@@ -97,12 +97,21 @@ dense_layer <- nn_module(
   #' Returns the output of the layer with respect to the given inputs, with
   #' dimensions \emph{(batch_size, out_features)}
   #'
-  forward = function(x) {
-    self$input <- x
-    self$preactivation <- nnf_linear(x, self$W, self$b)
-    self$output <- self$activation_f(self$preactivation)
+  forward = function(x, save_input = TRUE, save_preactivation = TRUE,
+                     save_output = TRUE) {
+    if (save_input) {
+      self$input <- x
+    }
+    preactivation <- nnf_linear(x, self$W, self$b)
+    if (save_preactivation) {
+      self$preactivation <- preactivation
+    }
+    output <- self$activation_f(preactivation)
+    if (save_output) {
+      self$output <- output
+    }
 
-    self$output
+    output
   },
 
   #
@@ -126,12 +135,21 @@ dense_layer <- nn_module(
   #' Returns the output of the reference input after
   #' passing through the layer, of dimension \emph{(1, out_features)}
   #'
-  update_ref = function(x_ref) {
-    self$input_ref <- x_ref
-    self$preactivation_ref <- nnf_linear(x_ref, self$W, self$b)
-    self$output_ref <- self$activation_f(self$preactivation_ref)
+  update_ref = function(x_ref, save_input = TRUE, save_preactivation = TRUE,
+                        save_output = TRUE) {
+    if (save_input) {
+      self$input_ref <- x_ref
+    }
+    preactivation_ref <- nnf_linear(x_ref, self$W, self$b)
+    if (save_preactivation) {
+      self$preactivation_ref <- preactivation_ref
+    }
+    output_ref <- self$activation_f(preactivation_ref)
+    if (save_output) {
+      self$output_ref <- output_ref
+    }
 
-    self$output_ref
+    output_ref
   },
 
   #

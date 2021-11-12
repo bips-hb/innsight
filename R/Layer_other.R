@@ -61,17 +61,23 @@ flatten_layer <- nn_module(
   #' Returns the output of the forward pass, of dimensions \emph{(batch_size,
   #' in_channels * dim_1 * ... * dim_n)}
   #'
-  forward = function(x, channels_first = TRUE) {
-    self$input <- x
+  forward = function(x, channels_first = TRUE, save_input = TRUE,
+                     save_output = TRUE) {
+    if (save_input) {
+      self$input <- x
+    }
     if (channels_first == FALSE) {
       x <- torch_movedim(x, 2, -1)
       self$channels_first <- FALSE
     } else {
       self$channels_first <- TRUE
     }
-    self$output <- torch_flatten(x, start_dim = 2)
+    output <- torch_flatten(x, start_dim = 2)
+    if (save_output) {
+      self$output <- output
+    }
 
-    self$output
+    output
   },
 
   #' @section `self$update_ref()`:
@@ -93,14 +99,20 @@ flatten_layer <- nn_module(
   #' Returns the output of the forward pass, of dimensions \emph{(1,
   #' in_channels * dim_1 * ... * dim_n)}
   #'
-  update_ref = function(x_ref, channels_first = TRUE) {
-    self$input_ref <- x_ref
+  update_ref = function(x_ref, channels_first = TRUE, save_input = TRUE,
+                        save_output = TRUE) {
+    if (save_input) {
+      self$input_ref <- x_ref
+    }
     if (channels_first == FALSE) {
       x_ref <- torch_movedim(x_ref, 2, -1)
     }
-    self$output_ref <- torch_flatten(x_ref, start_dim = 2)
+    output_ref <- torch_flatten(x_ref, start_dim = 2)
+    if (save_output) {
+      self$output_ref <- output_ref
+    }
 
-    self$output_ref
+    output_ref
   },
 
   # Arguments:
@@ -141,5 +153,12 @@ flatten_layer <- nn_module(
       input <- output$reshape(c(batch_size, self$input_dim, model_out))
     }
     input
+  },
+
+  reset = function() {
+    self$input <- NULL
+    self$input_ref <- NULL
+    self$output <- NULL
+    self$output_ref <- NULL
   }
 )

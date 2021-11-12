@@ -280,6 +280,11 @@ Converter <- R6Class("Converter",
     #' **Note:** This argument is optional and otherwise the names are
     #' generated automatically. But if this argument is set, all found
     #' output names in the passed model will be disregarded.
+    #' @param save_model_as_list This boolean value specifies whether the
+    #' passed model should be stored as a list (as it is described in the
+    #' details also as an alternative input for a model). This list can take
+    #' a lot of memory for large networks, so by default the model is not
+    #' stored as a list (`FALSE`).
     #' @param dtype The data type for the calculations. Use either `'float'`
     #' or `'double'`
     #'
@@ -287,8 +292,10 @@ Converter <- R6Class("Converter",
     #'
 
     initialize = function(model, input_dim = NULL, input_names = NULL,
-                          output_names = NULL, dtype = "float") {
+                          output_names = NULL, dtype = "float",
+                          save_model_as_list = FALSE) {
       assertChoice(dtype, c("float", "double"))
+      assertLogical(save_model_as_list)
 
       # Analyze the passed model and store its internal structure in a list of
       # layers
@@ -326,11 +333,12 @@ Converter <- R6Class("Converter",
         model_dict$output_names <- output_names
       }
 
-      private$create_model_from_dict(model_dict, dtype)
+      private$create_model_from_dict(model_dict, dtype, save_model_as_list)
     }
   ),
   private = list(
-    create_model_from_dict = function(model_dict, dtype = "float") {
+    create_model_from_dict = function(model_dict, dtype = "float",
+                                      save_model_as_list = FALSE) {
       modules_list <- NULL
       input <- torch_randn(c(2, model_dict$input_dim))
 
@@ -360,7 +368,7 @@ Converter <- R6Class("Converter",
             model_dict$layers[[i]]$dim_in <- calculated_dim_in
           }
           # Layer works properly
-          tryCatch(input <- layer(input))
+          tryCatch(input <- layer(input, TRUE, FALSE, FALSE))
           # Output dimension
           calculated_dim_out <- dim(input)[-1]
           if (!is.null(dim_out)) {
@@ -413,7 +421,7 @@ Converter <- R6Class("Converter",
 
           # Layer works properly
           tryCatch(
-            input <- layer(input),
+            input <- layer(input, FALSE, FALSE, FALSE),
             error =
               function(e) {
                 e$message <-
@@ -505,7 +513,7 @@ Converter <- R6Class("Converter",
 
           # Layer works properly
           tryCatch(
-            input <- layer(input),
+            input <- layer(input, FALSE, FALSE, FALSE),
             error =
               function(e) {
                 e$message <-
@@ -622,7 +630,7 @@ Converter <- R6Class("Converter",
 
           # Layer works properly
           tryCatch(
-            input <- layer(input),
+            input <- layer(input, FALSE, FALSE, FALSE),
             error =
               function(e) {
                 e$message <-
@@ -699,7 +707,7 @@ Converter <- R6Class("Converter",
           }
 
           # Layer works properly
-          tryCatch(input <- layer(input))
+          tryCatch(input <- layer(input, FALSE, FALSE, FALSE))
 
           # Output dimension
           calculated_dim_out <- dim(input)[-1]
@@ -761,10 +769,13 @@ Converter <- R6Class("Converter",
       }
 
       # Save model_dict and create torch model
+      if (!save_model_as_list) {
+        model_dict$layers <- NULL
+      }
       self$model_dict <- model_dict
       self$model <- ConvertedModel(modules_list, dtype = dtype)
+      self$model$reset()
 
-      invisible(self)
     },
     get_input_names = function(model_dict) {
       input_dim <- model_dict$input_dim
@@ -858,17 +869,28 @@ ConvertedModel <- nn_module(
   #' Returns the output of the model with respect to the given inputs with
   #' dimensions \emph{(batch_size, dim_out)}.
   #'
-  forward = function(x, channels_first = TRUE) {
+  forward = function(x, channels_first = TRUE, save_input = FALSE,
+                     save_preactivation = FALSE, save_output = FALSE,
+                     save_last_layer = FALSE) {
     if (channels_first == FALSE) {
       x <- torch_movedim(x, -1, 2)
     }
 
+    num_modules <- length(self$modules_list)
+    i <- 1
+
     for (module in self$modules_list) {
-      if ("Flatten_Layer" %in% module$.classes) {
-        x <- module(x, channels_first)
-      } else {
-        x <- module(x)
+      if (save_last_layer & i == num_modules) {
+        save_preactivation <- TRUE
+        save_output <- TRUE
       }
+      if ("Flatten_Layer" %in% module$.classes) {
+        x <- module(x, channels_first, save_input, save_output)
+      } else {
+        x <- module(x, save_input, save_preactivation, save_output)
+      }
+
+      i <- i + 1
     }
     x
   },
@@ -897,16 +919,27 @@ ConvertedModel <- nn_module(
   #' Returns the output of the reference input with dimension
   #' \emph{(1, dim_out)} after passing through the model.
   #'
-  update_ref = function(x_ref, channels_first = TRUE) {
+  update_ref = function(x_ref, channels_first = TRUE, save_input = FALSE,
+                        save_preactivation = FALSE, save_output = FALSE,
+                        save_last_preactivation = FALSE) {
     if (channels_first == FALSE) {
       x_ref <- torch_movedim(x_ref, -1, 2)
     }
+
+    num_modules <- length(self$modules_list)
+    i <- 1
+
     for (module in self$modules_list) {
-      if ("Flatten_Layer" %in% module$.classes) {
-        x_ref <- module(x_ref, channels_first)
-      } else {
-        x_ref <- module$update_ref(x_ref)
+      if (save_last_preactivation & i == num_modules) {
+        save_preactivation <- TRUE
       }
+      if ("Flatten_Layer" %in% module$.classes) {
+        x_ref <- module(x_ref, channels_first, save_input, save_output)
+      } else {
+        x_ref <- module$update_ref(x_ref, save_input, save_preactivation,
+                                   save_output)
+      }
+      i <- i + 1
     }
     x_ref
   },
@@ -934,5 +967,11 @@ ConvertedModel <- nn_module(
       }
     }
     self$dtype <- dtype
+  },
+
+  reset = function() {
+    for (module in self$modules_list) {
+      module$reset()
+    }
   }
 )

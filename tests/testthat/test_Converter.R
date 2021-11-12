@@ -162,7 +162,7 @@ test_that("Test torch sequential model: 2D Conv with pooling", {
 
   converter <- Converter$new(model, input_dim = c(3, 30, 30))
   y_true <- as_array(model(input))
-  y <- as_array(converter$model(input))
+  y <- as_array(converter$model(input, TRUE, TRUE, TRUE, TRUE))
 
   expect_equal(dim(y), dim(y_true))
   expect_lt(mean((y - y_true)^2), 1e-12)
@@ -373,7 +373,7 @@ test_that("Test keras model: Dense", {
   converter_output_dim <- converter$model_dict$output_dim
   expect_equal(converter_output_dim, 3)
 
-  converter$model(torch_tensor(data))
+  converter$model(torch_tensor(data), TRUE, TRUE, TRUE, TRUE)
 
   for (module in converter$model$modules_list) {
     expect_equal(module$input_dim, dim(module$input)[-1])
@@ -408,7 +408,8 @@ test_that("Test keras model: Conv1D with 'valid' padding", {
   # forward method
   y_true <- as.array(model(data))
   dim_y_true <- dim(y_true)
-  y <- as.array(converter$model(torch_tensor(data), channels_first = FALSE))
+  y <- as.array(converter$model(torch_tensor(data), channels_first = FALSE,
+                                TRUE, TRUE, TRUE))
   dim_y <- dim(y)
 
   expect_equal(dim_y, dim_y_true)
@@ -468,7 +469,8 @@ test_that("Test keras model: Conv1D with 'same' padding", {
 
   # forward method
   y_true <- as.array(model(data))
-  y <- as.array(converter$model(torch_tensor(data), channels_first = FALSE))
+  y <- as.array(converter$model(torch_tensor(data), channels_first = FALSE,
+                                TRUE, TRUE, TRUE))
   expect_equal(dim(y), dim(y_true))
   expect_lt(mean((y_true - y)^2), 1e-12)
 
@@ -525,7 +527,8 @@ test_that("Test keras model: Conv2D with 'valid' padding", {
 
   # forward method
   y_true <- as.array(model(data))
-  y <- as.array(converter$model(torch_tensor(data), channels_first = FALSE))
+  y <- as.array(converter$model(torch_tensor(data), channels_first = FALSE,
+                                TRUE, TRUE, TRUE))
   expect_equal(dim(y), dim(y_true))
   expect_lt(mean((y_true - y)^2), 1e-12)
 
@@ -580,7 +583,8 @@ test_that("Test keras model: Conv2D with 'same' padding", {
 
   # forward method
   y_true <- as.array(model(data))
-  y <- as.array(converter$model(torch_tensor(data), channels_first = FALSE))
+  y <- as.array(converter$model(torch_tensor(data), channels_first = FALSE,
+                                TRUE, TRUE, TRUE))
   expect_equal(dim(y), dim(y_true))
   expect_lt(mean(abs(y_true - y)^2), 1e-12)
 
@@ -636,7 +640,8 @@ test_that("Test keras model: CNN with average pooling", {
 
   # forward method
   y_true <- as.array(model(data))
-  y <- as.array(converter$model(torch_tensor(data), channels_first = FALSE))
+  y <- as.array(converter$model(torch_tensor(data), channels_first = FALSE,
+                                TRUE, TRUE, TRUE))
   expect_equal(dim(y), dim(y_true))
   expect_lt(mean(abs(y_true - y)^2), 1e-12)
 

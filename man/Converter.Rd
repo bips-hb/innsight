@@ -282,7 +282,8 @@ Create a new Converter for a given neural network.
   input_dim = NULL,
   input_names = NULL,
   output_names = NULL,
-  dtype = "float"
+  dtype = "float",
+  save_model_as_list = FALSE
 )}\if{html}{\out{</div>}}
 }
 
@@ -321,6 +322,12 @@ output names in the passed model will be disregarded.}
 
 \item{\code{dtype}}{The data type for the calculations. Use either \code{'float'}
 or \code{'double'}}
+
+\item{\code{save_model_as_list}}{This boolean value specifies whether the
+passed model should be stored as a list (as it is described in the
+details also as an alternative input for a model). This list can take
+a lot of memory for large networks, so by default the model is not
+stored as a list (\code{FALSE}).}
 }
 \if{html}{\out{</div>}}
 }
