@@ -13,6 +13,23 @@ test_that("ConnectionWeights: General errors", {
   expect_error(ConnectionWeights$new(model))
   expect_error(ConnectionWeights$new(converter, channels_first = NULL))
   expect_error(ConnectionWeights$new(converter, dtype = "asdf"))
+
+  cw <- ConnectionWeights$new(converter)
+
+  # Test method 'get_results'
+  res_array <- cw$get_result()
+  expect_true(is.array(res_array))
+  res_dataframe <- cw$get_result(type = "data.frame")
+  expect_true(is.data.frame(res_dataframe))
+  res_torch <- cw$get_result(type = "torch.tensor")
+  expect_true(inherits(res_torch, "torch_tensor"))
+  expect_error(cw$get_result(type = "adsf"))
+
+  # Test plot function
+  expect_error(plot(cw, output_idx = c(1,5)))
+  expect_error(plot(cw, aggr_channels = "x^3"))
+  expect_error(plot(cw, preprocess_FUN = "sum"))
+  expect_error(plot(cw, as_plotly = NULL))
 })
 
 
@@ -51,6 +68,16 @@ test_that("ConnectionWeights: Dense-Net", {
     cw_channels_last_double$get_result(type = "torch.tensor")$dtype ==
       torch_double()
   )
+
+  # Test plot function
+  p <- plot(cw)
+  expect_true(inherits(p, "ggplot"))
+  p <- plot(cw, output_idx = c(1,2))
+  expect_true(inherits(p, "ggplot"))
+
+  skip_if_not_installed("plotly")
+  p <- plot(cw, as_plotly = TRUE)
+  expect_true(inherits(p, "plotly"))
 })
 
 test_that("ConnectionWeights: Conv1D-Net", {
@@ -95,6 +122,32 @@ test_that("ConnectionWeights: Conv1D-Net", {
     cw_channels_last_double$get_result(type = "torch.tensor")$dtype ==
       torch_double()
   )
+
+  # Test get_dataframe
+  res_dataframe <- cw$get_result(type = "data.frame")
+  expect_true(is.data.frame(res_dataframe))
+  res_dataframe <- cw_channels_last$get_result(type = "data.frame")
+  expect_true(is.data.frame(res_dataframe))
+
+  # Test plot function
+  p <- plot(cw)
+  expect_true(inherits(p, "ggplot"))
+  p <- plot(cw_channels_last)
+  expect_true(inherits(p, "ggplot"))
+  p <- plot(cw, output_idx = c(1))
+  expect_true(inherits(p, "ggplot"))
+  p <- plot(cw, aggr_channels = "sum")
+  expect_true(inherits(p, "ggplot"))
+  p <- plot(cw, aggr_channels = "mean")
+  expect_true(inherits(p, "ggplot"))
+  p <- plot(cw, aggr_channels = "norm")
+  expect_true(inherits(p, "ggplot"))
+  p <- plot(cw, aggr_channels = mean)
+  expect_true(inherits(p, "ggplot"))
+
+  skip_if_not_installed("plotly")
+  p <- plot(cw, as_plotly = TRUE)
+  expect_true(inherits(p, "plotly"))
 })
 
 test_that("ConnectionWeights: Conv2D-Net", {
@@ -145,4 +198,30 @@ test_that("ConnectionWeights: Conv2D-Net", {
     cw_channels_last_double$get_result(type = "torch.tensor")$dtype ==
       torch_double()
   )
+
+  # Test get_dataframe
+  res_dataframe <- cw$get_result(type = "data.frame")
+  expect_true(is.data.frame(res_dataframe))
+  res_dataframe <- cw_channels_last$get_result(type = "data.frame")
+  expect_true(is.data.frame(res_dataframe))
+
+  # Test plot function
+  p <- plot(cw)
+  expect_true(inherits(p, "ggplot"))
+  p <- plot(cw_channels_last)
+  expect_true(inherits(p, "ggplot"))
+  p <- plot(cw, output_idx = c(1))
+  expect_true(inherits(p, "ggplot"))
+  p <- plot(cw, aggr_channels = "sum")
+  expect_true(inherits(p, "ggplot"))
+  p <- plot(cw, aggr_channels = "mean")
+  expect_true(inherits(p, "ggplot"))
+  p <- plot(cw, aggr_channels = "norm")
+  expect_true(inherits(p, "ggplot"))
+  p <- plot(cw, aggr_channels = mean)
+  expect_true(inherits(p, "ggplot"))
+
+  skip_if_not_installed("plotly")
+  p <- plot(cw, as_plotly = TRUE)
+  expect_true(inherits(p, "plotly"))
 })

@@ -197,7 +197,8 @@ ConnectionWeights <- R6Class(
     #' format.
     #'
     get_result = function(type = "array") {
-      assertChoice(type, c("array", "data.frame", "torch.tensor", "torch_tensor"))
+      assertChoice(type,
+                   c("array", "data.frame", "torch.tensor", "torch_tensor"))
 
       result <- self$result
       if (type == "array") {
@@ -291,8 +292,8 @@ ConnectionWeights <- R6Class(
           dims <- c(1, 3, 4)
           d <- 2
         } else {
-          dims <- c(1, 2, 3)
-          d <- 4
+          dims <- c(1, 2, 4)
+          d <- 3
         }
 
         # Summarize the channels by function 'aggr_channels'
@@ -309,7 +310,7 @@ ConnectionWeights <- R6Class(
           dims <- c(1, 3, 4, 5)
           d <- 2
         } else {
-          dims <- c(1, 2, 3, 4)
+          dims <- c(1, 2, 3, 5)
           d <- 4
         }
 
