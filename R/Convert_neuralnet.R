@@ -1,9 +1,6 @@
 
 
 convert_neuralnet_model <- function(model) {
-  if (!requireNamespace("neuralnet")) {
-    stop("Please install the 'neuralnet' package.")
-  }
 
   # Test whether the model has been fitted yet
   if (!("result.matrix" %in% names(model))) {

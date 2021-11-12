@@ -99,19 +99,14 @@ InterpretingMethod <- R6Class(
     #'
 
     get_result = function(type = "array") {
-      assertChoice(type, c("array", "data.frame", "torch.tensor"))
+      assertChoice(type, c("array", "data.frame", "torch.tensor",
+                           "torch_tensor"))
 
       result <- self$result
       if (type == "array") {
         result <- as.array(result)
       } else if (type == "data.frame") {
         result <- private$get_dataframe()
-      } else if (type != "torch.tensor") {
-        stop(sprintf(
-          "Unknown data format '%s'! Use for argument 'type' one
-          of 'array', 'data.frame' or 'torch.tensor' instead.",
-          type
-        ))
       }
 
       result

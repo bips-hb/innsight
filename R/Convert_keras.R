@@ -4,9 +4,7 @@ implemented_layers <- c(
 )
 
 convert_keras_model <- function(model) {
-  if (!requireNamespace("keras")) {
-    stop("Please install the 'keras' package.")
-  }
+
   model_dict <- list()
   data_format <- NULL
   num <- 1
@@ -51,7 +49,8 @@ convert_keras_model <- function(model) {
       strides <- unlist(layer$strides)
 
       if (layer$padding != "valid") {
-        stop(sprintf("Padding mode '%s' is not implemented yet!", layer$padding))
+        stop(sprintf("Padding mode '%s' is not implemented yet!",
+                     layer$padding))
       }
 
       # in this package only 'channels_first'
