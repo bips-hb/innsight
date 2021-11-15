@@ -51,7 +51,7 @@ accepted:
 -   `torch::nn_sequential` with layers `nn_linear`, `nn_conv1d`,
     `nn_conv2d`, `nn_max_pool1d`, `nn_max_pool2d`, `nn_avg_pool1d`,
     `nn_avg_pool2d`, `nn_dropout`, `nn_flatten` (see [torch issue
-    #716](https://github.com/mlverse/torch/issues/716#issuecomment-946117545)
+    \#716](https://github.com/mlverse/torch/issues/716#issuecomment-946117545)
     and use `classname = "nn_flatten"`)
 -   `keras::keras_model_sequential` or `keras::keras_model` with layers
     `layer_dense`, `layer_conv1d`, `layer_conv2d`,
@@ -89,7 +89,7 @@ Visual Studio runtime is not pre-installed. See the issue on GitHub
 or for more information and other problems with installing `torch` see
 the official installation
 [vignette](https://CRAN.R-project.org/package=torch/vignettes/installation.html)
-of `torch`
+of `torch`.
 
 ## Usage
 
@@ -124,11 +124,13 @@ plot(result)
 boxplot(result)
 ```
 
-## Example: Iris-Dataset
+## Examples
+
+### Iris-Dataset
 
 <details>
 <summary>
-Model code (click to expand)
+Train a neural network in torch on the iris-dataset
 </summary>
 
 ``` r
@@ -159,13 +161,23 @@ optimizer <- optim_adam(model$parameters, lr = 0.0002)
 for (t in 1:2500) {
   y_pred <- torch_log(model(x))
   loss <- nnf_nll_loss(y_pred, y)
-  if (t %% 100 == 0) {
+  if (t %% 250 == 0) {
     cat("Loss: ", as.numeric(loss), "\n")
   }
   optimizer$zero_grad()
   loss$backward()
   optimizer$step()
 }
+#> Loss:  1.034311 
+#> Loss:  0.8588966 
+#> Loss:  0.6706114 
+#> Loss:  0.5762339 
+#> Loss:  0.5493336 
+#> Loss:  0.5144928 
+#> Loss:  0.4707141 
+#> Loss:  0.3532465 
+#> Loss:  0.2839047 
+#> Loss:  0.2687521
 ```
 
 </details>

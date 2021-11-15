@@ -82,7 +82,7 @@ Studio runtime is not pre-installed. See the issue on GitHub [here](https://gith
 for more information and other problems with installing `torch` see the official
 installation
 [vignette](https://CRAN.R-project.org/package=torch/vignettes/installation.html)
-of `torch`
+of `torch`.
 
 ## Usage
 You have a trained neural network `model` on your model input data `data`. Now
@@ -115,14 +115,15 @@ plot(result)
 boxplot(result)
 ```
 
-## Example: Iris-Dataset
+## Examples
+### Iris-Dataset
 ```{r, echo = FALSE}
 set.seed(1111)
 torch::torch_manual_seed(1111)
 ```
-<details><summary>Model code (click to expand)</summary> 
+<details><summary> Train a neural network in torch on the iris-dataset </summary> 
 
-```{r, echo = TRUE, results='hide', eval = TRUE}
+```{r, echo = TRUE, eval = TRUE}
 library(innsight)
 library(torch)
 data(iris)
@@ -150,7 +151,7 @@ optimizer <- optim_adam(model$parameters, lr = 0.0002)
 for (t in 1:2500) {
   y_pred <- torch_log(model(x))
   loss <- nnf_nll_loss(y_pred, y)
-  if (t %% 100 == 0) {
+  if (t %% 250 == 0) {
     cat("Loss: ", as.numeric(loss), "\n")
   }
   optimizer$zero_grad()
