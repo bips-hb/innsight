@@ -35,15 +35,15 @@ plot_1d_input <- function(result, value_name, data_names, input_names,
   if (no_data) {
     text <- paste(
       "<b></br>", value_name, ":", result[[value_name]], "</b>\n",
-      "</br> Class:       ", result$class,
+      "</br> Output:     ", result$class,
       "</br> Feature:    ", result$feature
     )
   } else {
     text <- paste(
       "<b></br>", value_name, ":", result[[value_name]], "</b>\n",
       "</br> Datapoint: ", result$data,
-      "</br> Class:       ", result$class,
-      "</br> Feature:    ", result$feature
+      "</br> Output:      ", result$class,
+      "</br> Feature:     ", result$feature
     )
   }
   # Create facets
@@ -107,15 +107,15 @@ plot_2d_input <- function(result, value_name, data_names, input_names,
   if (no_data) {
     text <- paste(
       "<b></br>", value_name, ":", result[[value_name]], "</b>\n",
-      "</br> Class:       ", result$class,
+      "</br> Output:     ", result$class,
       "</br> Length:     ", result$feature_l
     )
   } else {
     text <- paste(
       "<b></br>", value_name, ":", result[[value_name]], "</b>\n",
       "</br> Datapoint: ", result$data,
-      "</br> Class:       ", result$class,
-      "</br> Length:     ", result$feature_l
+      "</br> Output:      ", result$class,
+      "</br> Length:      ", result$feature_l
     )
   }
 
@@ -176,7 +176,7 @@ plot_3d_input <- function(result, value_name, data_names, input_names,
   if (no_data) {
     text <- paste(
       "<b></br>", value_name, ":", result[[value_name]], "</b>\n",
-      "</br> Class:       ", result$class,
+      "</br> Output:      ", result$class,
       "</br> Height:      ", result$feature_h,
       "</br> Width:       ", result$feature_w
     )
@@ -184,7 +184,7 @@ plot_3d_input <- function(result, value_name, data_names, input_names,
     text <- paste(
       "<b></br>", value_name, ":", result[[value_name]], "</b>\n",
       "</br> Datapoint: ", result$data,
-      "</br> Class:       ", result$class,
+      "</br> Output:      ", result$class,
       "</br> Height:      ", result$feature_h,
       "</br> Width:       ", result$feature_w
     )
@@ -955,7 +955,7 @@ make_hovertext <- function(datapoint, feature, feature_name, class, value,
     "<b></br>", datapoint,
     "</br>", paste(value_name, ":", sep = ""), round2(value),
     "</b>\n",
-    "</br> Class:     ", class,
+    "</br> Output:   ", class,
     "</br>", feature_name, feature
   )
   if (show_channel) {
