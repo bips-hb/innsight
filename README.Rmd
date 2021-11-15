@@ -162,9 +162,9 @@ for (t in 1:2500) {
 # model = ...
 
 # create a Converter for this model
-converter = Converter$new(model, input_dim = c(4),
-                          input_names = list(names(iris[,-5])),
-                          output_names = list(levels(iris[,5])))
+converter <- Converter$new(model, input_dim = c(4),
+                           input_names = list(names(iris[,-5])),
+                           output_names = list(levels(iris[,5])))
 
 # Apply local method LRP with epsilon rule
 lrp_eps <- LRP$new(converter, iris[,-5], rule_name = "epsilon")

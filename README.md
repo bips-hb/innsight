@@ -51,7 +51,7 @@ accepted:
 -   `torch::nn_sequential` with layers `nn_linear`, `nn_conv1d`,
     `nn_conv2d`, `nn_max_pool1d`, `nn_max_pool2d`, `nn_avg_pool1d`,
     `nn_avg_pool2d`, `nn_dropout`, `nn_flatten` (see [torch issue
-    \#716](https://github.com/mlverse/torch/issues/716#issuecomment-946117545)
+    #716](https://github.com/mlverse/torch/issues/716#issuecomment-946117545)
     and use `classname = "nn_flatten"`)
 -   `keras::keras_model_sequential` or `keras::keras_model` with layers
     `layer_dense`, `layer_conv1d`, `layer_conv2d`,
@@ -131,9 +131,9 @@ boxplot(result)
 # model = ...
 
 # create a Converter for this model
-converter = Converter$new(model, input_dim = c(4),
-                          input_names = list(names(iris[,-5])),
-                          output_names = list(levels(iris[,5])))
+converter <- Converter$new(model, input_dim = c(4),
+                           input_names = list(names(iris[,-5])),
+                           output_names = list(levels(iris[,5])))
 
 # Apply local method LRP with epsilon rule
 lrp_eps <- LRP$new(converter, iris[,-5], rule_name = "epsilon")
