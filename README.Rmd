@@ -120,8 +120,9 @@ boxplot(result)
 set.seed(1111)
 torch::torch_manual_seed(1111)
 ```
+<details><summary>Model code (click to expand)</summary> 
 
-```{r, echo = FALSE, results='hide', eval = TRUE}
+```{r, echo = TRUE, results='hide', eval = TRUE}
 library(innsight)
 library(torch)
 data(iris)
@@ -157,10 +158,9 @@ for (t in 1:2500) {
   optimizer$step()
 }
 ```
-```{r, fig.width=12, fig.height=8, results='hide', fig.keep='all', message = FALSE, eval = TRUE}
-# Model was trained on iris dataset
-# model = ...
+</details>
 
+```{r, fig.width=12, fig.height=8, results='hide', fig.keep='all', message = FALSE, eval = TRUE}
 # create a Converter for this model
 converter <- Converter$new(model, input_dim = c(4),
                            input_names = list(names(iris[,-5])),

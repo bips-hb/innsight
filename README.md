@@ -126,10 +126,51 @@ boxplot(result)
 
 ## Example: Iris-Dataset
 
-``` r
-# Model was trained on iris dataset
-# model = ...
+<details>
+<summary>
+Model code (click to expand)
+</summary>
 
+``` r
+library(innsight)
+library(torch)
+data(iris)
+
+# Prepare Data
+x <- torch_tensor(as.matrix(iris[, -5]))
+y <- torch_tensor(as.integer(iris[, 5]))
+
+# Define Model
+model <- nn_sequential(
+  nn_linear(4, 15), 
+  nn_relu(),
+  nn_dropout(0.3), 
+  nn_linear(15, 10), 
+  nn_relu(),
+  nn_dropout(0.3), 
+  nn_linear(10, 5), 
+  nn_relu(),
+  nn_linear(5, 3), 
+  nn_softmax(2)
+)
+
+# Train model
+optimizer <- optim_adam(model$parameters, lr = 0.0002)
+for (t in 1:2500) {
+  y_pred <- torch_log(model(x))
+  loss <- nnf_nll_loss(y_pred, y)
+  if (t %% 100 == 0) {
+    cat("Loss: ", as.numeric(loss), "\n")
+  }
+  optimizer$zero_grad()
+  loss$backward()
+  optimizer$step()
+}
+```
+
+</details>
+
+``` r
 # create a Converter for this model
 converter <- Converter$new(model, input_dim = c(4),
                            input_names = list(names(iris[,-5])),
