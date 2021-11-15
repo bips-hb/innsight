@@ -2,7 +2,7 @@
 #'
 #' @description
 #' This class analyzes a passed neural network and stores its internal
-#' structure and the individual layers by converting the entire network into a
+#' structure and the individual layers by converting the entire network into an
 #' \code{\link[torch]{nn_module}}. With the help of this converter, many
 #' methods for interpreting the behavior of neural networks are provided, which
 #' give a better understanding of the whole model or individual predictions.

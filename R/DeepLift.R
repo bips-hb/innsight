@@ -11,8 +11,8 @@
 #' decompose the difference-from-reference prediction with respect to the
 #' input features, i.e.
 #' \deqn{\Delta y = y - y'  = \sum_i C(x_i).}
-#' Compared to \emph{Layer-wise Relevance Propagation} (see [LRP]) is the
-#' DeepLift method an exact decomposition and not an approximation, so we
+#' Compared to \emph{Layer-wise Relevance Propagation} (see [LRP]), the
+#' DeepLift method is an exact decomposition and not an approximation, so we
 #' get real contributions of the input features to the
 #' difference-from-reference prediction. There are two ways to handle
 #' activation functions: *Rescale-Rule* (`'rescale'`) and

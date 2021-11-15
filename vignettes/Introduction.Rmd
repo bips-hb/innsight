@@ -29,7 +29,7 @@ neural networks are only sparsely or rarely implemented in the R programming
 language. The **`innsight`** package addresses this lack of interpretable 
 machine learning methods in R (similar to 
 [**`iNNvestigate`**](https://github.com/albermax/innvestigate) for Python) and 
-provides the most popular methods for Neural networks trained in R for 
+provides the most popular methods for neural networks trained in R for 
 analysis.
 
 ## Methods
@@ -40,7 +40,7 @@ Learning package for R already exists, namely
 with so-called model-agnostic methods, which are independent of the 
 given model and do not take into account the internal model structure, 
 such as neural network weights. Our package, on the other hand, deals 
-with methods that can basically only be applied to neural networks.
+with methods that can only be applied to neural networks.
 The **`innsight`** package provides the following tools for analyzing black box
 neural networks based on dense or convolution layers:
 
