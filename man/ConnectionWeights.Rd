@@ -7,7 +7,7 @@
 This class implements the \emph{Connection Weight} method investigated by
 Olden et al. (2004) which results in a feature relevance score for each input
 variable. The basic idea is to multiply up all path weights for each
-possible connection between an input feature and the output and then
+possible connection between an input feature and the output node and then
 calculate the sum over them. Besides, it is a global interpretation method
 and independent of the input data. For a neural network with \eqn{3} hidden
 layers with weight matrices \eqn{W_1}, \eqn{W_2} and \eqn{W_3} this method
@@ -149,7 +149,8 @@ for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for \link[to
 (dim_in, dim_out).}
 
 \item{\code{output_idx}}{This vector determines for which outputs the method
-will be applied}
+will be applied. By default (\code{NULL}), all outputs (but limited to the
+first 10) are considered.}
 }
 \if{html}{\out{</div>}}
 }
@@ -189,8 +190,9 @@ to the first 10) are considered.}
 last dimension (\code{FALSE}) or on the first dimension (\code{TRUE}). If the
 data has no channels, use the default value \code{TRUE}.}
 
-\item{\code{dtype}}{The type of the data and parameters
-(either \code{'float'} or \code{'double'}).}
+\item{\code{dtype}}{The data type for the calculations. Use
+either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
+\link[torch:torch_dtype]{torch::torch_double}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -200,8 +202,9 @@ data has no channels, use the default value \code{TRUE}.}
 \if{latex}{\out{\hypertarget{method-get_result}{}}}
 \subsection{Method \code{get_result()}}{
 This function returns the result of the Connection Weights method either
-as an array (\code{array}), a torch tensor (\code{torch.tensor}) of size
-(dim_in, dim_out) or a data.frame (\code{data.frame}).
+as an array (\code{'array'}), a torch tensor (\code{'torch.tensor'} or
+\code{'torch_tensor'}) of size (dim_in, dim_out) or a data.frame
+(\code{'data.frame'}).
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ConnectionWeights$get_result(type = "array")}\if{html}{\out{</div>}}
 }
@@ -210,7 +213,8 @@ as an array (\code{array}), a torch tensor (\code{torch.tensor}) of size
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{type}}{The data format of the result. Use one of \code{'array'},
-\code{'torch.tensor'} or \code{'data.frame'} (default: \code{'array'}).}
+\code{'torch.tensor'}, \code{'torch_tensor'} or \code{'data.frame'}
+(default: \code{'array'}).}
 }
 \if{html}{\out{</div>}}
 }
@@ -224,15 +228,15 @@ format.
 \if{latex}{\out{\hypertarget{method-plot}{}}}
 \subsection{Method \code{plot()}}{
 This method visualizes the result of the ConnectionWeight method in a
-\link[ggplot2:ggplot]{ggplot2::ggplot}. You can use the argument \code{classes} to select
-the classes for the plot. By default a \link[ggplot2:ggplot]{ggplot2::ggplot} is returned,
-but with the argument \code{as_plotly} an interactive \link[plotly:plot_ly]{plotly::plot_ly} plot
-can be created, which however requires a successful installation of
-the package \code{plotly}.
+\link[ggplot2:ggplot]{ggplot2::ggplot}. You can use the argument \code{output_idx} to select
+individual output nodes for the plot. The different results for the
+selected outputs are visualized using the method \link[ggplot2:facet_grid]{ggplot2::facet_grid}.
+You can also use the \code{as_plotly} argument to generate an interactive
+plot based on the plot function \link[plotly:plot_ly]{plotly::plot_ly}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ConnectionWeights$plot(
-  output_idx = c(),
-  aggr_channels = sum,
+  output_idx = NULL,
+  aggr_channels = "sum",
   preprocess_FUN = identity,
   as_plotly = FALSE
 )}\if{html}{\out{</div>}}
@@ -241,14 +245,19 @@ the package \code{plotly}.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{output_idx}}{An integer vector containing the numbers of the classes
-whose result is to be plotted, e.g. \code{c(1,4)} for the first and fourth
-class. Default: \code{c(1)}.}
+\item{\code{output_idx}}{An integer vector containing the numbers of the
+output indices whose result is to be plotted, e.g. \code{c(1,4)} for the
+first and fourth model output. But this vector must be included in the
+vector \code{output_idx} from the initialization, otherwise, no results were
+calculated for this output node and can not be plotted. By default
+(\code{NULL}), the smallest index of all calculated output nodes is used.}
 
-\item{\code{aggr_channels}}{Pass a function to aggregate the channels. The
-default function is \link[base:sum]{base::sum}, but you can pass an arbitrary function.
-For example, the maximum \code{max} or minimum \code{min} over the channels or
-only individual channels with \code{function(x) x[1]}.}
+\item{\code{aggr_channels}}{Pass one of \code{'norm'}, \code{'sum'}, \code{'mean'} or a
+custom function to aggregate the channels, e.g. the maximum
+(\link[base:Extremes]{base::max}) or minimum (\link[base:Extremes]{base::min}) over the channels or only
+individual channels with \code{function(x) x[1]}. By default (\code{'sum'}),
+the sum of all channels is used.\cr
+\strong{Note:} This argument is used only for 2D and 3D inputs.}
 
 \item{\code{preprocess_FUN}}{This function is applied to the method's result
 before generating the plot. By default, the identity function
@@ -257,7 +266,8 @@ before generating the plot. By default, the identity function
 \item{\code{as_plotly}}{This boolean value (default: \code{FALSE}) can be used to
 create an interactive plot based on the library \code{plotly}. This function
 takes use of \link[plotly:ggplotly]{plotly::ggplotly}, hence make sure that the suggested
-package \code{plotly} is installed in your R session. Advanced: You can first
+package \code{plotly} is installed in your R session.\cr
+\strong{Advanced:} You can first
 output the results as a ggplot (\code{as_plotly = FALSE}) and then make
 custom changes to the plot, e.g. other theme or other fill color. Then
 you can manually call the function \code{ggplotly} to get an interactive

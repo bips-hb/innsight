@@ -2,16 +2,16 @@
 % Please edit documentation in R/InterpretingMethod.R
 \name{InterpretingMethod}
 \alias{InterpretingMethod}
-\title{Superclass for Interpreting Methods}
+\title{Super class for Interpreting Methods}
 \description{
-This is a superclass for all data-based interpreting methods.
+This is a super class for all data-based interpreting methods.
 Implemented are the following methods:
 \itemize{
 \item Deep Learning Important Features (\link{DeepLift})
 \item Layer-wise Relevance Propagation (\link{LRP})
 \item Gradient-based methods:
 \itemize{
-\item Normal gradients (\link{Gradient})
+\item Vanilla gradients (\link{Gradient})
 \item Smoothed Gradients (\link{SmoothGrad})
 }
 }
@@ -19,26 +19,29 @@ Implemented are the following methods:
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{data}}{The given data as a torch tensor to be interpreted with the
-selected method.}
+\item{\code{data}}{The passed data as a torch tensor in the given data type
+(\code{dtype}) to be interpreted with the selected method.}
 
-\item{\code{converter}}{The converter with the stored and torch-converted model.}
+\item{\code{converter}}{An instance of the R6 class \code{\link{Converter}}.}
 
-\item{\code{dtype}}{The type of the data (either \code{'float'} or \code{'double'}).}
+\item{\code{dtype}}{The data type for the calculations. Either \code{'float'}
+for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for \link[torch:torch_dtype]{torch::torch_double}.}
 
 \item{\code{channels_first}}{The format of the given date, i.e. channels on
 last dimension (\code{FALSE}) or after the batch dimension (\code{TRUE}). If the
-data has no channels, use the default value \code{TRUE}.}
+data has no channels, the default value \code{TRUE} is used.}
 
 \item{\code{ignore_last_act}}{A boolean value to include the last
-activation into all the calculations, or not. In some cases, the last
-activation leads to a saturation problem.}
+activation into all the calculations, or not (default: \code{TRUE}). In some
+cases, the last activation leads to a saturation problem.}
 
 \item{\code{result}}{The methods result of the given data as a
-torch tensor of size (batch_size, dim_in, dim_out).}
+torch tensor of size (batch_size, dim_in, dim_out) in the given data type
+(\code{dtype}).}
 
 \item{\code{output_idx}}{This vector determines for which outputs the method
-will be applied.}
+will be applied. By default (\code{NULL}), all outputs (but limited to the
+first 10) are considered.}
 }
 \if{html}{\out{</div>}}
 }
@@ -54,7 +57,7 @@ will be applied.}
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
-Create a new instance of this class.
+Create a new instance of this super class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{InterpretingMethod$new(
   converter,
@@ -69,10 +72,10 @@ Create a new instance of this class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{converter}}{The converter with the stored and torch-converted model.}
+\item{\code{converter}}{An instance of the R6 class \code{\link{Converter}}.}
 
-\item{\code{data}}{The given data in an array-like format to be interpreted
-with the selected method.}
+\item{\code{data}}{The data for which this method is to be applied. It has
+to be an array or array-like format of size (batch_size, dim_in).}
 
 \item{\code{channels_first}}{The format of the given data, i.e. channels on
 last dimension (\code{FALSE}) or after the batch dimension (\code{TRUE}). If the
@@ -83,10 +86,12 @@ method will be applied. By default (\code{NULL}), all outputs (but limited to
 the first 10) are considered.}
 
 \item{\code{ignore_last_act}}{A boolean value to include the last
-activation into all the calculations, or not. In some cases, the last
-activation leads to a saturation problem.}
+activation into all the calculations, or not (default: \code{TRUE}). In
+some cases, the last activation leads to a saturation problem.}
 
-\item{\code{dtype}}{The type of the data (either \code{'float'} or \code{'double'}).}
+\item{\code{dtype}}{dtype The data type for the calculations. Use
+either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
+\link[torch:torch_dtype]{torch::torch_double}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -96,8 +101,9 @@ activation leads to a saturation problem.}
 \if{latex}{\out{\hypertarget{method-get_result}{}}}
 \subsection{Method \code{get_result()}}{
 This function returns the result of this method for the given data
-either as an array (\code{'array'}), a torch tensor (\code{'torch.tensor'}) of
-size (batch_size, dim_in, dim_out) or a data.frame (\code{'data.frame'}).
+either as an array (\code{'array'}), a torch tensor (\code{'torch.tensor'},
+or \code{'torch_tensor'}) of size (batch_size, dim_in, dim_out) or as a
+data.frame (\code{'data.frame'}).
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{InterpretingMethod$get_result(type = "array")}\if{html}{\out{</div>}}
 }
@@ -105,14 +111,15 @@ size (batch_size, dim_in, dim_out) or a data.frame (\code{'data.frame'}).
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{type}}{The data format of the result. Use one of \code{'array'},
-\code{'torch.tensor'} or \code{'data.frame'} (default: \code{'array'}).}
+\item{\code{type}}{The data type of the result. Use one of \code{'array'},
+\code{'torch.tensor'}, \code{'torch_tensor'} or \code{'data.frame'}
+(default: \code{'array'}).}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
 The result of this method for the given data in the chosen
-format.
+type.
 }
 }
 \if{html}{\out{<hr>}}

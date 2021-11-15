@@ -12,10 +12,11 @@
 #' input features, i.e.
 #' \deqn{\Delta y = y - y'  = \sum_i C(x_i).}
 #' Compared to \emph{Layer-wise Relevance Propagation} (see [LRP]) is the
-#' DeepLIFT method an exact decomposition and not an approximation, so we
+#' DeepLift method an exact decomposition and not an approximation, so we
 #' get real contributions of the input features to the
 #' difference-from-reference prediction. There are two ways to handle
-#' activation functions: \emph{Rescale-Rule} and \emph{RevealCancel-Rule}.
+#' activation functions: *Rescale-Rule* (`'rescale'`) and
+#' *RevealCancel-Rule* (`'reveal_cancel'`).
 #'
 #' @examplesIf torch::torch_is_installed()
 #' #----------------------- Example 1: Torch ----------------------------------
@@ -162,7 +163,7 @@ DeepLift <- R6Class(
     #' @field x_ref The reference input of size (1, dim_in) for the
     #' interpretation.
     #' @field rule_name Name of the applied rule to calculate the contributions
-    #' for the non-linear part of a Neural Network layer. Either
+    #' for the non-linear part of a neural network layer. Either
     #' \code{"rescale"} or \code{"reveal_cancel"}.
     #'
     rule_name = NULL,
@@ -176,15 +177,15 @@ DeepLift <- R6Class(
     #' @param data The data for which the contribution scores are to be
     #' calculated. It has to be an array or array-like format of size
     #' (batch_size, dim_in).
-    #' @param channels_first Set the data format of the given data. Internally
-    #' the format `channels_first` is used, therefore the format of the given
-    #' data is required. Also use the default value `TRUE` if no convolutional
-    #' layers are used.
+    #' @param channels_first The format of the given date, i.e. channels on
+    #' last dimension (`FALSE`) or after the batch dimension (`TRUE`). If the
+    #' data has no channels, use the default value `TRUE`.
     #' @param ignore_last_act Set this boolean value to include the last
     #' activation, or not (default: `TRUE`). In some cases, the last activation
     #' leads to a saturation problem.
-    #' @param dtype The data type for the calculations. Use either `'float'`
-    #' (default) or `'double'`.
+    #' @param dtype The data type for the calculations. Use
+    #' either `'float'` for [torch::torch_float] or `'double'` for
+    #' [torch::torch_double].
     #' @param x_ref The reference input of size (1, dim_in) for the
     #' interpretation. With the default value \code{NULL} you use an input
     #' of zeros.
@@ -230,29 +231,36 @@ DeepLift <- R6Class(
     },
 
 
-    #'
     #' @description
     #' This method visualizes the result of the selected method in a
     #' [ggplot2::ggplot]. You can use the argument `data_idx` to select
     #' the data points in the given data for the plot. In addition, the
-    #' individual classes for the plot can be selected with the argument
+    #' individual output nodes for the plot can be selected with the argument
     #' `output_idx`. The different results for the selected data points and
-    #' classes are visualized using the method [ggplot2::facet_grid].
+    #' outputs are visualized using the method [ggplot2::facet_grid].
+    #' You can also use the `as_plotly` argument to generate an interactive
+    #' plot based on the plot function [plotly::plot_ly].
     #'
     #' @param data_idx An integer vector containing the numbers of the data
     #' points whose result is to be plotted, e.g. `c(1,3)` for the first
     #' and third data point in the given data. Default: `c(1)`.
-    #' @param output_idx An integer vector containing the numbers of the classes
-    #' whose result is to be plotted, e.g. `c(1,4)` for the first and fourth
-    #' class. Default: `c(1)`.
-    #' @param aggr_channels Pass a function to aggregate the channels. The
-    #' default function is [base::sum], but you can pass an arbitrary function.
-    #' For example, the maximum `max` or minimum `min` over the channels or
-    #' only individual channels with `function(x) x[1]`.
+    #' @param output_idx An integer vector containing the numbers of the
+    #' output indices whose result is to be plotted, e.g. `c(1,4)` for the
+    #' first and fourth model output. But this vector must be included in the
+    #' vector `output_idx` from the initialization, otherwise, no results were
+    #' calculated for this output node and can not be plotted. By default
+    #' (`NULL`), the smallest index of all calculated output nodes is used.
+    #' @param aggr_channels Pass one of `'norm'`, `'sum'`, `'mean'` or a
+    #' custom function to aggregate the channels, e.g. the maximum
+    #' ([base::max]) or minimum ([base::min]) over the channels or only
+    #' individual channels with `function(x) x[1]`. By default (`'sum'`),
+    #' the sum of all channels is used.\cr
+    #' **Note:** This argument is used only for 2D and 3D inputs.
     #' @param as_plotly This boolean value (default: `FALSE`) can be used to
     #' create an interactive plot based on the library `plotly`. This function
     #' takes use of [plotly::ggplotly], hence make sure that the suggested
-    #' package `plotly` is installed in your R session. Advanced: You can first
+    #' package `plotly` is installed in your R session.\cr
+    #' **Advanced:** You can first
     #' output the results as a ggplot (`as_plotly = FALSE`) and then make
     #' custom changes to the plot, e.g. other theme or other fill color. Then
     #' you can manually call the function `ggplotly` to get an interactive
@@ -262,9 +270,10 @@ DeepLift <- R6Class(
     #' Returns either a [ggplot2::ggplot] (`as_plotly = FALSE`) or a
     #' [plotly::plot_ly] (`as_plotly = TRUE`) with the plotted results.
     #'
+    #'
     plot = function(data_idx = 1,
-                    output_idx = c(),
-                    aggr_channels = sum,
+                    output_idx = NULL,
+                    aggr_channels = 'sum',
                     as_plotly = FALSE) {
 
       private$plot(data_idx, output_idx, aggr_channels,
@@ -280,10 +289,11 @@ DeepLift <- R6Class(
     #' which however requires a successful installation of the package
     #' `plotly`.
     #'
+    #'
     #' @param preprocess_FUN This function is applied to the method's result
     #' before calculating the boxplots. Since positive and negative values
     #' often cancel each other out, the absolute value (`abs`) is used by
-    #' default. But you can also use the raw data (`function(x) x`) to see the
+    #' default. But you can also use the raw data (`identity`) to see the
     #' results' orientation, the squared data (`function(x) x^2`) to weight
     #' the outliers higher or any other function.
     #' @param data_idx By default ("all"), all available data is used to
@@ -291,9 +301,12 @@ DeepLift <- R6Class(
     #' to select a subset of them by passing the indices. E.g. with
     #' `data_idx = c(1:10, 25, 26)` only the first `10` data points and
     #' the 25th and 26th are used to calculate the boxplots.
-    #' @param output_idx An integer vector containing the numbers of the classes
-    #' whose result is to be plotted, e.g. `c(1,4)` for the first and fourth
-    #' class. Default: `c(1)`.
+    #' @param output_idx An integer vector containing the numbers of the
+    #' output indices whose result is to be plotted, e.g. `c(1,4)` for the
+    #' first and fourth model output. But this vector must be included in the
+    #' vector `output_idx` from the initialization, otherwise, no results were
+    #' calculated for this output node and can not be plotted. By default
+    #' (`NULL`), the smallest index of all calculated output nodes is used.
     #' @param ref_data_idx This integer number determines the index for the
     #' reference data point. In addition to the boxplots, it is displayed in
     #' red color and is used to compare an individual result with the summary
@@ -303,11 +316,12 @@ DeepLift <- R6Class(
     #' argument `data_idx`.\cr
     #' **Note:** Because of the complexity of 3D inputs, this argument is used
     #' only for 1D and 2D inputs and disregarded for 3D inputs.
-    #' @param aggr_channels Pass a function to aggregate the channels. The
-    #' default function is [base::mean], but you can pass an arbitrary
-    #' function. For example, the maximum `max` or minimum `min` over the
-    #' channels or only individual channels with `function(x) x[1]`.\cr
-    #' **Note:** This function is used only for 2D and 3D inputs.
+    #' @param aggr_channels Pass one of `'norm'`, `'sum'`, `'mean'` or a
+    #' custom function to aggregate the channels, e.g. the maximum
+    #' ([base::max]) or minimum ([base::min]) over the channels or only
+    #' individual channels with `function(x) x[1]`. By default (`'norm'`),
+    #' the Euclidean norm of all channels is used.\cr
+    #' **Note:** This argument is used only for 2D and 3D inputs.
     #' @param as_plotly This boolean value (default: `FALSE`) can be used to
     #' create an interactive plot based on the library `plotly` instead of
     #' `ggplot2`. Make sure that the suggested package `plotly` is installed
@@ -325,13 +339,16 @@ DeepLift <- R6Class(
     #' individual data points in the dropdown menu without counting
     #' `ref_data_idx`. This means that if `individual_data_idx` has more
     #' than `individual_max` indices, only the first `individual_max` will
-    #' be used. Too high a number can significantly increase the runtime.
+    #' be used. A too high number can significantly increase the runtime.
     #'
+    #' @return
+    #' Returns either a [ggplot2::ggplot] (`as_plotly = FALSE`) or a
+    #' [plotly::plot_ly] (`as_plotly = TRUE`) with the boxplots.
     #'
-    boxplot = function(output_idx = c(),
+    boxplot = function(output_idx = NULL,
                        data_idx = "all",
                        ref_data_idx = NULL,
-                       aggr_channels = sum,
+                       aggr_channels = 'norm',
                        preprocess_FUN = abs,
                        as_plotly = FALSE,
                        individual_data_idx = NULL,

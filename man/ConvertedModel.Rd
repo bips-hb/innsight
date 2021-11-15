@@ -29,7 +29,7 @@ in this package.
 'Converter' class during initialization.}
 \item{\code{dtype}}{The datatype for all the calculations and defined
 tensors. Either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
-\link[torch:torch_dtype]{torch::torch_double}}
+\link[torch:torch_dtype]{torch::torch_double}}.
 }
 }
 

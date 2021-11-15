@@ -7,13 +7,15 @@
 This is an implementation of the \emph{Layer-wise Relevance Propagation
 (LRP)} algorithm introduced by Bach et al. (2015). It's a local method for
 interpreting a single element of the dataset and calculates the relevance
-scores for each input feature. The basic idea of this method is to decompose
-the prediction score of the model with respect to the input features, i.e.
+scores for each input feature to the model output. The basic idea of this
+method is to decompose the prediction score of the model with respect to
+the input features, i.e.
 \deqn{f(x) = \sum_i R(x_i).}
-Because of the bias vector, this decomposition is generally an approximation.
-There exist several propagation rules to determine the relevance scores.
-In this package are implemented: simple rule ("simple"), epsilon rule
-("epsilon") and alpha-beta rule ("alpha_beta").
+Because of the bias vector that absorbs some relevance, this decomposition
+is generally an approximation. There exist several propagation rules to
+determine the relevance scores. In this package are implemented: simple
+rule ("simple"), epsilon rule ("epsilon") and alpha-beta rule
+("alpha_beta").
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -186,7 +188,7 @@ p. 1-46
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{rule_name}}{The name of the rule, with which the relevance scores
+\item{\code{rule_name}}{The name of the rule with which the relevance scores
 are calculated. Implemented are \code{"simple"}, \code{"epsilon"},
 \code{"alpha_beta"} (default: \code{"simple"}).}
 
@@ -237,10 +239,9 @@ Create a new instance of the LRP-Method.
 calculated. It has to be an array or array-like format of size
 (batch_size, dim_in).}
 
-\item{\code{channels_first}}{Set the data format of the given data. Internally
-the format \code{channels_first} is used, therefore the format of the given
-data is required. Also use the default value \code{TRUE} if no convolutional
-layers are used.}
+\item{\code{channels_first}}{The format of the given date, i.e. channels on
+last dimension (\code{FALSE}) or after the batch dimension (\code{TRUE}). If the
+data has no channels, use the default value \code{TRUE}.}
 
 \item{\code{output_idx}}{This vector determines for which outputs the method
 will be applied. By default (\code{NULL}), all outputs (but limited to the
@@ -259,8 +260,9 @@ rules \code{"epsilon"} and \code{"alpha_beta"} take use of the
 parameter. Use the default value \code{NULL} for the default parameters
 ("epsilon" : \eqn{0.01}, "alpha_beta" : \eqn{0.5}).}
 
-\item{\code{dtype}}{The data type for the calculations. Use either \code{'float'} or
-\code{'double'}.}
+\item{\code{dtype}}{The data type for the calculations. Use
+either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
+\link[torch:torch_dtype]{torch::torch_double}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -275,14 +277,16 @@ A new instance of the R6 class \code{'LRP'}.
 This method visualizes the result of the selected method in a
 \link[ggplot2:ggplot]{ggplot2::ggplot}. You can use the argument \code{data_idx} to select
 the data points in the given data for the plot. In addition, the
-individual classes for the plot can be selected with the argument
+individual output nodes for the plot can be selected with the argument
 \code{output_idx}. The different results for the selected data points and
-classes are visualized using the method \link[ggplot2:facet_grid]{ggplot2::facet_grid}.
+outputs are visualized using the method \link[ggplot2:facet_grid]{ggplot2::facet_grid}.
+You can also use the \code{as_plotly} argument to generate an interactive
+plot based on the plot function \link[plotly:plot_ly]{plotly::plot_ly}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LRP$plot(
   data_idx = 1,
-  output_idx = c(),
-  aggr_channels = sum,
+  output_idx = NULL,
+  aggr_channels = "sum",
   as_plotly = FALSE
 )}\if{html}{\out{</div>}}
 }
@@ -294,19 +298,25 @@ classes are visualized using the method \link[ggplot2:facet_grid]{ggplot2::facet
 points whose result is to be plotted, e.g. \code{c(1,3)} for the first
 and third data point in the given data. Default: \code{c(1)}.}
 
-\item{\code{output_idx}}{An integer vector containing the numbers of the classes
-whose result is to be plotted, e.g. \code{c(1,4)} for the first and fourth
-class. Default: \code{c(1)}.}
+\item{\code{output_idx}}{An integer vector containing the numbers of the
+output indices whose result is to be plotted, e.g. \code{c(1,4)} for the
+first and fourth model output. But this vector must be included in the
+vector \code{output_idx} from the initialization, otherwise, no results were
+calculated for this output node and can not be plotted. By default
+(\code{NULL}), the smallest index of all calculated output nodes is used.}
 
-\item{\code{aggr_channels}}{Pass a function to aggregate the channels. The
-default function is \link[base:sum]{base::sum}, but you can pass an arbitrary function.
-For example, the maximum \code{max} or minimum \code{min} over the channels or
-only individual channels with \code{function(x) x[1]}.}
+\item{\code{aggr_channels}}{Pass one of \code{'norm'}, \code{'sum'}, \code{'mean'} or a
+custom function to aggregate the channels, e.g. the maximum
+(\link[base:Extremes]{base::max}) or minimum (\link[base:Extremes]{base::min}) over the channels or only
+individual channels with \code{function(x) x[1]}. By default (\code{'sum'}),
+the sum of all channels is used.\cr
+\strong{Note:} This argument is used only for 2D and 3D inputs.}
 
 \item{\code{as_plotly}}{This boolean value (default: \code{FALSE}) can be used to
 create an interactive plot based on the library \code{plotly}. This function
 takes use of \link[plotly:ggplotly]{plotly::ggplotly}, hence make sure that the suggested
-package \code{plotly} is installed in your R session. Advanced: You can first
+package \code{plotly} is installed in your R session.\cr
+\strong{Advanced:} You can first
 output the results as a ggplot (\code{as_plotly = FALSE}) and then make
 custom changes to the plot, e.g. other theme or other fill color. Then
 you can manually call the function \code{ggplotly} to get an interactive
@@ -331,10 +341,10 @@ which however requires a successful installation of the package
 \code{plotly}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LRP$boxplot(
-  output_idx = c(),
+  output_idx = NULL,
   data_idx = "all",
   ref_data_idx = NULL,
-  aggr_channels = sum,
+  aggr_channels = "norm",
   preprocess_FUN = abs,
   as_plotly = FALSE,
   individual_data_idx = NULL,
@@ -345,9 +355,12 @@ which however requires a successful installation of the package
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{output_idx}}{An integer vector containing the numbers of the classes
-whose result is to be plotted, e.g. \code{c(1,4)} for the first and fourth
-class. Default: \code{c(1)}.}
+\item{\code{output_idx}}{An integer vector containing the numbers of the
+output indices whose result is to be plotted, e.g. \code{c(1,4)} for the
+first and fourth model output. But this vector must be included in the
+vector \code{output_idx} from the initialization, otherwise, no results were
+calculated for this output node and can not be plotted. By default
+(\code{NULL}), the smallest index of all calculated output nodes is used.}
 
 \item{\code{data_idx}}{By default ("all"), all available data is used to
 calculate the boxplot information. However, this parameter can be used
@@ -365,16 +378,17 @@ argument \code{data_idx}.\cr
 \strong{Note:} Because of the complexity of 3D inputs, this argument is used
 only for 1D and 2D inputs and disregarded for 3D inputs.}
 
-\item{\code{aggr_channels}}{Pass a function to aggregate the channels. The
-default function is \link[base:mean]{base::mean}, but you can pass an arbitrary
-function. For example, the maximum \code{max} or minimum \code{min} over the
-channels or only individual channels with \code{function(x) x[1]}.\cr
-\strong{Note:} This function is used only for 2D and 3D inputs.}
+\item{\code{aggr_channels}}{Pass one of \code{'norm'}, \code{'sum'}, \code{'mean'} or a
+custom function to aggregate the channels, e.g. the maximum
+(\link[base:Extremes]{base::max}) or minimum (\link[base:Extremes]{base::min}) over the channels or only
+individual channels with \code{function(x) x[1]}. By default (\code{'norm'}),
+the Euclidean norm of all channels is used.\cr
+\strong{Note:} This argument is used only for 2D and 3D inputs.}
 
 \item{\code{preprocess_FUN}}{This function is applied to the method's result
 before calculating the boxplots. Since positive and negative values
 often cancel each other out, the absolute value (\code{abs}) is used by
-default. But you can also use the raw data (\code{function(x) x}) to see the
+default. But you can also use the raw data (\code{identity}) to see the
 results' orientation, the squared data (\code{function(x) x^2}) to weight
 the outliers higher or any other function.}
 
@@ -397,9 +411,13 @@ dimension \code{1} or \code{2}! This integer determines the maximum number of
 individual data points in the dropdown menu without counting
 \code{ref_data_idx}. This means that if \code{individual_data_idx} has more
 than \code{individual_max} indices, only the first \code{individual_max} will
-be used. Too high a number can significantly increase the runtime.}
+be used. A too high number can significantly increase the runtime.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Returns either a \link[ggplot2:ggplot]{ggplot2::ggplot} (\code{as_plotly = FALSE}) or a
+\link[plotly:plot_ly]{plotly::plot_ly} (\code{as_plotly = TRUE}) with the boxplots.
 }
 }
 \if{html}{\out{<hr>}}

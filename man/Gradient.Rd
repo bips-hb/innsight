@@ -173,7 +173,7 @@ plotly::ggplotly(p, tooltip = "text")
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
-Create a new instance of this class.
+Create a new instance of the Vamilla Gradient method.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Gradient$new(
   converter,
@@ -181,7 +181,7 @@ Create a new instance of this class.
   channels_first = TRUE,
   output_idx = NULL,
   ignore_last_act = TRUE,
-  times_input = TRUE,
+  times_input = FALSE,
   dtype = "float"
 )}\if{html}{\out{</div>}}
 }
@@ -189,11 +189,11 @@ Create a new instance of this class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{converter}}{The converter of class \link{Converter} with the stored
-and torch-converted model.}
+\item{\code{converter}}{An instance of the R6 class \code{\link{Converter}}.}
 
-\item{\code{data}}{The given data in an array-like format to be interpreted
-with the this method.}
+\item{\code{data}}{The data for which the gradients are to be
+calculated. It has to be an array or array-like format of size
+(batch_size, dim_in).}
 
 \item{\code{channels_first}}{The format of the given data, i.e. channels on
 last dimension (\code{FALSE}) or after the batch dimension (\code{TRUE}). If the
@@ -204,14 +204,15 @@ will be applied. By default (\code{NULL}), all outputs (but limited to the
 first 10) are considered.}
 
 \item{\code{ignore_last_act}}{A boolean value to include the last
-activation into all the calculations, or not. In some cases, the
-last activation leads to a saturation problem. Default: \code{TRUE}.}
+activation into all the calculations, or not (default: \code{TRUE}). In
+some cases, the last activation leads to a saturation problem.}
 
 \item{\code{times_input}}{Multiplies the gradients with the input features.
-This method is called 'Gradient x Input'. Default: \code{TRUE}.}
+This method is called 'Gradient x Input'. Default: \code{FALSE}.}
 
-\item{\code{dtype}}{The type of the data (either \code{'float'} or \code{'double'}).
-Default: \code{'float'}.}
+\item{\code{dtype}}{The data type for the calculations. Use
+either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
+\link[torch:torch_dtype]{torch::torch_double}.}
 }
 \if{html}{\out{</div>}}
 }

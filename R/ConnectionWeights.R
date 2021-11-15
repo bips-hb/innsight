@@ -4,7 +4,7 @@
 #' This class implements the \emph{Connection Weight} method investigated by
 #' Olden et al. (2004) which results in a feature relevance score for each input
 #' variable. The basic idea is to multiply up all path weights for each
-#' possible connection between an input feature and the output and then
+#' possible connection between an input feature and the output node and then
 #' calculate the sum over them. Besides, it is a global interpretation method
 #' and independent of the input data. For a neural network with \eqn{3} hidden
 #' layers with weight matrices \eqn{W_1}, \eqn{W_2} and \eqn{W_3} this method
@@ -22,7 +22,8 @@
 #' @field result The methods result as a torch tensor of size
 #' (dim_in, dim_out).
 #' @field output_idx This vector determines for which outputs the method
-#' will be applied
+#' will be applied. By default (`NULL`), all outputs (but limited to the
+#' first 10) are considered.
 #'
 #' @examplesIf torch::torch_is_installed()
 #' #----------------------- Example 1: Torch ----------------------------------
@@ -156,8 +157,9 @@ ConnectionWeights <- R6Class(
     #' @param channels_first The data format of the result, i.e. channels on
     #' last dimension (`FALSE`) or on the first dimension (`TRUE`). If the
     #' data has no channels, use the default value `TRUE`.
-    #' @param dtype The type of the data and parameters
-    #' (either `'float'` or `'double'`).
+    #' @param dtype The data type for the calculations. Use
+    #' either `'float'` for [torch::torch_float] or `'double'` for
+    #' [torch::torch_double].
     #'
     initialize = function(converter,
                           output_idx = NULL,
@@ -187,11 +189,13 @@ ConnectionWeights <- R6Class(
     #'
     #' @description
     #' This function returns the result of the Connection Weights method either
-    #' as an array (`array`), a torch tensor (`torch.tensor`) of size
-    #' (dim_in, dim_out) or a data.frame (`data.frame`).
+    #' as an array (`'array'`), a torch tensor (`'torch.tensor'` or
+    #' `'torch_tensor'`) of size (dim_in, dim_out) or a data.frame
+    #' (`'data.frame'`).
     #'
     #' @param type The data format of the result. Use one of `'array'`,
-    #' `'torch.tensor'` or `'data.frame'` (default: `'array'`).
+    #' `'torch.tensor'`, `'torch_tensor'` or `'data.frame'`
+    #' (default: `'array'`).
     #'
     #' @return The result of this method for the given data in the chosen
     #' format.
@@ -213,23 +217,29 @@ ConnectionWeights <- R6Class(
     #'
     #' @description
     #' This method visualizes the result of the ConnectionWeight method in a
-    #' [ggplot2::ggplot]. You can use the argument `classes` to select
-    #' the classes for the plot. By default a [ggplot2::ggplot] is returned,
-    #' but with the argument `as_plotly` an interactive [plotly::plot_ly] plot
-    #' can be created, which however requires a successful installation of
-    #' the package `plotly`.
+    #' [ggplot2::ggplot]. You can use the argument `output_idx` to select
+    #' individual output nodes for the plot. The different results for the
+    #' selected outputs are visualized using the method [ggplot2::facet_grid].
+    #' You can also use the `as_plotly` argument to generate an interactive
+    #' plot based on the plot function [plotly::plot_ly].
     #'
-    #' @param output_idx An integer vector containing the numbers of the classes
-    #' whose result is to be plotted, e.g. `c(1,4)` for the first and fourth
-    #' class. Default: `c(1)`.
-    #' @param aggr_channels Pass a function to aggregate the channels. The
-    #' default function is [base::sum], but you can pass an arbitrary function.
-    #' For example, the maximum `max` or minimum `min` over the channels or
-    #' only individual channels with `function(x) x[1]`.
+    #' @param output_idx An integer vector containing the numbers of the
+    #' output indices whose result is to be plotted, e.g. `c(1,4)` for the
+    #' first and fourth model output. But this vector must be included in the
+    #' vector `output_idx` from the initialization, otherwise, no results were
+    #' calculated for this output node and can not be plotted. By default
+    #' (`NULL`), the smallest index of all calculated output nodes is used.
+    #' @param aggr_channels Pass one of `'norm'`, `'sum'`, `'mean'` or a
+    #' custom function to aggregate the channels, e.g. the maximum
+    #' ([base::max]) or minimum ([base::min]) over the channels or only
+    #' individual channels with `function(x) x[1]`. By default (`'sum'`),
+    #' the sum of all channels is used.\cr
+    #' **Note:** This argument is used only for 2D and 3D inputs.
     #' @param as_plotly This boolean value (default: `FALSE`) can be used to
     #' create an interactive plot based on the library `plotly`. This function
     #' takes use of [plotly::ggplotly], hence make sure that the suggested
-    #' package `plotly` is installed in your R session. Advanced: You can first
+    #' package `plotly` is installed in your R session.\cr
+    #' **Advanced:** You can first
     #' output the results as a ggplot (`as_plotly = FALSE`) and then make
     #' custom changes to the plot, e.g. other theme or other fill color. Then
     #' you can manually call the function `ggplotly` to get an interactive
@@ -242,8 +252,8 @@ ConnectionWeights <- R6Class(
     #' Returns either a [ggplot2::ggplot] (`as_plotly = FALSE`) or a
     #' [plotly::plot_ly] object (`as_plotly = TRUE`) with the plotted results.
     #'
-    plot = function(output_idx = c(),
-                    aggr_channels = sum,
+    plot = function(output_idx = NULL,
+                    aggr_channels = 'sum',
                     preprocess_FUN = identity,
                     as_plotly = FALSE) {
 

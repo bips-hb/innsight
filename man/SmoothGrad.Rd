@@ -5,8 +5,8 @@
 \title{SmoothGrad Method}
 \description{
 SmoothGrad was introduced by D. Smilkov et al. (2017) and is an extension to
-the classical \link{Gradient} method. It takes the mean of the gradients for
-\code{n} perturbations of each data point, i.e. with
+the classical Vanilla \link{Gradient} method. It takes the mean of the gradients
+for \code{n} perturbations of each data point, i.e. with
 \eqn{\epsilon ~ N(0,\sigma)}
 \deqn{1/n \sum_n d f(x+ \epsilon)_j / d x_j.}
 }
@@ -156,7 +156,7 @@ CoRR, abs/1706.03825
 \describe{
 \item{\code{n}}{Number of perturbations of the input data (default: \eqn{50}).}
 
-\item{\code{noise_level}}{The standard deviation of the gaussian
+\item{\code{noise_level}}{The standard deviation of the Gaussian
 perturbation, i.e. \eqn{\sigma = (max(x) - min(x)) *} \code{noise_level}.}
 }
 \if{html}{\out{</div>}}
@@ -181,7 +181,7 @@ perturbation, i.e. \eqn{\sigma = (max(x) - min(x)) *} \code{noise_level}.}
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
-Create a new instance of this class.
+Create a new instance of the SmoothGrad method.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SmoothGrad$new(
   converter,
@@ -189,7 +189,7 @@ Create a new instance of this class.
   channels_first = TRUE,
   output_idx = NULL,
   ignore_last_act = TRUE,
-  times_input = TRUE,
+  times_input = FALSE,
   n = 50,
   noise_level = 0.1,
   dtype = "float"
@@ -199,11 +199,11 @@ Create a new instance of this class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{converter}}{The converter of class \link{Converter} with the stored and
-torch-converted model.}
+\item{\code{converter}}{An instance of the R6 class \code{\link{Converter}}.}
 
-\item{\code{data}}{The given data in an array-like format to be interpreted
-with the this method.}
+\item{\code{data}}{The data for which the smoothed gradients are to be
+calculated. It has to be an array or array-like format of size
+(batch_size, dim_in).}
 
 \item{\code{channels_first}}{The format of the given data, i.e. channels on
 last dimension (\code{FALSE}) or after the batch dimension (\code{TRUE}). If the
@@ -214,19 +214,20 @@ will be applied. By default (\code{NULL}), all outputs (but limited to the
 first 10) are considered.}
 
 \item{\code{ignore_last_act}}{A boolean value to include the last
-activation into all the calculations, or not. In some cases, the last
-activation leads to a saturation problem. Default: \code{TRUE}.}
+activation into all the calculations, or not (default: \code{TRUE}). In
+some cases, the last activation leads to a saturation problem.}
 
-\item{\code{times_input}}{Multiplies the smoothed gradients with the input
-features. This method is called 'SmoothGrad x Input'.}
+\item{\code{times_input}}{Multiplies the gradients with the input features.
+This method is called 'SmoothGrad x Input'. Default: \code{FALSE}.}
 
 \item{\code{n}}{Number of perturbations of the input data (default: \eqn{50}).}
 
 \item{\code{noise_level}}{Determines the standard deviation of the gaussian
 perturbation, i.e. \eqn{\sigma = (max(x) - min(x)) *} \code{noise_level}.}
 
-\item{\code{dtype}}{The type of the data (either \code{'float'} or \code{'double'}).
-Default: \code{'float'}.}
+\item{\code{dtype}}{The data type for the calculations. Use
+either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
+\link[torch:torch_dtype]{torch::torch_double}.}
 }
 \if{html}{\out{</div>}}
 }

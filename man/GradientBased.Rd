@@ -2,14 +2,14 @@
 % Please edit documentation in R/GradienBased.R
 \name{GradientBased}
 \alias{GradientBased}
-\title{Superclass for Gradient-based Interpretation Methods}
+\title{Super class for Gradient-based Interpretation Methods}
 \description{
-Superclass for gradient-based interpretation methods. This
+Super class for gradient-based interpretation methods. This
 class inherits from \link{InterpretingMethod}. It summarizes all implemented
 gradient-based methods and provides a private function to calculate the
 gradients w.r.t. to the input for given data. Implemented are:
 \itemize{
-\item Normal Gradients and Gradient x Input (\link{Gradient})
+\item Vanilla Gradients and Gradient x Input (\link{Gradient})
 \item SmoothGrad and SmoothGrad x Input (\link{SmoothGrad})
 }
 }
@@ -74,14 +74,16 @@ data has no channels, use the default value \code{TRUE}.}
 will be applied. By default (\code{NULL}), all outputs (but limited to the
 first 10) are considered.}
 
-\item{\code{ignore_last_act}}{A boolean value to include the last
-activation into all the calculations, or not. In some cases, the last
-activation leads to a saturation problem.}
+\item{\code{ignore_last_act}}{Set this boolean value to include the last
+activation, or not (default: \code{TRUE}). In some cases, the last activation
+leads to a saturation problem.}
 
-\item{\code{times_input}}{Multiplies the gradients with the input features. This
-method is called 'Gradient x Input'.}
+\item{\code{times_input}}{Multiplies the gradients with the input features.
+This method is called 'Gradient x Input'.}
 
-\item{\code{dtype}}{The type of the data (either \code{'float'} or \code{'double'}).}
+\item{\code{dtype}}{The data type for the calculations. Use
+either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
+\link[torch:torch_dtype]{torch::torch_double}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -93,14 +95,16 @@ method is called 'Gradient x Input'.}
 This method visualizes the result of the selected method in a
 \link[ggplot2:ggplot]{ggplot2::ggplot}. You can use the argument \code{data_idx} to select
 the data points in the given data for the plot. In addition, the
-individual classes for the plot can be selected with the argument
+individual output nodes for the plot can be selected with the argument
 \code{output_idx}. The different results for the selected data points and
-classes are visualized using the method \link[ggplot2:facet_grid]{ggplot2::facet_grid}.
+outputs are visualized using the method \link[ggplot2:facet_grid]{ggplot2::facet_grid}.
+You can also use the \code{as_plotly} argument to generate an interactive
+plot based on the plot function \link[plotly:plot_ly]{plotly::plot_ly}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GradientBased$plot(
   data_idx = 1,
-  output_idx = c(),
-  aggr_channels = sum,
+  output_idx = NULL,
+  aggr_channels = "sum",
   as_plotly = FALSE
 )}\if{html}{\out{</div>}}
 }
@@ -112,19 +116,25 @@ classes are visualized using the method \link[ggplot2:facet_grid]{ggplot2::facet
 points whose result is to be plotted, e.g. \code{c(1,3)} for the first
 and third data point in the given data. Default: \code{c(1)}.}
 
-\item{\code{output_idx}}{An integer vector containing the numbers of the classes
-whose result is to be plotted, e.g. \code{c(1,4)} for the first and fourth
-class. Default: \code{c(1)}.}
+\item{\code{output_idx}}{An integer vector containing the numbers of the
+output indices whose result is to be plotted, e.g. \code{c(1,4)} for the
+first and fourth model output. But this vector must be included in the
+vector \code{output_idx} from the initialization, otherwise, no results were
+calculated for this output node and can not be plotted. By default
+(\code{NULL}), the smallest index of all calculated output nodes is used.}
 
-\item{\code{aggr_channels}}{Pass a function to aggregate the channels. The
-default function is \link[base:sum]{base::sum}, but you can pass an arbitrary function.
-For example, the maximum \code{max} or minimum \code{min} over the channels or
-only individual channels with \code{function(x) x[1]}.}
+\item{\code{aggr_channels}}{Pass one of \code{'norm'}, \code{'sum'}, \code{'mean'} or a
+custom function to aggregate the channels, e.g. the maximum
+(\link[base:Extremes]{base::max}) or minimum (\link[base:Extremes]{base::min}) over the channels or only
+individual channels with \code{function(x) x[1]}. By default (\code{'sum'}),
+the sum of all channels is used.\cr
+\strong{Note:} This argument is used only for 2D and 3D inputs.}
 
 \item{\code{as_plotly}}{This boolean value (default: \code{FALSE}) can be used to
 create an interactive plot based on the library \code{plotly}. This function
 takes use of \link[plotly:ggplotly]{plotly::ggplotly}, hence make sure that the suggested
-package \code{plotly} is installed in your R session. Advanced: You can first
+package \code{plotly} is installed in your R session.\cr
+\strong{Advanced:} You can first
 output the results as a ggplot (\code{as_plotly = FALSE}) and then make
 custom changes to the plot, e.g. other theme or other fill color. Then
 you can manually call the function \code{ggplotly} to get an interactive
@@ -149,10 +159,10 @@ which however requires a successful installation of the package
 \code{plotly}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GradientBased$boxplot(
-  output_idx = c(),
+  output_idx = NULL,
   data_idx = "all",
   ref_data_idx = NULL,
-  aggr_channels = sum,
+  aggr_channels = "norm",
   preprocess_FUN = abs,
   as_plotly = FALSE,
   individual_data_idx = NULL,
@@ -163,9 +173,12 @@ which however requires a successful installation of the package
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{output_idx}}{An integer vector containing the numbers of the classes
-whose result is to be plotted, e.g. \code{c(1,4)} for the first and fourth
-class. Default: \code{c(1)}.}
+\item{\code{output_idx}}{An integer vector containing the numbers of the
+output indices whose result is to be plotted, e.g. \code{c(1,4)} for the
+first and fourth model output. But this vector must be included in the
+vector \code{output_idx} from the initialization, otherwise, no results were
+calculated for this output node and can not be plotted. By default
+(\code{NULL}), the smallest index of all calculated output nodes is used.}
 
 \item{\code{data_idx}}{By default ("all"), all available data is used to
 calculate the boxplot information. However, this parameter can be used
@@ -183,16 +196,17 @@ argument \code{data_idx}.\cr
 \strong{Note:} Because of the complexity of 3D inputs, this argument is used
 only for 1D and 2D inputs and disregarded for 3D inputs.}
 
-\item{\code{aggr_channels}}{Pass a function to aggregate the channels. The
-default function is \link[base:mean]{base::mean}, but you can pass an arbitrary
-function. For example, the maximum \code{max} or minimum \code{min} over the
-channels or only individual channels with \code{function(x) x[1]}.\cr
-\strong{Note:} This function is used only for 2D and 3D inputs.}
+\item{\code{aggr_channels}}{Pass one of \code{'norm'}, \code{'sum'}, \code{'mean'} or a
+custom function to aggregate the channels, e.g. the maximum
+(\link[base:Extremes]{base::max}) or minimum (\link[base:Extremes]{base::min}) over the channels or only
+individual channels with \code{function(x) x[1]}. By default (\code{'norm'}),
+the Euclidean norm of all channels is used.\cr
+\strong{Note:} This argument is used only for 2D and 3D inputs.}
 
 \item{\code{preprocess_FUN}}{This function is applied to the method's result
 before calculating the boxplots. Since positive and negative values
 often cancel each other out, the absolute value (\code{abs}) is used by
-default. But you can also use the raw data (\code{function(x) x}) to see the
+default. But you can also use the raw data (\code{identity}) to see the
 results' orientation, the squared data (\code{function(x) x^2}) to weight
 the outliers higher or any other function.}
 
@@ -215,9 +229,13 @@ dimension \code{1} or \code{2}! This integer determines the maximum number of
 individual data points in the dropdown menu without counting
 \code{ref_data_idx}. This means that if \code{individual_data_idx} has more
 than \code{individual_max} indices, only the first \code{individual_max} will
-be used. Too high a number can significantly increase the runtime.}
+be used. A too high number can significantly increase the runtime.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Returns either a \link[ggplot2:ggplot]{ggplot2::ggplot} (\code{as_plotly = FALSE}) or a
+\link[plotly:plot_ly]{plotly::plot_ly} (\code{as_plotly = TRUE}) with the boxplots.
 }
 }
 \if{html}{\out{<hr>}}

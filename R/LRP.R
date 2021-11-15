@@ -6,13 +6,15 @@
 #' This is an implementation of the \emph{Layer-wise Relevance Propagation
 #' (LRP)} algorithm introduced by Bach et al. (2015). It's a local method for
 #' interpreting a single element of the dataset and calculates the relevance
-#' scores for each input feature. The basic idea of this method is to decompose
-#' the prediction score of the model with respect to the input features, i.e.
+#' scores for each input feature to the model output. The basic idea of this
+#' method is to decompose the prediction score of the model with respect to
+#' the input features, i.e.
 #' \deqn{f(x) = \sum_i R(x_i).}
-#' Because of the bias vector, this decomposition is generally an approximation.
-#' There exist several propagation rules to determine the relevance scores.
-#' In this package are implemented: simple rule ("simple"), epsilon rule
-#' ("epsilon") and alpha-beta rule ("alpha_beta").
+#' Because of the bias vector that absorbs some relevance, this decomposition
+#' is generally an approximation. There exist several propagation rules to
+#' determine the relevance scores. In this package are implemented: simple
+#' rule ("simple"), epsilon rule ("epsilon") and alpha-beta rule
+#' ("alpha_beta").
 #'
 #' @examplesIf torch::torch_is_installed()
 #'  #----------------------- Example 1: Torch ----------------------------------
@@ -183,7 +185,7 @@ LRP <- R6Class(
   classname = "LRP",
   inherit = InterpretingMethod,
   public = list(
-    #' @field rule_name The name of the rule, with which the relevance scores
+    #' @field rule_name The name of the rule with which the relevance scores
     #' are calculated. Implemented are \code{"simple"}, \code{"epsilon"},
     #' \code{"alpha_beta"} (default: \code{"simple"}).
     #' @field rule_param The parameter of the selected rule.
@@ -206,15 +208,15 @@ LRP <- R6Class(
     #' rules \code{"epsilon"} and \code{"alpha_beta"} take use of the
     #' parameter. Use the default value \code{NULL} for the default parameters
     #' ("epsilon" : \eqn{0.01}, "alpha_beta" : \eqn{0.5}).
-    #' @param channels_first Set the data format of the given data. Internally
-    #' the format `channels_first` is used, therefore the format of the given
-    #' data is required. Also use the default value `TRUE` if no convolutional
-    #' layers are used.
+    #' @param channels_first The format of the given date, i.e. channels on
+    #' last dimension (`FALSE`) or after the batch dimension (`TRUE`). If the
+    #' data has no channels, use the default value `TRUE`.
     #' @param ignore_last_act Set this boolean value to include the last
     #' activation, or not (default: `TRUE`). In some cases, the last activation
     #' leads to a saturation problem.
-    #' @param dtype The data type for the calculations. Use either `'float'` or
-    #' `'double'`.
+    #' @param dtype The data type for the calculations. Use
+    #' either `'float'` for [torch::torch_float] or `'double'` for
+    #' [torch::torch_double].
     #' @param output_idx This vector determines for which outputs the method
     #' will be applied. By default (`NULL`), all outputs (but limited to the
     #' first 10) are considered.
@@ -253,24 +255,32 @@ LRP <- R6Class(
     #' This method visualizes the result of the selected method in a
     #' [ggplot2::ggplot]. You can use the argument `data_idx` to select
     #' the data points in the given data for the plot. In addition, the
-    #' individual classes for the plot can be selected with the argument
+    #' individual output nodes for the plot can be selected with the argument
     #' `output_idx`. The different results for the selected data points and
-    #' classes are visualized using the method [ggplot2::facet_grid].
+    #' outputs are visualized using the method [ggplot2::facet_grid].
+    #' You can also use the `as_plotly` argument to generate an interactive
+    #' plot based on the plot function [plotly::plot_ly].
     #'
     #' @param data_idx An integer vector containing the numbers of the data
     #' points whose result is to be plotted, e.g. `c(1,3)` for the first
     #' and third data point in the given data. Default: `c(1)`.
-    #' @param output_idx An integer vector containing the numbers of the classes
-    #' whose result is to be plotted, e.g. `c(1,4)` for the first and fourth
-    #' class. Default: `c(1)`.
-    #' @param aggr_channels Pass a function to aggregate the channels. The
-    #' default function is [base::sum], but you can pass an arbitrary function.
-    #' For example, the maximum `max` or minimum `min` over the channels or
-    #' only individual channels with `function(x) x[1]`.
+    #' @param output_idx An integer vector containing the numbers of the
+    #' output indices whose result is to be plotted, e.g. `c(1,4)` for the
+    #' first and fourth model output. But this vector must be included in the
+    #' vector `output_idx` from the initialization, otherwise, no results were
+    #' calculated for this output node and can not be plotted. By default
+    #' (`NULL`), the smallest index of all calculated output nodes is used.
+    #' @param aggr_channels Pass one of `'norm'`, `'sum'`, `'mean'` or a
+    #' custom function to aggregate the channels, e.g. the maximum
+    #' ([base::max]) or minimum ([base::min]) over the channels or only
+    #' individual channels with `function(x) x[1]`. By default (`'sum'`),
+    #' the sum of all channels is used.\cr
+    #' **Note:** This argument is used only for 2D and 3D inputs.
     #' @param as_plotly This boolean value (default: `FALSE`) can be used to
     #' create an interactive plot based on the library `plotly`. This function
     #' takes use of [plotly::ggplotly], hence make sure that the suggested
-    #' package `plotly` is installed in your R session. Advanced: You can first
+    #' package `plotly` is installed in your R session.\cr
+    #' **Advanced:** You can first
     #' output the results as a ggplot (`as_plotly = FALSE`) and then make
     #' custom changes to the plot, e.g. other theme or other fill color. Then
     #' you can manually call the function `ggplotly` to get an interactive
@@ -281,8 +291,8 @@ LRP <- R6Class(
     #' [plotly::plot_ly] (`as_plotly = TRUE`) with the plotted results.
     #'
     plot = function(data_idx = 1,
-                    output_idx = c(),
-                    aggr_channels = sum,
+                    output_idx = NULL,
+                    aggr_channels = 'sum',
                     as_plotly = FALSE) {
 
       private$plot(data_idx, output_idx, aggr_channels,
@@ -298,10 +308,11 @@ LRP <- R6Class(
     #' which however requires a successful installation of the package
     #' `plotly`.
     #'
+    #'
     #' @param preprocess_FUN This function is applied to the method's result
     #' before calculating the boxplots. Since positive and negative values
     #' often cancel each other out, the absolute value (`abs`) is used by
-    #' default. But you can also use the raw data (`function(x) x`) to see the
+    #' default. But you can also use the raw data (`identity`) to see the
     #' results' orientation, the squared data (`function(x) x^2`) to weight
     #' the outliers higher or any other function.
     #' @param data_idx By default ("all"), all available data is used to
@@ -309,9 +320,12 @@ LRP <- R6Class(
     #' to select a subset of them by passing the indices. E.g. with
     #' `data_idx = c(1:10, 25, 26)` only the first `10` data points and
     #' the 25th and 26th are used to calculate the boxplots.
-    #' @param output_idx An integer vector containing the numbers of the classes
-    #' whose result is to be plotted, e.g. `c(1,4)` for the first and fourth
-    #' class. Default: `c(1)`.
+    #' @param output_idx An integer vector containing the numbers of the
+    #' output indices whose result is to be plotted, e.g. `c(1,4)` for the
+    #' first and fourth model output. But this vector must be included in the
+    #' vector `output_idx` from the initialization, otherwise, no results were
+    #' calculated for this output node and can not be plotted. By default
+    #' (`NULL`), the smallest index of all calculated output nodes is used.
     #' @param ref_data_idx This integer number determines the index for the
     #' reference data point. In addition to the boxplots, it is displayed in
     #' red color and is used to compare an individual result with the summary
@@ -321,11 +335,12 @@ LRP <- R6Class(
     #' argument `data_idx`.\cr
     #' **Note:** Because of the complexity of 3D inputs, this argument is used
     #' only for 1D and 2D inputs and disregarded for 3D inputs.
-    #' @param aggr_channels Pass a function to aggregate the channels. The
-    #' default function is [base::mean], but you can pass an arbitrary
-    #' function. For example, the maximum `max` or minimum `min` over the
-    #' channels or only individual channels with `function(x) x[1]`.\cr
-    #' **Note:** This function is used only for 2D and 3D inputs.
+    #' @param aggr_channels Pass one of `'norm'`, `'sum'`, `'mean'` or a
+    #' custom function to aggregate the channels, e.g. the maximum
+    #' ([base::max]) or minimum ([base::min]) over the channels or only
+    #' individual channels with `function(x) x[1]`. By default (`'norm'`),
+    #' the Euclidean norm of all channels is used.\cr
+    #' **Note:** This argument is used only for 2D and 3D inputs.
     #' @param as_plotly This boolean value (default: `FALSE`) can be used to
     #' create an interactive plot based on the library `plotly` instead of
     #' `ggplot2`. Make sure that the suggested package `plotly` is installed
@@ -343,13 +358,17 @@ LRP <- R6Class(
     #' individual data points in the dropdown menu without counting
     #' `ref_data_idx`. This means that if `individual_data_idx` has more
     #' than `individual_max` indices, only the first `individual_max` will
-    #' be used. Too high a number can significantly increase the runtime.
+    #' be used. A too high number can significantly increase the runtime.
+    #'
+    #' @return
+    #' Returns either a [ggplot2::ggplot] (`as_plotly = FALSE`) or a
+    #' [plotly::plot_ly] (`as_plotly = TRUE`) with the boxplots.
     #'
     #'
-    boxplot = function(output_idx = c(),
+    boxplot = function(output_idx = NULL,
                        data_idx = "all",
                        ref_data_idx = NULL,
-                       aggr_channels = sum,
+                       aggr_channels = 'norm',
                        preprocess_FUN = abs,
                        as_plotly = FALSE,
                        individual_data_idx = NULL,

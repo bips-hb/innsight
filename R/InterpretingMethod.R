@@ -1,28 +1,31 @@
-#' @title Superclass for Interpreting Methods
-#' @description This is a superclass for all data-based interpreting methods.
+#' @title Super class for Interpreting Methods
+#' @description This is a super class for all data-based interpreting methods.
 #' Implemented are the following methods:
 #'
 #' - Deep Learning Important Features ([DeepLift])
 #' - Layer-wise Relevance Propagation ([LRP])
 #' - Gradient-based methods:
-#'    - Normal gradients ([Gradient])
+#'    - Vanilla gradients ([Gradient])
 #'    - Smoothed Gradients ([SmoothGrad])
 #'
 #'
-#' @field data The given data as a torch tensor to be interpreted with the
-#' selected method.
-#' @field converter The converter with the stored and torch-converted model.
-#' @field dtype The type of the data (either `'float'` or `'double'`).
+#' @field data The passed data as a torch tensor in the given data type
+#' (`dtype`) to be interpreted with the selected method.
+#' @field converter An instance of the R6 class \code{\link{Converter}}.
+#' @field dtype The data type for the calculations. Either `'float'`
+#' for [torch::torch_float] or `'double'` for [torch::torch_double].
 #' @field channels_first The format of the given date, i.e. channels on
 #' last dimension (`FALSE`) or after the batch dimension (`TRUE`). If the
-#' data has no channels, use the default value `TRUE`.
+#' data has no channels, the default value `TRUE` is used.
 #' @field ignore_last_act A boolean value to include the last
-#' activation into all the calculations, or not. In some cases, the last
-#' activation leads to a saturation problem.
+#' activation into all the calculations, or not (default: `TRUE`). In some
+#' cases, the last activation leads to a saturation problem.
 #' @field result The methods result of the given data as a
-#' torch tensor of size (batch_size, dim_in, dim_out).
+#' torch tensor of size (batch_size, dim_in, dim_out) in the given data type
+#' (`dtype`).
 #' @field output_idx This vector determines for which outputs the method
-#' will be applied.
+#' will be applied. By default (`NULL`), all outputs (but limited to the
+#' first 10) are considered.
 #'
 #' @import ggplot2
 #'
@@ -38,18 +41,20 @@ InterpretingMethod <- R6Class(
     output_idx = NULL,
 
     #' @description
-    #' Create a new instance of this class.
+    #' Create a new instance of this super class.
     #'
-    #' @param converter The converter with the stored and torch-converted model.
-    #' @param data The given data in an array-like format to be interpreted
-    #' with the selected method.
+    #' @param converter An instance of the R6 class \code{\link{Converter}}.
+    #' @param data The data for which this method is to be applied. It has
+    #' to be an array or array-like format of size (batch_size, dim_in).
     #' @param channels_first The format of the given data, i.e. channels on
     #' last dimension (`FALSE`) or after the batch dimension (`TRUE`). If the
     #' data has no channels, use the default value `TRUE`.
-    #' @param dtype The type of the data (either `'float'` or `'double'`).
+    #' @param dtype dtype The data type for the calculations. Use
+    #' either `'float'` for [torch::torch_float] or `'double'` for
+    #' [torch::torch_double].
     #' @param ignore_last_act A boolean value to include the last
-    #' activation into all the calculations, or not. In some cases, the last
-    #' activation leads to a saturation problem.
+    #' activation into all the calculations, or not (default: `TRUE`). In
+    #' some cases, the last activation leads to a saturation problem.
     #' @param output_idx This vector determines for which output indices the
     #' method will be applied. By default (`NULL`), all outputs (but limited to
     #' the first 10) are considered.
@@ -88,14 +93,16 @@ InterpretingMethod <- R6Class(
     #'
     #' @description
     #' This function returns the result of this method for the given data
-    #' either as an array (`'array'`), a torch tensor (`'torch.tensor'`) of
-    #' size (batch_size, dim_in, dim_out) or a data.frame (`'data.frame'`).
+    #' either as an array (`'array'`), a torch tensor (`'torch.tensor'`,
+    #' or `'torch_tensor'`) of size (batch_size, dim_in, dim_out) or as a
+    #' data.frame (`'data.frame'`).
     #'
-    #' @param type The data format of the result. Use one of `'array'`,
-    #' `'torch.tensor'` or `'data.frame'` (default: `'array'`).
+    #' @param type The data type of the result. Use one of `'array'`,
+    #' `'torch.tensor'`, `'torch_tensor'` or `'data.frame'`
+    #' (default: `'array'`).
     #'
     #' @return The result of this method for the given data in the chosen
-    #' format.
+    #' type.
     #'
 
     get_result = function(type = "array") {
@@ -346,7 +353,10 @@ InterpretingMethod <- R6Class(
       # Check correctness of arguments
       dim_result <- dim(self$result)
       assertFunction(preprocess_FUN)
-      assertFunction(aggr_channels)
+      assert(
+        checkFunction(aggr_channels),
+        checkChoice(aggr_channels, c("norm", "sum", "mean"))
+      )
       assertLogical(as_plotly)
       assert(
         checkNumeric(data_idx, lower = 1, upper = dim_result[1]),
@@ -363,6 +373,17 @@ InterpretingMethod <- R6Class(
       # Set default value for 'data_idx'
       if (is.character(data_idx) && data_idx == "all") {
         data_idx <- 1:(dim_result[1])
+      }
+
+      # Set aggregation function for channels
+      if (!is.function(aggr_channels)) {
+        if (aggr_channels == "norm") {
+          aggr_channels <- function(x) sum(x^2)^0.5
+        } else if (aggr_channels == "sum") {
+          aggr_channels <- sum
+        } else if (aggr_channels == "mean") {
+          aggr_channels <- mean
+        }
       }
 
       # Set default value for 'output_idx'
