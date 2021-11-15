@@ -202,7 +202,7 @@ p2 <- boxplot(lrp_eps, output_idx = 1:3, ref_data_idx = 1, preprocess_FUN = iden
 gridExtra::grid.arrange(p1,p2, ncol = 1, layout_matrix = matrix(c(1,1,1,2,2), ncol = 1))
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+<img src="man/figures/README-Example_1-1.png" width="100%" />
 
 ### 2. Pretrained VGG16 on ImageNet
 
@@ -238,7 +238,7 @@ p_lrp_ab <- plot(lrp_ab)
 gridExtra::grid.arrange(p_image, p_lrp_ab, layout_matrix = matrix(c(1,2,2), nrow = 1))
 ```
 
-<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
+<img src="man/figures/README-Example_2-1.png" width="100%" />
 
 ## Funding
 
