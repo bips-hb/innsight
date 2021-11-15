@@ -203,17 +203,23 @@ plot_3d_input <- function(result, value_name, data_names, input_names,
     colors <- seq(0, 1, length.out = 50)^0.8
     value_max <- max(result$value_scaled)
     value_min <- 0
+    labels <- c("0", ">0")
+    num_breaks <- 2
   } else if (max(result$value_scaled) <= 0) {
     col <- colorRamp(c("blue", "white"))
     colors <- seq(0, 1, length.out = 50)^0.8
     value_max <- 0
     value_min <- min(result$value_scaled)
+    labels <- c("<0", "0")
+    num_breaks <- 2
   } else {
     col <- colorRamp(c("blue", "white", "red"))
     colors <- seq(-1, 1, length.out = 50)
     colors <- abs(colors)^0.8 * sign(colors) * 0.5 + 0.5
     value_max <- max(abs(result$value_scaled))
     value_min <- -value_max
+    labels <- c("<0", "0", ">0")
+    num_breaks <- 3
   }
 
 
@@ -230,8 +236,8 @@ plot_3d_input <- function(result, value_name, data_names, input_names,
       scale_fill_gradientn(
         colours = rgb(col(colors) / 255),
         limits = c(value_min, value_max),
-        labels = c("<0","0", ">0"),
-        n.breaks = 3
+        labels = labels,
+        n.breaks = num_breaks
       ) +
       coord_cartesian(
         xlim = c(2, max(result$feature_w) - 1),
