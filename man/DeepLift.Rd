@@ -162,7 +162,7 @@ propagating activation differences.}  ICML 2017, p. 4844-4866
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{x_ref}}{The reference input of size (1, dim_in) for the
+\item{\code{x_ref}}{The reference input of size \emph{(1, dim_in)} for the
 interpretation.}
 
 \item{\code{rule_name}}{Name of the applied rule to calculate the contributions
@@ -212,7 +212,7 @@ Create a new instance of the DeepLift method.
 
 \item{\code{data}}{The data for which the contribution scores are to be
 calculated. It has to be an array or array-like format of size
-(batch_size, dim_in).}
+\emph{(batch_size, dim_in)}.}
 
 \item{\code{channels_first}}{The format of the given date, i.e. channels on
 last dimension (\code{FALSE}) or after the batch dimension (\code{TRUE}). If the
@@ -229,7 +229,7 @@ leads to a saturation problem.}
 \item{\code{rule_name}}{Name of the applied rule to calculate the
 contributions. Use one of \code{'rescale'} and \code{'reveal_cancel'}.}
 
-\item{\code{x_ref}}{The reference input of size (1, dim_in) for the
+\item{\code{x_ref}}{The reference input of size \emph{(1, dim_in)} for the
 interpretation. With the default value \code{NULL} you use an input
 of zeros.}
 

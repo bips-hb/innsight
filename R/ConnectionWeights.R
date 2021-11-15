@@ -1,7 +1,7 @@
 #' Connection Weights Method
 #'
 #' @description
-#' This class implements the \emph{Connection Weight} method investigated by
+#' This class implements the \emph{Connection Weights} method investigated by
 #' Olden et al. (2004) which results in a feature relevance score for each input
 #' variable. The basic idea is to multiply up all path weights for each
 #' possible connection between an input feature and the output node and then
@@ -20,7 +20,7 @@
 #' @field dtype The type of the data and parameters (either `'float'`
 #' for [torch::torch_float] or `'double'` for [torch::torch_double]).
 #' @field result The methods result as a torch tensor of size
-#' (dim_in, dim_out).
+#' *(dim_in, dim_out)* and with data type `dtype`.
 #' @field output_idx This vector determines for which outputs the method
 #' will be applied. By default (`NULL`), all outputs (but limited to the
 #' first 10) are considered.
@@ -188,17 +188,17 @@ ConnectionWeights <- R6Class(
 
     #'
     #' @description
-    #' This function returns the result of the Connection Weights method either
-    #' as an array (`'array'`), a torch tensor (`'torch.tensor'` or
-    #' `'torch_tensor'`) of size (dim_in, dim_out) or a data.frame
+    #' This function returns the result of the *Connection Weights* method
+    #' either as an array (`'array'`), a torch tensor (`'torch.tensor'` or
+    #' `'torch_tensor'`) of size (dim_in, dim_out) or as a data.frame
     #' (`'data.frame'`).
     #'
-    #' @param type The data format of the result. Use one of `'array'`,
+    #' @param type The data type of the result. Use one of `'array'`,
     #' `'torch.tensor'`, `'torch_tensor'` or `'data.frame'`
     #' (default: `'array'`).
     #'
     #' @return The result of this method for the given data in the chosen
-    #' format.
+    #' type.
     #'
     get_result = function(type = "array") {
       assertChoice(type,
@@ -216,7 +216,7 @@ ConnectionWeights <- R6Class(
 
     #'
     #' @description
-    #' This method visualizes the result of the ConnectionWeight method in a
+    #' This method visualizes the result of the *Connectio nWeight* method in a
     #' [ggplot2::ggplot]. You can use the argument `output_idx` to select
     #' individual output nodes for the plot. The different results for the
     #' selected outputs are visualized using the method [ggplot2::facet_grid].

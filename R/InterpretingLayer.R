@@ -22,6 +22,8 @@
 #'   \item{`activation_name`}{The name of the activation function}
 #' }
 #'
+#' @noRd
+#'
 #'
 InterpretingLayer <- nn_module(
   classname = "InterpretingLayer",

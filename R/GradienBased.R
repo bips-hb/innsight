@@ -5,8 +5,8 @@
 #' gradient-based methods and provides a private function to calculate the
 #' gradients w.r.t. to the input for given data. Implemented are:
 #'
-#' - Vanilla Gradients and Gradient x Input ([Gradient])
-#' - SmoothGrad and SmoothGrad x Input ([SmoothGrad])
+#' - 'Vanilla Gradients' and 'Gradient x Input' ([Gradient])
+#' - 'SmoothGrad' and 'SmoothGrad x Input' ([SmoothGrad])
 #'
 GradientBased <- R6Class(
   classname = "GradientBased",
@@ -228,16 +228,16 @@ boxplot.GradientBased <- function(x, ...) {
 }
 
 
-#' @title Gradient Method
+#' @title Vanilla Gradient Method
 #' @name Gradient
 #'
 #' @description
-#' This method computes the gradients (also known as Vanilla Gradients) of
+#' This method computes the gradients (also known as 'Vanilla Gradients') of
 #' the outputs with respect to the input variables, i.e. for all input
 #' variable \eqn{i} and output class \eqn{j}
 #' \deqn{d f(x)_j / d x_i.}
 #' If the argument `times_input` is `TRUE`, the gradients are multiplied by
-#' the respective input value (Gradient x Input), i.e.
+#' the respective input value ('Gradient x Input'), i.e.
 #' \deqn{x_i * d f(x)_j / d x_i.}
 #'
 #' @examplesIf torch::torch_is_installed()
@@ -390,7 +390,7 @@ Gradient <- R6Class(
     #' @param converter An instance of the R6 class \code{\link{Converter}}.
     #' @param data The data for which the gradients are to be
     #' calculated. It has to be an array or array-like format of size
-    #' (batch_size, dim_in).
+    #' *(batch_size, dim_in)*.
     #' @param channels_first The format of the given data, i.e. channels on
     #' last dimension (`FALSE`) or after the batch dimension (`TRUE`). If the
     #' data has no channels, use the default value `TRUE`.
@@ -438,10 +438,10 @@ Gradient <- R6Class(
 #' @name SmoothGrad
 #'
 #' @description
-#' SmoothGrad was introduced by D. Smilkov et al. (2017) and is an extension to
-#' the classical Vanilla [Gradient] method. It takes the mean of the gradients
-#' for \code{n} perturbations of each data point, i.e. with
-#' \eqn{\epsilon ~ N(0,\sigma)}
+#' 'SmoothGrad' was introduced by D. Smilkov et al. (2017) and is an extension
+#' to the classical Vanilla [Gradient] method. It takes the mean of the
+#' gradients for \code{n} perturbations of each data point, i.e. with
+#' \eqn{\epsilon \sim N(0,\sigma)}
 #' \deqn{1/n \sum_n d f(x+ \epsilon)_j / d x_j.}
 #'
 #' @references
@@ -600,7 +600,7 @@ SmoothGrad <- R6Class(
     #' @param converter An instance of the R6 class \code{\link{Converter}}.
     #' @param data The data for which the smoothed gradients are to be
     #' calculated. It has to be an array or array-like format of size
-    #' (batch_size, dim_in).
+    #' *(batch_size, dim_in)*.
     #' @param channels_first The format of the given data, i.e. channels on
     #' last dimension (`FALSE`) or after the batch dimension (`TRUE`). If the
     #' data has no channels, use the default value `TRUE`.

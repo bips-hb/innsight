@@ -9,8 +9,8 @@ class inherits from \link{InterpretingMethod}. It summarizes all implemented
 gradient-based methods and provides a private function to calculate the
 gradients w.r.t. to the input for given data. Implemented are:
 \itemize{
-\item Vanilla Gradients and Gradient x Input (\link{Gradient})
-\item SmoothGrad and SmoothGrad x Input (\link{SmoothGrad})
+\item 'Vanilla Gradients' and 'Gradient x Input' (\link{Gradient})
+\item 'SmoothGrad' and 'SmoothGrad x Input' (\link{SmoothGrad})
 }
 }
 \section{Super class}{

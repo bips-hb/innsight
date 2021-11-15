@@ -4,7 +4,7 @@
 \alias{ConnectionWeights}
 \title{Connection Weights Method}
 \description{
-This class implements the \emph{Connection Weight} method investigated by
+This class implements the \emph{Connection Weights} method investigated by
 Olden et al. (2004) which results in a feature relevance score for each input
 variable. The basic idea is to multiply up all path weights for each
 possible connection between an input feature and the output node and then
@@ -146,7 +146,7 @@ data has no channels, use the default value \code{TRUE}.}
 for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for \link[torch:torch_dtype]{torch::torch_double}).}
 
 \item{\code{result}}{The methods result as a torch tensor of size
-(dim_in, dim_out).}
+\emph{(dim_in, dim_out)} and with data type \code{dtype}.}
 
 \item{\code{output_idx}}{This vector determines for which outputs the method
 will be applied. By default (\code{NULL}), all outputs (but limited to the
@@ -201,9 +201,9 @@ either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{
 \if{html}{\out{<a id="method-get_result"></a>}}
 \if{latex}{\out{\hypertarget{method-get_result}{}}}
 \subsection{Method \code{get_result()}}{
-This function returns the result of the Connection Weights method either
-as an array (\code{'array'}), a torch tensor (\code{'torch.tensor'} or
-\code{'torch_tensor'}) of size (dim_in, dim_out) or a data.frame
+This function returns the result of the \emph{Connection Weights} method
+either as an array (\code{'array'}), a torch tensor (\code{'torch.tensor'} or
+\code{'torch_tensor'}) of size (dim_in, dim_out) or as a data.frame
 (\code{'data.frame'}).
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ConnectionWeights$get_result(type = "array")}\if{html}{\out{</div>}}
@@ -212,7 +212,7 @@ as an array (\code{'array'}), a torch tensor (\code{'torch.tensor'} or
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{type}}{The data format of the result. Use one of \code{'array'},
+\item{\code{type}}{The data type of the result. Use one of \code{'array'},
 \code{'torch.tensor'}, \code{'torch_tensor'} or \code{'data.frame'}
 (default: \code{'array'}).}
 }
@@ -220,14 +220,14 @@ as an array (\code{'array'}), a torch tensor (\code{'torch.tensor'} or
 }
 \subsection{Returns}{
 The result of this method for the given data in the chosen
-format.
+type.
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-plot"></a>}}
 \if{latex}{\out{\hypertarget{method-plot}{}}}
 \subsection{Method \code{plot()}}{
-This method visualizes the result of the ConnectionWeight method in a
+This method visualizes the result of the \emph{Connectio nWeight} method in a
 \link[ggplot2:ggplot]{ggplot2::ggplot}. You can use the argument \code{output_idx} to select
 individual output nodes for the plot. The different results for the
 selected outputs are visualized using the method \link[ggplot2:facet_grid]{ggplot2::facet_grid}.

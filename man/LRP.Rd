@@ -237,7 +237,7 @@ Create a new instance of the LRP-Method.
 
 \item{\code{data}}{The data for which the relevance scores are to be
 calculated. It has to be an array or array-like format of size
-(batch_size, dim_in).}
+\emph{(batch_size, dim_in)}.}
 
 \item{\code{channels_first}}{The format of the given date, i.e. channels on
 last dimension (\code{FALSE}) or after the batch dimension (\code{TRUE}). If the

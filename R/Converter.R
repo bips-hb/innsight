@@ -37,8 +37,8 @@
 #' following methods:
 #'   * Layerwise Relevance Propagation ([LRP]), Bach et al. (2015)
 #'   * Deep Learning Important Feartures ([DeepLift]), Shrikumar et al. (2017)
-#'   * [SmoothGrad], Smilkov et al. (2017)
-#'   * Vanilla [Gradient]
+#'   * [SmoothGrad] including 'SmoothGrad x Input', Smilkov et al. (2017)
+#'   * Vanilla [Gradient] including 'Gradient x Input'
 #'   * [ConnectionWeights], Olden et al. (2004)
 #'
 #'
@@ -145,7 +145,7 @@
 #'
 #' @field model The converted neural network based on the torch module
 #' [ConvertedModel].
-#' @field model_dict The model stored in a named list (see Details for more
+#' @field model_dict The model stored in a named list (see details for more
 #' information). By default, the entry `model_dict$layers` is deleted
 #' because it may require a lot of memory for large networks. However, with
 #' the argument `save_model_as_list` this can be saved anyway.
@@ -286,7 +286,7 @@ Converter <- R6Class("Converter",
     #' packages are allowed: \code{\link[torch]{nn_sequential}},
     #' \code{\link[keras]{keras_model}},
     #' \code{\link[keras]{keras_model_sequential}},
-    #' \code{\link[neuralnet]{neuralnet}} or a named list (see Details).
+    #' \code{\link[neuralnet]{neuralnet}} or a named list (see details).
     #' @param input_dim An integer vector with the model input dimension
     #' excluding the batch dimension, e.g. for a dense layer with `5` input
     #' features use `c(5)` or for a 1D convolutional layer with signal
@@ -852,7 +852,7 @@ Converter <- R6Class("Converter",
 #'
 #' @param modules_list A list of all accepted layers created by the 'Converter'
 #' class during initialization.
-#' @param dtype The datatype for all the calculations and defined tensors. Use
+#' @param dtype The data type for all the calculations and defined tensors. Use
 #' either `'float'` for [torch::torch_float] or `'double'` for
 #' [torch::torch_double].
 #'
@@ -879,8 +879,8 @@ ConvertedModel <- nn_module(
   #' @section Method `forward()`:
   #'
   #' The forward method of the whole model, i.e. it calculates the output
-  #' \eqn{y=f(x)} of a given input \eqn{x}. In doing so all intermediate
-  #' values are stored in the individual torch modules.
+  #' \eqn{y=f(x)} of a given input \eqn{x}. In doing so, all intermediate
+  #' values are stored in the individual torch modules from `modules_list`.
   #'
   #' ## Usage
   #' `self(x, channels_first = TRUE)`
@@ -976,7 +976,7 @@ ConvertedModel <- nn_module(
   #'
   #' @section Method `set_dtype()`:
   #'
-  #' This method changes the datatype for all the layers in `modules_list`.
+  #' This method changes the data type for all the layers in `modules_list`.
   #' Use either `'float'` for [torch::torch_float] or `'double'` for
   #' [torch::torch_double].
   #'
@@ -985,7 +985,7 @@ ConvertedModel <- nn_module(
   #'
   #' ## Arguments
   #' \describe{
-  #'   \item{`dtype`}{The datatype for all the calculations and defined
+  #'   \item{`dtype`}{The data type for all the calculations and defined
   #'   tensors.}
   #' }
   #'

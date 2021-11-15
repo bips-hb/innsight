@@ -11,8 +11,8 @@ Implemented are the following methods:
 \item Layer-wise Relevance Propagation (\link{LRP})
 \item Gradient-based methods:
 \itemize{
-\item Vanilla gradients (\link{Gradient})
-\item Smoothed Gradients (\link{SmoothGrad})
+\item Vanilla gradients including 'Gradients x Input' (\link{Gradient})
+\item Smoothed gradients including 'SmoothGrad x Input' (\link{SmoothGrad})
 }
 }
 }
@@ -36,7 +36,7 @@ activation into all the calculations, or not (default: \code{TRUE}). In some
 cases, the last activation leads to a saturation problem.}
 
 \item{\code{result}}{The methods result of the given data as a
-torch tensor of size (batch_size, dim_in, dim_out) in the given data type
+torch tensor of size \emph{(batch_size, dim_in, dim_out)} in the given data type
 (\code{dtype}).}
 
 \item{\code{output_idx}}{This vector determines for which outputs the method
@@ -75,7 +75,7 @@ Create a new instance of this super class.
 \item{\code{converter}}{An instance of the R6 class \code{\link{Converter}}.}
 
 \item{\code{data}}{The data for which this method is to be applied. It has
-to be an array or array-like format of size (batch_size, dim_in).}
+to be an array or array-like format of size \emph{(batch_size, dim_in)}.}
 
 \item{\code{channels_first}}{The format of the given data, i.e. channels on
 last dimension (\code{FALSE}) or after the batch dimension (\code{TRUE}). If the
@@ -102,7 +102,7 @@ either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{
 \subsection{Method \code{get_result()}}{
 This function returns the result of this method for the given data
 either as an array (\code{'array'}), a torch tensor (\code{'torch.tensor'},
-or \code{'torch_tensor'}) of size (batch_size, dim_in, dim_out) or as a
+or \code{'torch_tensor'}) of size \emph{(batch_size, dim_in, dim_out)} or as a
 data.frame (\code{'data.frame'}).
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{InterpretingMethod$get_result(type = "array")}\if{html}{\out{</div>}}

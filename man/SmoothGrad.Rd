@@ -4,10 +4,10 @@
 \alias{SmoothGrad}
 \title{SmoothGrad Method}
 \description{
-SmoothGrad was introduced by D. Smilkov et al. (2017) and is an extension to
-the classical Vanilla \link{Gradient} method. It takes the mean of the gradients
-for \code{n} perturbations of each data point, i.e. with
-\eqn{\epsilon ~ N(0,\sigma)}
+'SmoothGrad' was introduced by D. Smilkov et al. (2017) and is an extension
+to the classical Vanilla \link{Gradient} method. It takes the mean of the
+gradients for \code{n} perturbations of each data point, i.e. with
+\eqn{\epsilon \sim N(0,\sigma)}
 \deqn{1/n \sum_n d f(x+ \epsilon)_j / d x_j.}
 }
 \examples{
@@ -203,7 +203,7 @@ Create a new instance of the SmoothGrad method.
 
 \item{\code{data}}{The data for which the smoothed gradients are to be
 calculated. It has to be an array or array-like format of size
-(batch_size, dim_in).}
+\emph{(batch_size, dim_in)}.}
 
 \item{\code{channels_first}}{The format of the given data, i.e. channels on
 last dimension (\code{FALSE}) or after the batch dimension (\code{TRUE}). If the

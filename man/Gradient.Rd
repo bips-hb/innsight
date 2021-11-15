@@ -2,14 +2,14 @@
 % Please edit documentation in R/GradienBased.R
 \name{Gradient}
 \alias{Gradient}
-\title{Gradient Method}
+\title{Vanilla Gradient Method}
 \description{
-This method computes the gradients (also known as Vanilla Gradients) of
+This method computes the gradients (also known as 'Vanilla Gradients') of
 the outputs with respect to the input variables, i.e. for all input
 variable \eqn{i} and output class \eqn{j}
 \deqn{d f(x)_j / d x_i.}
 If the argument \code{times_input} is \code{TRUE}, the gradients are multiplied by
-the respective input value (Gradient x Input), i.e.
+the respective input value ('Gradient x Input'), i.e.
 \deqn{x_i * d f(x)_j / d x_i.}
 }
 \examples{
@@ -193,7 +193,7 @@ Create a new instance of the Vamilla Gradient method.
 
 \item{\code{data}}{The data for which the gradients are to be
 calculated. It has to be an array or array-like format of size
-(batch_size, dim_in).}
+\emph{(batch_size, dim_in)}.}
 
 \item{\code{channels_first}}{The format of the given data, i.e. channels on
 last dimension (\code{FALSE}) or after the batch dimension (\code{TRUE}). If the

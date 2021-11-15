@@ -160,7 +160,7 @@ DeepLift <- R6Class(
   inherit = InterpretingMethod,
   public = list(
 
-    #' @field x_ref The reference input of size (1, dim_in) for the
+    #' @field x_ref The reference input of size *(1, dim_in)* for the
     #' interpretation.
     #' @field rule_name Name of the applied rule to calculate the contributions
     #' for the non-linear part of a neural network layer. Either
@@ -176,7 +176,7 @@ DeepLift <- R6Class(
     #' @param converter An instance of the R6 class \code{\link{Converter}}.
     #' @param data The data for which the contribution scores are to be
     #' calculated. It has to be an array or array-like format of size
-    #' (batch_size, dim_in).
+    #' *(batch_size, dim_in)*.
     #' @param channels_first The format of the given date, i.e. channels on
     #' last dimension (`FALSE`) or after the batch dimension (`TRUE`). If the
     #' data has no channels, use the default value `TRUE`.
@@ -186,7 +186,7 @@ DeepLift <- R6Class(
     #' @param dtype The data type for the calculations. Use
     #' either `'float'` for [torch::torch_float] or `'double'` for
     #' [torch::torch_double].
-    #' @param x_ref The reference input of size (1, dim_in) for the
+    #' @param x_ref The reference input of size *(1, dim_in)* for the
     #' interpretation. With the default value \code{NULL} you use an input
     #' of zeros.
     #' @param rule_name Name of the applied rule to calculate the

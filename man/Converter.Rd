@@ -42,8 +42,8 @@ following methods:
 \itemize{
 \item Layerwise Relevance Propagation (\link{LRP}), Bach et al. (2015)
 \item Deep Learning Important Feartures (\link{DeepLift}), Shrikumar et al. (2017)
-\item \link{SmoothGrad}, Smilkov et al. (2017)
-\item Vanilla \link{Gradient}
+\item \link{SmoothGrad} including 'SmoothGrad x Input', Smilkov et al. (2017)
+\item Vanilla \link{Gradient} including 'Gradient x Input'
 \item \link{ConnectionWeights}, Olden et al. (2004)
 }
 }
@@ -283,7 +283,7 @@ CoRR, abs/1706.03825
 \item{\code{model}}{The converted neural network based on the torch module
 \link{ConvertedModel}.}
 
-\item{\code{model_dict}}{The model stored in a named list (see Details for more
+\item{\code{model_dict}}{The model stored in a named list (see details for more
 information). By default, the entry \code{model_dict$layers} is deleted
 because it may require a lot of memory for large networks. However, with
 the argument \code{save_model_as_list} this can be saved anyway.}
@@ -321,7 +321,7 @@ tasks to be interpreted. Only models from the following types or
 packages are allowed: \code{\link[torch]{nn_sequential}},
 \code{\link[keras]{keras_model}},
 \code{\link[keras]{keras_model_sequential}},
-\code{\link[neuralnet]{neuralnet}} or a named list (see Details).}
+\code{\link[neuralnet]{neuralnet}} or a named list (see details).}
 
 \item{\code{input_dim}}{An integer vector with the model input dimension
 excluding the batch dimension, e.g. for a dense layer with \code{5} input

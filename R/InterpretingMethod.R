@@ -5,8 +5,8 @@
 #' - Deep Learning Important Features ([DeepLift])
 #' - Layer-wise Relevance Propagation ([LRP])
 #' - Gradient-based methods:
-#'    - Vanilla gradients ([Gradient])
-#'    - Smoothed Gradients ([SmoothGrad])
+#'    - Vanilla gradients including 'Gradients x Input' ([Gradient])
+#'    - Smoothed gradients including 'SmoothGrad x Input' ([SmoothGrad])
 #'
 #'
 #' @field data The passed data as a torch tensor in the given data type
@@ -21,7 +21,7 @@
 #' activation into all the calculations, or not (default: `TRUE`). In some
 #' cases, the last activation leads to a saturation problem.
 #' @field result The methods result of the given data as a
-#' torch tensor of size (batch_size, dim_in, dim_out) in the given data type
+#' torch tensor of size *(batch_size, dim_in, dim_out)* in the given data type
 #' (`dtype`).
 #' @field output_idx This vector determines for which outputs the method
 #' will be applied. By default (`NULL`), all outputs (but limited to the
@@ -45,7 +45,7 @@ InterpretingMethod <- R6Class(
     #'
     #' @param converter An instance of the R6 class \code{\link{Converter}}.
     #' @param data The data for which this method is to be applied. It has
-    #' to be an array or array-like format of size (batch_size, dim_in).
+    #' to be an array or array-like format of size *(batch_size, dim_in)*.
     #' @param channels_first The format of the given data, i.e. channels on
     #' last dimension (`FALSE`) or after the batch dimension (`TRUE`). If the
     #' data has no channels, use the default value `TRUE`.
@@ -94,7 +94,7 @@ InterpretingMethod <- R6Class(
     #' @description
     #' This function returns the result of this method for the given data
     #' either as an array (`'array'`), a torch tensor (`'torch.tensor'`,
-    #' or `'torch_tensor'`) of size (batch_size, dim_in, dim_out) or as a
+    #' or `'torch_tensor'`) of size *(batch_size, dim_in, dim_out)* or as a
     #' data.frame (`'data.frame'`).
     #'
     #' @param type The data type of the result. Use one of `'array'`,

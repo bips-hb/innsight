@@ -200,7 +200,7 @@ LRP <- R6Class(
     #' @param converter An instance of the R6 class \code{\link{Converter}}.
     #' @param data The data for which the relevance scores are to be
     #' calculated. It has to be an array or array-like format of size
-    #' (batch_size, dim_in).
+    #' *(batch_size, dim_in)*.
     #' @param rule_name The name of the rule, with which the relevance scores
     #' are calculated. Implemented are \code{"simple"}, \code{"epsilon"},
     #' \code{"alpha_beta"} (default: \code{"simple"}).

@@ -10,7 +10,7 @@ ConvertedModel(modules_list, dtype = "float")
 \item{modules_list}{A list of all accepted layers created by the 'Converter'
 class during initialization.}
 
-\item{dtype}{The datatype for all the calculations and defined tensors. Use
+\item{dtype}{The data type for all the calculations and defined tensors. Use
 either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
 \link[torch:torch_dtype]{torch::torch_double}.}
 }
@@ -37,8 +37,8 @@ tensors. Either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} 
 
 
 The forward method of the whole model, i.e. it calculates the output
-\eqn{y=f(x)} of a given input \eqn{x}. In doing so all intermediate
-values are stored in the individual torch modules.
+\eqn{y=f(x)} of a given input \eqn{x}. In doing so, all intermediate
+values are stored in the individual torch modules from \code{modules_list}.
 \subsection{Usage}{
 
 \code{self(x, channels_first = TRUE)}
@@ -95,7 +95,7 @@ Returns the output of the reference input with dimension
 \section{Method \code{set_dtype()}}{
 
 
-This method changes the datatype for all the layers in \code{modules_list}.
+This method changes the data type for all the layers in \code{modules_list}.
 Use either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
 \link[torch:torch_dtype]{torch::torch_double}.
 \subsection{Usage}{
@@ -106,7 +106,7 @@ Use either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \c
 \subsection{Arguments}{
 
 \describe{
-\item{\code{dtype}}{The datatype for all the calculations and defined
+\item{\code{dtype}}{The data type for all the calculations and defined
 tensors.}
 }
 }
