@@ -18,8 +18,17 @@ knitr::opts_chunk$set(
 <!-- badges: end -->
 
 `innsight` is an R package that interprets the behavior and explains individual
-predictions of modern Neural Networks. It implements several model-specific 
-interpretability methods based on Neural Networks in R, e.g., 
+predictions of modern neural networks. Many methods for explaining individual
+predictions already exist, but hardly any of them are implemented or 
+available in R. Most of these so-called *'Feature Attribution'* methods are
+only implemented in Python and thus difficult to access or use for the 
+R community. In this sense, the package `innsight` provides a common interface
+for various methods for the interpretability of neural networks and can 
+therefore be considered as an R analogue to 
+[iNNvestigate](https://github.com/albermax/innvestigate) for Python.
+
+This package implements several model-specific 
+interpretability (Feature Attribution) methods based on neural networks in R, e.g., 
 
 * Layer-wise Relevance Propagation ([LRP](https://doi.org/10.1371/journal.pone.0130140))
   * Including propagation rules: $\varepsilon$-rule and $\alpha$-$\beta$-rule
@@ -32,9 +41,7 @@ interpretability methods based on Neural Networks in R, e.g.,
 * Connection Weights
 
 Example results for these methods on ImageNet with pretrained network Vgg16:
-```{r, echo = FALSE, fig.align='center'}
-knitr::include_graphics("man/images/vgg16.png")
-```
+![vgg16](https://github.com/bips-hb/innsight/blob/master/man/images/vgg16.png?raw=true)
 
 
 The package `innsight` aims to be as flexible as possible and independent of a 

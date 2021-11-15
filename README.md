@@ -5,9 +5,18 @@
 <!-- badges: end -->
 
 `innsight` is an R package that interprets the behavior and explains
-individual predictions of modern Neural Networks. It implements several
-model-specific interpretability methods based on Neural Networks in R,
-e.g.,
+individual predictions of modern neural networks. Many methods for
+explaining individual predictions already exist, but hardly any of them
+are implemented or available in R. Most of these so-called *‘Feature
+Attribution’* methods are only implemented in Python and thus difficult
+to access or use for the R community. In this sense, the package
+`innsight` provides a common interface for various methods for the
+interpretability of neural networks and can therefore be considered as
+an R analogue to
+[iNNvestigate](https://github.com/albermax/innvestigate) for Python.
+
+This package implements several model-specific interpretability (Feature
+Attribution) methods based on neural networks in R, e.g.,
 
 -   Layer-wise Relevance Propagation
     ([LRP](https://doi.org/10.1371/journal.pone.0130140))
@@ -26,7 +35,7 @@ e.g.,
 
 Example results for these methods on ImageNet with pretrained network
 Vgg16:
-<img src="man/images/vgg16.png" width="100%" style="display: block; margin: auto;" />
+![vgg16](https://github.com/bips-hb/innsight/blob/master/man/images/vgg16.png?raw=true)
 
 The package `innsight` aims to be as flexible as possible and
 independent of a specific deep learning package in which the passed
@@ -140,7 +149,7 @@ p2 <- boxplot(lrp_eps, output_idx = 1:3, ref_data_idx = 1, preprocess_FUN = iden
 gridExtra::grid.arrange(p1,p2, ncol = 1, layout_matrix = matrix(c(1,1,1,2,2), ncol = 1))
 ```
 
-<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
 ## Funding
 
