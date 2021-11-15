@@ -126,7 +126,7 @@ boxplot(result)
 
 ## Examples
 
-### Iris-Dataset
+### 1. Iris-Dataset
 
 <details>
 <summary>
@@ -203,6 +203,42 @@ gridExtra::grid.arrange(p1,p2, ncol = 1, layout_matrix = matrix(c(1,1,1,2,2), nc
 ```
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+
+### 2. Pretrained VGG16 on ImageNet
+
+``` r
+library(keras)
+
+# Load image
+image <- image_load("man/images/imagenet_rooster.png", target_size = c(224,224))
+image <- image_to_array(image)
+p_image <- grid::rasterGrob(image / 255)
+
+# Preprocess image
+x <- array_reshape(image, c(1, dim(image)))
+x <- imagenet_preprocess_input(x)
+
+# Get pretrained Vgg16
+model <- application_vgg16()
+
+# Convert the model
+converter <- Converter$new(model)
+
+# Apply LRP with rule 'alpha_beta' with alpha = 1
+lrp_ab <- LRP$new(converter, x, 
+                  output_idx = c(8), # 8 is index for class 'cock'
+                  rule_name = "alpha_beta",
+                  rule_param = 1,
+                  channels_first = FALSE) 
+
+# We have to flip the y axis before plotting
+lrp_ab$result <- torch::torch_flip(lrp_ab$result, c(2))
+p_lrp_ab <- plot(lrp_ab)
+
+gridExtra::grid.arrange(p_image, p_lrp_ab, layout_matrix = matrix(c(1,2,2), nrow = 1))
+```
+
+<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
 
 ## Funding
 
