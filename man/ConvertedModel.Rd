@@ -22,18 +22,18 @@ explaining the entire model. This model is part of the class \link{Converter}
 and is the core for all the necessary calculations in the methods provided
 in this package.
 }
-\section{Attributes}{
+\section{Public fields}{
 
 \describe{
-\item{\code{self$modules_list}}{A list of all accepted layers created by the
+\item{\code{modules_list}}{A list of all accepted layers created by the
 'Converter' class during initialization.}
-\item{\code{self$dtype}}{The datatype for all the calculations and defined
+\item{\code{dtype}}{The datatype for all the calculations and defined
 tensors. Either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
 \link[torch:torch_dtype]{torch::torch_double}}
 }
 }
 
-\section{\code{self$forward()}}{
+\section{Method \code{forward()}}{
 
 
 The forward method of the whole model, i.e. it calculates the output
@@ -63,12 +63,11 @@ dimensions \emph{(batch_size, dim_out)}.
 }
 }
 
-\section{\code{self$update_ref()}}{
+\section{Method \code{update_ref()}}{
 
 
 This method updates the stored intermediate values in each module from the
-list \code{modules_list} when the reference input \code{x_ref}.
-has changed.
+list \code{modules_list} when the reference input \code{x_ref} has changed.
 \subsection{Usage}{
 
 \code{self$update_ref(x_ref, channels_first = TRUE)}
@@ -93,7 +92,7 @@ Returns the output of the reference input with dimension
 }
 }
 
-\section{\code{self$set_dtype()}}{
+\section{Method \code{set_dtype()}}{
 
 
 This method changes the datatype for all the layers in \code{modules_list}.

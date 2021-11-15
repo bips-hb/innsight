@@ -1,11 +1,11 @@
 #' Converter of an artificial Neural Network
 #'
 #' @description
-#' This class analyzes a passed Neural Network and stores its internal
+#' This class analyzes a passed neural network and stores its internal
 #' structure and the individual layers by converting the entire network into a
 #' \code{\link[torch]{nn_module}}. With the help of this converter, many
-#' methods of interpretable machine learning are provided, which give a better
-#' understanding of the whole model or individual predictions.
+#' methods for interpreting the behavior of neural networks are provided, which
+#' give a better understanding of the whole model or individual predictions.
 #' You can use models from the following libraries:
 #' * `torch` (\code{\link[torch]{nn_sequential}})
 #' * \code{\link[keras]{keras}} (\code{\link[keras]{keras_model}},
@@ -24,11 +24,25 @@
 #' network, which provides all the necessary information for an interpretation.
 #' The converted torch model is stored in the field `model` and is an instance
 #' of \code{\link[innsight:ConvertedModel]{innsight::ConvertedModel}}.
-#' But before the torch model is created, all relevant details of the passed
-#' model are extracted in a named list stored in the field `model_dict`. This
-#' named list has the form as described in the next section.
+#' However, before the torch model is created, all relevant details of the
+#' passed model are extracted into a named list. This list can be saved
+#' in complete form in the `model_dict` field with the argument
+#' `save_model_as_list`, but this may consume a lot of memory for large
+#' networks and is not done by default. Also, this named list can again be
+#' used as a passed model for the class `Converter`, which will be described
+#' in more detail in the section 'Implemented Libraries'.
 #'
-#' ## Implemented libraries
+#' ## Implemented Methods
+#' An object of the Converter class can be applied to the
+#' following methods:
+#'   * Layerwise Relevance Propagation ([LRP]), Bach et al. (2015)
+#'   * Deep Learning Important Feartures ([DeepLift]), Shrikumar et al. (2017)
+#'   * [SmoothGrad], Smilkov et al. (2017)
+#'   * Vanilla [Gradient]
+#'   * [ConnectionWeights], Olden et al. (2004)
+#'
+#'
+#' ## Implemented Libraries
 #' The converter is implemented for models from the libraries
 #' \code{\link[torch]{nn_sequential}},
 #' \code{\link[neuralnet]{neuralnet}} and \code{\link[keras]{keras}}. But you
@@ -37,22 +51,24 @@
 #'
 #' * **`$input_dim`**\cr
 #' An integer vector with the model input dimension, e.g. for
-#' a dense layer with 5 input features use `c(5)` or for  a 1d-convolutional
+#' a dense layer with 5 input features use `c(5)` or for  a 1D-convolutional
 #' layer with signal length 50 and 4 channels use `c(4,50)`.
 #'
 #' * **`$input_names`** (optional)\cr
 #' A list with the names for each input dimension, e.g. for
 #' a dense layer with 3 input features use `list(c("X1", "X2", "X3"))` or for a
-#' 1d-convolutional layer with signal length 5 and 2 channels use
-#' `list(c("C1", "C2"), c("L1","L2","L3","L4","L5"))`.
+#' 1D-convolutional layer with signal length 5 and 2 channels use
+#' `list(c("C1", "C2"), c("L1","L2","L3","L4","L5"))`. By default (`NULL`)
+#' the names are generated.
 #'
 #' * **`$output_dim`** (optional)\cr
-#' An integer vector with the model output dimension
-#' analogous to `$input_dim`.
+#' An integer vector with the model output dimension analogous to `$input_dim`.
+#' This value does not need to be specified. But if it is set, the calculated
+#' value will be compared with it to avoid errors during converting.
 #'
 #' * **`$output_names`** (optional)\cr
-#' A list with the names for each output dimension
-#' analogous to `$input_names`.
+#' A list with the names for each output dimension analogous to `$input_names`.
+#' By default (`NULL`) the names are generated.
 #'
 #' * **`$layers`**\cr
 #' A list with the respective layers of the model. Each layer is represented as
@@ -65,63 +81,74 @@
 #'      `dim_out`.
 #'      * **`activation_name`**: The name of the activation function for this
 #'      dense layer, e.g. `'relu'`, `'tanh'` or `'softmax'`.
-#'      * **`dim_in`**(optional): The input dimension of this layer. This value is not
-#'      necessary, but helpful to check the format of the weight matrix.
-#'      * **`dim_out`**(optional): The output dimension of this layer. This value is not
-#'      necessary, but helpful to check the format of the weight matrix.
+#'      * **`dim_in`** (optional): The input dimension of this layer. This
+#'      value is not necessary, but helpful to check the format of the weight
+#'      matrix.
+#'      * **`dim_out`** (optional): The output dimension of this layer. This
+#'      value is not necessary, but helpful to check the format of the weight
+#'      matrix.
 #'
 #'   * **Convolutional Layers:**
 #'      * **`$type`**: `'Conv1D'` or `'Conv2D'`
 #'      * **`$weight`**: The weight array of the convolutional layer with shape
-#'      (`out_channels`, `in_channels`, `kernel_length`) for 1d or
+#'      (`out_channels`, `in_channels`, `kernel_length`) for 1D or
 #'      (`out_channels`, `in_channels`, `kernel_height`, `kernel_width`) for
-#'      2d.
+#'      2D.
 #'      * **`$bias`**: The bias vector of the layer with length `out_channels`.
 #'      * **`$activation_name`**: The name of the activation function for this
 #'      layer, e.g. `'relu'`, `'tanh'` or `'softmax'`.
-#'      * **`$dim_in`**(optional): The input dimension of this layer according to the
-#'      format (`in_channels`, `in_length`) for 1d or
-#'      (`in_channels`, `in_height`, `in_width`) for 2d.
-#'      * **`$dim_out`**(optional): The output dimension of this layer according to the
-#'      format (`out_channels`, `out_length`) for 1d or
-#'      (`out_channels`, `out_height`, `out_width`) for 2d.
-#'      * **`$stride`**(optional): The stride of the convolution (single integer for 1d
-#'      and tuple of two integers for 2d). If this value is not specified, the
-#'      default values (1d: `1` and 2d: `c(1,1)`) are used.
-#'      * **`$padding`**(optional): Zero-padding added to the sides of the input before
-#'      convolution. For 1d-convolution a tuple of the form
-#'      (`pad_left`, `pad_right`) and for 2d-convolution
+#'      * **`$dim_in`** (optional): The input dimension of this layer according
+#'      to the format (`in_channels`, `in_length`) for 1D or
+#'      (`in_channels`, `in_height`, `in_width`) for 2D.
+#'      * **`$dim_out`** (optional): The output dimension of this layer
+#'      according to the format (`out_channels`, `out_length`) for 1D or
+#'      (`out_channels`, `out_height`, `out_width`) for 2D.
+#'      * **`$stride`** (optional): The stride of the convolution (single
+#'      integer for 1D and tuple of two integers for 2D). If this value is not
+#'      specified, the default values (1D: `1` and 2D: `c(1,1)`) are used.
+#'      * **`$padding`** (optional): Zero-padding added to the sides of the
+#'      input before convolution. For 1D-convolution a tuple of the form
+#'      (`pad_left`, `pad_right`) and for 2D-convolution
 #'      (`pad_left`, `pad_right`, `pad_top`, `pad_bottom`) is required. If this
-#'      value is not specified, the default values (1d: `c(0,0)` and 2d:
+#'      value is not specified, the default values (1D: `c(0,0)` and 2D:
 #'      `c(0,0,0,0)`) are used.
-#'      * **`$dilation`**(optional): Spacing between kernel elements (single integer for
-#'      1d and tuple of two integers for 2d). If this value is not specified,
-#'      the default values (1d: `1` and 2d: `c(1,1)`) are used.
-#'  * **Flatten Layer:**
+#'      * **`$dilation`** (optional): Spacing between kernel elements (single
+#'      integer for 1D and tuple of two integers for 2D). If this value is
+#'      not specified, the default values (1D: `1` and 2D: `c(1,1)`) are used.
+#'
+#'   * **Pooling Layers:**
+#'     * **`$type`**: `'MaxPooling1D'`, `'MaxPooling2D'`, `'AveragePooling1D'`
+#'     or `'AveragePooling2D'`
+#'     * **`$kernel_size`**: The size of the pooling window as an integer
+#'     value for 1D-pooling and an tuple of two integers for 2D-pooling.
+#'     * **`$strides`** (optional): The stride of the pooling window (single
+#'      integer for 1D and tuple of two integers for 2D). If this value is not
+#'      specified (`NULL`), the value of `kernel_size` will be used.
+#'     * **`dim_in`** (optional): The input dimension of this layer. This
+#'      value is not necessary, but helpful to check the correctness of the
+#'      converted model.
+#'     * **`dim_out`** (optional): The output dimension of this layer. This
+#'      value is not necessary, but helpful to check the correctness of the
+#'      converted model.
+#'
+#'   * **Flatten Layer:**
 #'      * **`$type`**: `'Flatten'`
-#'      * **`$dim_in`**(optional): The input dimension of this layer without the batch
-#'      dimension.
-#'      * **`$dim_out`**(optional): The output dimension of this layer without the batch
-#'      dimension.
+#'      * **`$dim_in`** (optional): The input dimension of this layer
+#'      without the batch dimension.
+#'      * **`$dim_out`** (optional): The output dimension of this layer
+#'      without the batch dimension.
 #'
 #' **Note:** This package works internally only with the data format 'channels
 #' first', i.e. all input dimensions and weight matrices must be adapted
 #' accordingly.
 #'
-#' ## Implemented methods
-#' An object of the Converter class can be applied to the
-#' following methods:
-#'   * Layerwise Relevance Propagation ([LRP]), Bach et al. (2015)
-#'   * Deep Learning Important Feartures ([DeepLift]), Shrikumar et al. (2017)
-#'   * [SmoothGrad], Smilkov et al. (2017)
-#'   * Vanilla [Gradient]
-#'   * [ConnectionWeights] (global), Olden et al. (2004)
-#'
 #'
 #' @field model The converted neural network based on the torch module
 #' [ConvertedModel].
 #' @field model_dict The model stored in a named list (see Details for more
-#' information).
+#' information). By default, the entry `model_dict$layers` is deleted
+#' because it may require a lot of memory for large networks. However, with
+#' the argument `save_model_as_list` this can be saved anyway.
 #'
 #'
 #' @examplesIf torch::torch_is_installed()
@@ -258,8 +285,8 @@ Converter <- R6Class("Converter",
     #' tasks to be interpreted. Only models from the following types or
     #' packages are allowed: \code{\link[torch]{nn_sequential}},
     #' \code{\link[keras]{keras_model}},
-    #' \code{\link[keras]{keras_model_sequential}} or
-    #' \code{\link[neuralnet]{neuralnet}}.
+    #' \code{\link[keras]{keras_model_sequential}},
+    #' \code{\link[neuralnet]{neuralnet}} or a named list (see Details).
     #' @param input_dim An integer vector with the model input dimension
     #' excluding the batch dimension, e.g. for a dense layer with `5` input
     #' features use `c(5)` or for a 1D convolutional layer with signal
@@ -268,25 +295,27 @@ Converter <- R6Class("Converter",
     #' for all others it is automatically extracted from the passed model.
     #' In addition, the input dimension `input_dim` has to be in the format
     #' channels first.
-    #' @param input_names (Optional) A list with the names for each input dimension, e.g.
-    #' for a dense layer with `3` input features use `list(c("X1", "X2", "X3"))`
-    #' or for a 1D convolutional layer with signal length `5` and `2` channels
-    #' use `list(c("C1", "C2"), c("L1","L2","L3","L4","L5"))`.\cr
+    #' @param input_names (Optional) A list with the names for each input
+    #' dimension, e.g. for a dense layer with `3` input features use
+    #' `list(c("X1", "X2", "X3"))` or for a 1D convolutional layer with
+    #' signal length `5` and `2` channels use
+    #' `list(c("C1", "C2"), c("L1","L2","L3","L4","L5"))`.\cr
     #' **Note:** This argument is optional and otherwise the names are
     #' generated automatically. But if this argument is set, all found
     #' input names in the passed model will be disregarded.
-    #' @param output_names (Optional) A list with the names for the output, e.g.
-    #' for a model with `3` outputs use `list(c("Y1", "Y2", "Y3"))`.\cr
+    #' @param output_names (Optional) A list with the names for the output,
+    #' e.g. for a model with `3` outputs use `list(c("Y1", "Y2", "Y3"))`.\cr
     #' **Note:** This argument is optional and otherwise the names are
     #' generated automatically. But if this argument is set, all found
     #' output names in the passed model will be disregarded.
-    #' @param save_model_as_list This boolean value specifies whether the
+    #' @param save_model_as_list This logical value specifies whether the
     #' passed model should be stored as a list (as it is described in the
     #' details also as an alternative input for a model). This list can take
     #' a lot of memory for large networks, so by default the model is not
     #' stored as a list (`FALSE`).
-    #' @param dtype The data type for the calculations. Use either `'float'`
-    #' or `'double'`
+    #' @param dtype The data type for the calculations. Use
+    #' either `'float'` for [torch::torch_float] or `'double'` for
+    #' [torch::torch_double].
     #'
     #' @return A new instance of the R6 class \code{'Converter'}.
     #'
@@ -340,6 +369,7 @@ Converter <- R6Class("Converter",
     create_model_from_dict = function(model_dict, dtype = "float",
                                       save_model_as_list = FALSE) {
       modules_list <- NULL
+      assertIntegerish(model_dict$input_dim, min.len = 1, max.len = 3)
       input <- torch_randn(c(2, model_dict$input_dim))
 
       assertChoice("layers", names(model_dict))
@@ -826,13 +856,13 @@ Converter <- R6Class("Converter",
 #' either `'float'` for [torch::torch_float] or `'double'` for
 #' [torch::torch_double].
 #'
-#' @section Attributes:
+#' @section Public fields:
 #' \describe{
-#'   \item{`self$modules_list`}{A list of all accepted layers created by the
+#'   \item{`modules_list`}{A list of all accepted layers created by the
 #'   'Converter' class during initialization.}
-#'   \item{`self$dtype`}{The datatype for all the calculations and defined
+#'   \item{`dtype`}{The datatype for all the calculations and defined
 #'   tensors. Either `'float'` for [torch::torch_float] or `'double'` for
-#'   [torch::torch_double]}
+#'   [torch::torch_double]}.
 #' }
 #'
 ConvertedModel <- nn_module(
@@ -846,7 +876,7 @@ ConvertedModel <- nn_module(
 
   ### -------------------------forward and update------------------------------
   #'
-  #' @section `self$forward()`:
+  #' @section Method `forward()`:
   #'
   #' The forward method of the whole model, i.e. it calculates the output
   #' \eqn{y=f(x)} of a given input \eqn{x}. In doing so all intermediate
@@ -896,11 +926,10 @@ ConvertedModel <- nn_module(
   },
 
   #'
-  #' @section `self$update_ref()`:
+  #' @section Method `update_ref()`:
   #'
   #' This method updates the stored intermediate values in each module from the
-  #' list `modules_list` when the reference input `x_ref`.
-  #' has changed.
+  #' list `modules_list` when the reference input `x_ref` has changed.
   #'
   #' ## Usage
   #' `self$update_ref(x_ref, channels_first = TRUE)`
@@ -945,7 +974,7 @@ ConvertedModel <- nn_module(
   },
 
   #'
-  #' @section `self$set_dtype()`:
+  #' @section Method `set_dtype()`:
   #'
   #' This method changes the datatype for all the layers in `modules_list`.
   #' Use either `'float'` for [torch::torch_float] or `'double'` for
