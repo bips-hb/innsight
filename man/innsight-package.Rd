@@ -4,18 +4,49 @@
 \name{innsight-package}
 \alias{innsight}
 \alias{innsight-package}
-\title{Make machine learning models and predictions interpretable}
+\title{Get the Insight of your Neural Network}
 \description{
-Interpretability methods to analyze the behavior and individual
-    predictions of modern Neural Networks. Implemented methods are: 'Connection
-    Weights' described by Olden et al. (2004) 
-    <doi:10.1016/j.ecolmodel.2004.03.013>, Layer-wise Relevance
-    Propagation ('LRP') described by Bach et al. (2015)
-    <doi:10.1371/journal.pone.0130140>, Deep Learning Important Features
-    ('DeepLIFT') described by Shrikumar et al.  (2017) <arXiv:1704.02685> and
-    gradient-based methods like 'SmoothGrad' described by Smilkov et al. (2017) 
-    <arXiv:1706.03825>, 'Gradient x Input' described by Baehrens et al. (2009)
-    <arXiv:0912.1128> or 'Vanilla Gradient'.
+\code{innsight} is an R package that interprets the behavior and explains
+individual predictions of modern neural networks. Many methods for
+explaining individual predictions already exist, but hardly any of them
+are implemented or available in R. Most of these so-called
+\emph{'Feature Attribution'} methods are only implemented in Python and
+thus difficult to access or use for the R community. In this sense,
+the package \code{innsight} provides a common interface for various methods
+for the interpretability of neural networks and can therefore be considered
+as an R analogue to 'iNNvestigate' for Python.
+}
+\details{
+This package implements several model-specific interpretability
+(Feature Attribution) methods based on neural networks in R, e.g.,
+\itemize{
+\item Layer-wise Relevance Propagation (\link{LRP})
+\itemize{
+\item Including propagation rules: \eqn{\epsilon}-rule and
+\eqn{\alpha}-\eqn{\beta}-rule
+}
+\item Deep Learning Important Features (\link{DeepLift})
+\itemize{
+\item Including propagation rules for non-linearities: rescale rule and
+reveal-cancel rule
+}
+\item Gradient-based methods:
+\itemize{
+\item Vanilla \link{Gradient}, including 'Gradient x Input'
+\item Smoothed gradients (\link{SmoothGrad}), including 'SmoothGrad x Input'
+}
+\item \link{ConnectionWeights}
+}
+
+The package \code{innsight} aims to be as flexible as possible and independent of a
+specific deep learning package in which the passed network has been learned.
+Basically, a Neural Network of the libraries \link[torch:nn_sequential]{torch::nn_sequential},
+\link[keras:keras_model_sequential]{keras::keras_model_sequential}, \link[keras:keras_model]{keras::keras_model} and
+\link[neuralnet:neuralnet]{neuralnet::neuralnet} can be passed to the main building block \link{Converter},
+which converts and stores the passed model as a torch model
+(\link{ConvertedModel}) with special insights needed for interpretation.
+It is also possible to pass an arbitrary net in form of a named list
+(see details in \link{Converter}).
 }
 \seealso{
 Useful links:
