@@ -1,8 +1,11 @@
 ---
-title: "Introduction to innsight"
-output: rmarkdown::html_vignette
+title: "Introduction to `innsight`"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 3
 vignette: >
-  %\VignetteIndexEntry{Introduction to innsight}
+  %\VignetteIndexEntry{Introduction to `innsight`}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -30,22 +33,222 @@ language. The **`innsight`** package addresses this lack of interpretable
 machine learning methods in R (similar to 
 [**`iNNvestigate`**](https://github.com/albermax/innvestigate) for Python) and 
 provides the most popular methods for neural networks trained in R for 
-analysis.
+analysis in one unified interface.
 
-## Methods
+The steps for explaining individual predictions with the provided methods 
+are unified in this package and follow a strict scheme. This will hopefully 
+allow any user a smooth and easy introduction to the possibilities of 
+this package. The steps are:
 
-First, we want to point out that a very successful Interpretable Machine 
-Learning package for R already exists, namely 
-[**`iml`**](https://github.com/christophM/iml). However, this package deals 
-with so-called model-agnostic methods, which are independent of the 
-given model and do not take into account the internal model structure, 
-such as neural network weights. Our package, on the other hand, deals 
-with methods that can only be applied to neural networks.
+```{r, eval = FALSE}
+# Step 1: Model creation and converting
+model = ...
+converter <- Converter$new(model)
+
+# Step 2: Apply selected method to your data
+result <- Method$new(converter, data)
+
+# Step 3: Plot the results
+plot(result) 
+boxplot(result)
+```
+
+## Step 1: Model Creation and Converting
+The `innsight` package aims to be as flexible as possible and independent of 
+any particular deep learning package in which the passed network was learned 
+or defined. For this reason, there are several ways in this package to pass 
+a neural network and then interpret their predictions.
+
+### Library `torch`
+Currently, only models created by `torch::nn_sequential` are accepted. 
+However, the most popular standard layers and activation functions are 
+available:
+
+* **Linear layers:** `nn_linear`
+* **Convolutional layers:** `nn_conv1d`, `nn_conv2d` (but only with 
+`pading_mode = "zeros"` and numerical `padding`)
+* **Max-pooling layers:** `nn_max_pool1d`, `nn_max_pool2d` (both only with default 
+arguments for `padding` (`0`), `dilation` (`1`), `return_indices` (`FALSE)`) 
+and `ceil_mode` (`FALSE`))
+* **Average-pooling layers:** `nn_avg_pool1d`, `nn_avg_pool2d` (both only with 
+default arguments for `padding` (`0`), `return_indices` (`FALSE)`) 
+and `ceil_mode` (`FALSE`))
+* **Flatten layer:** `nn_flatten` (see [torch issue #716](https://github.com/mlverse/torch/issues/716#issuecomment-946117545) and use
+`classname = "nn_flatten"`)
+* **Skipped layers:** `nn_dropout`
+* **Activation functions:** `nn_relu`, `nn_leaky_relu`, `nn_softplus`,
+`nn_sigmoid`, `nn_softmax`, `nn_tanh` (contact me if you need any more)
+
+If you want to create an instance of the class `Converter` with a torch 
+model that meets the above conditions, you have to keep the following things 
+in mind:
+
+* In a torch model, the shape of the inputs is not stored; hence it must be
+specified with argument `input_dim` within the initialization of `Converter`.
+
+* If no further arguments are set for the `Converter` instance, default labels
+are generated for the input (`'X1'`, `'X2'`, ...) and output names
+(`'Y1'`, `'Y2'`, ... ). In torch models this information is not stored 
+or often it is not even present in the training data. In the converter, 
+however, there is the possibility (argument `input_names` and `output_names`) 
+to pass the names, which will then be used in all results and plots 
+created by this object.
+
+#### Example 1: Dense Network
+```{r}
+library(torch)
+library(innsight)
+
+# Create model
+model <- nn_sequential(
+  nn_linear(3, 10),
+  nn_relu(),
+  nn_linear(10, 2, bias = FALSE),
+  nn_softmax(2)
+)
+# Convert the model
+conv_dense <- Converter$new(model, input_dim = c(3))
+# Convert model with input and output names
+conv_dense_with_names <- 
+  Converter$new(model, input_dim = c(3),
+                input_names = list(c("Price", "Weight", "Height")),
+                output_names = list(c("Buy it!", "Don't buy it!")))
+# Show output names
+conv_dense_with_names$model_dict$output_names
+```
+
+#### Example 2: CNN
+Unfortunately, at the moment (`torch = 0.6.0`) it is not possible to use a flatten module 
+in `nn_sequential`, because it is only implemented as a function 
+(`torch_flatten`). For this reason we define our own module as described in
+[torch issue #716](https://github.com/mlverse/torch/issues/716#issuecomment-946117545).
+To ensure that our package recognizes this module as a flattening layer, 
+`classname = "nn_flatten"` must be set.
+```{r}
+nn_flatten <- nn_module(
+    classname = "nn_flatten",
+    initialize = function(start_dim = 2, end_dim = -1) {
+      self$start_dim <- start_dim
+      self$end_dim <- end_dim
+    },
+    forward = function(x) {
+      torch_flatten(x, start_dim = self$start_dim, end_dim = self$end_dim)
+    }
+  )
+```
+
+```{r}
+# Create CNN for images of size (3, 28, 28)
+model <- nn_sequential(
+  nn_conv2d(3, 5, c(4, 4)),
+  nn_relu(),
+  nn_max_pool2d(c(2,3)),
+  nn_conv2d(5, 6, c(3, 4), stride = c(1, 2)),
+  nn_relu(),
+  nn_conv2d(6, 2, c(3, 3), dilation = c(1, 2), padding = c(3,4)),
+  nn_relu(),
+  nn_avg_pool2d(c(2,2)),
+  nn_flatten(),
+  nn_linear(42, 5),
+  nn_softmax(2)
+)
+
+# Convert the model
+conv_cnn <- Converter$new(model, input_dim = c(3, 28, 28))
+```
+
+### Library `keras`
+Keras models created by `keras_model_sequential` or `keras_model` are 
+accepted. Within these functions, the following layers are allowed to be used:
+
+* **Linear layers:** `layer_dense`
+* **Convolutional layers:** `layer_conv_1d`, `layer_conv_2d`
+* **Max-pooling layers:** `layer_max_pooling_1d`, `layer_max_pooling_2d`
+* **Average-pooling layers:** `layer_average_pooling_1d`, `layer_average_pooling_2d`
+* **Flatten layer:** `layer_flatten`
+* **Skipped layers:** `layer_dropout`
+* **Activation functions:** Activation functions are currently only allowed 
+as a string argument in the individual layers (`activation`) and not as a 
+standalone layer like e.g. `layer_activation_relu`. The following are accepted
+as arguments: `"relu"`, `"softplus"`, `"sigmoid"`,
+`"softmax"`, `"tanh"`, `"linear"` (contact me if you need any more)
+
+Analogous to a torch model, no names of inputs or outputs are stored in 
+a keras model, i.e. if no further arguments are set for the `Converter`
+instance, default labels are generated for the input (e.g. `'X1'`, `'X2'`, ...) 
+and output names (`'Y1'`, `'Y2'`, ... ). In the converter, 
+however, there is the possibility (argument `input_names` and `output_names`) 
+to pass the names, which will then be used in all results and plots 
+created by this object.
+
+#### Example 1: Dense Network
+```{r}
+library(keras)
+
+# Create model
+model <- keras_model_sequential()
+model <- model %>%
+  layer_dense(10, input_shape = c(5), activation = "softplus") %>%
+  layer_dense(8, use_bias = FALSE, activation = "tanh") %>%
+  layer_dropout(0.2) %>%
+  layer_dense(4, activation = "softmax")
+
+# Convert the model
+conv_dense <- Converter$new(model)
+```
+
+#### Example 2: CNN
+```{r}
+library(keras)
+
+# Create model
+model <- keras_model_sequential()
+model <- model %>%
+  layer_conv_2d(4, c(5,4), input_shape = c(28,28,3), activation = "softplus") %>%
+  layer_max_pooling_2d(c(2,2), strides = c(1,1)) %>%
+  layer_conv_2d(6, c(3,3), activation = "relu", padding = "same") %>%
+  layer_max_pooling_2d(c(2,2)) %>%
+  layer_conv_2d(4, c(2,2), strides = c(2,1), activation = "relu") %>%
+  layer_flatten() %>%
+  layer_dense(5, activation = "softmax")
+
+# Convert the model
+conv_cnn <- Converter$new(model)
+```
+
+### Library `neuralnet`
+The usage with nets from the package `neuralnet` is very simple and 
+straightforward, because the package offers much less possibilities than 
+`torch` or `keras`. The only thing to note is that no custom activation 
+function can be used. However, the package saves the names of the inputs and 
+outputs, which can of course be overwritten with the arguments 
+`input_names` and `output_names` when creating the converter object.
+
+#### Example 1: Dense Network
+```{r}
+library(neuralnet)
+data(iris)
+
+# Create model
+model <- neuralnet(Species ~ Petal.Length + Petal.Width, iris, 
+                   linear.output = FALSE)
+
+# Convert model
+conv_dense <- Converter$new(model)
+# Show input names
+conv_dense$model_dict$input_names
+# Show output names
+conv_dense$model_dict$output_names
+```
+
+
+## Step 2: Apply selected Method
 The **`innsight`** package provides the following tools for analyzing black box
 neural networks based on dense or convolution layers:
 
 - **`Gradient`** : Calculation of the model output **Gradients** with respect
-to the model inputs including the attribution method **Gradient x Input**:
+to the model inputs including the attribution method 
+[**Gradient x Input**](https://www.jmlr.org/papers/v11/baehrens10a.html):
 $$
 \begin{align}
 \text{Gradient}(x)_i^C &= \frac{\partial f(x)_C}{\partial x_i}\\ 
@@ -64,8 +267,7 @@ with $\varepsilon_1, \ldots \varepsilon_n \sim \mathcal{N}(0, \sigma^2)$.
 
 - **`LRP`** : Back propagation the model output to the model input neurons to 
 obtain relevance scores for the model prediction which is known as
-[**Layer-wise Relevance Propagation**](https://journals.plos.org/plosone/
-article?id=10.1371/journal.pone.0130140):
+[**Layer-wise Relevance Propagation**](https://doi.org/10.1371/journal.pone.0130140):
 $$
 f(x)_C \approx \sum_{i=1}^d R_i
 $$
@@ -74,7 +276,7 @@ with $R_i$ relevance score for input neuron $i$.
 - **`DeepLift`** : Calculation of a decomposition of the model output with
 respect to the model inputs and a reference input which is known as
 Deep Learning Important FeaTures 
-([**DeepLift**](https://arxiv.org/abs/1704.02685)]:
+([**DeepLift**](https://arxiv.org/abs/1704.02685)):
 $$
 \Delta f(x)_C = f(x)_C - f(x_\text{ref}) = \sum_{i=1}^d C_i
 $$
@@ -83,20 +285,82 @@ difference-from-reference model output.
 
 - **`ConnectionWeights`** : This is a naive and old approach by calculating 
 the product of all weights from an input to an output neuron and then adding
-them up (see [**Connection Weights**](https://www.sciencedirect.com/science/
-article/abs/pii/S0304380004001565)).
+them up (see [**Connection Weights**](https://doi.org/10.1016/j.ecolmodel.2004.03.013)).
 
-## Requirements
+#### Notes
 
-Since these methods are a model-specific approach, they also impose 
-requirements on the model that must be fulfilled. Currently, three 
-possibilities are provided in this package to interpret a neural network 
-with the available methods, which are described below with the respective 
-requirements.
+* By default, the last activation function is not taken into account 
+for all data-based methods . Because often this is the sigmoid/logistic or 
+the softmax function, which has with growing distance from 0 
+increasingly smaller gradients, which leads to the so-called 
+*saturation problem*. But if you still want to consider the last activation 
+function, use the argument `ignore_last_act = FALSE`.
 
-### Keras
+* For the data with channels, it is not possible to determine exactly on which 
+axis the channels are located. Internally all data and the converted model are 
+in the data format 'channels first', i.e. directly after the batch dimension 
+`(batch_size, channels, input_dim)`. In case you want to pass data with 
+'channels last' (e.g. for MNIST-data *(batch_size, 28, 28, 3)*), 
+then you have to indicate that with argument `channels_first` in the
+applied method.
 
-The model has to be an instance of `keras::keras_model_sequential`.
+* It can happen with very large and deep neural networks that the calculation 
+for all outputs requires both the entire memory and takes a very long time. 
+But often, the results are needed only for certain output nodes. By default, 
+only the results for the first 10 outputs are calculated, which can be adjusted individually with the argument `output_idx` by passing the relevant output
+indices.
 
-- The following layer types: 
-  * `layer_conv_1d` and `layer_conv_2d`
+### Example 1: Gradient and Gradient x Input
+```{r, results='hide', message=FALSE}
+# Make sure that Example 1 from the section on neuralnet and one example
+# with CNNs were run last
+
+# Apply method 'Gradient' for the dense network
+grad_dense <- Gradient$new(conv_dense, iris[-c(1,2,5)])
+
+# Apply method 'Gradient x Input' for CNN
+x <- torch_randn(c(10,3,28,28))
+grad_cnn <- Gradient$new(conv_cnn, x, times_input = TRUE)
+```
+### Example 2: SmoothGrad and SmoothGrad x Input
+```{r, results='hide', message=FALSE}
+# Make sure that Example 1 from the section on neuralnet and one example
+# with CNNs were run last
+
+# Apply method 'SmoothGrad' for the dense network
+smooth_dense <- SmoothGrad$new(conv_dense, iris[-c(1,2,5)])
+
+# Apply method 'SmoothGrad x Input' for CNN
+x <- torch_randn(c(10,3,28,28))
+smooth_cnn <- SmoothGrad$new(conv_cnn, x, times_input = TRUE)
+```
+
+### Example 3: LRP
+```{r, results='hide', message=FALSE}
+# Make sure that Example 1 from the section on neuralnet and one example
+# with CNNs were run last
+
+# Apply method 'LRP' for the dense network
+lrp_dense <- LRP$new(conv_dense, iris[-c(1,2,5)])
+
+# Apply method 'LRP' for CNN with alpha-beta-rule
+x <- torch_randn(c(10,28,28,3))
+lrp_cnn <- LRP$new(conv_cnn, x, rule_name = "alpha_beta", rule_param = 1,
+                   channels_first = FALSE)
+```
+### Example 4: DeepLift
+```{r, results='hide', message=FALSE}
+# Make sure that Example 1 from the section on neuralnet and one example
+# with CNNs were run last
+
+# Define reference value
+x_ref <- array(colMeans(iris[-c(1,2,5)]), dim = c(1,2))
+# Apply method 'DeepLift' for the dense network
+deeplift_dense <- DeepLift$new(conv_dense, iris[-c(1,2,5)], x_ref = x_ref)
+
+# Apply method 'DeepLift' for CNN
+x <- torch_randn(c(10,3,28,28))
+deeplift_cnn <- DeepLift$new(conv_cnn, x)
+```
+
+## Step 3: Show and Plot the Results
