@@ -224,7 +224,7 @@
 #'
 #' # Define a model
 #'
-#' model <- NULL
+#' model <- list()
 #' model$input_dim <- 5
 #' model$input_names <- list(c("Feat1", "Feat2", "Feat3", "Feat4", "Feat5"))
 #' model$output_dim <- 2
@@ -368,7 +368,7 @@ Converter <- R6Class("Converter",
   private = list(
     create_model_from_dict = function(model_dict, dtype = "float",
                                       save_model_as_list = FALSE) {
-      modules_list <- NULL
+      modules_list <- list()
       assertIntegerish(model_dict$input_dim, min.len = 1, max.len = 3)
       input <- torch_randn(c(2, model_dict$input_dim))
 
@@ -800,7 +800,7 @@ Converter <- R6Class("Converter",
 
       # Save model_dict and create torch model
       if (!save_model_as_list) {
-        model_dict$layers <- NULL
+        model_dict$layers <- list()
       }
       self$model_dict <- model_dict
       self$model <- ConvertedModel(modules_list, dtype = dtype)

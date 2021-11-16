@@ -228,7 +228,7 @@ if (is_keras_available()) {
 
 # Define a model
 
-model <- NULL
+model <- list()
 model$input_dim <- 5
 model$input_names <- list(c("Feat1", "Feat2", "Feat3", "Feat4", "Feat5"))
 model$output_dim <- 2

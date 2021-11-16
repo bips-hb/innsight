@@ -1113,14 +1113,20 @@ get_boxplot_df <- function(res, input_names, output_names) {
   in_names <- rep(input_names, times = length(output_names))
   outliers <- apply(
     as_array(res), 2:3,
-    function(x) boxplot.stats(x, do.conf = FALSE)$out
+    function(x) {
+      out <- boxplot.stats(x, do.conf = FALSE)$out
+      if (length(out) == 0) {
+        out <- NULL
+      }
+      out
+    }
   )
-  if (length(outliers) != 0) {
-    k <- sapply(outliers, length)
-    num <- rep(1:(length(in_names)), k)
+  num_outliers <- unlist(lapply(outliers, length))
+  if (sum(num_outliers) > 0) {
+    num <- rep(seq_len(length(in_names)), num_outliers)
 
     outliers <- data.frame(
-      value = unlist(outliers[k >= 1]),
+      value = unlist(outliers[num_outliers >= 1]),
       feature = in_names[num],
       class = out_names[num]
     )
