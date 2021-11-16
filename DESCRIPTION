@@ -21,6 +21,8 @@ Description: Interpretability methods to analyze the behavior and individual
 License: MIT + file LICENSE
 URL: https://github.com/bips-hb/innsight/
 BugReports: https://github.com/bips-hb/innsight/issues/
+Depends:
+    R (>= 3.5.0)
 Imports:
     checkmate,
     ggplot2,
