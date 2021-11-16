@@ -2,6 +2,8 @@
 # `innsight` - Get the insights of your Neural Network
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/bips-hb/innsight/workflows/R-CMD-check/badge.svg)](https://github.com/bips-hb/innsight/actions)
 <!-- badges: end -->
 
 `innsight` is an R package that interprets the behavior and explains
