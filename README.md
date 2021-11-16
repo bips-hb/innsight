@@ -56,7 +56,7 @@ accepted:
     \#716](https://github.com/mlverse/torch/issues/716#issuecomment-946117545)
     and use `classname = "nn_flatten"`)
 -   `keras::keras_model_sequential` or `keras::keras_model` with layers
-    `layer_dense`, `layer_conv1d`, `layer_conv2d`,
+    `layer_dense`, `layer_conv_1d`, `layer_conv_2d`,
     `layer_max_pooling_1d`, `layer_max_pooling_2d`,
     `layer_average_pooling_1d`, `layer_average_pooling_2d`,
     `layer_dropout`, `layer_flatten`
