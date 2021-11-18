@@ -3,11 +3,15 @@ Package: innsight
 Title: Get the Insights of your Neural Network
 Version: 0.1.0
 Authors@R: 
-    person(given = "Niklas",
-           family = "Koenen",
-           role = c("aut", "cre"),
-           email = "niklas.koenen@gmail.com",
-           comment = c(ORCID = "0000-0002-4623-8271"))
+    c(person(given = "Niklas",
+             family = "Koenen",
+             role = c("aut", "cre"),
+             email = "niklas.koenen@gmail.com",
+             comment = c(ORCID = "0000-0002-4623-8271")),
+      person(given = "Raphael",
+             family = "Baudeu",
+             role = "ctb",
+             email = "raphael.baudeu@gmail.com"))
 Description: Interpretability methods to analyze the behavior and individual
     predictions of modern Neural Networks. Implemented methods are: 'Connection
     Weights' described by Olden et al. (2004) 

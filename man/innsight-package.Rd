@@ -59,4 +59,9 @@ Useful links:
 \author{
 \strong{Maintainer}: Niklas Koenen \email{niklas.koenen@gmail.com} (\href{https://orcid.org/0000-0002-4623-8271}{ORCID})
 
+Other contributors:
+\itemize{
+  \item Raphael Baudeu \email{raphael.baudeu@gmail.com} [contributor]
+}
+
 }
