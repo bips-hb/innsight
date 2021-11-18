@@ -34,6 +34,7 @@ Imports:
     torch
 Suggests:
     keras,
+    tensorflow,
     plotly,
     knitr,
     neuralnet,

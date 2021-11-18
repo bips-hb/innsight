@@ -18,6 +18,8 @@ knitr::opts_chunk$set(
   fig.height = 4,
   fig.align = "center"
 )
+
+set.seed(999)
 ```
 
 
@@ -98,6 +100,7 @@ created by this object.
 ```{r}
 library(torch)
 library(innsight)
+torch_manual_seed(123)
 
 # Create model
 model <- nn_sequential(
@@ -184,6 +187,7 @@ created by this object.
 #### Example 1: Dense Network
 ```{r}
 library(keras)
+tensorflow::set_random_seed(42)
 
 # Create model
 model <- keras_model_sequential()
