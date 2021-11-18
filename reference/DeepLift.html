@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Deep Learning Important FeaTures (DeepLIFT) method — DeepLift • msIML</title>
+<title>Deep Learning Important FeaTures (DeepLift) Method — DeepLift • innsight</title>
 
 
 <!-- jquery -->
@@ -39,19 +39,22 @@
 
 
 
-<meta property="og:title" content="Deep Learning Important FeaTures (DeepLIFT) method — DeepLift" />
-<meta property="og:description" content="This is an implementation of the Deep Learning Important FeaTures (DeepLIFT)
-algorithm introduced by Shrikumar et al. (2017). It's a local method for
-interpreting a single element \(x\) of the dataset concerning a reference value \(x'\)
-and returns the contribution of each input feature from the difference of the
-output (\(y=f(x)\)) and reference output (\(y'=f(x')\)) prediction.
-The basic idea of this method is to decompose the difference-from-reference
-prediction with respect to the input features, i.e.
+<meta property="og:title" content="Deep Learning Important FeaTures (DeepLift) Method — DeepLift" />
+<meta property="og:description" content="This is an implementation of the Deep Learning Important FeaTures
+(DeepLift) algorithm introduced by Shrikumar et al. (2017). It's a local
+method for interpreting a single element \(x\) of the dataset concerning
+a reference value \(x'\) and returns the contribution of each input
+feature from the difference of the output (\(y=f(x)\)) and reference
+output (\(y'=f(x')\)) prediction. The basic idea of this method is to
+decompose the difference-from-reference prediction with respect to the
+input features, i.e.
 $$\Delta y = y - y'  = \sum_i C(x_i).$$
-Compared to Layer-wise Relevance Propagation (see LRP) is the
-DeepLIFT method exact and not an approximation, so we get real contributions
-of the input features to the difference-from-reference prediction. There are
-two ways to handle activation functions: Rescale-Rule and Reveal-Cancel-Rule." />
+Compared to Layer-wise Relevance Propagation (see LRP), the
+DeepLift method is an exact decomposition and not an approximation, so we
+get real contributions of the input features to the
+difference-from-reference prediction. There are two ways to handle
+activation functions: Rescale-Rule ('rescale') and
+RevealCancel-Rule ('reveal_cancel')." />
 
 
 
@@ -82,7 +85,7 @@ two ways to handle activation functions: Rescale-Rule and Reveal-Cancel-Rule." /
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">msIML</a>
+        <a class="navbar-link" href="../index.html">innsight</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
       </span>
     </div>
@@ -98,9 +101,26 @@ two ways to handle activation functions: Rescale-Rule and Reveal-Cancel-Rule." /
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/Introduction.html">Introduction to `innsight`</a>
+    </li>
+  </ul>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/bips-hb/innsight/">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -114,90 +134,737 @@ two ways to handle activation functions: Rescale-Rule and Reveal-Cancel-Rule." /
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Deep Learning Important FeaTures (DeepLIFT) method</h1>
-    
+    <h1>Deep Learning Important FeaTures (DeepLift) Method</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bips-hb/innsight/blob/master/R/DeepLift.R'><code>R/DeepLift.R</code></a></small>
     <div class="hidden name"><code>DeepLift.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This is an implementation of the <em>Deep Learning Important FeaTures (DeepLIFT)</em>
-algorithm introduced by Shrikumar et al. (2017). It's a local method for
-interpreting a single element \(x\) of the dataset concerning a reference value \(x'\)
-and returns the contribution of each input feature from the difference of the
-output (\(y=f(x)\)) and reference output (\(y'=f(x')\)) prediction.
-The basic idea of this method is to decompose the difference-from-reference
-prediction with respect to the input features, i.e.
+    <p>This is an implementation of the <em>Deep Learning Important FeaTures
+(DeepLift)</em> algorithm introduced by Shrikumar et al. (2017). It's a local
+method for interpreting a single element \(x\) of the dataset concerning
+a reference value \(x'\) and returns the contribution of each input
+feature from the difference of the output (\(y=f(x)\)) and reference
+output (\(y'=f(x')\)) prediction. The basic idea of this method is to
+decompose the difference-from-reference prediction with respect to the
+input features, i.e.
 $$\Delta y = y - y'  = \sum_i C(x_i).$$
-Compared to <em>Layer-wise Relevance Propagation</em> (see <code><a href='LRP.html'>LRP</a></code>) is the
-DeepLIFT method exact and not an approximation, so we get real contributions
-of the input features to the difference-from-reference prediction. There are
-two ways to handle activation functions: <em>Rescale-Rule</em> and <em>Reveal-Cancel-Rule</em>.</p>
+Compared to <em>Layer-wise Relevance Propagation</em> (see <a href='LRP.html'>LRP</a>), the
+DeepLift method is an exact decomposition and not an approximation, so we
+get real contributions of the input features to the
+difference-from-reference prediction. There are two ways to handle
+activation functions: <em>Rescale-Rule</em> (<code>'rescale'</code>) and
+<em>RevealCancel-Rule</em> (<code>'reveal_cancel'</code>).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>DeepLift</span><span class='op'>(</span><span class='va'>analyzer</span>, <span class='va'>data</span>, x_ref <span class='op'>=</span> <span class='cn'>NULL</span>, rule_name <span class='op'>=</span> <span class='st'>"rescale"</span><span class='op'>)</span></pre>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>analyzer</th>
-      <td><p>An instance of the R6 class <code><a href='Analyzer.html'>Analyzer</a></code>.</p></td>
-    </tr>
-    <tr>
-      <th>data</th>
-      <td><p>Either a matrix or a data frame, where each row must describe an
-input to the network.</p></td>
-    </tr>
-    <tr>
-      <th>x_ref</th>
-      <td><p>The reference input vector for the interpretation. You can also
-pass an index from the given data set <code>data</code> which will be used as the
-reference input. With the default value <code>NULL</code> you use an input of zeros.</p></td>
-    </tr>
-    <tr>
-      <th>rule_name</th>
-      <td><p>Name of the applied rule to calculate the contributions. Use one
-of <code>"rescale"</code> and <code>"revealcancel"</code>.</p></td>
-    </tr>
-    </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>It returns an array of size <em>(dim_in, dim_out, num_data)</em> which
-contains the contribution scores for each input variable to the
-output predictions for each element in the given data.</p>
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
     <p>A. Shrikumar et al. (2017) <em>Learning important features through
 propagating activation differences.</em>  ICML 2017, p. 4844-4866</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+    <h2 class="hasAnchor" id="super-class"><a class="anchor" href="#super-class"></a>Super class</h2>
 
-    <div class='dont-index'><p><code><a href='rescale_rule.html'>rescale_rule</a></code>, <code><a href='reveal_cancel_rule.html'>reveal_cancel_rule</a></code>,
-<code><a href='Analyzer.html'>Analyzer</a></code></p></div>
+    <p><code><a href='InterpretingMethod.html'>innsight::InterpretingMethod</a></code> -&gt; <code>DeepLift</code></p>
+    <h2 class="hasAnchor" id="public-fields"><a class="anchor" href="#public-fields"></a>Public fields</h2>
+
+    <p><div class="r6-fields"></p><dl>
+<dt><code>x_ref</code></dt><dd><p>The reference input of size <em>(1, dim_in)</em> for the
+interpretation.</p></dd>
+
+<dt><code>rule_name</code></dt><dd><p>Name of the applied rule to calculate the contributions
+for the non-linear part of a neural network layer. Either
+<code>"rescale"</code> or <code>"reveal_cancel"</code>.</p></dd>
+
+</dl><p></div></p>
+    <h2 class="hasAnchor" id="methods"><a class="anchor" href="#methods"></a>Methods</h2>
+
+    
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Public methods</h3>
+
+<ul>
+<li><p><a href='#method-new'><code>DeepLift$new()</code></a></p></li>
+<li><p><a href='#method-plot'><code>DeepLift$plot()</code></a></p></li>
+<li><p><a href='#method-boxplot'><code>DeepLift$boxplot()</code></a></p></li>
+<li><p><a href='#method-clone'><code>DeepLift$clone()</code></a></p></li>
+</ul>
+<p><details open ><summary>Inherited methods</summary>
+<ul>
+<li><p><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href='../../innsight/html/InterpretingMethod.html#method-get_result'><code>innsight::InterpretingMethod$get_result()</code></a></span></p></li>
+</ul>
+</details>
+
+<hr>
+<a id="method-new"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>new()</code></h3>
+<p>Create a new instance of the DeepLift method.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>DeepLift</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span>
+  <span class='va'>converter</span>,
+  <span class='va'>data</span>,
+  channels_first <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  output_idx <span class='op'>=</span> <span class='cn'>NULL</span>,
+  ignore_last_act <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  rule_name <span class='op'>=</span> <span class='st'>"rescale"</span>,
+  x_ref <span class='op'>=</span> <span class='cn'>NULL</span>,
+  dtype <span class='op'>=</span> <span class='st'>"float"</span>
+<span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>converter</code></dt><dd><p>An instance of the R6 class <code><a href='Converter.html'>Converter</a></code>.</p></dd>
+
+<dt><code>data</code></dt><dd><p>The data for which the contribution scores are to be
+calculated. It has to be an array or array-like format of size
+<em>(batch_size, dim_in)</em>.</p></dd>
+
+<dt><code>channels_first</code></dt><dd><p>The format of the given date, i.e. channels on
+last dimension (<code>FALSE</code>) or after the batch dimension (<code>TRUE</code>). If the
+data has no channels, use the default value <code>TRUE</code>.</p></dd>
+
+<dt><code>output_idx</code></dt><dd><p>This vector determines for which outputs the method
+will be applied. By default (<code>NULL</code>), all outputs (but limited to the
+first 10) are considered.</p></dd>
+
+<dt><code>ignore_last_act</code></dt><dd><p>Set this boolean value to include the last
+activation, or not (default: <code>TRUE</code>). In some cases, the last activation
+leads to a saturation problem.</p></dd>
+
+<dt><code>rule_name</code></dt><dd><p>Name of the applied rule to calculate the
+contributions. Use one of <code>'rescale'</code> and <code>'reveal_cancel'</code>.</p></dd>
+
+<dt><code>x_ref</code></dt><dd><p>The reference input of size <em>(1, dim_in)</em> for the
+interpretation. With the default value <code>NULL</code> you use an input
+of zeros.</p></dd>
+
+<dt><code>dtype</code></dt><dd><p>The data type for the calculations. Use
+either <code>'float'</code> for <a href='https://torch.mlverse.org/docs/reference/torch_dtype.html'>torch::torch_float</a> or <code>'double'</code> for
+<a href='https://torch.mlverse.org/docs/reference/torch_dtype.html'>torch::torch_double</a>.</p></dd>
+
+</dl><p></div></p>
+<p><hr>
+<a id="method-plot"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/graphics/plot.default.html'>plot()</a></code></h3>
+<p>This method visualizes the result of the selected method in a
+<a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot2::ggplot</a>. You can use the argument <code>data_idx</code> to select
+the data points in the given data for the plot. In addition, the
+individual output nodes for the plot can be selected with the argument
+<code>output_idx</code>. The different results for the selected data points and
+outputs are visualized using the method <a href='https://ggplot2.tidyverse.org/reference/facet_grid.html'>ggplot2::facet_grid</a>.
+You can also use the <code>as_plotly</code> argument to generate an interactive
+plot based on the plot function <a href='https://rdrr.io/pkg/plotly/man/plot_ly.html'>plotly::plot_ly</a>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>DeepLift</span><span class='op'>$</span><span class='fu'>plot</span><span class='op'>(</span>
+  data_idx <span class='op'>=</span> <span class='fl'>1</span>,
+  output_idx <span class='op'>=</span> <span class='cn'>NULL</span>,
+  aggr_channels <span class='op'>=</span> <span class='st'>"sum"</span>,
+  as_plotly <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>data_idx</code></dt><dd><p>An integer vector containing the numbers of the data
+points whose result is to be plotted, e.g. <code>c(1,3)</code> for the first
+and third data point in the given data. Default: <code>c(1)</code>.</p></dd>
+
+<dt><code>output_idx</code></dt><dd><p>An integer vector containing the numbers of the
+output indices whose result is to be plotted, e.g. <code>c(1,4)</code> for the
+first and fourth model output. But this vector must be included in the
+vector <code>output_idx</code> from the initialization, otherwise, no results were
+calculated for this output node and can not be plotted. By default
+(<code>NULL</code>), the smallest index of all calculated output nodes is used.</p></dd>
+
+<dt><code>aggr_channels</code></dt><dd><p>Pass one of <code>'norm'</code>, <code>'sum'</code>, <code>'mean'</code> or a
+custom function to aggregate the channels, e.g. the maximum
+(base::max) or minimum (base::min) over the channels or only
+individual channels with <code>function(x) x[1]</code>. By default (<code>'sum'</code>),
+the sum of all channels is used.<br />
+<strong>Note:</strong> This argument is used only for 2D and 3D inputs.</p></dd>
+
+<dt><code>as_plotly</code></dt><dd><p>This boolean value (default: <code>FALSE</code>) can be used to
+create an interactive plot based on the library <code>plotly</code>. This function
+takes use of <a href='https://rdrr.io/pkg/plotly/man/ggplotly.html'>plotly::ggplotly</a>, hence make sure that the suggested
+package <code>plotly</code> is installed in your R session.<br />
+<strong>Advanced:</strong> You can first
+output the results as a ggplot (<code>as_plotly = FALSE</code>) and then make
+custom changes to the plot, e.g. other theme or other fill color. Then
+you can manually call the function <code>ggplotly</code> to get an interactive
+plotly plot.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>Returns either a <a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot2::ggplot</a> (<code>as_plotly = FALSE</code>) or a
+<a href='https://rdrr.io/pkg/plotly/man/plot_ly.html'>plotly::plot_ly</a> (<code>as_plotly = TRUE</code>) with the plotted results.</p>
+<p><hr>
+<a id="method-boxplot"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/graphics/boxplot.html'>boxplot()</a></code></h3>
+<p>This function visualizes the results of this method in a boxplot, where
+the type of visualization depends on the input dimension of the data.
+By default a <a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot2::ggplot</a> is returned, but with the argument
+<code>as_plotly</code> an interactive <a href='https://rdrr.io/pkg/plotly/man/plot_ly.html'>plotly::plot_ly</a> plot can be created,
+which however requires a successful installation of the package
+<code>plotly</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>DeepLift</span><span class='op'>$</span><span class='fu'>boxplot</span><span class='op'>(</span>
+  output_idx <span class='op'>=</span> <span class='cn'>NULL</span>,
+  data_idx <span class='op'>=</span> <span class='st'>"all"</span>,
+  ref_data_idx <span class='op'>=</span> <span class='cn'>NULL</span>,
+  aggr_channels <span class='op'>=</span> <span class='st'>"norm"</span>,
+  preprocess_FUN <span class='op'>=</span> <span class='va'>abs</span>,
+  as_plotly <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  individual_data_idx <span class='op'>=</span> <span class='cn'>NULL</span>,
+  individual_max <span class='op'>=</span> <span class='fl'>20</span>
+<span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>output_idx</code></dt><dd><p>An integer vector containing the numbers of the
+output indices whose result is to be plotted, e.g. <code>c(1,4)</code> for the
+first and fourth model output. But this vector must be included in the
+vector <code>output_idx</code> from the initialization, otherwise, no results were
+calculated for this output node and can not be plotted. By default
+(<code>NULL</code>), the smallest index of all calculated output nodes is used.</p></dd>
+
+<dt><code>data_idx</code></dt><dd><p>By default ("all"), all available data is used to
+calculate the boxplot information. However, this parameter can be used
+to select a subset of them by passing the indices. E.g. with
+<code>data_idx = c(1:10, 25, 26)</code> only the first <code>10</code> data points and
+the 25th and 26th are used to calculate the boxplots.</p></dd>
+
+<dt><code>ref_data_idx</code></dt><dd><p>This integer number determines the index for the
+reference data point. In addition to the boxplots, it is displayed in
+red color and is used to compare an individual result with the summary
+statistics provided by the boxplot. With the default value (<code>NULL</code>)
+no individual data point is plotted. This index can be chosen with
+respect to all available data, even if only a subset is selected with
+argument <code>data_idx</code>.<br />
+<strong>Note:</strong> Because of the complexity of 3D inputs, this argument is used
+only for 1D and 2D inputs and disregarded for 3D inputs.</p></dd>
+
+<dt><code>aggr_channels</code></dt><dd><p>Pass one of <code>'norm'</code>, <code>'sum'</code>, <code>'mean'</code> or a
+custom function to aggregate the channels, e.g. the maximum
+(base::max) or minimum (base::min) over the channels or only
+individual channels with <code>function(x) x[1]</code>. By default (<code>'norm'</code>),
+the Euclidean norm of all channels is used.<br />
+<strong>Note:</strong> This argument is used only for 2D and 3D inputs.</p></dd>
+
+<dt><code>preprocess_FUN</code></dt><dd><p>This function is applied to the method's result
+before calculating the boxplots. Since positive and negative values
+often cancel each other out, the absolute value (<code>abs</code>) is used by
+default. But you can also use the raw data (<code>identity</code>) to see the
+results' orientation, the squared data (<code>function(x) x^2</code>) to weight
+the outliers higher or any other function.</p></dd>
+
+<dt><code>as_plotly</code></dt><dd><p>This boolean value (default: <code>FALSE</code>) can be used to
+create an interactive plot based on the library <code>plotly</code> instead of
+<code>ggplot2</code>. Make sure that the suggested package <code>plotly</code> is installed
+in your R session.</p></dd>
+
+<dt><code>individual_data_idx</code></dt><dd><p>Only relevant for a <code>plotly</code> plot with input
+dimension <code>1</code> or <code>2</code>! This integer vector of data indices determines
+the available data points in a dropdown menu, which are drawn in
+individually analogous to <code>ref_data_idx</code> only for more data points.
+With the default value <code>NULL</code> the first <code>individual_max</code> data points
+are used.<br />
+<strong>Note:</strong> If <code>ref_data_idx</code> is specified, this data point will be
+added to those from <code>individual_data_idx</code> in the dropdown menu.</p></dd>
+
+<dt><code>individual_max</code></dt><dd><p>Only relevant for a <code>plotly</code> plot with input
+dimension <code>1</code> or <code>2</code>! This integer determines the maximum number of
+individual data points in the dropdown menu without counting
+<code>ref_data_idx</code>. This means that if <code>individual_data_idx</code> has more
+than <code>individual_max</code> indices, only the first <code>individual_max</code> will
+be used. A too high number can significantly increase the runtime.</p></dd>
+
+</dl><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Returns</h4>
+<p>Returns either a <a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot2::ggplot</a> (<code>as_plotly = FALSE</code>) or a
+<a href='https://rdrr.io/pkg/plotly/man/plot_ly.html'>plotly::plot_ly</a> (<code>as_plotly = TRUE</code>) with the boxplots.</p>
+<p><hr>
+<a id="method-clone"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>clone()</code></h3>
+<p>The objects of this class are cloneable with this method.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>DeepLift</span><span class='op'>$</span><span class='fu'>clone</span><span class='op'>(</span>deep <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>deep</code></dt><dd><p>Whether to make a deep clone.</p></dd>
+
+</dl><p></div></p>
+
+
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/bips-hb/neuralnet'>neuralnet</a></span><span class='op'>)</span>
-<span class='co'># train a NN and create an analyzer</span>
-<span class='va'>nn</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/neuralnet/man/neuralnet.html'>neuralnet</a></span><span class='op'>(</span><span class='va'>Species</span> <span class='op'>~</span> <span class='va'>.</span>,
-                <span class='va'>iris</span>, linear.output <span class='op'>=</span> <span class='cn'>FALSE</span>,
-                hidden <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>10</span>,<span class='fl'>6</span><span class='op'>)</span>, act.fct <span class='op'>=</span> <span class='st'>"tanh"</span>, rep <span class='op'>=</span> <span class='fl'>1</span>, threshold <span class='op'>=</span> <span class='fl'>0.1</span> <span class='op'>)</span>
-<span class='va'>analyzer</span> <span class='op'>=</span> <span class='va'><a href='Analyzer.html'>Analyzer</a></span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>nn</span><span class='op'>)</span>
-
-<span class='co'># calculate contributions for x_ref = 0 with rescale rule</span>
-<span class='va'>result</span> <span class='op'>&lt;-</span> <span class='fu'>DeepLift</span><span class='op'>(</span><span class='va'>analyzer</span>, <span class='va'>iris</span><span class='op'>[</span>,<span class='op'>-</span><span class='fl'>5</span><span class='op'>]</span><span class='op'>)</span>
-<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>result</span><span class='op'>)</span>
-</div><div class='img'><img src='DeepLift-1.png' alt='' width='700' height='433' /></div><div class='input'>
-<span class='co'># calculate contributions for x_ref first datapoint with 'revealcancel' rule</span>
-<span class='va'>result</span> <span class='op'>&lt;-</span> <span class='fu'>DeepLift</span><span class='op'>(</span><span class='va'>analyzer</span>, <span class='va'>iris</span><span class='op'>[</span>,<span class='op'>-</span><span class='fl'>5</span><span class='op'>]</span>, x_ref <span class='op'>=</span> <span class='fl'>1</span>, rule_name <span class='op'>=</span> <span class='st'>"revealcancel"</span><span class='op'>)</span>
-<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>result</span><span class='op'>)</span>
-</div><div class='img'><img src='DeepLift-2.png' alt='' width='700' height='433' /></div><div class='input'>
-<span class='co'># compare class 'setosa' with 'virginica'</span>
-<span class='va'>result</span> <span class='op'>&lt;-</span> <span class='fu'>DeepLift</span><span class='op'>(</span><span class='va'>analyzer</span>, <span class='va'>iris</span><span class='op'>[</span><span class='va'>iris</span><span class='op'>$</span><span class='va'>Species</span> <span class='op'>==</span> <span class='st'>"setosa"</span>,<span class='op'>-</span><span class='fl'>5</span><span class='op'>]</span>,
-                   x_ref <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>colMeans</a></span><span class='op'>(</span><span class='va'>iris</span><span class='op'>[</span><span class='va'>iris</span><span class='op'>$</span><span class='va'>Species</span> <span class='op'>==</span> <span class='st'>"virginica"</span>,<span class='op'>-</span><span class='fl'>5</span><span class='op'>]</span><span class='op'>)</span>,
-                   rule_name <span class='op'>=</span> <span class='st'>"revealcancel"</span><span class='op'>)</span>
-<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>result</span><span class='op'>)</span>
-</div><div class='img'><img src='DeepLift-3.png' alt='' width='700' height='433' /></div><div class='input'>
-</div></pre>
+    <pre class="examples"><span class='r-in'><span class='co'>#----------------------- Example 1: Torch ----------------------------------</span></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://torch.mlverse.org/docs'>torch</a></span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Create nn_sequential model and data</span></span>
+<span class='r-in'><span class='va'>model</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://torch.mlverse.org/docs/reference/nn_sequential.html'>nn_sequential</a></span><span class='op'>(</span></span>
+<span class='r-in'>  <span class='fu'><a href='https://torch.mlverse.org/docs/reference/nn_linear.html'>nn_linear</a></span><span class='op'>(</span><span class='fl'>5</span>, <span class='fl'>12</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='fu'><a href='https://torch.mlverse.org/docs/reference/nn_relu.html'>nn_relu</a></span><span class='op'>(</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='fu'><a href='https://torch.mlverse.org/docs/reference/nn_linear.html'>nn_linear</a></span><span class='op'>(</span><span class='fl'>12</span>, <span class='fl'>2</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='fu'><a href='https://torch.mlverse.org/docs/reference/nn_softmax.html'>nn_softmax</a></span><span class='op'>(</span>dim <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>data</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://torch.mlverse.org/docs/reference/torch_randn.html'>torch_randn</a></span><span class='op'>(</span><span class='fl'>25</span>, <span class='fl'>5</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>ref</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://torch.mlverse.org/docs/reference/torch_randn.html'>torch_randn</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>5</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Create Converter</span></span>
+<span class='r-in'><span class='va'>converter</span> <span class='op'>&lt;-</span> <span class='va'><a href='Converter.html'>Converter</a></span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>model</span>, input_dim <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>5</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Apply method DeepLift</span></span>
+<span class='r-in'><span class='va'>deeplift</span> <span class='op'>&lt;-</span> <span class='va'>DeepLift</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>converter</span>, <span class='va'>data</span>, x_ref <span class='op'>=</span> <span class='va'>ref</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backwardpass 'DeepLift':</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |===================================                                   |  50%  |                                                                              |======================================================================| 100%</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Print the result as a torch tensor</span></span>
+<span class='r-in'><span class='va'>deeplift</span><span class='op'>$</span><span class='fu'>get_result</span><span class='op'>(</span><span class='st'>"torch.tensor"</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> torch_tensor</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> (1,.,.) = </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.4878  0.1014</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0356  0.1040</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.0513  0.2765</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.0478  0.0199</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.0093  0.1730</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> (2,.,.) = </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0331  0.0097</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0726  0.0163</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.0585  0.2316</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0365 -0.0057</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.0026  0.0835</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> (3,.,.) = </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.2185  0.0299</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0291  0.0864</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.0372  0.2433</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0030 -0.0006</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0013  0.1661</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> (4,.,.) = </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.2716  0.1259</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0309  0.0946</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.0640  0.3436</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.1488  0.0231</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0107  0.0743</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> (5,.,.) = </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0061  0.0067</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ... [the output was truncated (use n=-1 to disable)]</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [ CPUFloatType{25,5,2} ]</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Plot the result for both classes</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>deeplift</span>, output_idx <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span><span class='op'>)</span></span>
+<span class='r-plt img'><img src='DeepLift-1.png' alt='' width='700' height='433' /></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Plot the boxplot of all datapoints</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/graphics/boxplot.html'>boxplot</a></span><span class='op'>(</span><span class='va'>deeplift</span>, output_idx <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span><span class='op'>)</span></span>
+<span class='r-plt img'><img src='DeepLift-2.png' alt='' width='700' height='433' /></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># ------------------------- Example 2: Neuralnet ---------------------------</span></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/bips-hb/neuralnet'>neuralnet</a></span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>iris</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Train a neural network</span></span>
+<span class='r-in'><span class='va'>nn</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/neuralnet/man/neuralnet.html'>neuralnet</a></span><span class='op'>(</span><span class='op'>(</span><span class='va'>Species</span> <span class='op'>==</span> <span class='st'>"setosa"</span><span class='op'>)</span> <span class='op'>~</span> <span class='va'>Petal.Length</span> <span class='op'>+</span> <span class='va'>Petal.Width</span>,</span>
+<span class='r-in'>  <span class='va'>iris</span>,</span>
+<span class='r-in'>  linear.output <span class='op'>=</span> <span class='cn'>FALSE</span>,</span>
+<span class='r-in'>  hidden <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>3</span>, <span class='fl'>2</span><span class='op'>)</span>, act.fct <span class='op'>=</span> <span class='st'>"tanh"</span>, rep <span class='op'>=</span> <span class='fl'>1</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Convert the model</span></span>
+<span class='r-in'><span class='va'>converter</span> <span class='op'>&lt;-</span> <span class='va'><a href='Converter.html'>Converter</a></span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>nn</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Apply DeepLift with rescale-rule and a reference input of the feature</span></span>
+<span class='r-in'><span class='co'># means</span></span>
+<span class='r-in'><span class='va'>x_ref</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>colMeans</a></span><span class='op'>(</span><span class='va'>iris</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>3</span>, <span class='fl'>4</span><span class='op'>)</span><span class='op'>]</span><span class='op'>)</span>, nrow <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>deeplift_rescale</span> <span class='op'>&lt;-</span> <span class='va'>DeepLift</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>converter</span>, <span class='va'>iris</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>3</span>, <span class='fl'>4</span><span class='op'>)</span><span class='op'>]</span>, x_ref <span class='op'>=</span> <span class='va'>x_ref</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backwardpass 'DeepLift':</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=======================                                               |  33%  |                                                                              |===============================================                       |  67%  |                                                                              |======================================================================| 100%</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Get the result as a dataframe</span></span>
+<span class='r-in'><span class='va'>deeplift_rescale</span><span class='op'>$</span><span class='fu'>get_result</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>"data.frame"</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         data      feature               class         value</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 1     data_1 Petal.Length Species == "setosa"  5.786828e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 2     data_2 Petal.Length Species == "setosa"  5.786828e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 3     data_3 Petal.Length Species == "setosa"  5.975665e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 4     data_4 Petal.Length Species == "setosa"  5.592952e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 5     data_5 Petal.Length Species == "setosa"  5.786828e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 6     data_6 Petal.Length Species == "setosa"  6.058068e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 7     data_7 Petal.Length Species == "setosa"  6.247999e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 8     data_8 Petal.Length Species == "setosa"  5.592952e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 9     data_9 Petal.Length Species == "setosa"  5.786828e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 10   data_10 Petal.Length Species == "setosa"  5.187864e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 11   data_11 Petal.Length Species == "setosa"  5.592952e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 12   data_12 Petal.Length Species == "setosa"  5.394083e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 13   data_13 Petal.Length Species == "setosa"  5.365065e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 14   data_14 Petal.Length Species == "setosa"  5.867732e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 15   data_15 Petal.Length Species == "setosa"  6.159433e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 16   data_16 Petal.Length Species == "setosa"  6.532457e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 17   data_17 Petal.Length Species == "setosa"  6.986089e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 18   data_18 Petal.Length Species == "setosa"  6.247999e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 19   data_19 Petal.Length Species == "setosa"  5.598973e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 20   data_20 Petal.Length Species == "setosa"  6.036686e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 21   data_21 Petal.Length Species == "setosa"  5.190277e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 22   data_22 Petal.Length Species == "setosa"  6.532457e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 23   data_23 Petal.Length Species == "setosa"  6.511707e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 24   data_24 Petal.Length Species == "setosa"  6.572961e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 25   data_25 Petal.Length Species == "setosa"  4.768115e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 26   data_26 Petal.Length Species == "setosa"  5.394083e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 27   data_27 Petal.Length Species == "setosa"  6.297836e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 28   data_28 Petal.Length Species == "setosa"  5.592952e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 29   data_29 Petal.Length Species == "setosa"  5.786828e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 30   data_30 Petal.Length Species == "setosa"  5.394083e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 31   data_31 Petal.Length Species == "setosa"  5.394083e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 32   data_32 Petal.Length Species == "setosa"  6.532457e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 33   data_33 Petal.Length Species == "setosa"  5.187864e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 34   data_34 Petal.Length Species == "setosa"  5.786828e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 35   data_35 Petal.Length Species == "setosa"  5.592952e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 36   data_36 Petal.Length Species == "setosa"  6.159433e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 37   data_37 Petal.Length Species == "setosa"  5.975665e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 38   data_38 Petal.Length Species == "setosa"  5.365065e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 39   data_39 Petal.Length Species == "setosa"  5.975665e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 40   data_40 Petal.Length Species == "setosa"  5.592952e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 41   data_41 Petal.Length Species == "setosa"  6.454197e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 42   data_42 Petal.Length Species == "setosa"  6.454197e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 43   data_43 Petal.Length Species == "setosa"  5.975665e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 44   data_44 Petal.Length Species == "setosa"  7.372791e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 45   data_45 Petal.Length Species == "setosa"  5.563210e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 46   data_46 Petal.Length Species == "setosa"  6.247999e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 47   data_47 Petal.Length Species == "setosa"  5.394083e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 48   data_48 Petal.Length Species == "setosa"  5.786828e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 49   data_49 Petal.Length Species == "setosa"  5.592952e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 50   data_50 Petal.Length Species == "setosa"  5.786828e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 51   data_51 Petal.Length Species == "setosa"  1.161246e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 52   data_52 Petal.Length Species == "setosa"  9.041270e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 53   data_53 Petal.Length Species == "setosa"  1.259371e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 54   data_54 Petal.Length Species == "setosa"  3.691216e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 55   data_55 Petal.Length Species == "setosa"  1.000305e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 56   data_56 Petal.Length Species == "setosa"  1.001322e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 57   data_57 Petal.Length Species == "setosa"  1.015581e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 58   data_58 Petal.Length Species == "setosa"  1.249630e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 59   data_59 Petal.Length Species == "setosa"  1.109051e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 60   data_60 Petal.Length Species == "setosa"  2.152685e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 61   data_61 Petal.Length Species == "setosa" -1.306985e-05</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 62   data_62 Petal.Length Species == "setosa"  5.820504e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 63   data_63 Petal.Length Species == "setosa"  1.340316e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 64   data_64 Petal.Length Species == "setosa"  1.161246e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 65   data_65 Petal.Length Species == "setosa" -2.659187e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 66   data_66 Petal.Length Species == "setosa"  8.539401e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 67   data_67 Petal.Length Species == "setosa"  9.041270e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 68   data_68 Petal.Length Species == "setosa"  2.111363e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 69   data_69 Petal.Length Species == "setosa"  9.041270e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 70   data_70 Petal.Length Species == "setosa"  1.766774e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 71   data_71 Petal.Length Species == "setosa"  9.416455e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 72   data_72 Petal.Length Species == "setosa"  3.691216e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 73   data_73 Petal.Length Species == "setosa"  1.259371e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 74   data_74 Petal.Length Species == "setosa"  1.213697e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 75   data_75 Petal.Length Species == "setosa"  7.680223e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 76   data_76 Petal.Length Species == "setosa"  8.539401e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 77   data_77 Petal.Length Species == "setosa"  1.252925e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 78   data_78 Petal.Length Species == "setosa"  1.157438e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 79   data_79 Petal.Length Species == "setosa"  9.041270e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 80   data_80 Petal.Length Species == "setosa" -1.306985e-05</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 81   data_81 Petal.Length Species == "setosa"  5.213276e-05</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 82   data_82 Petal.Length Species == "setosa" -1.715038e-05</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 83   data_83 Petal.Length Species == "setosa"  2.148229e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 84   data_84 Petal.Length Species == "setosa"  1.315382e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 85   data_85 Petal.Length Species == "setosa"  9.041270e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 86   data_86 Petal.Length Species == "setosa"  8.404162e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 87   data_87 Petal.Length Species == "setosa"  1.091375e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 88   data_88 Petal.Length Species == "setosa"  8.877307e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 89   data_89 Petal.Length Species == "setosa"  5.089723e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 90   data_90 Petal.Length Species == "setosa"  3.691216e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 91   data_91 Petal.Length Species == "setosa"  8.800988e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 92   data_92 Petal.Length Species == "setosa"  1.064404e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 93   data_93 Petal.Length Species == "setosa"  3.591168e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 94   data_94 Petal.Length Species == "setosa"  1.249630e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 95   data_95 Petal.Length Species == "setosa"  6.418366e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 96   data_96 Petal.Length Species == "setosa"  6.308465e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 97   data_97 Petal.Length Species == "setosa"  6.418366e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 98   data_98 Petal.Length Species == "setosa"  7.680223e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 99   data_99 Petal.Length Species == "setosa" -7.764744e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 100 data_100 Petal.Length Species == "setosa"  5.089723e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 101 data_101 Petal.Length Species == "setosa"  1.051110e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 102 data_102 Petal.Length Species == "setosa"  1.055910e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 103 data_103 Petal.Length Species == "setosa"  1.272806e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 104 data_104 Petal.Length Species == "setosa"  1.405127e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 105 data_105 Petal.Length Species == "setosa"  1.161981e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 106 data_106 Petal.Length Species == "setosa"  1.509406e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 107 data_107 Petal.Length Species == "setosa"  7.772498e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 108 data_108 Petal.Length Species == "setosa"  1.694404e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 109 data_109 Petal.Length Species == "setosa"  1.496989e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 110 data_110 Petal.Length Species == "setosa"  1.083239e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 111 data_111 Petal.Length Species == "setosa"  9.833663e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 112 data_112 Petal.Length Species == "setosa"  1.165249e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 113 data_113 Petal.Length Species == "setosa"  1.108628e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 114 data_114 Petal.Length Species == "setosa"  9.280673e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 115 data_115 Petal.Length Species == "setosa"  7.585587e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 116 data_116 Petal.Length Species == "setosa"  8.962807e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 117 data_117 Petal.Length Species == "setosa"  1.356058e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 118 data_118 Petal.Length Species == "setosa"  1.459089e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 119 data_119 Petal.Length Species == "setosa"  1.440558e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 120 data_120 Petal.Length Species == "setosa"  1.336797e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 121 data_121 Petal.Length Species == "setosa"  1.059276e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 122 data_122 Petal.Length Species == "setosa"  8.704212e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 123 data_123 Petal.Length Species == "setosa"  1.626051e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 124 data_124 Petal.Length Species == "setosa"  1.009433e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 125 data_125 Petal.Length Species == "setosa"  1.193726e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 126 data_126 Petal.Length Species == "setosa"  1.581113e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 127 data_127 Petal.Length Species == "setosa"  9.416455e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 128 data_128 Petal.Length Species == "setosa"  1.009433e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 129 data_129 Petal.Length Species == "setosa"  1.151977e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 130 data_130 Petal.Length Species == "setosa"  1.712118e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 131 data_131 Petal.Length Species == "setosa"  1.520735e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 132 data_132 Petal.Length Species == "setosa"  1.533128e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 133 data_133 Petal.Length Species == "setosa"  1.082923e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 134 data_134 Petal.Length Species == "setosa"  1.410090e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 135 data_135 Petal.Length Species == "setosa"  1.829657e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 136 data_136 Petal.Length Species == "setosa"  1.202366e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 137 data_137 Petal.Length Species == "setosa"  9.641047e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 138 data_138 Petal.Length Species == "setosa"  1.356058e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 139 data_139 Petal.Length Species == "setosa"  9.416455e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 140 data_140 Petal.Length Species == "setosa"  1.063626e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 141 data_141 Petal.Length Species == "setosa"  9.641047e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 142 data_142 Petal.Length Species == "setosa"  8.061634e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 143 data_143 Petal.Length Species == "setosa"  1.055910e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 144 data_144 Petal.Length Species == "setosa"  1.133095e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 145 data_145 Petal.Length Species == "setosa"  9.490352e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 146 data_146 Petal.Length Species == "setosa"  8.520021e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 147 data_147 Petal.Length Species == "setosa"  9.975224e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 148 data_148 Petal.Length Species == "setosa"  1.036409e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 149 data_149 Petal.Length Species == "setosa"  9.390843e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 150 data_150 Petal.Length Species == "setosa"  1.135804e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 151   data_1  Petal.Width Species == "setosa"  2.073211e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 152   data_2  Petal.Width Species == "setosa"  2.073211e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 153   data_3  Petal.Width Species == "setosa"  2.053850e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 154   data_4  Petal.Width Species == "setosa"  2.092731e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 155   data_5  Petal.Width Species == "setosa"  2.073211e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 156   data_6  Petal.Width Species == "setosa"  2.021892e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 157   data_7  Petal.Width Species == "setosa"  2.024285e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 158   data_8  Petal.Width Species == "setosa"  2.092731e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 159   data_9  Petal.Width Species == "setosa"  2.073211e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 160  data_10  Petal.Width Species == "setosa"  2.130347e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 161  data_11  Petal.Width Species == "setosa"  2.092731e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 162  data_12  Petal.Width Species == "setosa"  2.112408e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 163  data_13  Petal.Width Species == "setosa"  2.110967e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 164  data_14  Petal.Width Species == "setosa"  2.053809e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 165  data_15  Petal.Width Species == "setosa"  2.034650e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 166  data_16  Petal.Width Species == "setosa"  1.981727e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 167  data_17  Petal.Width Species == "setosa"  1.942290e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 168  data_18  Petal.Width Species == "setosa"  2.024285e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 169  data_19  Petal.Width Species == "setosa"  2.083892e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 170  data_20  Petal.Width Species == "setosa"  2.043976e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 171  data_21  Petal.Width Species == "setosa"  2.132242e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 172  data_22  Petal.Width Species == "setosa"  1.981727e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 173  data_23  Petal.Width Species == "setosa"  1.996754e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 174  data_24  Petal.Width Species == "setosa"  1.938691e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 175  data_25  Petal.Width Species == "setosa"  2.172375e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 176  data_26  Petal.Width Species == "setosa"  2.112408e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 177  data_27  Petal.Width Species == "setosa"  2.001720e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 178  data_28  Petal.Width Species == "setosa"  2.092731e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 179  data_29  Petal.Width Species == "setosa"  2.073211e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 180  data_30  Petal.Width Species == "setosa"  2.112408e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 181  data_31  Petal.Width Species == "setosa"  2.112408e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 182  data_32  Petal.Width Species == "setosa"  1.981727e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 183  data_33  Petal.Width Species == "setosa"  2.130347e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 184  data_34  Petal.Width Species == "setosa"  2.073211e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 185  data_35  Petal.Width Species == "setosa"  2.092731e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 186  data_36  Petal.Width Species == "setosa"  2.034650e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 187  data_37  Petal.Width Species == "setosa"  2.053850e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 188  data_38  Petal.Width Species == "setosa"  2.110967e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 189  data_39  Petal.Width Species == "setosa"  2.053850e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 190  data_40  Petal.Width Species == "setosa"  2.092731e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 191  data_41  Petal.Width Species == "setosa"  2.004773e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 192  data_42  Petal.Width Species == "setosa"  2.004773e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 193  data_43  Petal.Width Species == "setosa"  2.053850e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 194  data_44  Petal.Width Species == "setosa"  1.791671e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 195  data_45  Petal.Width Species == "setosa"  2.062749e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 196  data_46  Petal.Width Species == "setosa"  2.024285e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 197  data_47  Petal.Width Species == "setosa"  2.112408e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 198  data_48  Petal.Width Species == "setosa"  2.073211e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 199  data_49  Petal.Width Species == "setosa"  2.092731e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 200  data_50  Petal.Width Species == "setosa"  2.073211e+00</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 201  data_51  Petal.Width Species == "setosa"  6.194896e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 202  data_52  Petal.Width Species == "setosa"  1.013875e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 203  data_53  Petal.Width Species == "setosa"  9.191023e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 204  data_54  Petal.Width Species == "setosa"  2.869900e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 205  data_55  Petal.Width Species == "setosa"  9.891046e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 206  data_56  Petal.Width Species == "setosa"  2.749705e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 207  data_57  Petal.Width Species == "setosa"  1.272019e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 208  data_58  Petal.Width Species == "setosa"  4.176986e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 209  data_59  Petal.Width Species == "setosa"  2.717855e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 210  data_60  Petal.Width Species == "setosa"  7.333642e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 211  data_61  Petal.Width Species == "setosa"  3.376136e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 212  data_62  Petal.Width Species == "setosa"  1.092873e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 213  data_63  Petal.Width Species == "setosa"  1.981329e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 214  data_64  Petal.Width Species == "setosa"  6.194896e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 215  data_65  Petal.Width Species == "setosa"  2.888624e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 216  data_66  Petal.Width Species == "setosa"  6.606985e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 217  data_67  Petal.Width Species == "setosa"  1.013875e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 218  data_68  Petal.Width Species == "setosa"  1.778730e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 219  data_69  Petal.Width Species == "setosa"  1.013875e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 220  data_70  Petal.Width Species == "setosa"  2.765463e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 221  data_71  Petal.Width Species == "setosa"  1.704874e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 222  data_72  Petal.Width Species == "setosa"  2.869900e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 223  data_73  Petal.Width Species == "setosa"  9.191023e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 224  data_74  Petal.Width Species == "setosa"  1.124834e-06</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 225  data_75  Petal.Width Species == "setosa"  2.807076e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 226  data_76  Petal.Width Species == "setosa"  6.606985e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 227  data_77  Petal.Width Species == "setosa"  6.062557e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 228  data_78  Petal.Width Species == "setosa"  1.421958e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 229  data_79  Petal.Width Species == "setosa"  1.013875e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 230  data_80  Petal.Width Species == "setosa"  3.376136e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 231  data_81  Petal.Width Species == "setosa"  3.230721e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 232  data_82  Petal.Width Species == "setosa"  2.729709e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 233  data_83  Petal.Width Species == "setosa"  7.073054e-07</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 234  data_84  Petal.Width Species == "setosa"  1.151332e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 235  data_85  Petal.Width Species == "setosa"  1.013875e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 236  data_86  Petal.Width Species == "setosa"  1.338896e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 237  data_87  Petal.Width Species == "setosa"  9.650306e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 238  data_88  Petal.Width Species == "setosa"  2.779381e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 239  data_89  Petal.Width Species == "setosa"  2.852471e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 240  data_90  Petal.Width Species == "setosa"  2.869900e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 241  data_91  Petal.Width Species == "setosa"  1.022573e-06</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 242  data_92  Petal.Width Species == "setosa"  6.330112e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 243  data_93  Petal.Width Species == "setosa"  7.870245e-07</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 244  data_94  Petal.Width Species == "setosa"  4.176986e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 245  data_95  Petal.Width Species == "setosa"  2.831322e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 246  data_96  Petal.Width Species == "setosa"  9.219341e-07</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 247  data_97  Petal.Width Species == "setosa"  2.831322e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 248  data_98  Petal.Width Species == "setosa"  2.807076e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 249  data_99  Petal.Width Species == "setosa"  9.339002e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 250 data_100  Petal.Width Species == "setosa"  2.852471e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 251 data_101  Petal.Width Species == "setosa"  1.994599e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 252 data_102  Petal.Width Species == "setosa"  1.752483e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 253 data_103  Petal.Width Species == "setosa"  1.711161e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 254 data_104  Petal.Width Species == "setosa"  1.415082e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 255 data_105  Petal.Width Species == "setosa"  1.839434e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 256 data_106  Petal.Width Species == "setosa"  1.506972e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 257 data_107  Petal.Width Species == "setosa"  1.612175e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 258 data_108  Petal.Width Species == "setosa"  1.218472e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 259 data_109  Petal.Width Species == "setosa"  1.354217e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 260 data_110  Petal.Width Species == "setosa"  1.964110e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 261 data_111  Petal.Width Species == "setosa"  1.890306e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 262 data_112  Petal.Width Species == "setosa"  1.675584e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 263 data_113  Petal.Width Species == "setosa"  1.848858e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 264 data_114  Petal.Width Species == "setosa"  1.932059e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 265 data_115  Petal.Width Species == "setosa"  2.250489e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 266 data_116  Petal.Width Species == "setosa"  2.102172e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 267 data_117  Petal.Width Species == "setosa"  1.447127e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 268 data_118  Petal.Width Species == "setosa"  1.573753e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 269 data_119  Petal.Width Species == "setosa"  1.605573e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 270 data_120  Petal.Width Species == "setosa"  8.971838e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 271 data_121  Petal.Width Species == "setosa"  1.956140e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 272 data_122  Petal.Width Species == "setosa"  1.975258e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 273 data_123  Petal.Width Species == "setosa"  1.376642e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 274 data_124  Petal.Width Species == "setosa"  1.664093e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 275 data_125  Petal.Width Species == "setosa"  1.777867e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 276 data_126  Petal.Width Species == "setosa"  1.297262e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 277 data_127  Petal.Width Species == "setosa"  1.704874e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 278 data_128  Petal.Width Species == "setosa"  1.664093e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 279 data_129  Petal.Width Species == "setosa"  1.812837e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 280 data_130  Petal.Width Species == "setosa"  9.756823e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 281 data_131  Petal.Width Species == "setosa"  1.414636e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 282 data_132  Petal.Width Species == "setosa"  1.454500e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 283 data_133  Petal.Width Species == "setosa"  1.908587e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 284 data_134  Petal.Width Species == "setosa"  8.758424e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 285 data_135  Petal.Width Species == "setosa"  5.100123e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 286 data_136  Petal.Width Species == "setosa"  1.826147e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 287 data_137  Petal.Width Species == "setosa"  2.062536e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 288 data_138  Petal.Width Species == "setosa"  1.447127e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 289 data_139  Petal.Width Species == "setosa"  1.704874e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 290 data_140  Petal.Width Species == "setosa"  1.886034e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 291 data_141  Petal.Width Species == "setosa"  2.062536e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 292 data_142  Petal.Width Species == "setosa"  2.181996e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 293 data_143  Petal.Width Species == "setosa"  1.752483e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 294 data_144  Petal.Width Species == "setosa"  1.889268e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 295 data_145  Petal.Width Species == "setosa"  2.091033e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 296 data_146  Petal.Width Species == "setosa"  2.141508e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 297 data_147  Petal.Width Species == "setosa"  1.792882e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 298 data_148  Petal.Width Species == "setosa"  1.849872e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 299 data_149  Petal.Width Species == "setosa"  2.064008e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 300 data_150  Petal.Width Species == "setosa"  1.586693e-03</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Plot the result for the first datapoint in the data</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>deeplift_rescale</span>, data_idx <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span></span>
+<span class='r-plt img'><img src='DeepLift-3.png' alt='' width='700' height='433' /></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Plot the result as boxplots</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/graphics/boxplot.html'>boxplot</a></span><span class='op'>(</span><span class='va'>deeplift_rescale</span><span class='op'>)</span></span>
+<span class='r-plt img'><img src='DeepLift-4.png' alt='' width='700' height='433' /></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># ------------------------- Example 3: Keras -------------------------------</span></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://keras.rstudio.com'>keras</a></span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://keras.rstudio.com/reference/is_keras_available.html'>is_keras_available</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'>  <span class='va'>data</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/array.html'>array</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fl'>10</span> <span class='op'>*</span> <span class='fl'>32</span> <span class='op'>*</span> <span class='fl'>32</span> <span class='op'>*</span> <span class='fl'>3</span><span class='op'>)</span>, dim <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>10</span>, <span class='fl'>32</span>, <span class='fl'>32</span>, <span class='fl'>3</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'>  <span class='va'>model</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://keras.rstudio.com/reference/keras_model_sequential.html'>keras_model_sequential</a></span><span class='op'>(</span><span class='op'>)</span></span>
+<span class='r-in'>  <span class='va'>model</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span class='r-in'>    <span class='fu'><a href='https://keras.rstudio.com/reference/layer_conv_2d.html'>layer_conv_2d</a></span><span class='op'>(</span></span>
+<span class='r-in'>      input_shape <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>32</span>, <span class='fl'>32</span>, <span class='fl'>3</span><span class='op'>)</span>, kernel_size <span class='op'>=</span> <span class='fl'>8</span>, filters <span class='op'>=</span> <span class='fl'>8</span>,</span>
+<span class='r-in'>      activation <span class='op'>=</span> <span class='st'>"softplus"</span>, padding <span class='op'>=</span> <span class='st'>"valid"</span></span>
+<span class='r-in'>    <span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span class='r-in'>    <span class='fu'><a href='https://keras.rstudio.com/reference/layer_conv_2d.html'>layer_conv_2d</a></span><span class='op'>(</span></span>
+<span class='r-in'>      kernel_size <span class='op'>=</span> <span class='fl'>8</span>, filters <span class='op'>=</span> <span class='fl'>4</span>, activation <span class='op'>=</span> <span class='st'>"tanh"</span>,</span>
+<span class='r-in'>      padding <span class='op'>=</span> <span class='st'>"same"</span></span>
+<span class='r-in'>    <span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span class='r-in'>    <span class='fu'><a href='https://keras.rstudio.com/reference/layer_conv_2d.html'>layer_conv_2d</a></span><span class='op'>(</span></span>
+<span class='r-in'>      kernel_size <span class='op'>=</span> <span class='fl'>4</span>, filters <span class='op'>=</span> <span class='fl'>2</span>, activation <span class='op'>=</span> <span class='st'>"relu"</span>,</span>
+<span class='r-in'>      padding <span class='op'>=</span> <span class='st'>"valid"</span></span>
+<span class='r-in'>    <span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span class='r-in'>    <span class='fu'><a href='https://keras.rstudio.com/reference/layer_flatten.html'>layer_flatten</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span class='r-in'>    <span class='fu'><a href='https://keras.rstudio.com/reference/layer_dense.html'>layer_dense</a></span><span class='op'>(</span>units <span class='op'>=</span> <span class='fl'>64</span>, activation <span class='op'>=</span> <span class='st'>"relu"</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span class='r-in'>    <span class='fu'><a href='https://keras.rstudio.com/reference/layer_dense.html'>layer_dense</a></span><span class='op'>(</span>units <span class='op'>=</span> <span class='fl'>16</span>, activation <span class='op'>=</span> <span class='st'>"relu"</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span class='r-in'>    <span class='fu'><a href='https://keras.rstudio.com/reference/layer_dense.html'>layer_dense</a></span><span class='op'>(</span>units <span class='op'>=</span> <span class='fl'>2</span>, activation <span class='op'>=</span> <span class='st'>"softmax"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'>  <span class='co'># Convert the model</span></span>
+<span class='r-in'>  <span class='va'>converter</span> <span class='op'>&lt;-</span> <span class='va'><a href='Converter.html'>Converter</a></span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>model</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'>  <span class='co'># Apply the DeepLift method with reveal-cancel rule</span></span>
+<span class='r-in'>  <span class='va'>deeplift_revcancel</span> <span class='op'>&lt;-</span> <span class='va'>DeepLift</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>converter</span>, <span class='va'>data</span>,</span>
+<span class='r-in'>    channels_first <span class='op'>=</span> <span class='cn'>FALSE</span>,</span>
+<span class='r-in'>    rule_name <span class='op'>=</span> <span class='st'>"reveal_cancel"</span></span>
+<span class='r-in'>  <span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'>  <span class='co'># Plot the result for the first image and both classes</span></span>
+<span class='r-in'>  <span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>deeplift_revcancel</span>, output_idx <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'>  <span class='co'># Plot the result as boxplots for first class</span></span>
+<span class='r-in'>  <span class='fu'><a href='https://rdrr.io/r/graphics/boxplot.html'>boxplot</a></span><span class='op'>(</span><span class='va'>deeplift_revcancel</span>, output_idx <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'>  <span class='co'># You can also create an interactive plot with plotly.</span></span>
+<span class='r-in'>  <span class='co'># This is a suggested package, so make sure that it is installed</span></span>
+<span class='r-in'>  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://plotly-r.com'>plotly</a></span><span class='op'>)</span></span>
+<span class='r-in'>  <span class='fu'><a href='https://rdrr.io/r/graphics/boxplot.html'>boxplot</a></span><span class='op'>(</span><span class='va'>deeplift_revcancel</span>, as_plotly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>}</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backwardpass 'DeepLift':</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |==========                                                            |  14%  |                                                                              |====================                                                  |  29%  |                                                                              |==============================                                        |  43%  |                                                                              |========================================                              |  57%  |                                                                              |==================================================                    |  71%  |                                                                              |============================================================          |  86%  |                                                                              |======================================================================| 100%</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># ------------------------- Advanced: Plotly -------------------------------</span></span>
+<span class='r-in'><span class='co'># If you want to create an interactive plot of your results with custom</span></span>
+<span class='r-in'><span class='co'># changes, you can take use of the method plotly::ggplotly</span></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://ggplot2.tidyverse.org'>ggplot2</a></span><span class='op'>)</span></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/bips-hb/neuralnet'>neuralnet</a></span><span class='op'>)</span></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://plotly-r.com'>plotly</a></span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>iris</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='va'>nn</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/neuralnet/man/neuralnet.html'>neuralnet</a></span><span class='op'>(</span><span class='va'>Species</span> <span class='op'>~</span> <span class='va'>.</span>,</span>
+<span class='r-in'>  <span class='va'>iris</span>,</span>
+<span class='r-in'>  linear.output <span class='op'>=</span> <span class='cn'>FALSE</span>,</span>
+<span class='r-in'>  hidden <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>10</span>, <span class='fl'>8</span><span class='op'>)</span>, act.fct <span class='op'>=</span> <span class='st'>"tanh"</span>, rep <span class='op'>=</span> <span class='fl'>1</span>, threshold <span class='op'>=</span> <span class='fl'>0.5</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># create an converter for this model</span></span>
+<span class='r-in'><span class='va'>converter</span> <span class='op'>&lt;-</span> <span class='va'><a href='Converter.html'>Converter</a></span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>nn</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># create new instance of 'DeepLift'</span></span>
+<span class='r-in'><span class='va'>deeplift</span> <span class='op'>&lt;-</span> <span class='va'>DeepLift</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>converter</span>, <span class='va'>iris</span><span class='op'>[</span>, <span class='op'>-</span><span class='fl'>5</span><span class='op'>]</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backwardpass 'DeepLift':</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=======================                                               |  33%  |                                                                              |===============================================                       |  67%  |                                                                              |======================================================================| 100%</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Get the ggplot and add your changes</span></span>
+<span class='r-in'><span class='va'>p</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>deeplift</span>, output_idx <span class='op'>=</span> <span class='fl'>1</span>, data_idx <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span><span class='op'>)</span> <span class='op'>+</span></span>
+<span class='r-in'>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_bw</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>+</span></span>
+<span class='r-in'>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/scale_gradient.html'>scale_fill_gradient2</a></span><span class='op'>(</span>low <span class='op'>=</span> <span class='st'>"green"</span>, mid <span class='op'>=</span> <span class='st'>"black"</span>, high <span class='op'>=</span> <span class='st'>"blue"</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Scale for 'fill' is already present. Adding another scale for 'fill', which</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> will replace the existing scale.</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Now apply the method plotly::ggplotly with argument tooltip = "text"</span></span>
+<span class='r-in'><span class='fu'>plotly</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/plotly/man/ggplotly.html'>ggplotly</a></span><span class='op'>(</span><span class='va'>p</span>, tooltip <span class='op'>=</span> <span class='st'>"text"</span><span class='op'>)</span></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>SmoothGrad method — SmoothGrad • msIML</title>
+<title>SmoothGrad Method — SmoothGrad • innsight</title>
 
 
 <!-- jquery -->
@@ -39,10 +39,11 @@
 
 
 
-<meta property="og:title" content="SmoothGrad method — SmoothGrad" />
-<meta property="og:description" content="SmoothGrad was introduced by D. Smilkov et al. (2017) and is an extension to
-the classical Gradient method. It takes the mean of the gradients for n
-perturbations of each data point, i.e. with \(\epsilon ~ N(0,\sigma)\)
+<meta property="og:title" content="SmoothGrad Method — SmoothGrad" />
+<meta property="og:description" content="'SmoothGrad' was introduced by D. Smilkov et al. (2017) and is an extension
+to the classical Vanilla Gradient method. It takes the mean of the
+gradients for n perturbations of each data point, i.e. with
+\(\epsilon \sim N(0,\sigma)\)
 $$1/n \sum_n d f(x+ \epsilon)_j / d x_j.$$" />
 
 
@@ -74,7 +75,7 @@ $$1/n \sum_n d f(x+ \epsilon)_j / d x_j.$$" />
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">msIML</a>
+        <a class="navbar-link" href="../index.html">innsight</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
       </span>
     </div>
@@ -90,9 +91,26 @@ $$1/n \sum_n d f(x+ \epsilon)_j / d x_j.$$" />
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/Introduction.html">Introduction to `innsight`</a>
+    </li>
+  </ul>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/bips-hb/innsight/">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -106,70 +124,514 @@ $$1/n \sum_n d f(x+ \epsilon)_j / d x_j.$$" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>SmoothGrad method</h1>
-    
+    <h1>SmoothGrad Method</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bips-hb/innsight/blob/master/R/GradienBased.R'><code>R/GradienBased.R</code></a></small>
     <div class="hidden name"><code>SmoothGrad.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>SmoothGrad was introduced by D. Smilkov et al. (2017) and is an extension to
-the classical <a href='Gradient.html'>Gradient</a> method. It takes the mean of the gradients for <code>n</code>
-perturbations of each data point, i.e. with \(\epsilon ~ N(0,\sigma)\)
+    <p>'SmoothGrad' was introduced by D. Smilkov et al. (2017) and is an extension
+to the classical Vanilla <a href='Gradient.html'>Gradient</a> method. It takes the mean of the
+gradients for <code>n</code> perturbations of each data point, i.e. with
+\(\epsilon \sim N(0,\sigma)\)
 $$1/n \sum_n d f(x+ \epsilon)_j / d x_j.$$</p>
     </div>
 
-    <pre class="usage"><span class='fu'>SmoothGrad</span><span class='op'>(</span>
-  <span class='va'>analyzer</span>,
-  <span class='va'>data</span>,
-  n <span class='op'>=</span> <span class='fl'>50</span>,
-  noise_level <span class='op'>=</span> <span class='fl'>0.1</span>,
-  times_input <span class='op'>=</span> <span class='cn'>FALSE</span>,
-  ignore_last_act <span class='op'>=</span> <span class='cn'>TRUE</span>
-<span class='op'>)</span></pre>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>analyzer</th>
-      <td><p>An instance of the R6 class <code><a href='Analyzer.html'>Analyzer</a></code>.</p></td>
-    </tr>
-    <tr>
-      <th>data</th>
-      <td><p>Either a matrix or a data frame, where each row must describe an
-input to the network.</p></td>
-    </tr>
-    <tr>
-      <th>n</th>
-      <td><p>Number of perturbations of the input vector (default: \(50\)).</p></td>
-    </tr>
-    <tr>
-      <th>noise_level</th>
-      <td><p>Determines the standard deviation of the gaussian
-perturbation, i.e. \(\sigma = (max(x) - min(x)) *\) <code>noise_level</code>.</p></td>
-    </tr>
-    <tr>
-      <th>times_input</th>
-      <td><p>Multiplies the gradients with the input features. This
-method is called 'Gradient x Inputs'.</p></td>
-    </tr>
-    <tr>
-      <th>ignore_last_act</th>
-      <td><p>Calculate the gradients of the output or the preactivation
-of the output (default: <code>TRUE</code>).</p></td>
-    </tr>
-    </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>Returns an array of size <em>(dim_in, dim_out, num_data)</em> which
-contains the smoothed gradients for each input variable to the
-output predictions for each element in the given data.</p>
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
     <p>D. Smilkov et al. (2017) <em>SmoothGrad: removing noise by adding noise.</em>
 CoRR, abs/1706.03825</p>
+    <h2 class="hasAnchor" id="super-classes"><a class="anchor" href="#super-classes"></a>Super classes</h2>
 
+    <p><code><a href='InterpretingMethod.html'>innsight::InterpretingMethod</a></code> -&gt; <code><a href='GradientBased.html'>innsight::GradientBased</a></code> -&gt; <code>SmoothGrad</code></p>
+    <h2 class="hasAnchor" id="public-fields"><a class="anchor" href="#public-fields"></a>Public fields</h2>
+
+    <p><div class="r6-fields"></p><dl>
+<dt><code>n</code></dt><dd><p>Number of perturbations of the input data (default: \(50\)).</p></dd>
+
+<dt><code>noise_level</code></dt><dd><p>The standard deviation of the Gaussian
+perturbation, i.e. \(\sigma = (max(x) - min(x)) *\) <code>noise_level</code>.</p></dd>
+
+</dl><p></div></p>
+    <h2 class="hasAnchor" id="methods"><a class="anchor" href="#methods"></a>Methods</h2>
+
+    
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Public methods</h3>
+
+<ul>
+<li><p><a href='#method-new'><code>SmoothGrad$new()</code></a></p></li>
+<li><p><a href='#method-clone'><code>SmoothGrad$clone()</code></a></p></li>
+</ul>
+<p><details open ><summary>Inherited methods</summary>
+<ul>
+<li><p><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href='../../innsight/html/InterpretingMethod.html#method-get_result'><code>innsight::InterpretingMethod$get_result()</code></a></span></p></li>
+<li><p><span class="pkg-link" data-pkg="innsight" data-topic="GradientBased" data-id="boxplot"><a href='../../innsight/html/GradientBased.html#method-boxplot'><code>innsight::GradientBased$boxplot()</code></a></span></p></li>
+<li><p><span class="pkg-link" data-pkg="innsight" data-topic="GradientBased" data-id="plot"><a href='../../innsight/html/GradientBased.html#method-plot'><code>innsight::GradientBased$plot()</code></a></span></p></li>
+</ul>
+</details>
+
+<hr>
+<a id="method-new"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>new()</code></h3>
+<p>Create a new instance of the SmoothGrad method.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>SmoothGrad</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span>
+  <span class='va'>converter</span>,
+  <span class='va'>data</span>,
+  channels_first <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  output_idx <span class='op'>=</span> <span class='cn'>NULL</span>,
+  ignore_last_act <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  times_input <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  n <span class='op'>=</span> <span class='fl'>50</span>,
+  noise_level <span class='op'>=</span> <span class='fl'>0.1</span>,
+  dtype <span class='op'>=</span> <span class='st'>"float"</span>
+<span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>converter</code></dt><dd><p>An instance of the R6 class <code><a href='Converter.html'>Converter</a></code>.</p></dd>
+
+<dt><code>data</code></dt><dd><p>The data for which the smoothed gradients are to be
+calculated. It has to be an array or array-like format of size
+<em>(batch_size, dim_in)</em>.</p></dd>
+
+<dt><code>channels_first</code></dt><dd><p>The format of the given data, i.e. channels on
+last dimension (<code>FALSE</code>) or after the batch dimension (<code>TRUE</code>). If the
+data has no channels, use the default value <code>TRUE</code>.</p></dd>
+
+<dt><code>output_idx</code></dt><dd><p>This vector determines for which outputs the method
+will be applied. By default (<code>NULL</code>), all outputs (but limited to the
+first 10) are considered.</p></dd>
+
+<dt><code>ignore_last_act</code></dt><dd><p>A boolean value to include the last
+activation into all the calculations, or not (default: <code>TRUE</code>). In
+some cases, the last activation leads to a saturation problem.</p></dd>
+
+<dt><code>times_input</code></dt><dd><p>Multiplies the gradients with the input features.
+This method is called 'SmoothGrad x Input'. Default: <code>FALSE</code>.</p></dd>
+
+<dt><code>n</code></dt><dd><p>Number of perturbations of the input data (default: \(50\)).</p></dd>
+
+<dt><code>noise_level</code></dt><dd><p>Determines the standard deviation of the gaussian
+perturbation, i.e. \(\sigma = (max(x) - min(x)) *\) <code>noise_level</code>.</p></dd>
+
+<dt><code>dtype</code></dt><dd><p>The data type for the calculations. Use
+either <code>'float'</code> for <a href='https://torch.mlverse.org/docs/reference/torch_dtype.html'>torch::torch_float</a> or <code>'double'</code> for
+<a href='https://torch.mlverse.org/docs/reference/torch_dtype.html'>torch::torch_double</a>.</p></dd>
+
+</dl><p></div></p>
+<p><hr>
+<a id="method-clone"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>clone()</code></h3>
+<p>The objects of this class are cloneable with this method.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>SmoothGrad</span><span class='op'>$</span><span class='fu'>clone</span><span class='op'>(</span>deep <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>deep</code></dt><dd><p>Whether to make a deep clone.</p></dd>
+
+</dl><p></div></p>
+
+
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='r-in'><span class='co'># ------------------------- Example 1: Torch -------------------------------</span></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://torch.mlverse.org/docs'>torch</a></span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Create nn_sequential model and data</span></span>
+<span class='r-in'><span class='va'>model</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://torch.mlverse.org/docs/reference/nn_sequential.html'>nn_sequential</a></span><span class='op'>(</span></span>
+<span class='r-in'>  <span class='fu'><a href='https://torch.mlverse.org/docs/reference/nn_linear.html'>nn_linear</a></span><span class='op'>(</span><span class='fl'>5</span>, <span class='fl'>10</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='fu'><a href='https://torch.mlverse.org/docs/reference/nn_relu.html'>nn_relu</a></span><span class='op'>(</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='fu'><a href='https://torch.mlverse.org/docs/reference/nn_linear.html'>nn_linear</a></span><span class='op'>(</span><span class='fl'>10</span>, <span class='fl'>2</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='fu'><a href='https://torch.mlverse.org/docs/reference/nn_sigmoid.html'>nn_sigmoid</a></span><span class='op'>(</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>data</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://torch.mlverse.org/docs/reference/torch_randn.html'>torch_randn</a></span><span class='op'>(</span><span class='fl'>25</span>, <span class='fl'>5</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Create Converter</span></span>
+<span class='r-in'><span class='va'>converter</span> <span class='op'>&lt;-</span> <span class='va'><a href='Converter.html'>Converter</a></span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>model</span>, input_dim <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>5</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Calculate the smoothed Gradients</span></span>
+<span class='r-in'><span class='va'>smoothgrad</span> <span class='op'>&lt;-</span> <span class='va'>SmoothGrad</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>converter</span>, <span class='va'>data</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backwardpass 'SmoothGrad':</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |===================================                                   |  50%  |                                                                              |======================================================================| 100%</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Print the result as a data.frame</span></span>
+<span class='r-in'><span class='va'>smoothgrad</span><span class='op'>$</span><span class='fu'>get_result</span><span class='op'>(</span><span class='st'>"data.frame"</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>        data feature class         value</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 1    data_1      X1    Y1  1.784949e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 2    data_2      X1    Y1  6.343299e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 3    data_3      X1    Y1  1.875007e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 4    data_4      X1    Y1  1.631025e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 5    data_5      X1    Y1  1.552105e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 6    data_6      X1    Y1  1.161978e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 7    data_7      X1    Y1  2.859886e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 8    data_8      X1    Y1  1.361366e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 9    data_9      X1    Y1  1.604341e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 10  data_10      X1    Y1  4.903207e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 11  data_11      X1    Y1  5.218570e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 12  data_12      X1    Y1  6.142798e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 13  data_13      X1    Y1  5.972859e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 14  data_14      X1    Y1  1.277714e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 15  data_15      X1    Y1  1.495420e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 16  data_16      X1    Y1  1.192918e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 17  data_17      X1    Y1  3.495150e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 18  data_18      X1    Y1  4.188213e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 19  data_19      X1    Y1  1.313149e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 20  data_20      X1    Y1  8.307973e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 21  data_21      X1    Y1  1.961173e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 22  data_22      X1    Y1  6.506011e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 23  data_23      X1    Y1  6.641524e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 24  data_24      X1    Y1  5.263995e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 25  data_25      X1    Y1  6.062567e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 26   data_1      X2    Y1 -1.240568e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 27   data_2      X2    Y1 -9.859808e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 28   data_3      X2    Y1  6.824082e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 29   data_4      X2    Y1 -1.732234e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 30   data_5      X2    Y1 -1.405256e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 31   data_6      X2    Y1 -1.749531e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 32   data_7      X2    Y1  5.948525e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 33   data_8      X2    Y1 -1.042212e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 34   data_9      X2    Y1 -2.443058e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 35  data_10      X2    Y1 -2.502126e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 36  data_11      X2    Y1  3.896733e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 37  data_12      X2    Y1  1.135634e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 38  data_13      X2    Y1 -8.978935e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 39  data_14      X2    Y1 -4.749107e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 40  data_15      X2    Y1 -4.802022e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 41  data_16      X2    Y1 -1.705497e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 42  data_17      X2    Y1  7.585133e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 43  data_18      X2    Y1 -9.521174e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 44  data_19      X2    Y1 -1.181759e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 45  data_20      X2    Y1 -2.627633e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 46  data_21      X2    Y1 -2.029604e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 47  data_22      X2    Y1  5.360097e-06</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 48  data_23      X2    Y1 -2.152330e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 49  data_24      X2    Y1  7.461444e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 50  data_25      X2    Y1  4.368569e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 51   data_1      X3    Y1 -2.299560e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 52   data_2      X3    Y1 -9.921408e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 53   data_3      X3    Y1 -3.206012e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 54   data_4      X3    Y1 -1.599326e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 55   data_5      X3    Y1 -9.677822e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 56   data_6      X3    Y1 -9.967191e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 57   data_7      X3    Y1 -3.245015e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 58   data_8      X3    Y1 -2.525643e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 59   data_9      X3    Y1 -1.062988e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 60  data_10      X3    Y1 -2.861376e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 61  data_11      X3    Y1 -2.578872e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 62  data_12      X3    Y1 -3.461477e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 63  data_13      X3    Y1 -2.664238e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 64  data_14      X3    Y1 -3.166073e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 65  data_15      X3    Y1 -3.047517e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 66  data_16      X3    Y1 -9.796089e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 67  data_17      X3    Y1 -2.393887e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 68  data_18      X3    Y1 -9.802376e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 69  data_19      X3    Y1 -2.482690e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 70  data_20      X3    Y1 -3.522099e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 71  data_21      X3    Y1 -1.785300e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 72  data_22      X3    Y1 -3.550190e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 73  data_23      X3    Y1 -3.443036e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 74  data_24      X3    Y1 -2.915981e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 75  data_25      X3    Y1 -3.186536e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 76   data_1      X4    Y1  4.253551e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 77   data_2      X4    Y1 -4.894516e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 78   data_3      X4    Y1  6.267736e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 79   data_4      X4    Y1  8.974864e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 80   data_5      X4    Y1  1.315176e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 81   data_6      X4    Y1 -5.081291e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 82   data_7      X4    Y1  3.225254e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 83   data_8      X4    Y1  4.031713e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 84   data_9      X4    Y1  5.341690e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 85  data_10      X4    Y1  6.777212e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 86  data_11      X4    Y1  1.551315e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 87  data_12      X4    Y1  1.644374e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 88  data_13      X4    Y1  8.919276e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 89  data_14      X4    Y1  8.055574e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 90  data_15      X4    Y1  1.148178e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 91  data_16      X4    Y1  4.569496e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 92  data_17      X4    Y1  1.329816e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 93  data_18      X4    Y1 -4.729160e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 94  data_19      X4    Y1  1.802391e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 95  data_20      X4    Y1  1.303655e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 96  data_21      X4    Y1  8.584110e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 97  data_22      X4    Y1  9.485441e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 98  data_23      X4    Y1  1.351393e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 99  data_24      X4    Y1  1.841698e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 100 data_25      X4    Y1  4.465156e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 101  data_1      X5    Y1 -1.485742e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 102  data_2      X5    Y1 -2.037360e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 103  data_3      X5    Y1 -1.273096e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 104  data_4      X5    Y1 -1.038000e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 105  data_5      X5    Y1 -1.010152e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 106  data_6      X5    Y1 -8.715706e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 107  data_7      X5    Y1 -1.032476e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 108  data_8      X5    Y1 -1.739157e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 109  data_9      X5    Y1 -8.463272e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 110 data_10      X5    Y1 -1.522728e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 111 data_11      X5    Y1 -2.325746e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 112 data_12      X5    Y1 -2.183924e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 113 data_13      X5    Y1 -1.891599e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 114 data_14      X5    Y1 -1.612641e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 115 data_15      X5    Y1 -1.828481e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 116 data_16      X5    Y1 -7.257807e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 117 data_17      X5    Y1 -1.285454e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 118 data_18      X5    Y1 -2.679933e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 119 data_19      X5    Y1 -1.252380e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 120 data_20      X5    Y1 -2.395522e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 121 data_21      X5    Y1 -1.131610e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 122 data_22      X5    Y1 -2.222959e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 123 data_23      X5    Y1 -2.032340e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 124 data_24      X5    Y1 -1.976938e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 125 data_25      X5    Y1 -9.258443e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 126  data_1      X1    Y2  5.286802e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 127  data_2      X1    Y2  1.052190e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 128  data_3      X1    Y2 -2.972120e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 129  data_4      X1    Y2  6.349173e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 130  data_5      X1    Y2  7.637187e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 131  data_6      X1    Y2  1.074882e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 132  data_7      X1    Y2 -2.827225e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 133  data_8      X1    Y2  7.071105e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 134  data_9      X1    Y2  1.069146e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 135 data_10      X1    Y2  3.250967e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 136 data_11      X1    Y2  8.107380e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 137 data_12      X1    Y2  4.988231e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 138 data_13      X1    Y2  1.070367e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 139 data_14      X1    Y2  2.224830e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 140 data_15      X1    Y2  4.288638e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 141 data_16      X1    Y2  8.892415e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 142 data_17      X1    Y2 -3.841309e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 143 data_18      X1    Y2  8.594034e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 144 data_19      X1    Y2  2.440199e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 145 data_20      X1    Y2  7.778928e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 146 data_21      X1    Y2  5.873831e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 147 data_22      X1    Y2  3.817612e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 148 data_23      X1    Y2  6.145263e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 149 data_24      X1    Y2  4.601355e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 150 data_25      X1    Y2 -3.114270e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 151  data_1      X2    Y2 -2.135376e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 152  data_2      X2    Y2 -1.199684e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 153  data_3      X2    Y2 -2.138390e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 154  data_4      X2    Y2 -1.630182e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 155  data_5      X2    Y2 -8.586586e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 156  data_6      X2    Y2 -9.301788e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 157  data_7      X2    Y2 -2.200167e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 158  data_8      X2    Y2 -2.179002e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 159  data_9      X2    Y2 -1.124084e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 160 data_10      X2    Y2 -1.960697e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 161 data_11      X2    Y2 -1.367085e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 162 data_12      X2    Y2 -2.433301e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 163 data_13      X2    Y2 -1.946880e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 164 data_14      X2    Y2 -2.293124e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 165 data_15      X2    Y2 -2.211201e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 166 data_16      X2    Y2 -1.001489e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 167 data_17      X2    Y2 -1.295090e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 168 data_18      X2    Y2 -1.071294e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 169 data_19      X2    Y2 -1.662345e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 170 data_20      X2    Y2 -2.604407e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 171 data_21      X2    Y2 -2.053680e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 172 data_22      X2    Y2 -2.522068e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 173 data_23      X2    Y2 -2.586900e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 174 data_24      X2    Y2 -1.897379e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 175 data_25      X2    Y2 -2.138241e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 176  data_1      X3    Y2  3.603023e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 177  data_2      X3    Y2 -9.293722e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 178  data_3      X3    Y2  1.163986e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 179  data_4      X3    Y2 -1.416951e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 180  data_5      X3    Y2  1.361152e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 181  data_6      X3    Y2 -9.436774e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 182  data_7      X3    Y2  8.804426e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 183  data_8      X3    Y2 -1.153322e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 184  data_9      X3    Y2 -1.052680e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 185 data_10      X3    Y2  1.828811e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 186 data_11      X3    Y2  1.162062e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 187 data_12      X3    Y2  1.075060e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 188 data_13      X3    Y2 -4.717053e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 189 data_14      X3    Y2  1.170877e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 190 data_15      X3    Y2  1.536685e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 191 data_16      X3    Y2 -4.350312e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 192 data_17      X3    Y2  1.535996e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 193 data_18      X3    Y2 -1.108765e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 194 data_19      X3    Y2  2.130975e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 195 data_20      X3    Y2  1.114229e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 196 data_21      X3    Y2 -3.783171e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 197 data_22      X3    Y2  5.476730e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 198 data_23      X3    Y2  6.262707e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 199 data_24      X3    Y2  2.198695e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 200 data_25      X3    Y2  6.457052e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 201  data_1      X4    Y2 -2.543934e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 202  data_2      X4    Y2 -7.520300e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 203  data_3      X4    Y2 -1.961153e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 204  data_4      X4    Y2 -1.415302e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 205  data_5      X4    Y2 -1.180926e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 206  data_6      X4    Y2 -1.423318e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 207  data_7      X4    Y2 -2.007446e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 208  data_8      X4    Y2 -2.657102e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 209  data_9      X4    Y2 -1.162619e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 210 data_10      X4    Y2 -1.647293e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 211 data_11      X4    Y2 -1.895056e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 212 data_12      X4    Y2 -2.142271e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 213 data_13      X4    Y2 -1.626539e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 214 data_14      X4    Y2 -1.880451e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 215 data_15      X4    Y2 -1.997396e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 216 data_16      X4    Y2 -5.229546e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 217 data_17      X4    Y2 -9.877156e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 218 data_18      X4    Y2 -9.374720e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 219 data_19      X4    Y2 -6.725771e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 220 data_20      X4    Y2 -2.612393e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 221 data_21      X4    Y2 -2.297434e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 222 data_22      X4    Y2 -3.091406e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 223 data_23      X4    Y2 -2.042458e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 224 data_24      X4    Y2 -9.658451e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 225 data_25      X4    Y2 -1.673940e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 226  data_1      X5    Y2 -1.018282e-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 227  data_2      X5    Y2 -1.770060e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 228  data_3      X5    Y2  1.204353e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 229  data_4      X5    Y2 -3.166181e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 230  data_5      X5    Y2  2.630471e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 231  data_6      X5    Y2 -7.972519e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 232  data_7      X5    Y2  1.578643e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 233  data_8      X5    Y2 -6.489228e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 234  data_9      X5    Y2 -1.833824e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 235 data_10      X5    Y2 -9.898305e-04</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 236 data_11      X5    Y2  4.119308e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 237 data_12      X5    Y2  5.432380e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 238 data_13      X5    Y2  2.189150e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 239 data_14      X5    Y2 -6.891979e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 240 data_15      X5    Y2 -6.948403e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 241 data_16      X5    Y2 -3.382802e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 242 data_17      X5    Y2  2.393446e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 243 data_18      X5    Y2  1.707368e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 244 data_19      X5    Y2 -3.073366e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 245 data_20      X5    Y2  6.593147e-03</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 246 data_21      X5    Y2 -1.963496e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 247 data_22      X5    Y2  3.200577e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 248 data_23      X5    Y2  2.714188e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 249 data_24      X5    Y2  1.486672e-02</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 250 data_25      X5    Y2  2.239345e-02</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Plot the result for both classes</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>smoothgrad</span>, output_idx <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span><span class='op'>)</span></span>
+<span class='r-plt img'><img src='SmoothGrad-1.png' alt='' width='700' height='433' /></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Plot the boxplot of all datapoints</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/graphics/boxplot.html'>boxplot</a></span><span class='op'>(</span><span class='va'>smoothgrad</span>, output_idx <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span><span class='op'>)</span></span>
+<span class='r-plt img'><img src='SmoothGrad-2.png' alt='' width='700' height='433' /></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># ------------------------- Example 2: Neuralnet ---------------------------</span></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/bips-hb/neuralnet'>neuralnet</a></span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>iris</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Train a neural network</span></span>
+<span class='r-in'><span class='va'>nn</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/neuralnet/man/neuralnet.html'>neuralnet</a></span><span class='op'>(</span><span class='va'>Species</span> <span class='op'>~</span> <span class='va'>.</span>, <span class='va'>iris</span>,</span>
+<span class='r-in'>  linear.output <span class='op'>=</span> <span class='cn'>FALSE</span>,</span>
+<span class='r-in'>  hidden <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>10</span>, <span class='fl'>5</span><span class='op'>)</span>,</span>
+<span class='r-in'>  act.fct <span class='op'>=</span> <span class='st'>"logistic"</span>,</span>
+<span class='r-in'>  rep <span class='op'>=</span> <span class='fl'>1</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Convert the trained model</span></span>
+<span class='r-in'><span class='va'>converter</span> <span class='op'>&lt;-</span> <span class='va'><a href='Converter.html'>Converter</a></span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>nn</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Calculate the smoothed gradients</span></span>
+<span class='r-in'><span class='va'>smoothgrad</span> <span class='op'>&lt;-</span> <span class='va'>SmoothGrad</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>converter</span>, <span class='va'>iris</span><span class='op'>[</span>, <span class='op'>-</span><span class='fl'>5</span><span class='op'>]</span>, times_input <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backwardpass 'SmoothGrad':</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=======================                                               |  33%  |                                                                              |===============================================                       |  67%  |                                                                              |======================================================================| 100%</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Plot the result for the first and 60th data point and all classes</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>smoothgrad</span>, data_idx <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>60</span><span class='op'>)</span>, output_idx <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>3</span><span class='op'>)</span></span>
+<span class='r-plt img'><img src='SmoothGrad-3.png' alt='' width='700' height='433' /></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Calculate SmoothGrad x Input and do not ignore the last activation</span></span>
+<span class='r-in'><span class='va'>smoothgrad</span> <span class='op'>&lt;-</span> <span class='va'>SmoothGrad</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>converter</span>, <span class='va'>iris</span><span class='op'>[</span>, <span class='op'>-</span><span class='fl'>5</span><span class='op'>]</span>, ignore_last_act <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backwardpass 'SmoothGrad':</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=======================                                               |  33%  |                                                                              |===============================================                       |  67%  |                                                                              |======================================================================| 100%</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Plot the result again</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>smoothgrad</span>, data_idx <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>60</span><span class='op'>)</span>, output_idx <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>3</span><span class='op'>)</span></span>
+<span class='r-plt img'><img src='SmoothGrad-4.png' alt='' width='700' height='433' /></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># ------------------------- Example 3: Keras -------------------------------</span></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://keras.rstudio.com'>keras</a></span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://keras.rstudio.com/reference/is_keras_available.html'>is_keras_available</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'>  <span class='va'>data</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/array.html'>array</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fl'>64</span> <span class='op'>*</span> <span class='fl'>60</span> <span class='op'>*</span> <span class='fl'>3</span><span class='op'>)</span>, dim <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>64</span>, <span class='fl'>60</span>, <span class='fl'>3</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'>  <span class='va'>model</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://keras.rstudio.com/reference/keras_model_sequential.html'>keras_model_sequential</a></span><span class='op'>(</span><span class='op'>)</span></span>
+<span class='r-in'>  <span class='va'>model</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span class='r-in'>    <span class='fu'><a href='https://keras.rstudio.com/reference/layer_conv_1d.html'>layer_conv_1d</a></span><span class='op'>(</span></span>
+<span class='r-in'>      input_shape <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>60</span>, <span class='fl'>3</span><span class='op'>)</span>, kernel_size <span class='op'>=</span> <span class='fl'>8</span>, filters <span class='op'>=</span> <span class='fl'>8</span>,</span>
+<span class='r-in'>      activation <span class='op'>=</span> <span class='st'>"softplus"</span>, padding <span class='op'>=</span> <span class='st'>"valid"</span></span>
+<span class='r-in'>    <span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span class='r-in'>    <span class='fu'><a href='https://keras.rstudio.com/reference/layer_conv_1d.html'>layer_conv_1d</a></span><span class='op'>(</span></span>
+<span class='r-in'>      kernel_size <span class='op'>=</span> <span class='fl'>8</span>, filters <span class='op'>=</span> <span class='fl'>4</span>, activation <span class='op'>=</span> <span class='st'>"tanh"</span>,</span>
+<span class='r-in'>      padding <span class='op'>=</span> <span class='st'>"same"</span></span>
+<span class='r-in'>    <span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span class='r-in'>    <span class='fu'><a href='https://keras.rstudio.com/reference/layer_conv_1d.html'>layer_conv_1d</a></span><span class='op'>(</span></span>
+<span class='r-in'>      kernel_size <span class='op'>=</span> <span class='fl'>4</span>, filters <span class='op'>=</span> <span class='fl'>2</span>, activation <span class='op'>=</span> <span class='st'>"relu"</span>,</span>
+<span class='r-in'>      padding <span class='op'>=</span> <span class='st'>"valid"</span></span>
+<span class='r-in'>    <span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span class='r-in'>    <span class='fu'><a href='https://keras.rstudio.com/reference/layer_flatten.html'>layer_flatten</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span class='r-in'>    <span class='fu'><a href='https://keras.rstudio.com/reference/layer_dense.html'>layer_dense</a></span><span class='op'>(</span>units <span class='op'>=</span> <span class='fl'>64</span>, activation <span class='op'>=</span> <span class='st'>"relu"</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span class='r-in'>    <span class='fu'><a href='https://keras.rstudio.com/reference/layer_dense.html'>layer_dense</a></span><span class='op'>(</span>units <span class='op'>=</span> <span class='fl'>16</span>, activation <span class='op'>=</span> <span class='st'>"relu"</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span class='r-in'>    <span class='fu'><a href='https://keras.rstudio.com/reference/layer_dense.html'>layer_dense</a></span><span class='op'>(</span>units <span class='op'>=</span> <span class='fl'>3</span>, activation <span class='op'>=</span> <span class='st'>"softmax"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'>  <span class='co'># Convert the model</span></span>
+<span class='r-in'>  <span class='va'>converter</span> <span class='op'>&lt;-</span> <span class='va'><a href='Converter.html'>Converter</a></span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>model</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'>  <span class='co'># Apply the SmoothGrad method</span></span>
+<span class='r-in'>  <span class='va'>smoothgrad</span> <span class='op'>&lt;-</span> <span class='va'>SmoothGrad</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>converter</span>, <span class='va'>data</span>, channels_first <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'>  <span class='co'># Plot the result for the first datapoint and all classes</span></span>
+<span class='r-in'>  <span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>smoothgrad</span>, output_idx <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>3</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'>  <span class='co'># Plot the result as boxplots for first two classes</span></span>
+<span class='r-in'>  <span class='fu'><a href='https://rdrr.io/r/graphics/boxplot.html'>boxplot</a></span><span class='op'>(</span><span class='va'>smoothgrad</span>, output_idx <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'>  <span class='co'># You can also create an interactive plot with plotly.</span></span>
+<span class='r-in'>  <span class='co'># This is a suggested package, so make sure that it is installed</span></span>
+<span class='r-in'>  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://plotly-r.com'>plotly</a></span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'>  <span class='co'># Result as boxplots</span></span>
+<span class='r-in'>  <span class='fu'><a href='https://rdrr.io/r/graphics/boxplot.html'>boxplot</a></span><span class='op'>(</span><span class='va'>smoothgrad</span>, as_plotly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'>  <span class='co'># Result of the second data point</span></span>
+<span class='r-in'>  <span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>smoothgrad</span>, data_idx <span class='op'>=</span> <span class='fl'>2</span>, as_plotly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>}</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backwardpass 'SmoothGrad':</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=======================                                               |  33%  |                                                                              |===============================================                       |  67%  |                                                                              |======================================================================| 100%</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># ------------------------- Advanced: Plotly -------------------------------</span></span>
+<span class='r-in'><span class='co'># If you want to create an interactive plot of your results with custom</span></span>
+<span class='r-in'><span class='co'># changes, you can take use of the method plotly::ggplotly</span></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://ggplot2.tidyverse.org'>ggplot2</a></span><span class='op'>)</span></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://plotly-r.com'>plotly</a></span><span class='op'>)</span></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/bips-hb/neuralnet'>neuralnet</a></span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>iris</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='va'>nn</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/neuralnet/man/neuralnet.html'>neuralnet</a></span><span class='op'>(</span><span class='va'>Species</span> <span class='op'>~</span> <span class='va'>.</span>,</span>
+<span class='r-in'>  <span class='va'>iris</span>,</span>
+<span class='r-in'>  linear.output <span class='op'>=</span> <span class='cn'>FALSE</span>,</span>
+<span class='r-in'>  hidden <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>10</span>, <span class='fl'>8</span><span class='op'>)</span>, act.fct <span class='op'>=</span> <span class='st'>"tanh"</span>, rep <span class='op'>=</span> <span class='fl'>1</span>, threshold <span class='op'>=</span> <span class='fl'>0.5</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># create an converter for this model</span></span>
+<span class='r-in'><span class='va'>converter</span> <span class='op'>&lt;-</span> <span class='va'><a href='Converter.html'>Converter</a></span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>nn</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># create new instance of 'SmoothGrad'</span></span>
+<span class='r-in'><span class='va'>smoothgrad</span> <span class='op'>&lt;-</span> <span class='va'>SmoothGrad</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>converter</span>, <span class='va'>iris</span><span class='op'>[</span>, <span class='op'>-</span><span class='fl'>5</span><span class='op'>]</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backwardpass 'SmoothGrad':</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=======================                                               |  33%  |                                                                              |===============================================                       |  67%  |                                                                              |======================================================================| 100%</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://plotly-r.com'>plotly</a></span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Get the ggplot and add your changes</span></span>
+<span class='r-in'><span class='va'>p</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>smoothgrad</span>, output_idx <span class='op'>=</span> <span class='fl'>1</span>, data_idx <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span><span class='op'>)</span> <span class='op'>+</span></span>
+<span class='r-in'>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_bw</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>+</span></span>
+<span class='r-in'>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/scale_gradient.html'>scale_fill_gradient2</a></span><span class='op'>(</span>low <span class='op'>=</span> <span class='st'>"green"</span>, mid <span class='op'>=</span> <span class='st'>"black"</span>, high <span class='op'>=</span> <span class='st'>"blue"</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Scale for 'fill' is already present. Adding another scale for 'fill', which</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> will replace the existing scale.</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Now apply the method plotly::ggplotly with argument tooltip = "text"</span></span>
+<span class='r-in'><span class='fu'>plotly</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/plotly/man/ggplotly.html'>ggplotly</a></span><span class='op'>(</span><span class='va'>p</span>, tooltip <span class='op'>=</span> <span class='st'>"text"</span><span class='op'>)</span></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

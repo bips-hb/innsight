@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • innsight</title>
+<title>Get the Insight of your Neural Network — innsight-package • innsight</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,16 @@
 
 
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="Get the Insight of your Neural Network — innsight-package" />
+<meta property="og:description" content="innsight is an R package that interprets the behavior and explains
+individual predictions of modern neural networks. Many methods for
+explaining individual predictions already exist, but hardly any of them
+are implemented or available in R. Most of these so-called
+'Feature Attribution' methods are only implemented in Python and
+thus difficult to access or use for the R community. In this sense,
+the package innsight provides a common interface for various methods
+for the interpretability of neural networks and can therefore be considered
+as an R analogue to 'iNNvestigate' for Python." />
 
 
 
@@ -58,7 +67,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -117,96 +126,74 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>Get the Insight of your Neural Network</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bips-hb/innsight/blob/master/R/innsight.R'><code>R/innsight.R</code></a></small>
+    <div class="hidden name"><code>innsight-package.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    <p><code>innsight</code> is an R package that interprets the behavior and explains
+individual predictions of modern neural networks. Many methods for
+explaining individual predictions already exist, but hardly any of them
+are implemented or available in R. Most of these so-called
+<em>'Feature Attribution'</em> methods are only implemented in Python and
+thus difficult to access or use for the R community. In this sense,
+the package <code>innsight</code> provides a common interface for various methods
+for the interpretability of neural networks and can therefore be considered
+as an R analogue to 'iNNvestigate' for Python.</p>
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="ConnectionWeights.html">ConnectionWeights</a></code> </p>
-        </td>
-        <td><p>Connection Weights Method</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="ConvertedModel.html">ConvertedModel()</a></code> </p>
-        </td>
-        <td><p>Converted torch-based model</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="Converter.html">Converter</a></code> </p>
-        </td>
-        <td><p>Converter of an artificial Neural Network</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="DeepLift.html">DeepLift</a></code> </p>
-        </td>
-        <td><p>Deep Learning Important FeaTures (DeepLift) Method</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="Gradient.html">Gradient</a></code> </p>
-        </td>
-        <td><p>Vanilla Gradient Method</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="GradientBased.html">GradientBased</a></code> </p>
-        </td>
-        <td><p>Super class for Gradient-based Interpretation Methods</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="InterpretingMethod.html">InterpretingMethod</a></code> </p>
-        </td>
-        <td><p>Super class for Interpreting Methods</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="LRP.html">LRP</a></code> </p>
-        </td>
-        <td><p>Layer-wise Relevance Propagation (LRP) Method</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="SmoothGrad.html">SmoothGrad</a></code> </p>
-        </td>
-        <td><p>SmoothGrad Method</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="innsight-package.html">innsight-package</a></code> </p>
-        </td>
-        <td><p>Get the Insight of your Neural Network</p></td>
-      </tr>
-    </tbody>
-    </table>
+
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>This package implements several model-specific interpretability
+(Feature Attribution) methods based on neural networks in R, e.g.,</p><ul>
+<li><p>Layer-wise Relevance Propagation (<a href='LRP.html'>LRP</a>)</p><ul>
+<li><p>Including propagation rules: \(\epsilon\)-rule and
+\(\alpha\)-\(\beta\)-rule</p></li>
+</ul></li>
+<li><p>Deep Learning Important Features (<a href='DeepLift.html'>DeepLift</a>)</p><ul>
+<li><p>Including propagation rules for non-linearities: rescale rule and
+reveal-cancel rule</p></li>
+</ul></li>
+<li><p>Gradient-based methods:</p><ul>
+<li><p>Vanilla <a href='Gradient.html'>Gradient</a>, including 'Gradient x Input'</p></li>
+<li><p>Smoothed gradients (<a href='SmoothGrad.html'>SmoothGrad</a>), including 'SmoothGrad x Input'</p></li>
+</ul></li>
+<li><p><a href='ConnectionWeights.html'>ConnectionWeights</a></p></li>
+</ul>
+
+<p>The package <code>innsight</code> aims to be as flexible as possible and independent of a
+specific deep learning package in which the passed network has been learned.
+Basically, a Neural Network of the libraries <a href='https://torch.mlverse.org/docs/reference/nn_sequential.html'>torch::nn_sequential</a>,
+<a href='https://keras.rstudio.com/reference/keras_model_sequential.html'>keras::keras_model_sequential</a>, <a href='https://keras.rstudio.com/reference/keras_model.html'>keras::keras_model</a> and
+<a href='https://rdrr.io/pkg/neuralnet/man/neuralnet.html'>neuralnet::neuralnet</a> can be passed to the main building block <a href='Converter.html'>Converter</a>,
+which converts and stores the passed model as a torch model
+(<a href='ConvertedModel.html'>ConvertedModel</a>) with special insights needed for interpretation.
+It is also possible to pass an arbitrary net in form of a named list
+(see details in <a href='Converter.html'>Converter</a>).</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p>Useful links:</p><ul>
+<li><p><a href='https://bips-hb.github.io/innsight'>https://bips-hb.github.io/innsight</a></p></li>
+<li><p><a href='https://github.com/bips-hb/innsight/'>https://github.com/bips-hb/innsight/</a></p></li>
+<li><p>Report bugs at <a href='https://github.com/bips-hb/innsight/issues/'>https://github.com/bips-hb/innsight/issues/</a></p></li>
+</ul>
+
+</div>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p><strong>Maintainer</strong>: Niklas Koenen <a href='mailto:niklas.koenen@gmail.com'>niklas.koenen@gmail.com</a> (<a href='https://orcid.org/0000-0002-4623-8271'>ORCID</a>)</p>
+<p>Other contributors:</p><ul>
+<li><p>Raphael Baudeu <a href='mailto:raphael.baudeu@gmail.com'>raphael.baudeu@gmail.com</a> [contributor]</p></li>
+</ul>
+
+
+
   </div>
-
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>

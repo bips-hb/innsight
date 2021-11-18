@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Calculate the Gradient — Gradient • msIML</title>
+<title>Vanilla Gradient Method — Gradient • innsight</title>
 
 
 <!-- jquery -->
@@ -39,10 +39,14 @@
 
 
 
-<meta property="og:title" content="Calculate the Gradient — Gradient" />
-<meta property="og:description" content="This method computes the gradients of the outputs with respect to the input
-variables, i.e. for all input variable \(i\) and output class \(j\)
-$$d f(x)_j / d x_i.$$" />
+<meta property="og:title" content="Vanilla Gradient Method — Gradient" />
+<meta property="og:description" content="This method computes the gradients (also known as 'Vanilla Gradients') of
+the outputs with respect to the input variables, i.e. for all input
+variable \(i\) and output class \(j\)
+$$d f(x)_j / d x_i.$$
+If the argument times_input is TRUE, the gradients are multiplied by
+the respective input value ('Gradient x Input'), i.e.
+$$x_i * d f(x)_j / d x_i.$$" />
 
 
 
@@ -73,7 +77,7 @@ $$d f(x)_j / d x_i.$$" />
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">msIML</a>
+        <a class="navbar-link" href="../index.html">innsight</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
       </span>
     </div>
@@ -89,9 +93,26 @@ $$d f(x)_j / d x_i.$$" />
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/Introduction.html">Introduction to `innsight`</a>
+    </li>
+  </ul>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/bips-hb/innsight/">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -105,1266 +126,500 @@ $$d f(x)_j / d x_i.$$" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Calculate the Gradient</h1>
-    
+    <h1>Vanilla Gradient Method</h1>
+    <small class="dont-index">Source: <a href='https://github.com/bips-hb/innsight/blob/master/R/GradienBased.R'><code>R/GradienBased.R</code></a></small>
     <div class="hidden name"><code>Gradient.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This method computes the gradients of the outputs with respect to the input
-variables, i.e. for all input variable \(i\) and output class \(j\)
-$$d f(x)_j / d x_i.$$</p>
+    <p>This method computes the gradients (also known as 'Vanilla Gradients') of
+the outputs with respect to the input variables, i.e. for all input
+variable \(i\) and output class \(j\)
+$$d f(x)_j / d x_i.$$
+If the argument <code>times_input</code> is <code>TRUE</code>, the gradients are multiplied by
+the respective input value ('Gradient x Input'), i.e.
+$$x_i * d f(x)_j / d x_i.$$</p>
     </div>
 
-    <pre class="usage"><span class='fu'>Gradient</span><span class='op'>(</span><span class='va'>analyzer</span>, <span class='va'>data</span>, times_input <span class='op'>=</span> <span class='cn'>FALSE</span>, ignore_last_act <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></pre>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>analyzer</th>
-      <td><p>An instance of the R6 class <code><a href='Analyzer.html'>Analyzer</a></code>.</p></td>
-    </tr>
-    <tr>
-      <th>data</th>
-      <td><p>Either a matrix or a data frame, where each row must describe an
-input to the network.</p></td>
-    </tr>
-    <tr>
-      <th>times_input</th>
-      <td><p>Multiplies the gradients with the input features. This
-method is called 'Gradient x Inputs'.</p></td>
-    </tr>
-    <tr>
-      <th>ignore_last_act</th>
-      <td><p>Calculate the gradients of the output or the preactivation
-of the output (default: <code>TRUE</code>).</p></td>
-    </tr>
-    </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    <h2 class="hasAnchor" id="super-classes"><a class="anchor" href="#super-classes"></a>Super classes</h2>
 
-    <p>Returns an array of size <em>(dim_in, dim_out, num_data)</em> which
-contains the gradients for each input variable to the
-output predictions for each element in the given data.</p>
+    <p><code><a href='InterpretingMethod.html'>innsight::InterpretingMethod</a></code> -&gt; <code><a href='GradientBased.html'>innsight::GradientBased</a></code> -&gt; <code>Gradient</code></p>
+    <h2 class="hasAnchor" id="methods"><a class="anchor" href="#methods"></a>Methods</h2>
+
+    
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Public methods</h3>
+
+<ul>
+<li><p><a href='#method-new'><code>Gradient$new()</code></a></p></li>
+<li><p><a href='#method-clone'><code>Gradient$clone()</code></a></p></li>
+</ul>
+<p><details open ><summary>Inherited methods</summary>
+<ul>
+<li><p><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href='../../innsight/html/InterpretingMethod.html#method-get_result'><code>innsight::InterpretingMethod$get_result()</code></a></span></p></li>
+<li><p><span class="pkg-link" data-pkg="innsight" data-topic="GradientBased" data-id="boxplot"><a href='../../innsight/html/GradientBased.html#method-boxplot'><code>innsight::GradientBased$boxplot()</code></a></span></p></li>
+<li><p><span class="pkg-link" data-pkg="innsight" data-topic="GradientBased" data-id="plot"><a href='../../innsight/html/GradientBased.html#method-plot'><code>innsight::GradientBased$plot()</code></a></span></p></li>
+</ul>
+</details>
+
+<hr>
+<a id="method-new"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>new()</code></h3>
+<p>Create a new instance of the Vamilla Gradient method.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Gradient</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span>
+  <span class='va'>converter</span>,
+  <span class='va'>data</span>,
+  channels_first <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  output_idx <span class='op'>=</span> <span class='cn'>NULL</span>,
+  ignore_last_act <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  times_input <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  dtype <span class='op'>=</span> <span class='st'>"float"</span>
+<span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>converter</code></dt><dd><p>An instance of the R6 class <code><a href='Converter.html'>Converter</a></code>.</p></dd>
+
+<dt><code>data</code></dt><dd><p>The data for which the gradients are to be
+calculated. It has to be an array or array-like format of size
+<em>(batch_size, dim_in)</em>.</p></dd>
+
+<dt><code>channels_first</code></dt><dd><p>The format of the given data, i.e. channels on
+last dimension (<code>FALSE</code>) or after the batch dimension (<code>TRUE</code>). If the
+data has no channels, use the default value <code>TRUE</code>.</p></dd>
+
+<dt><code>output_idx</code></dt><dd><p>This vector determines for which outputs the method
+will be applied. By default (<code>NULL</code>), all outputs (but limited to the
+first 10) are considered.</p></dd>
+
+<dt><code>ignore_last_act</code></dt><dd><p>A boolean value to include the last
+activation into all the calculations, or not (default: <code>TRUE</code>). In
+some cases, the last activation leads to a saturation problem.</p></dd>
+
+<dt><code>times_input</code></dt><dd><p>Multiplies the gradients with the input features.
+This method is called 'Gradient x Input'. Default: <code>FALSE</code>.</p></dd>
+
+<dt><code>dtype</code></dt><dd><p>The data type for the calculations. Use
+either <code>'float'</code> for <a href='https://torch.mlverse.org/docs/reference/torch_dtype.html'>torch::torch_float</a> or <code>'double'</code> for
+<a href='https://torch.mlverse.org/docs/reference/torch_dtype.html'>torch::torch_double</a>.</p></dd>
+
+</dl><p></div></p>
+<p><hr>
+<a id="method-clone"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>clone()</code></h3>
+<p>The objects of this class are cloneable with this method.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>Gradient</span><span class='op'>$</span><span class='fu'>clone</span><span class='op'>(</span>deep <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>deep</code></dt><dd><p>Whether to make a deep clone.</p></dd>
+
+</dl><p></div></p>
+
+
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/bips-hb/neuralnet'>neuralnet</a></span><span class='op'>)</span>
-<span class='va'>nn</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/neuralnet/man/neuralnet.html'>neuralnet</a></span><span class='op'>(</span> <span class='va'>Species</span> <span class='op'>~</span> <span class='va'>.</span>,
-                 <span class='va'>iris</span>, linear.output <span class='op'>=</span> <span class='cn'>FALSE</span>,
-                 hidden <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>10</span>,<span class='fl'>8</span><span class='op'>)</span>, act.fct <span class='op'>=</span> <span class='st'>"tanh"</span>, rep <span class='op'>=</span> <span class='fl'>1</span>, threshold <span class='op'>=</span> <span class='fl'>0.5</span><span class='op'>)</span>
-<span class='co'># create an analyzer for this model</span>
-<span class='va'>analyzer</span> <span class='op'>=</span> <span class='va'><a href='Analyzer.html'>Analyzer</a></span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>nn</span><span class='op'>)</span>
-
-<span class='co'># calculate gradients for the whole dataset</span>
-<span class='fu'>Gradient</span><span class='op'>(</span><span class='va'>analyzer</span>, data <span class='op'>=</span> <span class='va'>iris</span><span class='op'>[</span>,<span class='op'>-</span><span class='fl'>5</span><span class='op'>]</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; , , B1
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0002960778 -0.0003777141 -3.037775e-05
-#&gt; Sepal.Width  -0.0008156319 -0.0016171805 -1.063295e-03
-#&gt; Petal.Length  0.0009964913  0.0032124287  1.322071e-03
-#&gt; Petal.Width   0.0020871373  0.0047143738  2.140639e-03
-#&gt; 
-#&gt; , , B2
-#&gt; 
-#&gt;                     setosa   versicolor    virginica
-#&gt; Sepal.Length  0.0004155268 -0.000900464 -0.000139769
-#&gt; Sepal.Width  -0.0021127685 -0.003482180 -0.002586654
-#&gt; Petal.Length  0.0024767869  0.007126997  0.002899332
-#&gt; Petal.Width   0.0047570183  0.010279253  0.004686776
-#&gt; 
-#&gt; , , B3
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0005576538 -0.0004504674  1.255743e-05
-#&gt; Sepal.Width  -0.0011693815 -0.0021522848 -1.613103e-03
-#&gt; Petal.Length  0.0009630927  0.0043547926  1.517269e-03
-#&gt; Petal.Width   0.0025185960  0.0065244923  2.604162e-03
-#&gt; 
-#&gt; , , B4
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0007470782 -0.0008498264 -0.0002440318
-#&gt; Sepal.Width  -0.0022542251 -0.0046311989 -0.0027652799
-#&gt; Petal.Length  0.0032036292  0.0086847165  0.0042040987
-#&gt; Petal.Width   0.0064451396  0.0132480298  0.0064148633
-#&gt; 
-#&gt; , , B5
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0003417167 -0.0002943154 -1.440687e-05
-#&gt; Sepal.Width  -0.0006629507 -0.0014745510 -9.044514e-04
-#&gt; Petal.Length  0.0007994871  0.0028451432  1.189444e-03
-#&gt; Petal.Width   0.0018375314  0.0042849669  1.918103e-03
-#&gt; 
-#&gt; , , B6
-#&gt; 
-#&gt;                    setosa   versicolor     virginica
-#&gt; Sepal.Length -0.000127813 -0.001081411 -0.0004471787
-#&gt; Sepal.Width  -0.002259825 -0.004101301 -0.0023206399
-#&gt; Petal.Length  0.004338791  0.007854711  0.0044471553
-#&gt; Petal.Width   0.006774824  0.011210605  0.0064798563
-#&gt; 
-#&gt; , , B7
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0005639901 -0.0006524149 -0.0001591037
-#&gt; Sepal.Width  -0.0015335811 -0.0034203723 -0.0019072417
-#&gt; Petal.Length  0.0023714253  0.0063832037  0.0031348375
-#&gt; Petal.Width   0.0047281947  0.0096742118  0.0047792155
-#&gt; 
-#&gt; , , B8
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0003575164 -0.0005738713 -0.0001180217
-#&gt; Sepal.Width  -0.0012729754 -0.0025864531 -0.0015619763
-#&gt; Petal.Length  0.0018723863  0.0049847534  0.0023347007
-#&gt; Petal.Width   0.0035961431  0.0073725133  0.0036134139
-#&gt; 
-#&gt; , , B9
-#&gt; 
-#&gt;                    setosa    versicolor     virginica
-#&gt; Sepal.Length  0.001021067 -0.0008815348 -0.0001751793
-#&gt; Sepal.Width  -0.002560610 -0.0049739007 -0.0032859684
-#&gt; Petal.Length  0.002927311  0.0095140788  0.0041397179
-#&gt; Petal.Width   0.006523956  0.0145971938  0.0065277923
-#&gt; 
-#&gt; , , B10
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0005512544 -0.0005625981 -6.207992e-05
-#&gt; Sepal.Width  -0.0015195781 -0.0027204858 -1.969285e-03
-#&gt; Petal.Length  0.0015449182  0.0054098511  2.131818e-03
-#&gt; Petal.Width   0.0034753668  0.0081163896  3.484550e-03
-#&gt; 
-#&gt; , , B11
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0001769978 -0.0003563199 -5.981944e-05
-#&gt; Sepal.Width  -0.0007169851 -0.0014422022 -8.795212e-04
-#&gt; Petal.Length  0.0010747307  0.0028296785  1.296961e-03
-#&gt; Petal.Width   0.0020042929  0.0041028161  2.025313e-03
-#&gt; 
-#&gt; , , B12
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0005524047 -0.0006426909 -0.0002372286
-#&gt; Sepal.Width  -0.0017209985 -0.0037352698 -0.0020565612
-#&gt; Petal.Length  0.0027471079  0.0068377511  0.0035596006
-#&gt; Petal.Width   0.0053598516  0.0105241226  0.0053154163
-#&gt; 
-#&gt; , , B13
-#&gt; 
-#&gt;                     setosa   versicolor     virginica
-#&gt; Sepal.Length  0.0006266734 -0.000513160  0.0000188802
-#&gt; Sepal.Width  -0.0015558027 -0.002389237 -0.0021076554
-#&gt; Petal.Length  0.0009639869  0.005021738  0.0015178256
-#&gt; Petal.Width   0.0027309742  0.007509800  0.0027403742
-#&gt; 
-#&gt; , , B14
-#&gt; 
-#&gt;                     setosa   versicolor     virginica
-#&gt; Sepal.Length  9.299424e-04 -0.000051478  2.391162e-04
-#&gt; Sepal.Width  -1.232400e-03 -0.001029205 -1.990222e-03
-#&gt; Petal.Length -1.135596e-03  0.002696924 -4.874164e-04
-#&gt; Petal.Width   5.849834e-05  0.004483534  6.095297e-05
-#&gt; 
-#&gt; , , B15
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  9.238725e-05 -0.0000961772  1.877127e-05
-#&gt; Sepal.Width  -2.246377e-04 -0.0003204390 -3.205403e-04
-#&gt; Petal.Length  9.362382e-05  0.0007360557  1.566680e-04
-#&gt; Petal.Width   3.166747e-04  0.0010400035  3.354443e-04
-#&gt; 
-#&gt; , , B16
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  4.490888e-05 -0.0002744072 -7.606276e-05
-#&gt; Sepal.Width  -5.087729e-04 -0.0010463721 -5.691244e-04
-#&gt; Petal.Length  9.600886e-04  0.0020135958  1.057623e-03
-#&gt; Petal.Width   1.594968e-03  0.0028771562  1.583075e-03
-#&gt; 
-#&gt; , , B17
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  9.363359e-05 -0.0003699181 -7.734331e-05
-#&gt; Sepal.Width  -6.896037e-04 -0.0013641370 -8.053726e-04
-#&gt; Petal.Length  1.160155e-03  0.0026868723  1.300165e-03
-#&gt; Petal.Width   1.994767e-03  0.0038189060  1.996011e-03
-#&gt; 
-#&gt; , , B18
-#&gt; 
-#&gt;                     setosa   versicolor     virginica
-#&gt; Sepal.Length  0.0002122258 -0.000616036 -0.0001317388
-#&gt; Sepal.Width  -0.0012362008 -0.002409696 -0.0014620029
-#&gt; Petal.Length  0.0019568647  0.004727252  0.0022516842
-#&gt; Petal.Width   0.0034756936  0.006805831  0.0034690017
-#&gt; 
-#&gt; , , B19
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length -6.886895e-05 -0.0007732307 -0.0002916709
-#&gt; Sepal.Width  -1.582090e-03 -0.0028527386 -0.0016505577
-#&gt; Petal.Length  2.962910e-03  0.0055188011  0.0030384617
-#&gt; Petal.Width   4.651170e-03  0.0078342043  0.0044659900
-#&gt; 
-#&gt; , , B20
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0002288814 -0.0004744957 -0.0001213703
-#&gt; Sepal.Width  -0.0009697235 -0.0021067398 -0.0011491102
-#&gt; Petal.Length  0.0016808337  0.0039864409  0.0020254087
-#&gt; Petal.Width   0.0030481329  0.0058716498  0.0030608177
-#&gt; 
-#&gt; , , B21
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  4.945162e-05 -0.0009934188 -0.0003433107
-#&gt; Sepal.Width  -2.097787e-03 -0.0038271199 -0.0022722021
-#&gt; Petal.Length  3.688612e-03  0.0074144355  0.0039180962
-#&gt; Petal.Width   6.023897e-03  0.0106305701  0.0058274653
-#&gt; 
-#&gt; , , B22
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  7.329014e-05 -0.0009114505 -0.0003075779
-#&gt; Sepal.Width  -1.833487e-03 -0.0035487207 -0.0019907155
-#&gt; Petal.Length  3.400805e-03  0.0068085863  0.0036633429
-#&gt; Petal.Width   5.561566e-03  0.0097741652  0.0054287686
-#&gt; 
-#&gt; , , B23
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0003921330 -5.675596e-05  1.098155e-04
-#&gt; Sepal.Width  -0.0003367728 -4.846449e-04 -6.295724e-04
-#&gt; Petal.Length -0.0003720873  1.140966e-03 -5.686604e-05
-#&gt; Petal.Width   0.0001074768  1.827192e-03  2.027987e-04
-#&gt; 
-#&gt; , , B24
-#&gt; 
-#&gt;                    setosa  versicolor    virginica
-#&gt; Sepal.Length -0.001371139 -0.00421609 -0.002011517
-#&gt; Sepal.Width  -0.009103853 -0.01519558 -0.008934451
-#&gt; Petal.Length  0.017569766  0.02931979  0.017132398
-#&gt; Petal.Width   0.026233636  0.04139165  0.024642037
-#&gt; 
-#&gt; , , B25
-#&gt; 
-#&gt;                     setosa   versicolor     virginica
-#&gt; Sepal.Length  0.0005804396 -0.001315882 -0.0009489572
-#&gt; Sepal.Width  -0.0043048396 -0.008465529 -0.0045731347
-#&gt; Petal.Length  0.0076180193  0.015046844  0.0089925015
-#&gt; Petal.Width   0.0134965184  0.023492255  0.0128045211
-#&gt; 
-#&gt; , , B26
-#&gt; 
-#&gt;                     setosa   versicolor     virginica
-#&gt; Sepal.Length  0.0002120784 -0.001509664 -0.0004826024
-#&gt; Sepal.Width  -0.0033356282 -0.005923395 -0.0037141638
-#&gt; Petal.Length  0.0053866753  0.011578258  0.0058354510
-#&gt; Petal.Width   0.0090759144  0.016681819  0.0087923129
-#&gt; 
-#&gt; , , B27
-#&gt; 
-#&gt;                     setosa   versicolor     virginica
-#&gt; Sepal.Length -0.0001839891 -0.001927856 -0.0007824233
-#&gt; Sepal.Width  -0.0040550732 -0.007327455 -0.0042043074
-#&gt; Petal.Length  0.0076346794  0.014071453  0.0078670496
-#&gt; Petal.Width   0.0120002170  0.020098781  0.0114964062
-#&gt; 
-#&gt; , , B28
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0002479451 -0.0004983514 -9.510077e-05
-#&gt; Sepal.Width  -0.0010478329 -0.0020690764 -1.274121e-03
-#&gt; Petal.Length  0.0015544505  0.0040454895  1.871283e-03
-#&gt; Petal.Width   0.0028988148  0.0058951619  2.909727e-03
-#&gt; 
-#&gt; , , B29
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0002529483 -0.0004569725 -5.019055e-05
-#&gt; Sepal.Width  -0.0009916903 -0.0017737161 -1.247118e-03
-#&gt; Petal.Length  0.0012003291  0.0036050289  1.463917e-03
-#&gt; Petal.Width   0.0023612751  0.0051986558  2.376635e-03
-#&gt; 
-#&gt; , , B30
-#&gt; 
-#&gt;                     setosa   versicolor     virginica
-#&gt; Sepal.Length  0.0006423301 -0.000941747 -0.0003576434
-#&gt; Sepal.Width  -0.0024751520 -0.005122154 -0.0028995454
-#&gt; Petal.Length  0.0039522984  0.009468618  0.0049343056
-#&gt; Petal.Width   0.0074751676  0.014434153  0.0073563692
-#&gt; 
-#&gt; , , B31
-#&gt; 
-#&gt;                     setosa   versicolor    virginica
-#&gt; Sepal.Length  0.0004709626 -0.001235221 -0.000415943
-#&gt; Sepal.Width  -0.0029039023 -0.005622994 -0.003323754
-#&gt; Petal.Length  0.0046986197  0.010684597  0.005471859
-#&gt; Petal.Width   0.0083808006  0.015822982  0.008205664
-#&gt; 
-#&gt; , , B32
-#&gt; 
-#&gt;                     setosa   versicolor     virginica
-#&gt; Sepal.Length -0.0001944573 -0.001332469 -0.0005068301
-#&gt; Sepal.Width  -0.0027681581 -0.004753315 -0.0028694948
-#&gt; Petal.Length  0.0050432410  0.009296669  0.0050640355
-#&gt; Petal.Width   0.0078210144  0.013109269  0.0074571304
-#&gt; 
-#&gt; , , B33
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0002702060 -2.707502e-05  1.461383e-05
-#&gt; Sepal.Width  -0.0001819744 -6.131899e-04 -3.167618e-04
-#&gt; Petal.Length  0.0001244126  1.054915e-03  4.432312e-04
-#&gt; Petal.Width   0.0006475103  1.806444e-03  7.143897e-04
-#&gt; 
-#&gt; , , B34
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0001385760 -0.0001100904  7.253376e-06
-#&gt; Sepal.Width  -0.0002007888 -0.0005196107 -2.966493e-04
-#&gt; Petal.Length  0.0002491323  0.0010058946  4.037179e-04
-#&gt; Petal.Width   0.0006098647  0.0014991252  6.646612e-04
-#&gt; 
-#&gt; , , B35
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0003996956 -0.0009788797 -0.0002337094
-#&gt; Sepal.Width  -0.0022073729 -0.0040676656 -0.0026143494
-#&gt; Petal.Length  0.0031983071  0.0079803128  0.0037293280
-#&gt; Petal.Width   0.0058396958  0.0116373352  0.0057619253
-#&gt; 
-#&gt; , , B36
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0003549489 -0.0003848327  5.097757e-05
-#&gt; Sepal.Width  -0.0010681838 -0.0013511956 -1.459292e-03
-#&gt; Petal.Length  0.0004414036  0.0031181454  6.645701e-04
-#&gt; Petal.Width   0.0014080315  0.0044600000  1.408576e-03
-#&gt; 
-#&gt; , , B37
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0001634622 -0.0002905647 -0.0000047627
-#&gt; Sepal.Width  -0.0006860568 -0.0009964558 -0.0008848543
-#&gt; Petal.Length  0.0005713342  0.0021782243  0.0006875933
-#&gt; Petal.Width   0.0012299510  0.0030814916  0.0012238962
-#&gt; 
-#&gt; , , B38
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0004428507 -9.163205e-05  3.805959e-05
-#&gt; Sepal.Width  -0.0004249456 -1.027386e-03 -6.870026e-04
-#&gt; Petal.Length  0.0001707885  1.913358e-03  6.484197e-04
-#&gt; Petal.Width   0.0010330379  3.146946e-03  1.126948e-03
-#&gt; 
-#&gt; , , B39
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0009311554 -0.0005349889 -1.077567e-06
-#&gt; Sepal.Width  -0.0017014579 -0.0032316994 -2.362446e-03
-#&gt; Petal.Length  0.0013207459  0.0063314311  2.301946e-03
-#&gt; Petal.Width   0.0037766167  0.0098087132  3.873132e-03
-#&gt; 
-#&gt; , , B40
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0002940839 -0.0005882002 -0.0001195111
-#&gt; Sepal.Width  -0.0012659338 -0.0024775468 -0.0015329678
-#&gt; Petal.Length  0.0018674651  0.0048346074  0.0022468074
-#&gt; Petal.Width   0.0034843968  0.0070647006  0.0034859065
-#&gt; 
-#&gt; , , B41
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0002719358 -0.0004744351 -5.599237e-05
-#&gt; Sepal.Width  -0.0009568131 -0.0018884069 -1.207110e-03
-#&gt; Petal.Length  0.0013089671  0.0037578284  1.620633e-03
-#&gt; Petal.Width   0.0025361199  0.0054361040  2.583219e-03
-#&gt; 
-#&gt; , , B42
-#&gt; 
-#&gt;                     setosa  versicolor     virginica
-#&gt; Sepal.Length  0.0003662531 -0.00339829 -0.0008366333
-#&gt; Sepal.Width  -0.0084945474 -0.01178690 -0.0097755992
-#&gt; Petal.Length  0.0099638086  0.02477742  0.0102091060
-#&gt; Petal.Width   0.0172937636  0.03500432  0.0163173749
-#&gt; 
-#&gt; , , B43
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0008830606 -0.0002672063  2.014597e-05
-#&gt; Sepal.Width  -0.0011094972 -0.0024763392 -1.640242e-03
-#&gt; Petal.Length  0.0007678704  0.0046108260  1.751184e-03
-#&gt; Petal.Width   0.0027702847  0.0074758111  2.902810e-03
-#&gt; 
-#&gt; , , B44
-#&gt; 
-#&gt;                    setosa   versicolor    virginica
-#&gt; Sepal.Length -0.001182445 -0.003720664 -0.001759737
-#&gt; Sepal.Width  -0.007983182 -0.013408922 -0.007837425
-#&gt; Petal.Length  0.015484323  0.025854921  0.015119450
-#&gt; Petal.Width   0.023139484  0.036496217  0.021754720
-#&gt; 
-#&gt; , , B45
-#&gt; 
-#&gt;                     setosa   versicolor    virginica
-#&gt; Sepal.Length -0.0003958885 -0.002216519 -0.001136416
-#&gt; Sepal.Width  -0.0051470024 -0.009083441 -0.005148578
-#&gt; Petal.Length  0.0098623211  0.017114989  0.010098723
-#&gt; Petal.Width   0.0153635421  0.024817455  0.014488148
-#&gt; 
-#&gt; , , B46
-#&gt; 
-#&gt;                     setosa   versicolor     virginica
-#&gt; Sepal.Length  0.0002878192 -0.001424098 -0.0003776183
-#&gt; Sepal.Width  -0.0030660303 -0.005424039 -0.0035046345
-#&gt; Petal.Length  0.0047050189  0.010744513  0.0051575048
-#&gt; Petal.Width   0.0080851741  0.015398694  0.0078979660
-#&gt; 
-#&gt; , , B47
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0003232793 -0.0003311659 -9.485349e-05
-#&gt; Sepal.Width  -0.0008124907 -0.0018947018 -1.006102e-03
-#&gt; Petal.Length  0.0013166789  0.0034700299  1.768373e-03
-#&gt; Petal.Width   0.0026410740  0.0053270458  2.666839e-03
-#&gt; 
-#&gt; , , B48
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0007019409 -0.0005205035 -7.239426e-05
-#&gt; Sepal.Width  -0.0014380479 -0.0030359757 -1.907575e-03
-#&gt; Petal.Length  0.0016646557  0.0057569559  2.493310e-03
-#&gt; Petal.Width   0.0038758443  0.0088702981  3.952411e-03
-#&gt; 
-#&gt; , , B49
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0002126362 -0.0003524987 -5.733343e-05
-#&gt; Sepal.Width  -0.0007197309 -0.0015052948 -8.960392e-04
-#&gt; Petal.Length  0.0010783543  0.0029226127  1.345908e-03
-#&gt; Petal.Width   0.0020659712  0.0042797155  2.099297e-03
-#&gt; 
-#&gt; , , B50
-#&gt; 
-#&gt;                     setosa    versicolor     virginica
-#&gt; Sepal.Length  0.0003544198 -0.0005357364 -6.041486e-05
-#&gt; Sepal.Width  -0.0011993922 -0.0022192410 -1.523214e-03
-#&gt; Petal.Length  0.0014476586  0.0044505345  1.831533e-03
-#&gt; Petal.Width   0.0029301550  0.0064956912  2.959164e-03
-#&gt; 
-#&gt; , , B51
-#&gt; 
-#&gt;                    setosa versicolor   virginica
-#&gt; Sepal.Length -0.006414214  0.2648768  0.01009305
-#&gt; Sepal.Width  -0.007705724  0.2937509  0.01435335
-#&gt; Petal.Length  0.011645741 -0.5013681 -0.02107154
-#&gt; Petal.Width   0.012182102 -0.4829779 -0.02482427
-#&gt; 
-#&gt; , , B52
-#&gt; 
-#&gt;                   setosa versicolor    virginica
-#&gt; Sepal.Length -0.01951416  0.3750545  0.005422393
-#&gt; Sepal.Width  -0.02516073  0.4294024  0.013424321
-#&gt; Petal.Length  0.03838002 -0.7198657 -0.014847419
-#&gt; Petal.Width   0.04211187 -0.7125315 -0.024919689
-#&gt; 
-#&gt; , , B53
-#&gt; 
-#&gt;                   setosa versicolor   virginica
-#&gt; Sepal.Length -0.03245967  0.4898221  0.00417962
-#&gt; Sepal.Width  -0.04011240  0.5552926  0.01073695
-#&gt; Petal.Length  0.06414270 -0.9412011 -0.01174695
-#&gt; Petal.Width   0.06766291 -0.9230969 -0.02004918
-#&gt; 
-#&gt; , , B54
-#&gt; 
-#&gt;                   setosa versicolor    virginica
-#&gt; Sepal.Length -0.02283211  0.4854913 -0.006417344
-#&gt; Sepal.Width  -0.03940495  0.5960001  0.011224236
-#&gt; Petal.Length  0.05049625 -0.9544995  0.001055696
-#&gt; Petal.Width   0.06900883 -1.0020033 -0.025299363
-#&gt; 
-#&gt; , , B55
-#&gt; 
-#&gt;                   setosa versicolor    virginica
-#&gt; Sepal.Length -0.03304800  0.5211478  0.003130721
-#&gt; Sepal.Width  -0.04126641  0.5909028  0.009808426
-#&gt; Petal.Length  0.06547268 -1.0010586 -0.009870487
-#&gt; Petal.Width   0.06967497 -0.9820021 -0.018583066
-#&gt; 
-#&gt; , , B56
-#&gt; 
-#&gt;                    setosa versicolor   virginica
-#&gt; Sepal.Length  0.009282942  0.3793998 -0.03996268
-#&gt; Sepal.Width  -0.036606285  0.6364857  0.01616959
-#&gt; Petal.Length  0.010569809 -0.8546597  0.03870464
-#&gt; Petal.Width   0.077487053 -1.1319450 -0.04943404
-#&gt; 
-#&gt; , , B57
-#&gt; 
-#&gt;                   setosa versicolor    virginica
-#&gt; Sepal.Length -0.02638461  0.4964517 -0.003597393
-#&gt; Sepal.Width  -0.04125641  0.5982881  0.010892323
-#&gt; Petal.Length  0.05737776 -0.9757035 -0.002361512
-#&gt; Petal.Width   0.07245545 -1.0074076 -0.023598941
-#&gt; 
-#&gt; , , B58
-#&gt; 
-#&gt;                    setosa  versicolor    virginica
-#&gt; Sepal.Length  0.008698735  0.12730370 -0.007680098
-#&gt; Sepal.Width   0.020209423  0.10827014  0.009609689
-#&gt; Petal.Length -0.047864585 -0.10808479  0.007987411
-#&gt; Petal.Width  -0.057931834 -0.07204809 -0.018934032
-#&gt; 
-#&gt; , , B59
-#&gt; 
-#&gt;                   setosa versicolor    virginica
-#&gt; Sepal.Length -0.01761801  0.3604447  0.005433348
-#&gt; Sepal.Width  -0.02295601  0.4133068  0.013684752
-#&gt; Petal.Length  0.03454119 -0.6913231 -0.014998542
-#&gt; Petal.Width   0.03829271 -0.6853170 -0.025424483
-#&gt; 
-#&gt; , , B60
-#&gt; 
-#&gt;                   setosa versicolor    virginica
-#&gt; Sepal.Length -0.01537672  0.4226037 -0.014653209
-#&gt; Sepal.Width  -0.03812592  0.5649695  0.013589870
-#&gt; Petal.Length  0.03984111 -0.8551611  0.009676729
-#&gt; Petal.Width   0.06887436 -0.9623285 -0.033482986
-#&gt; 
-#&gt; , , B61
-#&gt; 
-#&gt;                    setosa versicolor    virginica
-#&gt; Sepal.Length -0.005217918  0.2906101 -0.009156397
-#&gt; Sepal.Width  -0.011969483  0.3610013  0.014579298
-#&gt; Petal.Length  0.002608353 -0.5289007  0.003478391
-#&gt; Petal.Width   0.012830666 -0.5710646 -0.032336164
-#&gt; 
-#&gt; , , B62
-#&gt; 
-#&gt;                   setosa versicolor    virginica
-#&gt; Sepal.Length -0.02298418  0.4117856  0.002064688
-#&gt; Sepal.Width  -0.03133753  0.4807415  0.012827856
-#&gt; Petal.Length  0.04595669 -0.7944072 -0.010338706
-#&gt; Petal.Width   0.05280393 -0.7997366 -0.025068552
-#&gt; 
-#&gt; , , B63
-#&gt; 
-#&gt;                    setosa versicolor    virginica
-#&gt; Sepal.Length -0.005589625  0.2625284  0.005326381
-#&gt; Sepal.Width  -0.006308314  0.2929168  0.013999035
-#&gt; Petal.Length  0.005669409 -0.4791540 -0.014378190
-#&gt; Petal.Width   0.006276815 -0.4666549 -0.025555310
-#&gt; 
-#&gt; , , B64
-#&gt; 
-#&gt;                    setosa versicolor   virginica
-#&gt; Sepal.Length -0.004818657  0.4586721 -0.01756941
-#&gt; Sepal.Width  -0.032016574  0.6218625  0.01228279
-#&gt; Petal.Length  0.025355696 -0.9442924  0.01380621
-#&gt; Petal.Width   0.062671044 -1.0709961 -0.03223652
-#&gt; 
-#&gt; , , B65
-#&gt; 
-#&gt;                    setosa versicolor    virginica
-#&gt; Sepal.Length  0.005654126  0.1415457  0.006274412
-#&gt; Sepal.Width   0.010675829  0.1370884  0.010996466
-#&gt; Petal.Length -0.021708176 -0.2177763 -0.012294856
-#&gt; Petal.Width  -0.026118251 -0.1863592 -0.017910967
-#&gt; 
-#&gt; , , B66
-#&gt; 
-#&gt;                    setosa versicolor   virginica
-#&gt; Sepal.Length -0.001811074  0.2244284  0.01039835
-#&gt; Sepal.Width  -0.001891640  0.2459045  0.01413544
-#&gt; Petal.Length  0.001832491 -0.4193948 -0.02115089
-#&gt; Petal.Width   0.001801165 -0.4002061 -0.02412443
-#&gt; 
-#&gt; , , B67
-#&gt; 
-#&gt;                   setosa versicolor   virginica
-#&gt; Sepal.Length  0.02312645  0.3728577 -0.03822814
-#&gt; Sepal.Width  -0.01905439  0.6122861  0.01530447
-#&gt; Petal.Length -0.01673156 -0.8337914  0.03709587
-#&gt; Petal.Width   0.04800159 -1.0873006 -0.04698136
-#&gt; 
-#&gt; , , B68
-#&gt; 
-#&gt;                    setosa versicolor     virginica
-#&gt; Sepal.Length  0.004920898  0.1849092 -0.0076034858
-#&gt; Sepal.Width   0.001708956  0.2397464  0.0154842171
-#&gt; Petal.Length -0.013521919 -0.3442411  0.0009316883
-#&gt; Petal.Width  -0.006786093 -0.3849375 -0.0335476884
-#&gt; 
-#&gt; , , B69
-#&gt; 
-#&gt;                   setosa versicolor     virginica
-#&gt; Sepal.Length  0.02856260  0.4047719 -0.0008024801
-#&gt; Sepal.Width   0.02475316  0.4662013  0.0070799115
-#&gt; Petal.Length -0.05034303 -0.7831053 -0.0033597015
-#&gt; Petal.Width  -0.03850551 -0.7783407 -0.0146636629
-#&gt; 
-#&gt; , , B70
-#&gt; 
-#&gt;                    setosa versicolor    virginica
-#&gt; Sepal.Length -0.003398841  0.2567616 -0.001801814
-#&gt; Sepal.Width  -0.007296735  0.3087283  0.014871242
-#&gt; Petal.Length  0.002666819 -0.4776974 -0.006111779
-#&gt; Petal.Width   0.008413800 -0.4976264 -0.030184895
-#&gt; 
-#&gt; , , B71
-#&gt; 
-#&gt;                 setosa versicolor virginica
-#&gt; Sepal.Length  1.544329   25.44272 -1.220838
-#&gt; Sepal.Width   1.673640   27.91585 -1.193190
-#&gt; Petal.Length -2.925344  -48.40866  2.231495
-#&gt; Petal.Width  -2.758600  -46.14450  1.916702
-#&gt; 
-#&gt; , , B72
-#&gt; 
-#&gt;                     setosa versicolor    virginica
-#&gt; Sepal.Length -0.0009954319  0.2173837  0.008663826
-#&gt; Sepal.Width  -0.0002488111  0.2362652  0.013784707
-#&gt; Petal.Length -0.0021090497 -0.3956916 -0.018417425
-#&gt; Petal.Width  -0.0027949162 -0.3759922 -0.023803128
-#&gt; 
-#&gt; , , B73
-#&gt; 
-#&gt;                 setosa versicolor virginica
-#&gt; Sepal.Length  1.788898   33.13725 -4.561541
-#&gt; Sepal.Width   1.944260   36.20001 -4.843388
-#&gt; Petal.Length -3.392094  -62.94980  8.578256
-#&gt; Petal.Width  -3.206798  -59.77786  7.944693
-#&gt; 
-#&gt; , , B74
-#&gt; 
-#&gt;                    setosa versicolor   virginica
-#&gt; Sepal.Length -0.005120978  0.4033044 -0.02779377
-#&gt; Sepal.Width  -0.040742395  0.6094947  0.01505030
-#&gt; Petal.Length  0.030623235 -0.8667828  0.02456492
-#&gt; Petal.Width   0.079831371 -1.0669829 -0.04209881
-#&gt; 
-#&gt; , , B75
-#&gt; 
-#&gt;                    setosa versicolor    virginica
-#&gt; Sepal.Length -0.005171119  0.2563015  0.008287958
-#&gt; Sepal.Width  -0.006328453  0.2860228  0.014326317
-#&gt; Petal.Length  0.008077434 -0.4805269 -0.018635319
-#&gt; Petal.Width   0.008908704 -0.4662183 -0.025339688
-#&gt; 
-#&gt; , , B76
-#&gt; 
-#&gt;                    setosa versicolor   virginica
-#&gt; Sepal.Length -0.007983701  0.2776987  0.00971989
-#&gt; Sepal.Width  -0.009293260  0.3072570  0.01420386
-#&gt; Petal.Length  0.014065307 -0.5232080 -0.02044949
-#&gt; Petal.Width   0.014354512 -0.5032607 -0.02461474
-#&gt; 
-#&gt; , , B77
-#&gt; 
-#&gt;                   setosa versicolor    virginica
-#&gt; Sepal.Length -0.03299768  0.5022889  0.003660013
-#&gt; Sepal.Width  -0.04097798  0.5698653  0.010384842
-#&gt; Petal.Length  0.06524796 -0.9650639 -0.010882361
-#&gt; Petal.Width   0.06912336 -0.9471812 -0.019540379
-#&gt; 
-#&gt; , , B78
-#&gt; 
-#&gt;                   setosa versicolor     virginica
-#&gt; Sepal.Length  0.02105162  0.4282125 -0.0008572707
-#&gt; Sepal.Width   0.01565418  0.4961474  0.0079265959
-#&gt; Petal.Length -0.03546112 -0.8307861 -0.0038740246
-#&gt; Petal.Width  -0.02309107 -0.8298135 -0.0164486947
-#&gt; 
-#&gt; , , B79
-#&gt; 
-#&gt;                   setosa versicolor    virginica
-#&gt; Sepal.Length -0.01857254  0.4985734 -0.007133922
-#&gt; Sepal.Width  -0.03637131  0.6158438  0.010748117
-#&gt; Petal.Length  0.04471509 -0.9886832  0.002068839
-#&gt; Petal.Width   0.06569858 -1.0417495 -0.024753327
-#&gt; 
-#&gt; , , B80
-#&gt; 
-#&gt;                    setosa  versicolor     virginica
-#&gt; Sepal.Length  0.009079881 0.072282171  0.0029305115
-#&gt; Sepal.Width   0.023558096 0.016181110  0.0039700200
-#&gt; Petal.Length -0.046125593 0.002426873 -0.0002690049
-#&gt; Petal.Width  -0.061012530 0.080660410 -0.0020739952
-#&gt; 
-#&gt; , , B81
-#&gt; 
-#&gt;                    setosa versicolor     virginica
-#&gt; Sepal.Length -0.004596970  0.2652375 -0.0008973241
-#&gt; Sepal.Width  -0.007816019  0.3130977  0.0145442747
-#&gt; Petal.Length  0.003781939 -0.4878040 -0.0069393955
-#&gt; Petal.Width   0.008414058 -0.5005383 -0.0290891177
-#&gt; 
-#&gt; , , B82
-#&gt; 
-#&gt;                    setosa versicolor     virginica
-#&gt; Sepal.Length  0.003775693  0.1778450 -0.0002600027
-#&gt; Sepal.Width   0.007084968  0.1922020  0.0127544944
-#&gt; Petal.Length -0.019840665 -0.2854818 -0.0054158831
-#&gt; Petal.Width  -0.021814811 -0.2742430 -0.0242095252
-#&gt; 
-#&gt; , , B83
-#&gt; 
-#&gt;                     setosa versicolor    virginica
-#&gt; Sepal.Length -4.023780e-04  0.2163059  0.004929772
-#&gt; Sepal.Width   3.008823e-05  0.2405853  0.013903973
-#&gt; Petal.Length -4.790065e-03 -0.3887922 -0.013624557
-#&gt; Petal.Width  -4.596176e-03 -0.3783545 -0.025339524
-#&gt; 
-#&gt; , , B84
-#&gt; 
-#&gt;                   setosa  versicolor   virginica
-#&gt; Sepal.Length  0.09847426  0.01207895 -0.09274587
-#&gt; Sepal.Width   0.07157874  0.12301940 -0.02904584
-#&gt; Petal.Length -0.16453105 -0.09153986  0.13105392
-#&gt; Petal.Width  -0.10439977 -0.24510968  0.02035359
-#&gt; 
-#&gt; , , B85
-#&gt; 
-#&gt;                    setosa versicolor   virginica
-#&gt; Sepal.Length  0.057287852  0.2471260 -0.07327468
-#&gt; Sepal.Width  -0.003154084  0.5884954  0.02005583
-#&gt; Petal.Length -0.068117945 -0.6663322  0.07679000
-#&gt; Petal.Width   0.030038330 -1.0917903 -0.07127454
-#&gt; 
-#&gt; , , B86
-#&gt; 
-#&gt;                   setosa versicolor     virginica
-#&gt; Sepal.Length -0.02260010  0.4440881 -0.0059344058
-#&gt; Sepal.Width  -0.03895863  0.5533700  0.0126391589
-#&gt; Petal.Length  0.05093911 -0.8821606 -0.0005687662
-#&gt; Petal.Width   0.06903396 -0.9364819 -0.0280943833
-#&gt; 
-#&gt; , , B87
-#&gt; 
-#&gt;                   setosa versicolor    virginica
-#&gt; Sepal.Length -0.02788815  0.4404108  0.005602872
-#&gt; Sepal.Width  -0.03417636  0.4980675  0.011959741
-#&gt; Petal.Length  0.05463528 -0.8442682 -0.014215952
-#&gt; Petal.Width   0.05730588 -0.8264965 -0.021918935
-#&gt; 
-#&gt; , , B88
-#&gt; 
-#&gt;                   setosa versicolor    virginica
-#&gt; Sepal.Length -0.03220399  0.5186700  0.002482532
-#&gt; Sepal.Width  -0.04080784  0.5903771  0.009877887
-#&gt; Petal.Length  0.06379239 -0.9960446 -0.009078484
-#&gt; Petal.Width   0.06878962 -0.9805867 -0.018959673
-#&gt; 
-#&gt; , , B89
-#&gt; 
-#&gt;                   setosa versicolor    virginica
-#&gt; Sepal.Length -0.00492061  0.2883573 -0.009092893
-#&gt; Sepal.Width  -0.01653668  0.3821364  0.016120018
-#&gt; Petal.Length  0.01276411 -0.5735252  0.001520494
-#&gt; Petal.Width   0.02862253 -0.6432536 -0.036145081
-#&gt; 
-#&gt; , , B90
-#&gt; 
-#&gt;                   setosa versicolor     virginica
-#&gt; Sepal.Length -0.02129388  0.4370525 -0.0067343975
-#&gt; Sepal.Width  -0.03711044  0.5443079  0.0126894736
-#&gt; Petal.Length  0.04653876 -0.8604981  0.0005703995
-#&gt; Petal.Width   0.06444551 -0.9148269 -0.0283720905
-#&gt; 
-#&gt; , , B91
-#&gt; 
-#&gt;                    setosa versicolor   virginica
-#&gt; Sepal.Length  0.025009394  0.3120718 -0.06092793
-#&gt; Sepal.Width  -0.035527758  0.6476797  0.01944794
-#&gt; Petal.Length -0.009568739 -0.7781102  0.06224203
-#&gt; Petal.Width   0.081592424 -1.1815038 -0.06480119
-#&gt; 
-#&gt; , , B92
-#&gt; 
-#&gt;                   setosa versicolor    virginica
-#&gt; Sepal.Length -0.01945037  0.4606478 -0.011130257
-#&gt; Sepal.Width  -0.04104039  0.5955371  0.012379811
-#&gt; Petal.Length  0.04844062 -0.9287584  0.005922786
-#&gt; Petal.Width   0.07461133 -1.0153983 -0.029732636
-#&gt; 
-#&gt; , , B93
-#&gt; 
-#&gt;                    setosa versicolor    virginica
-#&gt; Sepal.Length -0.008103144  0.2893326  0.002733875
-#&gt; Sepal.Width  -0.011741068  0.3361665  0.014462621
-#&gt; Petal.Length  0.013148487 -0.5436769 -0.011736332
-#&gt; Petal.Width   0.017130765 -0.5474460 -0.027754021
-#&gt; 
-#&gt; , , B94
-#&gt; 
-#&gt;                    setosa  versicolor    virginica
-#&gt; Sepal.Length  0.006642918  0.14216297 -0.002888803
-#&gt; Sepal.Width   0.018080989  0.11843976  0.009554937
-#&gt; Petal.Length -0.041763949 -0.14293823  0.001781974
-#&gt; Petal.Width  -0.052583256 -0.09517398 -0.017169531
-#&gt; 
-#&gt; , , B95
-#&gt; 
-#&gt;                   setosa versicolor   virginica
-#&gt; Sepal.Length -0.01499694  0.4186296 -0.01521402
-#&gt; Sepal.Width  -0.03856090  0.5650978  0.01382463
-#&gt; Petal.Length  0.04029687 -0.8533314  0.01013037
-#&gt; Petal.Width   0.07045401 -0.9666765 -0.03426202
-#&gt; 
-#&gt; , , B96
-#&gt; 
-#&gt;                     setosa versicolor    virginica
-#&gt; Sepal.Length  0.0009842567  0.2449174 -0.014300279
-#&gt; Sepal.Width  -0.0113059734  0.3478841  0.017249762
-#&gt; Petal.Length  0.0019516215 -0.4974230  0.007272852
-#&gt; Petal.Width   0.0201547439 -0.5902212 -0.040517611
-#&gt; 
-#&gt; , , B97
-#&gt; 
-#&gt;                   setosa versicolor    virginica
-#&gt; Sepal.Length -0.01139087  0.3484754 -0.009597858
-#&gt; Sepal.Width  -0.02677691  0.4577614  0.015203831
-#&gt; Petal.Length  0.02793579 -0.6981776  0.002520907
-#&gt; Petal.Width   0.04749053 -0.7754494 -0.034647690
-#&gt; 
-#&gt; , , B98
-#&gt; 
-#&gt;                   setosa versicolor    virginica
-#&gt; Sepal.Length -0.01017972  0.3032064  0.004857091
-#&gt; Sepal.Width  -0.01417581  0.3500679  0.014452518
-#&gt; Petal.Length  0.01903322 -0.5776407 -0.014600430
-#&gt; Petal.Width   0.02273958 -0.5768805 -0.027080604
-#&gt; 
-#&gt; , , B99
-#&gt; 
-#&gt;                   setosa  versicolor   virginica
-#&gt; Sepal.Length  0.01101733  0.05577544 0.001742916
-#&gt; Sepal.Width   0.04036975 -0.06674429 0.000364520
-#&gt; Petal.Length -0.07990856  0.16486311 0.005553394
-#&gt; Petal.Width  -0.11175853  0.31749167 0.006499457
-#&gt; 
-#&gt; , , B100
-#&gt; 
-#&gt;                   setosa versicolor    virginica
-#&gt; Sepal.Length -0.01323664  0.3463279 -0.003364035
-#&gt; Sepal.Width  -0.02348086  0.4280205  0.014571085
-#&gt; Petal.Length  0.02781145 -0.6755713 -0.004622762
-#&gt; Petal.Width   0.03975810 -0.7146952 -0.030718122
-#&gt; 
-#&gt; , , B101
-#&gt; 
-#&gt;                   setosa  versicolor   virginica
-#&gt; Sepal.Length  0.11728305 -0.05926954 -0.04597021
-#&gt; Sepal.Width  -0.06196319  0.01259188 -0.08822884
-#&gt; Petal.Length -0.10395970  0.06424119  0.11109232
-#&gt; Petal.Width   0.17505101 -0.05038429  0.16023812
-#&gt; 
-#&gt; , , B102
-#&gt; 
-#&gt;                    setosa  versicolor   virginica
-#&gt; Sepal.Length  0.057703589 -0.03545188 -0.11610425
-#&gt; Sepal.Width   0.003392407  0.02022119 -0.09390937
-#&gt; Petal.Length -0.072309470  0.03049599  0.19999690
-#&gt; Petal.Width   0.017234767 -0.05594363  0.14249474
-#&gt; 
-#&gt; , , B103
-#&gt; 
-#&gt;                    setosa   versicolor  virginica
-#&gt; Sepal.Length -0.004432472 -0.009100580 -0.1142798
-#&gt; Sepal.Width  -0.031306098  0.005346811 -0.1272109
-#&gt; Petal.Length  0.024968383  0.007729844  0.2185786
-#&gt; Petal.Width   0.061824633 -0.014678981  0.2109757
-#&gt; 
-#&gt; , , B104
-#&gt; 
-#&gt;                    setosa  versicolor   virginica
-#&gt; Sepal.Length  0.073938624 -0.05624089 -0.13888826
-#&gt; Sepal.Width   0.005029416  0.02658904 -0.08305977
-#&gt; Petal.Length -0.093094150  0.05180822  0.22092682
-#&gt; Petal.Width   0.020684515 -0.07758537  0.11089735
-#&gt; 
-#&gt; , , B105
-#&gt; 
-#&gt;                     setosa   versicolor   virginica
-#&gt; Sepal.Length  0.0302291151 -0.030360540 -0.09337563
-#&gt; Sepal.Width  -0.0602852732  0.008977546 -0.12285671
-#&gt; Petal.Length  0.0009121657  0.031326883  0.19042151
-#&gt; Petal.Width   0.1352535303 -0.030949920  0.21085637
-#&gt; 
-#&gt; , , B106
-#&gt; 
-#&gt;                   setosa   versicolor  virginica
-#&gt; Sepal.Length  0.01234514 -0.021162730 -0.0850532
-#&gt; Sepal.Width  -0.06816612  0.008941246 -0.1230981
-#&gt; Petal.Length  0.02759677  0.020158755  0.1804445
-#&gt; Petal.Width   0.14380606 -0.027031482  0.2148243
-#&gt; 
-#&gt; , , B107
-#&gt; 
-#&gt;                   setosa  versicolor   virginica
-#&gt; Sepal.Length  0.09983797 -0.09071333 -0.19957390
-#&gt; Sepal.Width   0.05318573  0.09913306 -0.02827635
-#&gt; Petal.Length -0.15465512  0.04848665  0.26059723
-#&gt; Petal.Width  -0.06639036 -0.23946990 -0.02582549
-#&gt; 
-#&gt; , , B108
-#&gt; 
-#&gt;                   setosa   versicolor  virginica
-#&gt; Sepal.Length  0.03736473 -0.033499201 -0.1111537
-#&gt; Sepal.Width  -0.03356041  0.009798485 -0.1162724
-#&gt; Petal.Length -0.02447717  0.034632715  0.2079364
-#&gt; Petal.Width   0.08387986 -0.033931331  0.1900341
-#&gt; 
-#&gt; , , B109
-#&gt; 
-#&gt;                   setosa   versicolor  virginica
-#&gt; Sepal.Length  0.03255788 -0.031751189 -0.1086059
-#&gt; Sepal.Width  -0.04061907  0.008913418 -0.1198681
-#&gt; Petal.Length -0.01421317  0.033059023  0.2070870
-#&gt; Petal.Width   0.09622957 -0.031400688  0.1984144
-#&gt; 
-#&gt; , , B110
-#&gt; 
-#&gt;                   setosa   versicolor  virginica
-#&gt; Sepal.Length -0.02610518 -0.006719677 -0.1172145
-#&gt; Sepal.Width  -0.05640112  0.005212939 -0.1362581
-#&gt; Petal.Length  0.06702457  0.004916676  0.2278031
-#&gt; Petal.Width   0.10380593 -0.013411547  0.2281485
-#&gt; 
-#&gt; , , B111
-#&gt; 
-#&gt;                   setosa versicolor   virginica
-#&gt; Sepal.Length  0.08044094  0.1404434 -0.02882724
-#&gt; Sepal.Width   0.08040426  0.1748678 -0.02085126
-#&gt; Petal.Length -0.14812926 -0.2801542  0.04813322
-#&gt; Petal.Width  -0.12990568 -0.2969278  0.03038018
-#&gt; 
-#&gt; , , B112
-#&gt; 
-#&gt;                   setosa   versicolor   virginica
-#&gt; Sepal.Length  0.04022223 -0.003662322 -0.09537642
-#&gt; Sepal.Width   0.01976988  0.020715157 -0.09367698
-#&gt; Petal.Length -0.06128471 -0.008491504  0.17462544
-#&gt; Petal.Width  -0.02338759 -0.043661267  0.15068043
-#&gt; 
-#&gt; , , B113
-#&gt; 
-#&gt;                   setosa   versicolor   virginica
-#&gt; Sepal.Length  0.02652762  0.003896801 -0.09518517
-#&gt; Sepal.Width   0.01604568  0.016181739 -0.09983988
-#&gt; Petal.Length -0.04230092 -0.014856513  0.17823813
-#&gt; Petal.Width  -0.02154235 -0.031282754  0.16328915
-#&gt; 
-#&gt; , , B114
-#&gt; 
-#&gt;                   setosa   versicolor  virginica
-#&gt; Sepal.Length  0.03053137 -0.028246567 -0.1109258
-#&gt; Sepal.Width  -0.02966117  0.009223822 -0.1172925
-#&gt; Petal.Length -0.01858896  0.028600998  0.2083093
-#&gt; Petal.Width   0.07310235 -0.030567040  0.1922141
-#&gt; 
-#&gt; , , B115
-#&gt; 
-#&gt;                    setosa   versicolor  virginica
-#&gt; Sepal.Length -0.008797987 -0.014234393 -0.1047645
-#&gt; Sepal.Width  -0.062869153  0.007047888 -0.1318011
-#&gt; Petal.Length  0.050014187  0.012912176  0.2098726
-#&gt; Petal.Width   0.124198395 -0.020285078  0.2242902
-#&gt; 
-#&gt; , , B116
-#&gt; 
-#&gt;                    setosa   versicolor  virginica
-#&gt; Sepal.Length  0.013710257 -0.002998842 -0.1046449
-#&gt; Sepal.Width  -0.002083150  0.009774816 -0.1117885
-#&gt; Petal.Length -0.015372140 -0.002461807  0.1972178
-#&gt; Petal.Width   0.009973179 -0.021134322  0.1836379
-#&gt; 
-#&gt; , , B117
-#&gt; 
-#&gt;                   setosa   versicolor   virginica
-#&gt; Sepal.Length  0.07377167 -0.003481031 -0.09106159
-#&gt; Sepal.Width   0.04782616  0.051303175 -0.06429890
-#&gt; Petal.Length -0.11964362 -0.027828743  0.15101169
-#&gt; Petal.Width  -0.06642839 -0.105794178  0.09273325
-#&gt; 
-#&gt; , , B118
-#&gt; 
-#&gt;                    setosa   versicolor  virginica
-#&gt; Sepal.Length  0.020327217 -0.025532506 -0.1081809
-#&gt; Sepal.Width  -0.043575284  0.007712321 -0.1241679
-#&gt; Petal.Length  0.002511428  0.026243834  0.2092533
-#&gt; Petal.Width   0.097126446 -0.026358344  0.2073337
-#&gt; 
-#&gt; , , B119
-#&gt; 
-#&gt;                   setosa  versicolor   virginica
-#&gt; Sepal.Length  0.07064394 -0.03011621 -0.00276732
-#&gt; Sepal.Width  -0.05359637  0.00933452 -0.07198728
-#&gt; Petal.Length -0.05244511  0.03080673  0.04837248
-#&gt; Petal.Width   0.13853897 -0.03157362  0.14526093
-#&gt; 
-#&gt; , , B120
-#&gt; 
-#&gt;                   setosa   versicolor   virginica
-#&gt; Sepal.Length  0.08350235  0.004395947 -0.08756006
-#&gt; Sepal.Width   0.05904843  0.071959464 -0.05151262
-#&gt; Petal.Length -0.13847231 -0.050294623  0.13879277
-#&gt; Petal.Width  -0.08516571 -0.144488664  0.06821801
-#&gt; 
-#&gt; , , B121
-#&gt; 
-#&gt;                    setosa   versicolor  virginica
-#&gt; Sepal.Length -0.009686367 -0.005416369 -0.1154722
-#&gt; Sepal.Width  -0.029009401  0.004835707 -0.1276857
-#&gt; Petal.Length  0.029924889  0.003566796  0.2203261
-#&gt; Petal.Width   0.054957254 -0.012099513  0.2114430
-#&gt; 
-#&gt; , , B122
-#&gt; 
-#&gt;                    setosa  versicolor   virginica
-#&gt; Sepal.Length  0.055111651 -0.02550514 -0.10834013
-#&gt; Sepal.Width   0.012565068  0.02240413 -0.09119886
-#&gt; Petal.Length -0.074886478  0.01703090  0.18886020
-#&gt; Petal.Width  -0.002501885 -0.05622455  0.14023070
-#&gt; 
-#&gt; , , B123
-#&gt; 
-#&gt;                   setosa  versicolor   virginica
-#&gt; Sepal.Length  0.02542211 -0.02507928 -0.07449346
-#&gt; Sepal.Width  -0.06869132  0.00963606 -0.11781004
-#&gt; Petal.Length  0.01201423  0.02448967  0.16429031
-#&gt; Petal.Width   0.15034006 -0.03008170  0.20848231
-#&gt; 
-#&gt; , , B124
-#&gt; 
-#&gt;                   setosa versicolor   virginica
-#&gt; Sepal.Length  0.08115353  0.1372869 -0.02995081
-#&gt; Sepal.Width   0.08035663  0.1741054 -0.02074783
-#&gt; Petal.Length -0.14895879 -0.2758041  0.04945134
-#&gt; Petal.Width  -0.12950478 -0.2966691  0.02971297
-#&gt; 
-#&gt; , , B125
-#&gt; 
-#&gt;                    setosa   versicolor  virginica
-#&gt; Sepal.Length  0.033419385 -0.013744270 -0.1040957
-#&gt; Sepal.Width   0.002490740  0.014181258 -0.1039853
-#&gt; Petal.Length -0.042212503  0.007857605  0.1916705
-#&gt; Petal.Width   0.008907559 -0.034587857  0.1679957
-#&gt; 
-#&gt; , , B126
-#&gt; 
-#&gt;                   setosa   versicolor   virginica
-#&gt; Sepal.Length  0.06443333  0.001827536 -0.08703969
-#&gt; Sepal.Width   0.04316701  0.042110225 -0.07169270
-#&gt; Petal.Length -0.10537661 -0.028546430  0.15073113
-#&gt; Petal.Width  -0.06086159 -0.084882465  0.10944490
-#&gt; 
-#&gt; , , B127
-#&gt; 
-#&gt;                  setosa versicolor virginica
-#&gt; Sepal.Length -0.2421672 -0.2216412 -4.363708
-#&gt; Sepal.Width  -0.2706690 -0.2077871 -4.719176
-#&gt; Petal.Length  0.4638754  0.3997426  8.259781
-#&gt; Petal.Width   0.4493128  0.3301224  7.774650
-#&gt; 
-#&gt; , , B128
-#&gt; 
-#&gt;                   setosa versicolor  virginica
-#&gt; Sepal.Length  0.07120335  0.1465785 -0.1876002
-#&gt; Sepal.Width   0.06277482  0.2144841 -0.1788890
-#&gt; Petal.Length -0.12586587 -0.3122890  0.3401430
-#&gt; Petal.Width  -0.09790776 -0.3748599  0.2854783
-#&gt; 
-#&gt; , , B129
-#&gt; 
-#&gt;                   setosa   versicolor  virginica
-#&gt; Sepal.Length  0.01649826 -0.024551822 -0.1051267
-#&gt; Sepal.Width  -0.05139077  0.007586736 -0.1265160
-#&gt; Petal.Length  0.01205978  0.025128791  0.2070088
-#&gt; Petal.Width   0.11142511 -0.025693292  0.2133891
-#&gt; 
-#&gt; , , B130
-#&gt; 
-#&gt;                   setosa  versicolor   virginica
-#&gt; Sepal.Length  0.08730936  0.08953597 -0.04734211
-#&gt; Sepal.Width   0.07881618  0.14632948 -0.02572547
-#&gt; Petal.Length -0.15549452 -0.20039315  0.07370162
-#&gt; Petal.Width  -0.12380586 -0.26017728  0.03255030
-#&gt; 
-#&gt; , , B131
-#&gt; 
-#&gt;                    setosa   versicolor  virginica
-#&gt; Sepal.Length  0.002259447 -0.009991824 -0.1123602
-#&gt; Sepal.Width  -0.025222336  0.006142117 -0.1236787
-#&gt; Petal.Length  0.013022902  0.008317090  0.2140348
-#&gt; Petal.Width   0.052247759 -0.016669031  0.2045938
-#&gt; 
-#&gt; , , B132
-#&gt; 
-#&gt;                   setosa  versicolor   virginica
-#&gt; Sepal.Length  0.06897447  0.04191100 -0.06219727
-#&gt; Sepal.Width   0.06351301  0.06726268 -0.05593671
-#&gt; Petal.Length -0.12362610 -0.09304218  0.11065013
-#&gt; Petal.Width  -0.10034950 -0.11928798  0.08777784
-#&gt; 
-#&gt; , , B133
-#&gt; 
-#&gt;                    setosa   versicolor  virginica
-#&gt; Sepal.Length  0.005064428 -0.019776597 -0.1008618
-#&gt; Sepal.Width  -0.061071538  0.007574694 -0.1291438
-#&gt; Petal.Length  0.032022399  0.019326281  0.2034613
-#&gt; Petal.Width   0.126335093 -0.023672880  0.2205155
-#&gt; 
-#&gt; , , B134
-#&gt; 
-#&gt;                 setosa versicolor virginica
-#&gt; Sepal.Length -2.114890   4.976996 -37.24388
-#&gt; Sepal.Width  -2.303895   5.642571 -40.23084
-#&gt; Petal.Length  4.013580  -9.582897  70.46698
-#&gt; Petal.Width   3.802024  -9.396133  66.26035
-#&gt; 
-#&gt; , , B135
-#&gt; 
-#&gt;                   setosa versicolor    virginica
-#&gt; Sepal.Length  0.07533941 -0.2102184 -0.402309174
-#&gt; Sepal.Width   0.04634608  0.1356350  0.004792607
-#&gt; Petal.Length -0.12062288  0.1710119  0.486524205
-#&gt; Petal.Width  -0.06276048 -0.3637095 -0.177878929
-#&gt; 
-#&gt; , , B136
-#&gt; 
-#&gt;                   setosa    versicolor  virginica
-#&gt; Sepal.Length -0.03417959 -0.0004144675 -0.1239491
-#&gt; Sepal.Width  -0.04523566  0.0035142527 -0.1367795
-#&gt; Petal.Length  0.06986834 -0.0016928864  0.2363232
-#&gt; Petal.Width   0.07772125 -0.0073210928  0.2263942
-#&gt; 
-#&gt; , , B137
-#&gt; 
-#&gt;                   setosa   versicolor  virginica
-#&gt; Sepal.Length  0.01287440 -0.022829839 -0.1061037
-#&gt; Sepal.Width  -0.05114778  0.007307187 -0.1274189
-#&gt; Petal.Length  0.01631574  0.023208530  0.2087607
-#&gt; Petal.Width   0.10941518 -0.024404879  0.2148160
-#&gt; 
-#&gt; , , B138
-#&gt; 
-#&gt;                   setosa  versicolor   virginica
-#&gt; Sepal.Length  0.08255999 -0.01415824 -0.10108948
-#&gt; Sepal.Width   0.05060015  0.06058785 -0.05722493
-#&gt; Petal.Length -0.13206984 -0.02063993  0.15879166
-#&gt; Petal.Width  -0.06839651 -0.12913939  0.07415513
-#&gt; 
-#&gt; , , B139
-#&gt; 
-#&gt;                  setosa versicolor virginica
-#&gt; Sepal.Length -0.5621278 -0.5184382 -8.931696
-#&gt; Sepal.Width  -0.6233762 -0.4974797 -9.654493
-#&gt; Petal.Length  1.0736811  0.9420215 16.903216
-#&gt; Petal.Width   1.0329623  0.7953292 15.903514
-#&gt; 
-#&gt; , , B140
-#&gt; 
-#&gt;                   setosa  versicolor   virginica
-#&gt; Sepal.Length  0.05945198  0.04177363 -0.06280827
-#&gt; Sepal.Width   0.05890304  0.05480466 -0.06351625
-#&gt; Petal.Length -0.10915286 -0.08508307  0.11613816
-#&gt; Petal.Width  -0.09494906 -0.09400375  0.10294371
-#&gt; 
-#&gt; , , B141
-#&gt; 
-#&gt;                   setosa   versicolor  virginica
-#&gt; Sepal.Length -0.02690261 -0.005461984 -0.1193290
-#&gt; Sepal.Width  -0.05202025  0.004654897 -0.1362845
-#&gt; Petal.Length  0.06525738  0.003735173  0.2303939
-#&gt; Petal.Width   0.09456337 -0.011750957  0.2273198
-#&gt; 
-#&gt; , , B142
-#&gt; 
-#&gt;                   setosa  versicolor   virginica
-#&gt; Sepal.Length  0.07008049  0.08296682 -0.04237445
-#&gt; Sepal.Width   0.07460760  0.09332051 -0.04438172
-#&gt; Petal.Length -0.13190431 -0.15927893  0.07931297
-#&gt; Petal.Width  -0.12244989 -0.15512184  0.07256558
-#&gt; 
-#&gt; , , B143
-#&gt; 
-#&gt;                    setosa  versicolor   virginica
-#&gt; Sepal.Length  0.057703589 -0.03545188 -0.11610425
-#&gt; Sepal.Width   0.003392407  0.02022119 -0.09390937
-#&gt; Petal.Length -0.072309470  0.03049599  0.19999690
-#&gt; Petal.Width   0.017234767 -0.05594363  0.14249474
-#&gt; 
-#&gt; , , B144
-#&gt; 
-#&gt;                   setosa   versicolor  virginica
-#&gt; Sepal.Length -0.00425071 -0.015919064 -0.1067075
-#&gt; Sepal.Width  -0.05859404  0.006760555 -0.1316157
-#&gt; Petal.Length  0.04180602  0.015141960  0.2121179
-#&gt; Petal.Width   0.11740153 -0.020404492  0.2230988
-#&gt; 
-#&gt; , , B145
-#&gt; 
-#&gt;                   setosa   versicolor  virginica
-#&gt; Sepal.Length -0.02770094 -0.006620960 -0.1161032
-#&gt; Sepal.Width  -0.05970268  0.005572247 -0.1363148
-#&gt; Petal.Length  0.07103094  0.004571830  0.2264872
-#&gt; Petal.Width   0.10985469 -0.014101180  0.2287291
-#&gt; 
-#&gt; , , B146
-#&gt; 
-#&gt;                   setosa  versicolor   virginica
-#&gt; Sepal.Length  0.02954288  0.01493459 -0.08712369
-#&gt; Sepal.Width   0.02758060  0.02090442 -0.09301721
-#&gt; Petal.Length -0.05318137 -0.03123831  0.16416403
-#&gt; Petal.Width  -0.04374360 -0.03627448  0.15278158
-#&gt; 
-#&gt; , , B147
-#&gt; 
-#&gt;                   setosa  versicolor   virginica
-#&gt; Sepal.Length  0.05189893  0.02218295 -0.07553982
-#&gt; Sepal.Width   0.04596574  0.03858308 -0.07514790
-#&gt; Petal.Length -0.09186380 -0.05110167  0.13891289
-#&gt; Petal.Width  -0.07178358 -0.06919527  0.12129009
-#&gt; 
-#&gt; , , B148
-#&gt; 
-#&gt;                   setosa  versicolor   virginica
-#&gt; Sepal.Length  0.06765893  0.04467715 -0.06067105
-#&gt; Sepal.Width   0.06380813  0.06678933 -0.05628651
-#&gt; Petal.Length -0.12219905 -0.09610131  0.10902556
-#&gt; Petal.Width  -0.10149060 -0.11716030  0.08913853
-#&gt; 
-#&gt; , , B149
-#&gt; 
-#&gt;                   setosa   versicolor  virginica
-#&gt; Sepal.Length  0.02407910 -0.018619001 -0.1093091
-#&gt; Sepal.Width  -0.01598312  0.009557503 -0.1144800
-#&gt; Petal.Length -0.01929804  0.016678851  0.2045752
-#&gt; Petal.Width   0.04257864 -0.027221414  0.1871625
-#&gt; 
-#&gt; , , B150
-#&gt; 
-#&gt;                   setosa   versicolor   virginica
-#&gt; Sepal.Length  0.09306556 -0.004749599 -0.09904084
-#&gt; Sepal.Width   0.06365612  0.091166509 -0.04100512
-#&gt; Petal.Length -0.15300258 -0.051181194  0.14617674
-#&gt; Petal.Width  -0.09055069 -0.187382277  0.04203626
-#&gt; 
-#&gt; attr(,"class")
-#&gt; [1] "Gradient" "array"   
-#&gt; attr(,"times_input")
-#&gt; [1] FALSE
-#&gt; attr(,"name")
-#&gt; [1] "Gradient"</div><div class='input'>
-</div></pre>
+    <pre class="examples"><span class='r-in'><span class='co'>#----------------------- Example 1: Torch ----------------------------------</span></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://torch.mlverse.org/docs'>torch</a></span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Create nn_sequential model and data</span></span>
+<span class='r-in'><span class='va'>model</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://torch.mlverse.org/docs/reference/nn_sequential.html'>nn_sequential</a></span><span class='op'>(</span></span>
+<span class='r-in'>  <span class='fu'><a href='https://torch.mlverse.org/docs/reference/nn_linear.html'>nn_linear</a></span><span class='op'>(</span><span class='fl'>5</span>, <span class='fl'>12</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='fu'><a href='https://torch.mlverse.org/docs/reference/nn_relu.html'>nn_relu</a></span><span class='op'>(</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='fu'><a href='https://torch.mlverse.org/docs/reference/nn_linear.html'>nn_linear</a></span><span class='op'>(</span><span class='fl'>12</span>, <span class='fl'>2</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='fu'><a href='https://torch.mlverse.org/docs/reference/nn_softmax.html'>nn_softmax</a></span><span class='op'>(</span>dim <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>data</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://torch.mlverse.org/docs/reference/torch_randn.html'>torch_randn</a></span><span class='op'>(</span><span class='fl'>25</span>, <span class='fl'>5</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Create Converter with input and output names</span></span>
+<span class='r-in'><span class='va'>converter</span> <span class='op'>&lt;-</span> <span class='va'><a href='Converter.html'>Converter</a></span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>model</span>,</span>
+<span class='r-in'>  input_dim <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>5</span><span class='op'>)</span>,</span>
+<span class='r-in'>  input_names <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Car"</span>, <span class='st'>"Cat"</span>, <span class='st'>"Dog"</span>, <span class='st'>"Plane"</span>, <span class='st'>"Horse"</span><span class='op'>)</span><span class='op'>)</span>,</span>
+<span class='r-in'>  output_names <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Buy it!"</span>, <span class='st'>"Don't buy it!"</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Calculate the Gradients</span></span>
+<span class='r-in'><span class='va'>grad</span> <span class='op'>&lt;-</span> <span class='va'>Gradient</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>converter</span>, <span class='va'>data</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backwardpass 'Gradient':</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |===================================                                   |  50%  |                                                                              |======================================================================| 100%</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Print the result as a data.frame</span></span>
+<span class='r-in'><span class='va'>grad</span><span class='op'>$</span><span class='fu'>get_result</span><span class='op'>(</span><span class='st'>"data.frame"</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>        data feature         class         value</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 1    data_1     Car       Buy it! -0.0352651849</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 2    data_2     Car       Buy it! -0.0403623134</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 3    data_3     Car       Buy it!  0.0148059018</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 4    data_4     Car       Buy it! -0.0299034808</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 5    data_5     Car       Buy it! -0.0381411910</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 6    data_6     Car       Buy it! -0.0965808034</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 7    data_7     Car       Buy it! -0.0103476420</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 8    data_8     Car       Buy it!  0.0343381464</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 9    data_9     Car       Buy it! -0.0203014314</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 10  data_10     Car       Buy it! -0.0021331478</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 11  data_11     Car       Buy it! -0.1743081808</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 12  data_12     Car       Buy it! -0.0019409303</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 13  data_13     Car       Buy it! -0.0751705840</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 14  data_14     Car       Buy it!  0.0253359117</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 15  data_15     Car       Buy it! -0.1581568718</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 16  data_16     Car       Buy it! -0.1337197274</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 17  data_17     Car       Buy it! -0.1382174641</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 18  data_18     Car       Buy it! -0.0168136600</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 19  data_19     Car       Buy it! -0.0021331478</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 20  data_20     Car       Buy it! -0.0019409303</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 21  data_21     Car       Buy it!  0.0143957734</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 22  data_22     Car       Buy it! -0.0019409303</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 23  data_23     Car       Buy it! -0.0969909430</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 24  data_24     Car       Buy it!  0.0647629425</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 25  data_25     Car       Buy it! -0.0473770276</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 26   data_1     Cat       Buy it!  0.0531817041</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 27   data_2     Cat       Buy it!  0.0530599356</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 28   data_3     Cat       Buy it!  0.0773786157</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 29   data_4     Cat       Buy it!  0.0400924794</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 30   data_5     Cat       Buy it!  0.0498193391</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 31   data_6     Cat       Buy it!  0.0987714753</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 32   data_7     Cat       Buy it!  0.1401752681</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 33   data_8     Cat       Buy it! -0.0189390387</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 34   data_9     Cat       Buy it!  0.0413207784</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 35  data_10     Cat       Buy it!  0.0694054812</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 36  data_11     Cat       Buy it!  0.0784545690</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 37  data_12     Cat       Buy it!  0.0057267435</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 38  data_13     Cat       Buy it! -0.0260615665</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 39  data_14     Cat       Buy it!  0.0005860645</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 40  data_15     Cat       Buy it!  0.0351830199</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 41  data_16     Cat       Buy it!  0.0026658662</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 42  data_17     Cat       Buy it!  0.0141372643</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 43  data_18     Cat       Buy it!  0.0088897385</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 44  data_19     Cat       Buy it!  0.0694054812</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 45  data_20     Cat       Buy it!  0.0057267435</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 46  data_21     Cat       Buy it!  0.0771723837</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 47  data_22     Cat       Buy it!  0.0057267435</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 48  data_23     Cat       Buy it!  0.0985652432</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 49  data_24     Cat       Buy it!  0.0683825240</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 50  data_25     Cat       Buy it!  0.0642943680</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 51   data_1     Dog       Buy it!  0.1463269591</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 52   data_2     Dog       Buy it!  0.1749210209</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 53   data_3     Dog       Buy it! -0.0089139706</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 54   data_4     Dog       Buy it!  0.1344960183</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 55   data_5     Dog       Buy it!  0.1986656338</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 56   data_6     Dog       Buy it!  0.0311856046</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 57   data_7     Dog       Buy it!  0.0258891080</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 58   data_8     Dog       Buy it!  0.0882472694</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 59   data_9     Dog       Buy it!  0.0583847314</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 60  data_10     Dog       Buy it!  0.0905137211</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 61  data_11     Dog       Buy it!  0.1266745776</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 62  data_12     Dog       Buy it!  0.1226732284</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 63  data_13     Dog       Buy it!  0.0764085054</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 64  data_14     Dog       Buy it! -0.0132824481</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 65  data_15     Dog       Buy it! -0.0096581960</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 66  data_16     Dog       Buy it!  0.0267494731</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 67  data_17     Dog       Buy it!  0.1685031652</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 68  data_18     Dog       Buy it!  0.0939080417</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 69  data_19     Dog       Buy it!  0.0905137211</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 70  data_20     Dog       Buy it!  0.1226732284</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 71  data_21     Dog       Buy it! -0.0092779631</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 72  data_22     Dog       Buy it!  0.1226732284</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 73  data_23     Dog       Buy it!  0.0308216140</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 74  data_24     Dog       Buy it! -0.0604206547</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 75  data_25     Dog       Buy it! -0.0963680372</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 76   data_1   Plane       Buy it! -0.1155784801</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 77   data_2   Plane       Buy it!  0.0140249543</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 78   data_3   Plane       Buy it! -0.1528715491</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 79   data_4   Plane       Buy it! -0.0408980995</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 80   data_5   Plane       Buy it! -0.1675016582</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 81   data_6   Plane       Buy it! -0.2426942289</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 82   data_7   Plane       Buy it! -0.0604450591</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 83   data_8   Plane       Buy it! -0.0746228546</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 84   data_9   Plane       Buy it! -0.1494874656</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 85  data_10   Plane       Buy it! -0.1625447422</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 86  data_11   Plane       Buy it! -0.1249120384</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 87  data_12   Plane       Buy it! -0.2288307548</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 88  data_13   Plane       Buy it! -0.1986285746</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 89  data_14   Plane       Buy it! -0.0469782352</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 90  data_15   Plane       Buy it! -0.1896939278</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 91  data_16   Plane       Buy it! -0.1747626364</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 92  data_17   Plane       Buy it! -0.0871826485</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 93  data_18   Plane       Buy it! -0.1562084854</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 94  data_19   Plane       Buy it! -0.1625447422</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 95  data_20   Plane       Buy it! -0.2288307548</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 96  data_21   Plane       Buy it! -0.1529573500</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 97  data_22   Plane       Buy it! -0.2288307548</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 98  data_23   Plane       Buy it! -0.2427800000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 99  data_24   Plane       Buy it! -0.1490070820</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 100 data_25   Plane       Buy it! -0.0915719569</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 101  data_1   Horse       Buy it!  0.1111178175</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 102  data_2   Horse       Buy it!  0.0197571740</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 103  data_3   Horse       Buy it!  0.0316436142</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 104  data_4   Horse       Buy it!  0.0243422743</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 105  data_5   Horse       Buy it!  0.1058764532</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 106  data_6   Horse       Buy it!  0.1123695076</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 107  data_7   Horse       Buy it! -0.0254873000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 108  data_8   Horse       Buy it!  0.0178501308</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 109  data_9   Horse       Buy it!  0.0796595067</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 110 data_10   Horse       Buy it!  0.0863312259</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 111 data_11   Horse       Buy it!  0.1089126319</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 112 data_12   Horse       Buy it!  0.1346005797</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 113 data_13   Horse       Buy it!  0.1363034099</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 114 data_14   Horse       Buy it! -0.0327522792</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 115 data_15   Horse       Buy it!  0.1154411435</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 116 data_16   Horse       Buy it!  0.1447389573</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 117 data_17   Horse       Buy it!  0.1395792663</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 118 data_18   Horse       Buy it!  0.0795985088</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 119 data_19   Horse       Buy it!  0.0863312259</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 120 data_20   Horse       Buy it!  0.1346005797</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 121 data_21   Horse       Buy it!  0.0311377421</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 122 data_22   Horse       Buy it!  0.1346005797</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 123 data_23   Horse       Buy it!  0.1118636280</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 124 data_24   Horse       Buy it! -0.0268884692</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 125 data_25   Horse       Buy it!  0.0049396399</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 126  data_1     Car Don't buy it!  0.1143299416</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 127  data_2     Car Don't buy it!  0.0715248957</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 128  data_3     Car Don't buy it!  0.0149059817</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 129  data_4     Car Don't buy it!  0.0311985780</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 130  data_5     Car Don't buy it!  0.2637245655</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 131  data_6     Car Don't buy it!  0.1821125299</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 132  data_7     Car Don't buy it! -0.0975393802</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 133  data_8     Car Don't buy it!  0.1829911470</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 134  data_9     Car Don't buy it!  0.2352169156</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 135 data_10     Car Don't buy it!  0.0856337398</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 136 data_11     Car Don't buy it!  0.1262846440</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 137 data_12     Car Don't buy it!  0.2857605219</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 138 data_13     Car Don't buy it!  0.2485143095</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 139 data_14     Car Don't buy it!  0.0840646923</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 140 data_15     Car Don't buy it!  0.1398035437</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 141 data_16     Car Don't buy it!  0.1505669653</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 142 data_17     Car Don't buy it!  0.1319852769</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 143 data_18     Car Don't buy it!  0.1463348866</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 144 data_19     Car Don't buy it!  0.0856337398</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 145 data_20     Car Don't buy it!  0.2857605219</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 146 data_21     Car Don't buy it!  0.0125341415</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 147 data_22     Car Don't buy it!  0.2857605219</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 148 data_23     Car Don't buy it!  0.1797406822</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 149 data_24     Car Don't buy it!  0.0162987188</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 150 data_25     Car Don't buy it! -0.1127496138</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 151  data_1     Cat Don't buy it!  0.1465799659</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 152  data_2     Cat Don't buy it! -0.0574866384</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 153  data_3     Cat Don't buy it!  0.0561003461</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 154  data_4     Cat Don't buy it!  0.0058695013</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 155  data_5     Cat Don't buy it!  0.0461871959</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 156  data_6     Cat Don't buy it!  0.0679123402</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 157  data_7     Cat Don't buy it!  0.1463195384</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 158  data_8     Cat Don't buy it! -0.1491492838</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 159  data_9     Cat Don't buy it!  0.0253097415</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 160 data_10     Cat Don't buy it!  0.0062077222</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 161 data_11     Cat Don't buy it!  0.0678249225</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 162 data_12     Cat Don't buy it!  0.0193469785</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 163 data_13     Cat Don't buy it! -0.0381600223</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 164 data_14     Cat Don't buy it! -0.1025343984</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 165 data_15     Cat Don't buy it!  0.0242206231</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 166 data_16     Cat Don't buy it!  0.0098983301</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 167 data_17     Cat Don't buy it!  0.0673179105</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 168 data_18     Cat Don't buy it! -0.0993576348</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 169 data_19     Cat Don't buy it!  0.0062077222</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 170 data_20     Cat Don't buy it!  0.0193469785</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 171 data_21     Cat Don't buy it!  0.0549076796</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 172 data_22     Cat Don't buy it!  0.0193469785</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 173 data_23     Cat Don't buy it!  0.0667196810</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 174 data_24     Cat Don't buy it!  0.0558495447</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 175 data_25     Cat Don't buy it!  0.0619723164</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 176  data_1     Dog Don't buy it!  0.2769024074</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 177  data_2     Dog Don't buy it!  0.1564309746</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 178  data_3     Dog Don't buy it!  0.0760813802</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 179  data_4     Dog Don't buy it!  0.1254304796</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 180  data_5     Dog Don't buy it!  0.1607597470</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 181  data_6     Dog Don't buy it!  0.0177454967</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 182  data_7     Dog Don't buy it!  0.1436099559</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 183  data_8     Dog Don't buy it!  0.0853614360</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 184  data_9     Dog Don't buy it!  0.0355792791</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 185 data_10     Dog Don't buy it!  0.0007857028</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 186 data_11     Dog Don't buy it!  0.1438262314</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 187 data_12     Dog Don't buy it!  0.1145013198</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 188 data_13     Dog Don't buy it!  0.0887925699</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 189 data_14     Dog Don't buy it! -0.0012545530</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 190 data_15     Dog Don't buy it! -0.0103183314</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 191 data_16     Dog Don't buy it!  0.0057175513</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 192 data_17     Dog Don't buy it!  0.1575070471</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 193 data_18     Dog Don't buy it!  0.0581519529</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 194 data_19     Dog Don't buy it!  0.0007857028</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 195 data_20     Dog Don't buy it!  0.1145013198</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 196 data_21     Dog Don't buy it!  0.0739763454</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 197 data_22     Dog Don't buy it!  0.1145013198</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 198 data_23     Dog Don't buy it!  0.0156404618</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 199 data_24     Dog Don't buy it!  0.0746454373</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 200 data_25     Dog Don't buy it!  0.0716427714</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 201  data_1   Plane Don't buy it! -0.0614104643</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 202  data_2   Plane Don't buy it!  0.0308074057</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 203  data_3   Plane Don't buy it! -0.2031263113</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 204  data_4   Plane Don't buy it! -0.0635031611</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 205  data_5   Plane Don't buy it! -0.0892098695</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 206  data_6   Plane Don't buy it! -0.0832889378</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 207  data_7   Plane Don't buy it! -0.1027248502</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 208  data_8   Plane Don't buy it! -0.0699824542</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 209  data_9   Plane Don't buy it! -0.0162984021</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 210 data_10   Plane Don't buy it! -0.1608918011</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 211 data_11   Plane Don't buy it!  0.0139919743</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 212 data_12   Plane Don't buy it! -0.1265423447</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 213 data_13   Plane Don't buy it! -0.0802213401</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 214 data_14   Plane Don't buy it! -0.0304453187</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 215 data_15   Plane Don't buy it! -0.0468723550</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 216 data_16   Plane Don't buy it! -0.0402958170</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 217 data_17   Plane Don't buy it!  0.0106640812</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 218 data_18   Plane Don't buy it! -0.1544963121</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 219 data_19   Plane Don't buy it! -0.1608918011</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 220 data_20   Plane Don't buy it! -0.1265423447</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 221 data_21   Plane Don't buy it! -0.2036224306</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 222 data_22   Plane Don't buy it! -0.1265423447</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 223 data_23   Plane Don't buy it! -0.0837850571</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 224 data_24   Plane Don't buy it! -0.2030185759</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 225 data_25   Plane Don't buy it! -0.0937363207</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 226  data_1   Horse Don't buy it! -0.0583660342</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 227  data_2   Horse Don't buy it! -0.0311745256</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 228  data_3   Horse Don't buy it! -0.0115382522</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 229  data_4   Horse Don't buy it!  0.0046034371</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 230  data_5   Horse Don't buy it! -0.1663138121</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 231  data_6   Horse Don't buy it! -0.1470265090</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 232  data_7   Horse Don't buy it!  0.0375710316</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 233  data_8   Horse Don't buy it! -0.0848411545</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 234  data_9   Horse Don't buy it! -0.1732481122</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 235 data_10   Horse Don't buy it! -0.0354300253</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 236 data_11   Horse Don't buy it! -0.1053612456</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 237 data_12   Horse Don't buy it! -0.1488287598</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 238 data_13   Horse Don't buy it! -0.1461235583</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 239 data_14   Horse Don't buy it! -0.0752866045</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 240 data_15   Horse Don't buy it! -0.1449159831</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 241 data_16   Horse Don't buy it! -0.1320116669</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 242 data_17   Horse Don't buy it! -0.0930515975</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 243 data_18   Horse Don't buy it! -0.0468367264</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 244 data_19   Horse Don't buy it! -0.0354300253</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 245 data_20   Horse Don't buy it! -0.1488287598</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 246 data_21   Horse Don't buy it! -0.0144637972</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 247 data_22   Horse Don't buy it! -0.1488287598</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 248 data_23   Horse Don't buy it! -0.1499520540</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 249 data_24   Horse Don't buy it! -0.0131700560</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 250 data_25   Horse Don't buy it!  0.0577612817</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Plot the result for both classes</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>grad</span>, output_idx <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span><span class='op'>)</span></span>
+<span class='r-plt img'><img src='Gradient-1.png' alt='' width='700' height='433' /></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Plot the boxplot of all datapoints</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/graphics/boxplot.html'>boxplot</a></span><span class='op'>(</span><span class='va'>grad</span>, output_idx <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span><span class='op'>)</span></span>
+<span class='r-plt img'><img src='Gradient-2.png' alt='' width='700' height='433' /></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># ------------------------- Example 2: Neuralnet ---------------------------</span></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/bips-hb/neuralnet'>neuralnet</a></span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>iris</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Train a neural network</span></span>
+<span class='r-in'><span class='va'>nn</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/neuralnet/man/neuralnet.html'>neuralnet</a></span><span class='op'>(</span><span class='va'>Species</span> <span class='op'>~</span> <span class='va'>.</span>, <span class='va'>iris</span>,</span>
+<span class='r-in'>  linear.output <span class='op'>=</span> <span class='cn'>FALSE</span>,</span>
+<span class='r-in'>  hidden <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>10</span>, <span class='fl'>5</span><span class='op'>)</span>,</span>
+<span class='r-in'>  act.fct <span class='op'>=</span> <span class='st'>"logistic"</span>,</span>
+<span class='r-in'>  rep <span class='op'>=</span> <span class='fl'>1</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Convert the trained model</span></span>
+<span class='r-in'><span class='va'>converter</span> <span class='op'>&lt;-</span> <span class='va'><a href='Converter.html'>Converter</a></span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>nn</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Calculate the gradients</span></span>
+<span class='r-in'><span class='va'>gradient</span> <span class='op'>&lt;-</span> <span class='va'>Gradient</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>converter</span>, <span class='va'>iris</span><span class='op'>[</span>, <span class='op'>-</span><span class='fl'>5</span><span class='op'>]</span>, times_input <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backwardpass 'Gradient':</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=======================                                               |  33%  |                                                                              |===============================================                       |  67%  |                                                                              |======================================================================| 100%</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Plot the result for the first and 60th data point and all classes</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>gradient</span>, data_idx <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>60</span><span class='op'>)</span>, output_idx <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>3</span><span class='op'>)</span></span>
+<span class='r-plt img'><img src='Gradient-3.png' alt='' width='700' height='433' /></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Calculate Gradients x Input and do not ignore the last activation</span></span>
+<span class='r-in'><span class='va'>gradient</span> <span class='op'>&lt;-</span> <span class='va'>Gradient</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>converter</span>, <span class='va'>iris</span><span class='op'>[</span>, <span class='op'>-</span><span class='fl'>5</span><span class='op'>]</span>, ignore_last_act <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backwardpass 'Gradient':</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=======================                                               |  33%  |                                                                              |===============================================                       |  67%  |                                                                              |======================================================================| 100%</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Plot the result again</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>gradient</span>, data_idx <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>60</span><span class='op'>)</span>, output_idx <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>3</span><span class='op'>)</span></span>
+<span class='r-plt img'><img src='Gradient-4.png' alt='' width='700' height='433' /></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># ------------------------- Example 3: Keras -------------------------------</span></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://keras.rstudio.com'>keras</a></span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://keras.rstudio.com/reference/is_keras_available.html'>is_keras_available</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'>  <span class='va'>data</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/array.html'>array</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fl'>64</span> <span class='op'>*</span> <span class='fl'>60</span> <span class='op'>*</span> <span class='fl'>3</span><span class='op'>)</span>, dim <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>64</span>, <span class='fl'>60</span>, <span class='fl'>3</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'>  <span class='va'>model</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://keras.rstudio.com/reference/keras_model_sequential.html'>keras_model_sequential</a></span><span class='op'>(</span><span class='op'>)</span></span>
+<span class='r-in'>  <span class='va'>model</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span class='r-in'>    <span class='fu'><a href='https://keras.rstudio.com/reference/layer_conv_1d.html'>layer_conv_1d</a></span><span class='op'>(</span></span>
+<span class='r-in'>      input_shape <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>60</span>, <span class='fl'>3</span><span class='op'>)</span>, kernel_size <span class='op'>=</span> <span class='fl'>8</span>, filters <span class='op'>=</span> <span class='fl'>8</span>,</span>
+<span class='r-in'>      activation <span class='op'>=</span> <span class='st'>"softplus"</span>, padding <span class='op'>=</span> <span class='st'>"valid"</span></span>
+<span class='r-in'>    <span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span class='r-in'>    <span class='fu'><a href='https://keras.rstudio.com/reference/layer_conv_1d.html'>layer_conv_1d</a></span><span class='op'>(</span></span>
+<span class='r-in'>      kernel_size <span class='op'>=</span> <span class='fl'>8</span>, filters <span class='op'>=</span> <span class='fl'>4</span>, activation <span class='op'>=</span> <span class='st'>"tanh"</span>,</span>
+<span class='r-in'>      padding <span class='op'>=</span> <span class='st'>"same"</span></span>
+<span class='r-in'>    <span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span class='r-in'>    <span class='fu'><a href='https://keras.rstudio.com/reference/layer_conv_1d.html'>layer_conv_1d</a></span><span class='op'>(</span></span>
+<span class='r-in'>      kernel_size <span class='op'>=</span> <span class='fl'>4</span>, filters <span class='op'>=</span> <span class='fl'>2</span>, activation <span class='op'>=</span> <span class='st'>"relu"</span>,</span>
+<span class='r-in'>      padding <span class='op'>=</span> <span class='st'>"valid"</span></span>
+<span class='r-in'>    <span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span class='r-in'>    <span class='fu'><a href='https://keras.rstudio.com/reference/layer_flatten.html'>layer_flatten</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span class='r-in'>    <span class='fu'><a href='https://keras.rstudio.com/reference/layer_dense.html'>layer_dense</a></span><span class='op'>(</span>units <span class='op'>=</span> <span class='fl'>64</span>, activation <span class='op'>=</span> <span class='st'>"relu"</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span class='r-in'>    <span class='fu'><a href='https://keras.rstudio.com/reference/layer_dense.html'>layer_dense</a></span><span class='op'>(</span>units <span class='op'>=</span> <span class='fl'>16</span>, activation <span class='op'>=</span> <span class='st'>"relu"</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
+<span class='r-in'>    <span class='fu'><a href='https://keras.rstudio.com/reference/layer_dense.html'>layer_dense</a></span><span class='op'>(</span>units <span class='op'>=</span> <span class='fl'>3</span>, activation <span class='op'>=</span> <span class='st'>"softmax"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'>  <span class='co'># Convert the model</span></span>
+<span class='r-in'>  <span class='va'>converter</span> <span class='op'>&lt;-</span> <span class='va'><a href='Converter.html'>Converter</a></span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>model</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'>  <span class='co'># Apply the Gradient method</span></span>
+<span class='r-in'>  <span class='va'>gradient</span> <span class='op'>&lt;-</span> <span class='va'>Gradient</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>converter</span>, <span class='va'>data</span>, channels_first <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'>  <span class='co'># Plot the result for the first datapoint and all classes</span></span>
+<span class='r-in'>  <span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>gradient</span>, output_idx <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>3</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'>  <span class='co'># Plot the result as boxplots for first two classes</span></span>
+<span class='r-in'>  <span class='fu'><a href='https://rdrr.io/r/graphics/boxplot.html'>boxplot</a></span><span class='op'>(</span><span class='va'>gradient</span>, output_idx <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'>  <span class='co'># You can also create an interactive plot with plotly.</span></span>
+<span class='r-in'>  <span class='co'># This is a suggested package, so make sure that it is installed</span></span>
+<span class='r-in'>  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://plotly-r.com'>plotly</a></span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'>  <span class='co'># Result as boxplots</span></span>
+<span class='r-in'>  <span class='fu'><a href='https://rdrr.io/r/graphics/boxplot.html'>boxplot</a></span><span class='op'>(</span><span class='va'>gradient</span>, as_plotly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'>  <span class='co'># Result of the second data point</span></span>
+<span class='r-in'>  <span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>gradient</span>, data_idx <span class='op'>=</span> <span class='fl'>2</span>, as_plotly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>}</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backwardpass 'Gradient':</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=======================                                               |  33%  |                                                                              |===============================================                       |  67%  |                                                                              |======================================================================| 100%</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># ------------------------- Advanced: Plotly -------------------------------</span></span>
+<span class='r-in'><span class='co'># If you want to create an interactive plot of your results with custom</span></span>
+<span class='r-in'><span class='co'># changes, you can take use of the method plotly::ggplotly</span></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://ggplot2.tidyverse.org'>ggplot2</a></span><span class='op'>)</span></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://plotly-r.com'>plotly</a></span><span class='op'>)</span></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/bips-hb/neuralnet'>neuralnet</a></span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>iris</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='va'>nn</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/neuralnet/man/neuralnet.html'>neuralnet</a></span><span class='op'>(</span><span class='va'>Species</span> <span class='op'>~</span> <span class='va'>.</span>,</span>
+<span class='r-in'>  <span class='va'>iris</span>,</span>
+<span class='r-in'>  linear.output <span class='op'>=</span> <span class='cn'>FALSE</span>,</span>
+<span class='r-in'>  hidden <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>10</span>, <span class='fl'>8</span><span class='op'>)</span>, act.fct <span class='op'>=</span> <span class='st'>"tanh"</span>, rep <span class='op'>=</span> <span class='fl'>1</span>, threshold <span class='op'>=</span> <span class='fl'>0.5</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># create an converter for this model</span></span>
+<span class='r-in'><span class='va'>converter</span> <span class='op'>&lt;-</span> <span class='va'><a href='Converter.html'>Converter</a></span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>nn</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># create new instance of 'Gradient'</span></span>
+<span class='r-in'><span class='va'>gradient</span> <span class='op'>&lt;-</span> <span class='va'>Gradient</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>converter</span>, <span class='va'>iris</span><span class='op'>[</span>, <span class='op'>-</span><span class='fl'>5</span><span class='op'>]</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backwardpass 'Gradient':</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=======================                                               |  33%  |                                                                              |===============================================                       |  67%  |                                                                              |======================================================================| 100%</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://plotly-r.com'>plotly</a></span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Get the ggplot and add your changes</span></span>
+<span class='r-in'><span class='va'>p</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>gradient</span>, output_idx <span class='op'>=</span> <span class='fl'>1</span>, data_idx <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span><span class='op'>)</span> <span class='op'>+</span></span>
+<span class='r-in'>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggtheme.html'>theme_bw</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>+</span></span>
+<span class='r-in'>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/scale_gradient.html'>scale_fill_gradient2</a></span><span class='op'>(</span>low <span class='op'>=</span> <span class='st'>"green"</span>, mid <span class='op'>=</span> <span class='st'>"black"</span>, high <span class='op'>=</span> <span class='st'>"blue"</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Scale for 'fill' is already present. Adding another scale for 'fill', which</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> will replace the existing scale.</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Now apply the method plotly::ggplotly with argument tooltip = "text"</span></span>
+<span class='r-in'><span class='fu'>plotly</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/plotly/man/ggplotly.html'>ggplotly</a></span><span class='op'>(</span><span class='va'>p</span>, tooltip <span class='op'>=</span> <span class='st'>"text"</span><span class='op'>)</span></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
