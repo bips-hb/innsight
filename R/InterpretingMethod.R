@@ -111,7 +111,17 @@ InterpretingMethod <- R6Class(
 
       result <- self$result
       if (type == "array") {
-        result <- as.array(result)
+        result <- as_array(result)
+        input_names <- self$converter$model_dict$input_names
+        if (!self$channels_first) {
+          channel_names <- input_names[1]
+          input_names <- input_names[-1]
+          input_names <- append(input_names, channel_names)
+        }
+        dim_names <- list(seq_len(dim(result)[1]),
+                          self$converter$model_dict$output_names[[1]])
+        dim_names <- append(dim_names, input_names, 1)
+        dimnames(result) <- dim_names
       } else if (type == "data.frame") {
         result <- private$get_dataframe()
       }
