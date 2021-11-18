@@ -26,6 +26,22 @@ jobs:
           extra-packages: pkgdown
           needs: website
 
+      - name: Install Miniconda
+        run: |
+          install.packages("reticulate")
+          reticulate::install_miniconda()
+        shell: Rscript {0}
+
+      - name: Install TensorFlow + Keras
+        run: |
+          keras::install_keras()
+        shell: Rscript {0}
+
+      - name: Install LibTorch
+        run: |
+          torch::install_torch()
+        shell: Rscript {0}
+
       - name: Deploy package
         run: |
           git config --local user.name "$GITHUB_ACTOR"
