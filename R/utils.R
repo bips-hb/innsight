@@ -1126,9 +1126,6 @@ get_boxplot_df <- function(res, input_names, output_names) {
   )
   num_outliers <- unlist(lapply(outliers, length))
   if (sum(num_outliers) > 0) {
-    print(outliers)
-    print(num_outliers)
-    print(in_names)
     outliers <- data.frame(
       value = unlist(outliers[num_outliers >= 1]),
       feature = rep(in_names, num_outliers),
