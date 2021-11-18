@@ -23,7 +23,7 @@ Description: Interpretability methods to analyze the behavior and individual
     <arXiv:1706.03825>, 'Gradient x Input' described by Baehrens et al. (2009)
     <arXiv:0912.1128> or 'Vanilla Gradient'.
 License: MIT + file LICENSE
-URL: https://github.com/bips-hb/innsight/
+URL: https://bips-hb.github.io/innsight, https://github.com/bips-hb/innsight/
 BugReports: https://github.com/bips-hb/innsight/issues/
 Depends:
     R (>= 3.5.0)

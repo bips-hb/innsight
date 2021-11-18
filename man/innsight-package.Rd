@@ -51,6 +51,7 @@ It is also possible to pass an arbitrary net in form of a named list
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://bips-hb.github.io/innsight}
   \item \url{https://github.com/bips-hb/innsight/}
   \item Report bugs at \url{https://github.com/bips-hb/innsight/issues/}
 }
