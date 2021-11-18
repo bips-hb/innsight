@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.width = 7,
-  fig.height = 7,
+  fig.height = 4,
   fig.align = "center"
 )
 ```
@@ -140,21 +140,21 @@ nn_flatten <- nn_module(
 ```{r}
 # Create CNN for images of size (3, 28, 28)
 model <- nn_sequential(
-  nn_conv2d(3, 5, c(4, 4)),
+  nn_conv2d(3, 5, c(2, 2)),
   nn_relu(),
-  nn_max_pool2d(c(2,3)),
-  nn_conv2d(5, 6, c(3, 4), stride = c(1, 2)),
+  nn_max_pool2d(c(1,2)),
+  nn_conv2d(5, 6, c(2, 3), stride = c(1, 2)),
   nn_relu(),
-  nn_conv2d(6, 2, c(3, 3), dilation = c(1, 2), padding = c(3,4)),
+  nn_conv2d(6, 2, c(2, 2), dilation = c(1, 2), padding = c(5,4)),
   nn_relu(),
   nn_avg_pool2d(c(2,2)),
   nn_flatten(),
-  nn_linear(42, 5),
+  nn_linear(48, 5),
   nn_softmax(2)
 )
 
 # Convert the model
-conv_cnn <- Converter$new(model, input_dim = c(3, 28, 28))
+conv_cnn <- Converter$new(model, input_dim = c(3, 10, 10))
 ```
 
 ### Library `keras`
@@ -204,7 +204,7 @@ library(keras)
 # Create model
 model <- keras_model_sequential()
 model <- model %>%
-  layer_conv_2d(4, c(5,4), input_shape = c(28,28,3), activation = "softplus") %>%
+  layer_conv_2d(4, c(5,4), input_shape = c(10,10,3), activation = "softplus") %>%
   layer_max_pooling_2d(c(2,2), strides = c(1,1)) %>%
   layer_conv_2d(6, c(3,3), activation = "relu", padding = "same") %>%
   layer_max_pooling_2d(c(2,2)) %>%
@@ -307,7 +307,8 @@ applied method.
 * It can happen with very large and deep neural networks that the calculation 
 for all outputs requires both the entire memory and takes a very long time. 
 But often, the results are needed only for certain output nodes. By default, 
-only the results for the first 10 outputs are calculated, which can be adjusted individually with the argument `output_idx` by passing the relevant output
+only the results for the first 10 outputs are calculated, which can be adjusted
+individually with the argument `output_idx` by passing the relevant output
 indices.
 
 ### Example 1: Gradient and Gradient x Input
@@ -319,7 +320,7 @@ indices.
 grad_dense <- Gradient$new(conv_dense, iris[-c(1,2,5)])
 
 # Apply method 'Gradient x Input' for CNN
-x <- torch_randn(c(10,3,28,28))
+x <- torch_randn(c(10,3,10,10))
 grad_cnn <- Gradient$new(conv_cnn, x, times_input = TRUE)
 ```
 ### Example 2: SmoothGrad and SmoothGrad x Input
@@ -331,7 +332,7 @@ grad_cnn <- Gradient$new(conv_cnn, x, times_input = TRUE)
 smooth_dense <- SmoothGrad$new(conv_dense, iris[-c(1,2,5)])
 
 # Apply method 'SmoothGrad x Input' for CNN
-x <- torch_randn(c(10,3,28,28))
+x <- torch_randn(c(10,3,10,10))
 smooth_cnn <- SmoothGrad$new(conv_cnn, x, times_input = TRUE)
 ```
 
@@ -344,7 +345,7 @@ smooth_cnn <- SmoothGrad$new(conv_cnn, x, times_input = TRUE)
 lrp_dense <- LRP$new(conv_dense, iris[-c(1,2,5)])
 
 # Apply method 'LRP' for CNN with alpha-beta-rule
-x <- torch_randn(c(10,28,28,3))
+x <- torch_randn(c(10,10,10,3))
 lrp_cnn <- LRP$new(conv_cnn, x, rule_name = "alpha_beta", rule_param = 1,
                    channels_first = FALSE)
 ```
@@ -359,8 +360,95 @@ x_ref <- array(colMeans(iris[-c(1,2,5)]), dim = c(1,2))
 deeplift_dense <- DeepLift$new(conv_dense, iris[-c(1,2,5)], x_ref = x_ref)
 
 # Apply method 'DeepLift' for CNN
-x <- torch_randn(c(10,3,28,28))
+x <- torch_randn(c(10,3,10,10))
 deeplift_cnn <- DeepLift$new(conv_cnn, x)
 ```
 
 ## Step 3: Show and Plot the Results
+Once a method object has been created, the results can be returned as an 
+`array`, `data.frame`, or `torch_tensor`, and can be further processed as 
+desired. In addition, for each of the three sizes of the inputs (1D, 2D, or 
+3D) suitable plot and boxplot functions based on 
+[ggplot2](https://ggplot2.tidyverse.org/) are implemented. Due to the 
+complexity of higher dimensional inputs, these plots and boxplots can also 
+be displayed as an interactive [plotly](https://plotly.com/r/) plots by using 
+the argument `as_plotly`.
+
+
+### Get Results
+Each instance of the interpretability methods have the class method 
+`get_result`, which is used to return the results. You can choose between 
+the data formats `array`, `data.frame` or `torch_tensor` by passing the
+name as an character for argument `type`.
+
+#### Array (Default)
+```{r}
+# Get result (make sure 'grad_dense' is defined!)
+result_array <- grad_dense$get_result()
+
+# Show for datapoint 1 and 71 the result
+result_array[c(1,71),,]
+```
+#### Data Frame
+```{r}
+# Get result as data.frame (make sure 'grad_cnn' is defined!)
+result_data.frame <- lrp_cnn$get_result("data.frame")
+
+# Show the first 5 rows
+head(result_data.frame, 5)
+```
+#### Torch Tensor
+```{r}
+# Get result (make sure 'deeplift_dense' is defined!)
+result_torch <- deeplift_dense$get_result("torch_tensor")
+
+# Show for datapoint 1 and 71 the result
+result_torch[c(1,71),,]
+```
+
+### Plot Results
+The package `innsight` also provides methods for visualizing the results. 
+By default a ggplot2-plot is created, but it can also be rendered as an 
+interactive plotly plot with the `as_plotly` argument. You can use the 
+argument `output_idx` to select the indices of the output nodes 
+for the plot. In addition, if the results have channels, the 
+`aggr_channels` argument can be used to determine how the channels are 
+aggregated.
+
+**Note:** If you want to make a change to the results before plotting, you can 
+get the results  with `Method$result` (torch tensor!), change it accordingly, 
+and then save it back to the attribute `Method$result` as a torch tensor.
+
+#### Plot Function
+```{r}
+# Plot result for the first data point and all outputs 
+# (make sure 'grad_dense' is defined!)
+plot(smooth_dense, output_idx = 1:3)
+# You can plot several data points at once
+plot(smooth_dense, data_idx = c(1,71), output_idx = 1:3)
+# Plot result for the first data point and first and fourth output
+# (make sure 'lrp_cnn' is defined!)
+plot(lrp_cnn, aggr_channels = 'norm', output_idx = c(1,4))
+```
+```{r, eval = FALSE}
+# Create a plotly plot for the first output
+plot(lrp_cnn, aggr_channels = 'norm', output_idx = c(1), as_plotly = TRUE)
+```
+
+#### Boxplot Function
+```{r}
+# Plot result for the first data point and first two outputs 
+# (make sure 'smooth_dense' is defined!)
+boxplot(smooth_dense, output_idx = 1:2)
+# Use no preprocess function (default: abs) and plot reference data point
+boxplot(smooth_dense, output_idx = 1:3, preprocess_FUN = identity,
+        ref_data_idx = c(55))
+```
+```{r, eval = FALSE}
+# Same as plotly
+# In addition, you have a drop-down menu to select other data points
+# you can define the indices for the drop-down menu with 'individual_data_idx'
+boxplot(smooth_dense, output_idx = 1:3, preprocess_FUN = identity,
+        ref_data_idx = c(55), as_plotly = TRUE, individual_data_idx = c(1))
+```
+
