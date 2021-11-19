@@ -64,7 +64,9 @@ accepted:
     `layer_dropout`, `layer_flatten`
 
 But it is also possible to pass an arbitrary net in form of a named list
-(see vignette for details).
+(see
+[vignette](https://bips-hb.github.io/innsight/articles/Custom_Model_Definition.html)
+for details).
 
 ## Installation
 
