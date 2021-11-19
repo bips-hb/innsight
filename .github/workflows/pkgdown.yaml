@@ -3,7 +3,13 @@
 on:
   push:
     branches: [main, master]
-    tags: ['*']
+    paths:
+      - "man/*"
+      - "_pkgdown.yml"
+      - "pkgdown"
+      - "NEWS.md"
+      - "README.Rmd"
+      - "vignettes"
 
 name: pkgdown
 
