@@ -309,17 +309,17 @@ them up (see [**Connection Weights**](https://doi.org/10.1016/j.ecolmodel.2004.0
 
 * By default, the last activation function is not taken into account 
 for all data-based methods. Because often this is the sigmoid/logistic or 
-the softmax function, which has with growing distance from 0 
-increasingly smaller gradients, which leads to the so-called 
+the softmax function, which has increasingly smaller gradients with growing 
+distance from 0, which leads to the so-called 
 *saturation problem*. But if you still want to consider the last activation 
 function, use the argument `ignore_last_act = FALSE`.
 
-* For the data with channels, it is not possible to determine exactly on which 
-axis the channels are located. Internally all data and the converted model are 
+* For data with channels, it is not possible to determine exactly on which 
+axis the channels are located. Internally, all data and the converted model are 
 in the data format 'channels first', i.e. directly after the batch dimension 
 `(batch_size, channels, input_dim)`. In case you want to pass data with 
 'channels last' (e.g. for MNIST-data *(batch_size, 28, 28, 3)*), 
-then you have to indicate that with argument `channels_first` in the
+you have to indicate that with argument `channels_first` in the
 applied method.
 
 * It can happen with very large and deep neural networks that the calculation 
