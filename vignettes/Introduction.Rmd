@@ -1,11 +1,11 @@
 ---
-title: "Introduction to `innsight`"
+title: "Introduction to innsight"
 output: 
   rmarkdown::html_vignette:
     toc: true
     toc_depth: 3
 vignette: >
-  %\VignetteIndexEntry{Introduction to `innsight`}
+  %\VignetteIndexEntry{Introduction to innsight}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -97,7 +97,7 @@ to pass the names, which will then be used in all results and plots
 created by this object.
 
 #### Example 1: Dense Network
-```{r}
+```{r, eval = torch::torch_is_installed()}
 library(torch)
 library(innsight)
 torch_manual_seed(123)
@@ -127,7 +127,7 @@ in `nn_sequential`, because it is only implemented as a function
 [torch issue #716](https://github.com/mlverse/torch/issues/716#issuecomment-946117545).
 To ensure that our package recognizes this module as a flattening layer, 
 `classname = "nn_flatten"` must be set.
-```{r}
+```{r, eval = torch::torch_is_installed()}
 nn_flatten <- nn_module(
     classname = "nn_flatten",
     initialize = function(start_dim = 2, end_dim = -1) {
@@ -140,7 +140,7 @@ nn_flatten <- nn_module(
   )
 ```
 
-```{r}
+```{r, eval = torch::torch_is_installed()}
 # Create CNN for images of size (3, 28, 28)
 model <- nn_sequential(
   nn_conv2d(3, 5, c(2, 2)),
@@ -185,7 +185,7 @@ to pass the names, which will then be used in all results and plots
 created by this object.
 
 #### Example 1: Dense Network
-```{r}
+```{r, eval = keras::is_keras_available()}
 library(keras)
 tensorflow::set_random_seed(42)
 
@@ -202,7 +202,7 @@ conv_dense <- Converter$new(model)
 ```
 
 #### Example 2: CNN
-```{r}
+```{r, eval = is_keras_available()}
 library(keras)
 
 # Create model
@@ -316,7 +316,7 @@ individually with the argument `output_idx` by passing the relevant output
 indices.
 
 ### Example 1: Gradient and Gradient x Input
-```{r, results='hide', message=FALSE}
+```{r, results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Make sure that Example 1 from the section on neuralnet and one example
 # with CNNs were run last
 
@@ -328,7 +328,7 @@ x <- torch_randn(c(10,3,10,10))
 grad_cnn <- Gradient$new(conv_cnn, x, times_input = TRUE)
 ```
 ### Example 2: SmoothGrad and SmoothGrad x Input
-```{r, results='hide', message=FALSE}
+```{r, results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Make sure that Example 1 from the section on neuralnet and one example
 # with CNNs were run last
 
@@ -341,7 +341,7 @@ smooth_cnn <- SmoothGrad$new(conv_cnn, x, times_input = TRUE)
 ```
 
 ### Example 3: LRP
-```{r, results='hide', message=FALSE}
+```{r, results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Make sure that Example 1 from the section on neuralnet and one example
 # with CNNs were run last
 
@@ -354,7 +354,7 @@ lrp_cnn <- LRP$new(conv_cnn, x, rule_name = "alpha_beta", rule_param = 1,
                    channels_first = FALSE)
 ```
 ### Example 4: DeepLift
-```{r, results='hide', message=FALSE}
+```{r, results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Make sure that Example 1 from the section on neuralnet and one example
 # with CNNs were run last
 
@@ -386,7 +386,7 @@ the data formats `array`, `data.frame` or `torch_tensor` by passing the
 name as an character for argument `type`.
 
 #### Array (Default)
-```{r}
+```{r, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Get result (make sure 'grad_dense' is defined!)
 result_array <- grad_dense$get_result()
 
@@ -394,7 +394,7 @@ result_array <- grad_dense$get_result()
 result_array[c(1,71),,]
 ```
 #### Data Frame
-```{r}
+```{r, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Get result as data.frame (make sure 'grad_cnn' is defined!)
 result_data.frame <- lrp_cnn$get_result("data.frame")
 
@@ -402,7 +402,7 @@ result_data.frame <- lrp_cnn$get_result("data.frame")
 head(result_data.frame, 5)
 ```
 #### Torch Tensor
-```{r}
+```{r, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Get result (make sure 'deeplift_dense' is defined!)
 result_torch <- deeplift_dense$get_result("torch_tensor")
 
@@ -424,7 +424,7 @@ get the results  with `Method$result` (torch tensor!), change it accordingly,
 and then save it back to the attribute `Method$result` as a torch tensor.
 
 #### Plot Function
-```{r}
+```{r, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Plot result for the first data point and all outputs 
 # (make sure 'grad_dense' is defined!)
 plot(smooth_dense, output_idx = 1:3)
@@ -440,7 +440,7 @@ plot(lrp_cnn, aggr_channels = 'norm', output_idx = c(1), as_plotly = TRUE)
 ```
 
 #### Boxplot Function
-```{r}
+```{r, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Plot result for the first data point and first two outputs 
 # (make sure 'smooth_dense' is defined!)
 boxplot(smooth_dense, output_idx = 1:2)
