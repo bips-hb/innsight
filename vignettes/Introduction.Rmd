@@ -22,7 +22,6 @@ knitr::opts_chunk$set(
 set.seed(999)
 ```
 
-
 In the last decade, there has been a tremendous rush and growth in machine 
 learning. Almost every year, new architectures break records on scientific test
 data sets, and the number of layers continues to grow through regularization 
@@ -56,12 +55,14 @@ boxplot(result)
 ```
 
 ## Step 1: Model Creation and Converting
+
 The `innsight` package aims to be as flexible as possible and independent of 
 any particular deep learning package in which the passed network was learned 
 or defined. For this reason, there are several ways in this package to pass 
 a neural network and then interpret their predictions.
 
-### Library `torch`
+### Package `torch`
+
 Currently, only models created by `torch::nn_sequential` are accepted. 
 However, the most popular standard layers and activation functions are 
 available:
@@ -97,6 +98,7 @@ to pass the names, which will then be used in all results and plots
 created by this object.
 
 #### Example 1: Dense Network
+
 ```{r}
 library(torch)
 library(innsight)
@@ -121,12 +123,14 @@ conv_dense_with_names$model_dict$output_names
 ```
 
 #### Example 2: CNN
+
 Unfortunately, at the moment (`torch = 0.6.0`) it is not possible to use a flatten module 
 in `nn_sequential`, because it is only implemented as a function 
 (`torch_flatten`). For this reason we define our own module as described in
 [torch issue #716](https://github.com/mlverse/torch/issues/716#issuecomment-946117545).
 To ensure that our package recognizes this module as a flattening layer, 
 `classname = "nn_flatten"` must be set.
+
 ```{r}
 nn_flatten <- nn_module(
     classname = "nn_flatten",
@@ -160,7 +164,8 @@ model <- nn_sequential(
 conv_cnn <- Converter$new(model, input_dim = c(3, 10, 10))
 ```
 
-### Library `keras`
+### Package `keras`
+
 Keras models created by `keras_model_sequential` or `keras_model` are 
 accepted. Within these functions, the following layers are allowed to be used:
 
@@ -174,7 +179,7 @@ accepted. Within these functions, the following layers are allowed to be used:
 as a string argument in the individual layers (`activation`) and not as a 
 standalone layer like e.g. `layer_activation_relu`. The following are accepted
 as arguments: `"relu"`, `"softplus"`, `"sigmoid"`,
-`"softmax"`, `"tanh"`, `"linear"` (contact me if you need any more)
+`"softmax"`, `"tanh"`, `"linear"` (open an issue if you need any more)
 
 Analogous to a torch model, no names of inputs or outputs are stored in 
 a keras model, i.e. if no further arguments are set for the `Converter`
@@ -185,6 +190,7 @@ to pass the names, which will then be used in all results and plots
 created by this object.
 
 #### Example 1: Dense Network
+
 ```{r}
 library(keras)
 tensorflow::set_random_seed(42)
@@ -202,6 +208,7 @@ conv_dense <- Converter$new(model)
 ```
 
 #### Example 2: CNN
+
 ```{r}
 library(keras)
 
@@ -220,15 +227,17 @@ model <- model %>%
 conv_cnn <- Converter$new(model)
 ```
 
-### Library `neuralnet`
+### Package `neuralnet`
+
 The usage with nets from the package `neuralnet` is very simple and 
-straightforward, because the package offers much less possibilities than 
+straightforward, because the package offers much fewer options than 
 `torch` or `keras`. The only thing to note is that no custom activation 
 function can be used. However, the package saves the names of the inputs and 
 outputs, which can of course be overwritten with the arguments 
 `input_names` and `output_names` when creating the converter object.
 
 #### Example 1: Dense Network
+
 ```{r}
 library(neuralnet)
 data(iris)
@@ -247,12 +256,14 @@ conv_dense$model_dict$output_names
 
 
 ## Step 2: Apply selected Method
+
 The **`innsight`** package provides the following tools for analyzing black box
 neural networks based on dense or convolution layers:
 
 - **`Gradient`** : Calculation of the model output **Gradients** with respect
 to the model inputs including the attribution method 
 [**Gradient x Input**](https://www.jmlr.org/papers/v11/baehrens10a.html):
+
 $$
 \begin{align}
 \text{Gradient}(x)_i^C &= \frac{\partial f(x)_C}{\partial x_i}\\ 
@@ -264,6 +275,7 @@ $$
 ([**SmoothGrad**](https://arxiv.org/abs/1706.03825)) with respect to the model
 inputs by averaging the gradients over number of inputs with added noise 
 (including **SmoothGrad x Input**):
+
 $$
 \text{SmoothGrad}(x)_i^C = \mathbb{E}_{\varepsilon \sim \mathcal{N}(0, \sigma^2)}\left[\frac{\partial f(x + \varepsilon)_C}{\partial (x + \varepsilon)_i}\right] \approx \frac{1}{n} \sum_{k=1}^n \frac{\partial f(x + \varepsilon_k)_C}{\partial (x + \varepsilon_k)_i}
 $$
@@ -272,6 +284,7 @@ with $\varepsilon_1, \ldots \varepsilon_n \sim \mathcal{N}(0, \sigma^2)$.
 - **`LRP`** : Back propagation the model output to the model input neurons to 
 obtain relevance scores for the model prediction which is known as
 [**Layer-wise Relevance Propagation**](https://doi.org/10.1371/journal.pone.0130140):
+
 $$
 f(x)_C \approx \sum_{i=1}^d R_i
 $$
@@ -281,6 +294,7 @@ with $R_i$ relevance score for input neuron $i$.
 respect to the model inputs and a reference input which is known as
 Deep Learning Important FeaTures 
 ([**DeepLift**](https://arxiv.org/abs/1704.02685)):
+
 $$
 \Delta f(x)_C = f(x)_C - f(x_\text{ref}) = \sum_{i=1}^d C_i
 $$
@@ -294,7 +308,7 @@ them up (see [**Connection Weights**](https://doi.org/10.1016/j.ecolmodel.2004.0
 #### Notes
 
 * By default, the last activation function is not taken into account 
-for all data-based methods . Because often this is the sigmoid/logistic or 
+for all data-based methods. Because often this is the sigmoid/logistic or 
 the softmax function, which has with growing distance from 0 
 increasingly smaller gradients, which leads to the so-called 
 *saturation problem*. But if you still want to consider the last activation 
@@ -316,6 +330,7 @@ individually with the argument `output_idx` by passing the relevant output
 indices.
 
 ### Example 1: Gradient and Gradient x Input
+
 ```{r, results='hide', message=FALSE}
 # Make sure that Example 1 from the section on neuralnet and one example
 # with CNNs were run last
@@ -327,7 +342,9 @@ grad_dense <- Gradient$new(conv_dense, iris[-c(1,2,5)])
 x <- torch_randn(c(10,3,10,10))
 grad_cnn <- Gradient$new(conv_cnn, x, times_input = TRUE)
 ```
+
 ### Example 2: SmoothGrad and SmoothGrad x Input
+
 ```{r, results='hide', message=FALSE}
 # Make sure that Example 1 from the section on neuralnet and one example
 # with CNNs were run last
@@ -341,6 +358,7 @@ smooth_cnn <- SmoothGrad$new(conv_cnn, x, times_input = TRUE)
 ```
 
 ### Example 3: LRP
+
 ```{r, results='hide', message=FALSE}
 # Make sure that Example 1 from the section on neuralnet and one example
 # with CNNs were run last
@@ -353,7 +371,9 @@ x <- torch_randn(c(10,10,10,3))
 lrp_cnn <- LRP$new(conv_cnn, x, rule_name = "alpha_beta", rule_param = 1,
                    channels_first = FALSE)
 ```
+
 ### Example 4: DeepLift
+
 ```{r, results='hide', message=FALSE}
 # Make sure that Example 1 from the section on neuralnet and one example
 # with CNNs were run last
@@ -369,6 +389,7 @@ deeplift_cnn <- DeepLift$new(conv_cnn, x)
 ```
 
 ## Step 3: Show and Plot the Results
+
 Once a method object has been created, the results can be returned as an 
 `array`, `data.frame`, or `torch_tensor`, and can be further processed as 
 desired. In addition, for each of the three sizes of the inputs (1D, 2D, or 
@@ -378,14 +399,15 @@ complexity of higher dimensional inputs, these plots and boxplots can also
 be displayed as an interactive [plotly](https://plotly.com/r/) plots by using 
 the argument `as_plotly`.
 
-
 ### Get Results
+
 Each instance of the interpretability methods have the class method 
 `get_result`, which is used to return the results. You can choose between 
 the data formats `array`, `data.frame` or `torch_tensor` by passing the
 name as an character for argument `type`.
 
 #### Array (Default)
+
 ```{r}
 # Get result (make sure 'grad_dense' is defined!)
 result_array <- grad_dense$get_result()
@@ -393,7 +415,9 @@ result_array <- grad_dense$get_result()
 # Show for datapoint 1 and 71 the result
 result_array[c(1,71),,]
 ```
+
 #### Data Frame
+
 ```{r}
 # Get result as data.frame (make sure 'grad_cnn' is defined!)
 result_data.frame <- lrp_cnn$get_result("data.frame")
@@ -401,7 +425,9 @@ result_data.frame <- lrp_cnn$get_result("data.frame")
 # Show the first 5 rows
 head(result_data.frame, 5)
 ```
+
 #### Torch Tensor
+
 ```{r}
 # Get result (make sure 'deeplift_dense' is defined!)
 result_torch <- deeplift_dense$get_result("torch_tensor")
@@ -411,6 +437,7 @@ result_torch[c(1,71),,]
 ```
 
 ### Plot Results
+
 The package `innsight` also provides methods for visualizing the results. 
 By default a ggplot2-plot is created, but it can also be rendered as an 
 interactive plotly plot with the `as_plotly` argument. You can use the 
@@ -424,9 +451,11 @@ get the results  with `Method$result` (torch tensor!), change it accordingly,
 and then save it back to the attribute `Method$result` as a torch tensor.
 
 #### Plot Function
+
+Plot result for the first data point and all outputs:  
+(make sure `grad_dense` is defined!)
+
 ```{r}
-# Plot result for the first data point and all outputs 
-# (make sure 'grad_dense' is defined!)
 plot(smooth_dense, output_idx = 1:3)
 # You can plot several data points at once
 plot(smooth_dense, data_idx = c(1,71), output_idx = 1:3)
@@ -434,24 +463,29 @@ plot(smooth_dense, data_idx = c(1,71), output_idx = 1:3)
 # (make sure 'lrp_cnn' is defined!)
 plot(lrp_cnn, aggr_channels = 'norm', output_idx = c(1,4))
 ```
+
 ```{r, eval = FALSE}
 # Create a plotly plot for the first output
 plot(lrp_cnn, aggr_channels = 'norm', output_idx = c(1), as_plotly = TRUE)
 ```
 
 #### Boxplot Function
+
+Plot result for the first data point and first two outputs:  
+(make sure 'smooth_dense' is defined!)
+
 ```{r}
-# Plot result for the first data point and first two outputs 
-# (make sure 'smooth_dense' is defined!)
 boxplot(smooth_dense, output_idx = 1:2)
 # Use no preprocess function (default: abs) and plot reference data point
 boxplot(smooth_dense, output_idx = 1:3, preprocess_FUN = identity,
         ref_data_idx = c(55))
 ```
+
+Same as plotly.  
+In addition, you have a drop-down menu to select other data points
+you can define the indices for the drop-down menu with `individual_data_idx`.
+
 ```{r, eval = FALSE}
-# Same as plotly
-# In addition, you have a drop-down menu to select other data points
-# you can define the indices for the drop-down menu with 'individual_data_idx'
 boxplot(smooth_dense, output_idx = 1:3, preprocess_FUN = identity,
         ref_data_idx = c(55), as_plotly = TRUE, individual_data_idx = c(1))
 ```
