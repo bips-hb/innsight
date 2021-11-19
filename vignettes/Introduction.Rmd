@@ -191,7 +191,7 @@ created by this object.
 
 #### Example 1: Dense Network
 
-```{r, eval = keras::is_keras_available()}
+```{r, eval = keras::is_keras_available() & torch::torch_is_installed()}
 library(keras)
 tensorflow::set_random_seed(42)
 
@@ -209,7 +209,7 @@ conv_dense <- Converter$new(model)
 
 #### Example 2: CNN
 
-```{r, eval = is_keras_available()}
+```{r, eval = keras::is_keras_available() & torch::torch_is_installed()}
 library(keras)
 
 # Create model
@@ -238,7 +238,7 @@ outputs, which can of course be overwritten with the arguments
 
 #### Example 1: Dense Network
 
-```{r}
+```{r, eval = torch::torch_is_installed()}
 library(neuralnet)
 data(iris)
 
