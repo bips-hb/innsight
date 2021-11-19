@@ -8,3 +8,4 @@
 ^pkgdown$
 ^images$
 ^man/images$
+^cran-comments\.md$
