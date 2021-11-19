@@ -107,9 +107,9 @@
 <h2 class="hasAnchor">
 <a href="#step-1-model-creation-and-converting" class="anchor"></a>Step 1: Model Creation and Converting</h2>
 <p>The <code>innsight</code> package aims to be as flexible as possible and independent of any particular deep learning package in which the passed network was learned or defined. For this reason, there are several ways in this package to pass a neural network and then interpret their predictions.</p>
-<div id="library-torch" class="section level3">
+<div id="package-torch" class="section level3">
 <h3 class="hasAnchor">
-<a href="#library-torch" class="anchor"></a>Library <code>torch</code>
+<a href="#package-torch" class="anchor"></a>Package <code>torch</code>
 </h3>
 <p>Currently, only models created by <code><a href="https://torch.mlverse.org/docs/reference/nn_sequential.html">torch::nn_sequential</a></code> are accepted. However, the most popular standard layers and activation functions are available:</p>
 <ul>
@@ -197,9 +197,9 @@
 <span class="va">conv_cnn</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/Converter.html">Converter</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">model</span>, input_dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">10</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 </div>
 </div>
-<div id="library-keras" class="section level3">
+<div id="package-keras" class="section level3">
 <h3 class="hasAnchor">
-<a href="#library-keras" class="anchor"></a>Library <code>keras</code>
+<a href="#package-keras" class="anchor"></a>Package <code>keras</code>
 </h3>
 <p>Keras models created by <code>keras_model_sequential</code> or <code>keras_model</code> are accepted. Within these functions, the following layers are allowed to be used:</p>
 <ul>
@@ -222,7 +222,7 @@
 <strong>Skipped layers:</strong> <code>layer_dropout</code>
 </li>
 <li>
-<strong>Activation functions:</strong> Activation functions are currently only allowed as a string argument in the individual layers (<code>activation</code>) and not as a standalone layer like e.g. <code>layer_activation_relu</code>. The following are accepted as arguments: <code>"relu"</code>, <code>"softplus"</code>, <code>"sigmoid"</code>, <code>"softmax"</code>, <code>"tanh"</code>, <code>"linear"</code> (contact me if you need any more)</li>
+<strong>Activation functions:</strong> Activation functions are currently only allowed as a string argument in the individual layers (<code>activation</code>) and not as a standalone layer like e.g. <code>layer_activation_relu</code>. The following are accepted as arguments: <code>"relu"</code>, <code>"softplus"</code>, <code>"sigmoid"</code>, <code>"softmax"</code>, <code>"tanh"</code>, <code>"linear"</code> (open an issue if you need any more)</li>
 </ul>
 <p>Analogous to a torch model, no names of inputs or outputs are stored in a keras model, i.e. if no further arguments are set for the <code>Converter</code> instance, default labels are generated for the input (e.g. <code>'X1'</code>, <code>'X2'</code>, …) and output names (<code>'Y1'</code>, <code>'Y2'</code>, … ). In the converter, however, there is the possibility (argument <code>input_names</code> and <code>output_names</code>) to pass the names, which will then be used in all results and plots created by this object.</p>
 <div id="example-1-dense-network-1" class="section level4">
@@ -266,11 +266,11 @@
 <span class="va">conv_cnn</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/Converter.html">Converter</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">model</span><span class="op">)</span></code></pre></div>
 </div>
 </div>
-<div id="library-neuralnet" class="section level3">
+<div id="package-neuralnet" class="section level3">
 <h3 class="hasAnchor">
-<a href="#library-neuralnet" class="anchor"></a>Library <code>neuralnet</code>
+<a href="#package-neuralnet" class="anchor"></a>Package <code>neuralnet</code>
 </h3>
-<p>The usage with nets from the package <code>neuralnet</code> is very simple and straightforward, because the package offers much less possibilities than <code>torch</code> or <code>keras</code>. The only thing to note is that no custom activation function can be used. However, the package saves the names of the inputs and outputs, which can of course be overwritten with the arguments <code>input_names</code> and <code>output_names</code> when creating the converter object.</p>
+<p>The usage with nets from the package <code>neuralnet</code> is very simple and straightforward, because the package offers much fewer options than <code>torch</code> or <code>keras</code>. The only thing to note is that no custom activation function can be used. However, the package saves the names of the inputs and outputs, which can of course be overwritten with the arguments <code>input_names</code> and <code>output_names</code> when creating the converter object.</p>
 <div id="example-1-dense-network-2" class="section level4">
 <h4 class="hasAnchor">
 <a href="#example-1-dense-network-2" class="anchor"></a>Example 1: Dense Network</h4>
@@ -300,28 +300,45 @@
 <a href="#step-2-apply-selected-method" class="anchor"></a>Step 2: Apply selected Method</h2>
 <p>The <strong><code>innsight</code></strong> package provides the following tools for analyzing black box neural networks based on dense or convolution layers:</p>
 <ul>
-<li><p><strong><code>Gradient</code></strong> : Calculation of the model output <strong>Gradients</strong> with respect to the model inputs including the attribution method <a href="https://www.jmlr.org/papers/v11/baehrens10a.html"><strong>Gradient x Input</strong></a>: <span class="math display">\[
+<li>
+<strong><code>Gradient</code></strong> : Calculation of the model output <strong>Gradients</strong> with respect to the model inputs including the attribution method <a href="https://www.jmlr.org/papers/v11/baehrens10a.html"><strong>Gradient x Input</strong></a>:</li>
+</ul>
+<p><span class="math display">\[
 \begin{align}
 \text{Gradient}(x)_i^C &amp;= \frac{\partial f(x)_C}{\partial x_i}\\ 
 \text{Gradient x Input}(x)_i^C &amp;= x_i \cdot \text{Gradient}(x)_i^C
 \end{align}
-\]</span></p></li>
-<li><p><strong><code>SmoothGrad</code></strong> : Calculation of the smoothed model output gradients (<a href="https://arxiv.org/abs/1706.03825"><strong>SmoothGrad</strong></a>) with respect to the model inputs by averaging the gradients over number of inputs with added noise (including <strong>SmoothGrad x Input</strong>): <span class="math display">\[
+\]</span></p>
+<ul>
+<li>
+<strong><code>SmoothGrad</code></strong> : Calculation of the smoothed model output gradients (<a href="https://arxiv.org/abs/1706.03825"><strong>SmoothGrad</strong></a>) with respect to the model inputs by averaging the gradients over number of inputs with added noise (including <strong>SmoothGrad x Input</strong>):</li>
+</ul>
+<p><span class="math display">\[
 \text{SmoothGrad}(x)_i^C = \mathbb{E}_{\varepsilon \sim \mathcal{N}(0, \sigma^2)}\left[\frac{\partial f(x + \varepsilon)_C}{\partial (x + \varepsilon)_i}\right] \approx \frac{1}{n} \sum_{k=1}^n \frac{\partial f(x + \varepsilon_k)_C}{\partial (x + \varepsilon_k)_i}
-\]</span> with <span class="math inline">\(\varepsilon_1, \ldots \varepsilon_n \sim \mathcal{N}(0, \sigma^2)\)</span>.</p></li>
-<li><p><strong><code>LRP</code></strong> : Back propagation the model output to the model input neurons to obtain relevance scores for the model prediction which is known as <a href="https://doi.org/10.1371/journal.pone.0130140"><strong>Layer-wise Relevance Propagation</strong></a>: <span class="math display">\[
+\]</span> with <span class="math inline">\(\varepsilon_1, \ldots \varepsilon_n \sim \mathcal{N}(0, \sigma^2)\)</span>.</p>
+<ul>
+<li>
+<strong><code>LRP</code></strong> : Back propagation the model output to the model input neurons to obtain relevance scores for the model prediction which is known as <a href="https://doi.org/10.1371/journal.pone.0130140"><strong>Layer-wise Relevance Propagation</strong></a>:</li>
+</ul>
+<p><span class="math display">\[
 f(x)_C \approx \sum_{i=1}^d R_i
-\]</span> with <span class="math inline">\(R_i\)</span> relevance score for input neuron <span class="math inline">\(i\)</span>.</p></li>
-<li><p><strong><code>DeepLift</code></strong> : Calculation of a decomposition of the model output with respect to the model inputs and a reference input which is known as Deep Learning Important FeaTures (<a href="https://arxiv.org/abs/1704.02685"><strong>DeepLift</strong></a>): <span class="math display">\[
+\]</span> with <span class="math inline">\(R_i\)</span> relevance score for input neuron <span class="math inline">\(i\)</span>.</p>
+<ul>
+<li>
+<strong><code>DeepLift</code></strong> : Calculation of a decomposition of the model output with respect to the model inputs and a reference input which is known as Deep Learning Important FeaTures (<a href="https://arxiv.org/abs/1704.02685"><strong>DeepLift</strong></a>):</li>
+</ul>
+<p><span class="math display">\[
 \Delta f(x)_C = f(x)_C - f(x_\text{ref}) = \sum_{i=1}^d C_i
-\]</span> with <span class="math inline">\(C_i\)</span> contribution score for input neuron <span class="math inline">\(i\)</span> to the difference-from-reference model output.</p></li>
-<li><p><strong><code>ConnectionWeights</code></strong> : This is a naive and old approach by calculating the product of all weights from an input to an output neuron and then adding them up (see <a href="https://doi.org/10.1016/j.ecolmodel.2004.03.013"><strong>Connection Weights</strong></a>).</p></li>
+\]</span> with <span class="math inline">\(C_i\)</span> contribution score for input neuron <span class="math inline">\(i\)</span> to the difference-from-reference model output.</p>
+<ul>
+<li>
+<strong><code>ConnectionWeights</code></strong> : This is a naive and old approach by calculating the product of all weights from an input to an output neuron and then adding them up (see <a href="https://doi.org/10.1016/j.ecolmodel.2004.03.013"><strong>Connection Weights</strong></a>).</li>
 </ul>
 <div id="notes" class="section level4">
 <h4 class="hasAnchor">
 <a href="#notes" class="anchor"></a>Notes</h4>
 <ul>
-<li><p>By default, the last activation function is not taken into account for all data-based methods . Because often this is the sigmoid/logistic or the softmax function, which has with growing distance from 0 increasingly smaller gradients, which leads to the so-called <em>saturation problem</em>. But if you still want to consider the last activation function, use the argument <code>ignore_last_act = FALSE</code>.</p></li>
+<li><p>By default, the last activation function is not taken into account for all data-based methods. Because often this is the sigmoid/logistic or the softmax function, which has with growing distance from 0 increasingly smaller gradients, which leads to the so-called <em>saturation problem</em>. But if you still want to consider the last activation function, use the argument <code>ignore_last_act = FALSE</code>.</p></li>
 <li><p>For the data with channels, it is not possible to determine exactly on which axis the channels are located. Internally all data and the converted model are in the data format ‘channels first’, i.e. directly after the batch dimension <code>(batch_size, channels, input_dim)</code>. In case you want to pass data with ‘channels last’ (e.g. for MNIST-data <em>(batch_size, 28, 28, 3)</em>), then you have to indicate that with argument <code>channels_first</code> in the applied method.</p></li>
 <li><p>It can happen with very large and deep neural networks that the calculation for all outputs requires both the entire memory and takes a very long time. But often, the results are needed only for certain output nodes. By default, only the results for the first 10 outputs are calculated, which can be adjusted individually with the argument <code>output_idx</code> by passing the relevant output indices.</p></li>
 </ul>
@@ -465,10 +482,10 @@ f(x)_C \approx \sum_{i=1}^d R_i
 <div id="plot-function" class="section level4">
 <h4 class="hasAnchor">
 <a href="#plot-function" class="anchor"></a>Plot Function</h4>
+<p>Plot result for the first data point and all outputs:<br>
+(make sure <code>grad_dense</code> is defined!)</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Plot result for the first data point and all outputs </span>
-<span class="co"># (make sure 'grad_dense' is defined!)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">smooth_dense</span>, output_idx <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">smooth_dense</span>, output_idx <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span></code></pre></div>
 <p><img src="Introduction_files/figure-html/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># You can plot several data points at once</span>
@@ -486,21 +503,20 @@ f(x)_C \approx \sum_{i=1}^d R_i
 <div id="boxplot-function" class="section level4">
 <h4 class="hasAnchor">
 <a href="#boxplot-function" class="anchor"></a>Boxplot Function</h4>
+<p>Plot result for the first data point and first two outputs:<br>
+(make sure ‘smooth_dense’ is defined!)</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Plot result for the first data point and first two outputs </span>
-<span class="co"># (make sure 'smooth_dense' is defined!)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html">boxplot</a></span><span class="op">(</span><span class="va">smooth_dense</span>, output_idx <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html">boxplot</a></span><span class="op">(</span><span class="va">smooth_dense</span>, output_idx <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></code></pre></div>
 <p><img src="Introduction_files/figure-html/unnamed-chunk-18-1.png" width="672" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Use no preprocess function (default: abs) and plot reference data point</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html">boxplot</a></span><span class="op">(</span><span class="va">smooth_dense</span>, output_idx <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, preprocess_FUN <span class="op">=</span> <span class="va">identity</span>,
         ref_data_idx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">55</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="Introduction_files/figure-html/unnamed-chunk-18-2.png" width="672" style="display: block; margin: auto;"></p>
+<p>Same as plotly.<br>
+In addition, you have a drop-down menu to select other data points you can define the indices for the drop-down menu with <code>individual_data_idx</code>.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Same as plotly</span>
-<span class="co"># In addition, you have a drop-down menu to select other data points</span>
-<span class="co"># you can define the indices for the drop-down menu with 'individual_data_idx'</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html">boxplot</a></span><span class="op">(</span><span class="va">smooth_dense</span>, output_idx <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, preprocess_FUN <span class="op">=</span> <span class="va">identity</span>,
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html">boxplot</a></span><span class="op">(</span><span class="va">smooth_dense</span>, output_idx <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, preprocess_FUN <span class="op">=</span> <span class="va">identity</span>,
         ref_data_idx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">55</span><span class="op">)</span>, as_plotly <span class="op">=</span> <span class="cn">TRUE</span>, individual_data_idx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 </div>
 </div>

@@ -3,7 +3,7 @@ pkgdown: 1.6.1
 pkgdown_sha: ~
 articles:
   Introduction: Introduction.html
-last_built: 2021-11-18T15:40Z
+last_built: 2021-11-19T12:35Z
 urls:
   reference: https://bips-hb.github.io/innsight/reference
   article: https://bips-hb.github.io/innsight/articles

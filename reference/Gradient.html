@@ -245,256 +245,256 @@ either <code>'float'</code> for <a href='https://torch.mlverse.org/docs/referenc
 <span class='r-in'><span class='co'># Print the result as a data.frame</span></span>
 <span class='r-in'><span class='va'>grad</span><span class='op'>$</span><span class='fu'>get_result</span><span class='op'>(</span><span class='st'>"data.frame"</span><span class='op'>)</span></span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>        data feature         class         value</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1    data_1     Car       Buy it! -0.0352651849</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2    data_2     Car       Buy it! -0.0403623134</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3    data_3     Car       Buy it!  0.0148059018</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4    data_4     Car       Buy it! -0.0299034808</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 5    data_5     Car       Buy it! -0.0381411910</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 6    data_6     Car       Buy it! -0.0965808034</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 7    data_7     Car       Buy it! -0.0103476420</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 8    data_8     Car       Buy it!  0.0343381464</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 9    data_9     Car       Buy it! -0.0203014314</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 10  data_10     Car       Buy it! -0.0021331478</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 11  data_11     Car       Buy it! -0.1743081808</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 12  data_12     Car       Buy it! -0.0019409303</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 13  data_13     Car       Buy it! -0.0751705840</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 14  data_14     Car       Buy it!  0.0253359117</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 15  data_15     Car       Buy it! -0.1581568718</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 16  data_16     Car       Buy it! -0.1337197274</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 17  data_17     Car       Buy it! -0.1382174641</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 18  data_18     Car       Buy it! -0.0168136600</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 19  data_19     Car       Buy it! -0.0021331478</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 20  data_20     Car       Buy it! -0.0019409303</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 21  data_21     Car       Buy it!  0.0143957734</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 22  data_22     Car       Buy it! -0.0019409303</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 23  data_23     Car       Buy it! -0.0969909430</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 24  data_24     Car       Buy it!  0.0647629425</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 25  data_25     Car       Buy it! -0.0473770276</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 26   data_1     Cat       Buy it!  0.0531817041</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 27   data_2     Cat       Buy it!  0.0530599356</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 28   data_3     Cat       Buy it!  0.0773786157</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 29   data_4     Cat       Buy it!  0.0400924794</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 30   data_5     Cat       Buy it!  0.0498193391</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 31   data_6     Cat       Buy it!  0.0987714753</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 32   data_7     Cat       Buy it!  0.1401752681</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 33   data_8     Cat       Buy it! -0.0189390387</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 34   data_9     Cat       Buy it!  0.0413207784</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 35  data_10     Cat       Buy it!  0.0694054812</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 36  data_11     Cat       Buy it!  0.0784545690</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 37  data_12     Cat       Buy it!  0.0057267435</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 38  data_13     Cat       Buy it! -0.0260615665</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 39  data_14     Cat       Buy it!  0.0005860645</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 40  data_15     Cat       Buy it!  0.0351830199</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 41  data_16     Cat       Buy it!  0.0026658662</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 42  data_17     Cat       Buy it!  0.0141372643</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 43  data_18     Cat       Buy it!  0.0088897385</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 44  data_19     Cat       Buy it!  0.0694054812</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 45  data_20     Cat       Buy it!  0.0057267435</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 46  data_21     Cat       Buy it!  0.0771723837</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 47  data_22     Cat       Buy it!  0.0057267435</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 48  data_23     Cat       Buy it!  0.0985652432</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 49  data_24     Cat       Buy it!  0.0683825240</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 50  data_25     Cat       Buy it!  0.0642943680</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 51   data_1     Dog       Buy it!  0.1463269591</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 52   data_2     Dog       Buy it!  0.1749210209</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 53   data_3     Dog       Buy it! -0.0089139706</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 54   data_4     Dog       Buy it!  0.1344960183</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 55   data_5     Dog       Buy it!  0.1986656338</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 56   data_6     Dog       Buy it!  0.0311856046</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 57   data_7     Dog       Buy it!  0.0258891080</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 58   data_8     Dog       Buy it!  0.0882472694</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 59   data_9     Dog       Buy it!  0.0583847314</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 60  data_10     Dog       Buy it!  0.0905137211</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 61  data_11     Dog       Buy it!  0.1266745776</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 62  data_12     Dog       Buy it!  0.1226732284</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 63  data_13     Dog       Buy it!  0.0764085054</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 64  data_14     Dog       Buy it! -0.0132824481</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 65  data_15     Dog       Buy it! -0.0096581960</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 66  data_16     Dog       Buy it!  0.0267494731</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 67  data_17     Dog       Buy it!  0.1685031652</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 68  data_18     Dog       Buy it!  0.0939080417</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 69  data_19     Dog       Buy it!  0.0905137211</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 70  data_20     Dog       Buy it!  0.1226732284</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 71  data_21     Dog       Buy it! -0.0092779631</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 72  data_22     Dog       Buy it!  0.1226732284</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 73  data_23     Dog       Buy it!  0.0308216140</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 74  data_24     Dog       Buy it! -0.0604206547</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 75  data_25     Dog       Buy it! -0.0963680372</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 76   data_1   Plane       Buy it! -0.1155784801</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 77   data_2   Plane       Buy it!  0.0140249543</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 78   data_3   Plane       Buy it! -0.1528715491</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 79   data_4   Plane       Buy it! -0.0408980995</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 80   data_5   Plane       Buy it! -0.1675016582</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 81   data_6   Plane       Buy it! -0.2426942289</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 82   data_7   Plane       Buy it! -0.0604450591</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 83   data_8   Plane       Buy it! -0.0746228546</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 84   data_9   Plane       Buy it! -0.1494874656</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 85  data_10   Plane       Buy it! -0.1625447422</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 86  data_11   Plane       Buy it! -0.1249120384</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 87  data_12   Plane       Buy it! -0.2288307548</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 88  data_13   Plane       Buy it! -0.1986285746</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 89  data_14   Plane       Buy it! -0.0469782352</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 90  data_15   Plane       Buy it! -0.1896939278</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 91  data_16   Plane       Buy it! -0.1747626364</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 92  data_17   Plane       Buy it! -0.0871826485</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 93  data_18   Plane       Buy it! -0.1562084854</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 94  data_19   Plane       Buy it! -0.1625447422</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 95  data_20   Plane       Buy it! -0.2288307548</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 96  data_21   Plane       Buy it! -0.1529573500</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 97  data_22   Plane       Buy it! -0.2288307548</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 98  data_23   Plane       Buy it! -0.2427800000</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 99  data_24   Plane       Buy it! -0.1490070820</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 100 data_25   Plane       Buy it! -0.0915719569</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 101  data_1   Horse       Buy it!  0.1111178175</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 102  data_2   Horse       Buy it!  0.0197571740</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 103  data_3   Horse       Buy it!  0.0316436142</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 104  data_4   Horse       Buy it!  0.0243422743</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 105  data_5   Horse       Buy it!  0.1058764532</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 106  data_6   Horse       Buy it!  0.1123695076</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 107  data_7   Horse       Buy it! -0.0254873000</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 108  data_8   Horse       Buy it!  0.0178501308</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 109  data_9   Horse       Buy it!  0.0796595067</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 110 data_10   Horse       Buy it!  0.0863312259</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 111 data_11   Horse       Buy it!  0.1089126319</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 112 data_12   Horse       Buy it!  0.1346005797</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 113 data_13   Horse       Buy it!  0.1363034099</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 114 data_14   Horse       Buy it! -0.0327522792</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 115 data_15   Horse       Buy it!  0.1154411435</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 116 data_16   Horse       Buy it!  0.1447389573</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 117 data_17   Horse       Buy it!  0.1395792663</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 118 data_18   Horse       Buy it!  0.0795985088</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 119 data_19   Horse       Buy it!  0.0863312259</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 120 data_20   Horse       Buy it!  0.1346005797</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 121 data_21   Horse       Buy it!  0.0311377421</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 122 data_22   Horse       Buy it!  0.1346005797</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 123 data_23   Horse       Buy it!  0.1118636280</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 124 data_24   Horse       Buy it! -0.0268884692</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 125 data_25   Horse       Buy it!  0.0049396399</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 126  data_1     Car Don't buy it!  0.1143299416</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 127  data_2     Car Don't buy it!  0.0715248957</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 128  data_3     Car Don't buy it!  0.0149059817</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 129  data_4     Car Don't buy it!  0.0311985780</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 130  data_5     Car Don't buy it!  0.2637245655</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 131  data_6     Car Don't buy it!  0.1821125299</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 132  data_7     Car Don't buy it! -0.0975393802</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 133  data_8     Car Don't buy it!  0.1829911470</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 134  data_9     Car Don't buy it!  0.2352169156</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 135 data_10     Car Don't buy it!  0.0856337398</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 136 data_11     Car Don't buy it!  0.1262846440</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 137 data_12     Car Don't buy it!  0.2857605219</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 138 data_13     Car Don't buy it!  0.2485143095</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 139 data_14     Car Don't buy it!  0.0840646923</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 140 data_15     Car Don't buy it!  0.1398035437</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 141 data_16     Car Don't buy it!  0.1505669653</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 142 data_17     Car Don't buy it!  0.1319852769</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 143 data_18     Car Don't buy it!  0.1463348866</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 144 data_19     Car Don't buy it!  0.0856337398</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 145 data_20     Car Don't buy it!  0.2857605219</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 146 data_21     Car Don't buy it!  0.0125341415</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 147 data_22     Car Don't buy it!  0.2857605219</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 148 data_23     Car Don't buy it!  0.1797406822</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 149 data_24     Car Don't buy it!  0.0162987188</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 150 data_25     Car Don't buy it! -0.1127496138</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 151  data_1     Cat Don't buy it!  0.1465799659</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 152  data_2     Cat Don't buy it! -0.0574866384</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 153  data_3     Cat Don't buy it!  0.0561003461</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 154  data_4     Cat Don't buy it!  0.0058695013</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 155  data_5     Cat Don't buy it!  0.0461871959</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 156  data_6     Cat Don't buy it!  0.0679123402</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 157  data_7     Cat Don't buy it!  0.1463195384</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 158  data_8     Cat Don't buy it! -0.1491492838</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 159  data_9     Cat Don't buy it!  0.0253097415</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 160 data_10     Cat Don't buy it!  0.0062077222</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 161 data_11     Cat Don't buy it!  0.0678249225</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 162 data_12     Cat Don't buy it!  0.0193469785</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 163 data_13     Cat Don't buy it! -0.0381600223</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 164 data_14     Cat Don't buy it! -0.1025343984</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 165 data_15     Cat Don't buy it!  0.0242206231</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 166 data_16     Cat Don't buy it!  0.0098983301</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 167 data_17     Cat Don't buy it!  0.0673179105</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 168 data_18     Cat Don't buy it! -0.0993576348</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 169 data_19     Cat Don't buy it!  0.0062077222</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 170 data_20     Cat Don't buy it!  0.0193469785</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 171 data_21     Cat Don't buy it!  0.0549076796</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 172 data_22     Cat Don't buy it!  0.0193469785</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 173 data_23     Cat Don't buy it!  0.0667196810</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 174 data_24     Cat Don't buy it!  0.0558495447</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 175 data_25     Cat Don't buy it!  0.0619723164</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 176  data_1     Dog Don't buy it!  0.2769024074</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 177  data_2     Dog Don't buy it!  0.1564309746</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 178  data_3     Dog Don't buy it!  0.0760813802</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 179  data_4     Dog Don't buy it!  0.1254304796</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 180  data_5     Dog Don't buy it!  0.1607597470</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 181  data_6     Dog Don't buy it!  0.0177454967</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 182  data_7     Dog Don't buy it!  0.1436099559</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 183  data_8     Dog Don't buy it!  0.0853614360</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 184  data_9     Dog Don't buy it!  0.0355792791</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 185 data_10     Dog Don't buy it!  0.0007857028</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 186 data_11     Dog Don't buy it!  0.1438262314</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 187 data_12     Dog Don't buy it!  0.1145013198</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 188 data_13     Dog Don't buy it!  0.0887925699</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 189 data_14     Dog Don't buy it! -0.0012545530</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 190 data_15     Dog Don't buy it! -0.0103183314</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 191 data_16     Dog Don't buy it!  0.0057175513</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 192 data_17     Dog Don't buy it!  0.1575070471</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 193 data_18     Dog Don't buy it!  0.0581519529</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 194 data_19     Dog Don't buy it!  0.0007857028</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 195 data_20     Dog Don't buy it!  0.1145013198</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 196 data_21     Dog Don't buy it!  0.0739763454</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 197 data_22     Dog Don't buy it!  0.1145013198</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 198 data_23     Dog Don't buy it!  0.0156404618</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 199 data_24     Dog Don't buy it!  0.0746454373</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 200 data_25     Dog Don't buy it!  0.0716427714</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 201  data_1   Plane Don't buy it! -0.0614104643</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 202  data_2   Plane Don't buy it!  0.0308074057</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 203  data_3   Plane Don't buy it! -0.2031263113</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 204  data_4   Plane Don't buy it! -0.0635031611</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 205  data_5   Plane Don't buy it! -0.0892098695</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 206  data_6   Plane Don't buy it! -0.0832889378</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 207  data_7   Plane Don't buy it! -0.1027248502</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 208  data_8   Plane Don't buy it! -0.0699824542</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 209  data_9   Plane Don't buy it! -0.0162984021</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 210 data_10   Plane Don't buy it! -0.1608918011</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 211 data_11   Plane Don't buy it!  0.0139919743</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 212 data_12   Plane Don't buy it! -0.1265423447</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 213 data_13   Plane Don't buy it! -0.0802213401</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 214 data_14   Plane Don't buy it! -0.0304453187</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 215 data_15   Plane Don't buy it! -0.0468723550</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 216 data_16   Plane Don't buy it! -0.0402958170</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 217 data_17   Plane Don't buy it!  0.0106640812</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 218 data_18   Plane Don't buy it! -0.1544963121</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 219 data_19   Plane Don't buy it! -0.1608918011</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 220 data_20   Plane Don't buy it! -0.1265423447</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 221 data_21   Plane Don't buy it! -0.2036224306</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 222 data_22   Plane Don't buy it! -0.1265423447</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 223 data_23   Plane Don't buy it! -0.0837850571</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 224 data_24   Plane Don't buy it! -0.2030185759</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 225 data_25   Plane Don't buy it! -0.0937363207</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 226  data_1   Horse Don't buy it! -0.0583660342</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 227  data_2   Horse Don't buy it! -0.0311745256</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 228  data_3   Horse Don't buy it! -0.0115382522</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 229  data_4   Horse Don't buy it!  0.0046034371</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 230  data_5   Horse Don't buy it! -0.1663138121</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 231  data_6   Horse Don't buy it! -0.1470265090</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 232  data_7   Horse Don't buy it!  0.0375710316</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 233  data_8   Horse Don't buy it! -0.0848411545</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 234  data_9   Horse Don't buy it! -0.1732481122</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 235 data_10   Horse Don't buy it! -0.0354300253</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 236 data_11   Horse Don't buy it! -0.1053612456</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 237 data_12   Horse Don't buy it! -0.1488287598</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 238 data_13   Horse Don't buy it! -0.1461235583</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 239 data_14   Horse Don't buy it! -0.0752866045</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 240 data_15   Horse Don't buy it! -0.1449159831</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 241 data_16   Horse Don't buy it! -0.1320116669</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 242 data_17   Horse Don't buy it! -0.0930515975</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 243 data_18   Horse Don't buy it! -0.0468367264</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 244 data_19   Horse Don't buy it! -0.0354300253</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 245 data_20   Horse Don't buy it! -0.1488287598</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 246 data_21   Horse Don't buy it! -0.0144637972</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 247 data_22   Horse Don't buy it! -0.1488287598</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 248 data_23   Horse Don't buy it! -0.1499520540</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 249 data_24   Horse Don't buy it! -0.0131700560</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 250 data_25   Horse Don't buy it!  0.0577612817</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 1    data_1     Car       Buy it!  0.0573508069</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 2    data_2     Car       Buy it! -0.0332776271</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 3    data_3     Car       Buy it!  0.0452374481</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 4    data_4     Car       Buy it! -0.0166038126</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 5    data_5     Car       Buy it! -0.0221441239</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 6    data_6     Car       Buy it!  0.0181965344</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 7    data_7     Car       Buy it!  0.0204703324</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 8    data_8     Car       Buy it!  0.0432483368</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 9    data_9     Car       Buy it!  0.0250024479</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 10  data_10     Car       Buy it! -0.0187038127</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 11  data_11     Car       Buy it! -0.0101217739</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 12  data_12     Car       Buy it! -0.0146927033</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 13  data_13     Car       Buy it!  0.0225529335</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 14  data_14     Car       Buy it! -0.0166038126</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 15  data_15     Car       Buy it! -0.0145739745</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 16  data_16     Car       Buy it! -0.0449221209</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 17  data_17     Car       Buy it!  0.0173498187</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 18  data_18     Car       Buy it! -0.0220978633</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 19  data_19     Car       Buy it!  0.0432483368</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 20  data_20     Car       Buy it! -0.0166038126</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 21  data_21     Car       Buy it!  0.0269987546</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 22  data_22     Car       Buy it! -0.0143623184</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 23  data_23     Car       Buy it!  0.0026976503</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 24  data_24     Car       Buy it! -0.0257880203</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 25  data_25     Car       Buy it! -0.0166038126</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 26   data_1     Cat       Buy it!  0.0684705228</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 27   data_2     Cat       Buy it!  0.0056115314</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 28   data_3     Cat       Buy it!  0.0005168444</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 29   data_4     Cat       Buy it!  0.0389744826</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 30   data_5     Cat       Buy it!  0.0096529219</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 31   data_6     Cat       Buy it!  0.0495623350</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 32   data_7     Cat       Buy it!  0.0722964555</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 33   data_8     Cat       Buy it!  0.0936861560</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 34   data_9     Cat       Buy it! -0.0528353229</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 35  data_10     Cat       Buy it!  0.0731859282</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 36  data_11     Cat       Buy it! -0.0011489298</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 37  data_12     Cat       Buy it! -0.0220464319</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 38  data_13     Cat       Buy it!  0.1000673398</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 39  data_14     Cat       Buy it!  0.0389744826</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 40  data_15     Cat       Buy it!  0.0705678985</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 41  data_16     Cat       Buy it! -0.0117367841</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 42  data_17     Cat       Buy it! -0.0173453242</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 43  data_18     Cat       Buy it! -0.0122548491</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 44  data_19     Cat       Buy it!  0.0936861560</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 45  data_20     Cat       Buy it!  0.0389744826</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 46  data_21     Cat       Buy it!  0.0651754141</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 47  data_22     Cat       Buy it! -0.0146446656</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 48  data_23     Cat       Buy it!  0.0713283792</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 49  data_24     Cat       Buy it! -0.0083315596</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 50  data_25     Cat       Buy it!  0.0389744826</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 51   data_1     Dog       Buy it!  0.0909934789</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 52   data_2     Dog       Buy it!  0.0812436864</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 53   data_3     Dog       Buy it!  0.0680059046</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 54   data_4     Dog       Buy it!  0.0418159701</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 55   data_5     Dog       Buy it!  0.0751831234</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 56   data_6     Dog       Buy it!  0.0091364197</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 57   data_7     Dog       Buy it!  0.0526674911</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 58   data_8     Dog       Buy it!  0.0658834651</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 59   data_9     Dog       Buy it!  0.0597239174</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 60  data_10     Dog       Buy it!  0.0526946448</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 61  data_11     Dog       Buy it!  0.0292875990</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 62  data_12     Dog       Buy it!  0.0600489303</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 63  data_13     Dog       Buy it!  0.0663029328</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 64  data_14     Dog       Buy it!  0.0418159701</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 65  data_15     Dog       Buy it!  0.0265079029</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 66  data_16     Dog       Buy it!  0.0619671494</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 67  data_17     Dog       Buy it!  0.0722546652</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 68  data_18     Dog       Buy it!  0.0966239274</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 69  data_19     Dog       Buy it!  0.0658834651</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 70  data_20     Dog       Buy it!  0.0418159701</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 71  data_21     Dog       Buy it!  0.0322439894</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 72  data_22     Dog       Buy it!  0.0402838998</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 73  data_23     Dog       Buy it!  0.0628167465</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 74  data_24     Dog       Buy it!  0.0857229456</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 75  data_25     Dog       Buy it!  0.0418159701</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 76   data_1   Plane       Buy it! -0.0333464369</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 77   data_2   Plane       Buy it!  0.0052686967</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 78   data_3   Plane       Buy it! -0.0033352035</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 79   data_4   Plane       Buy it! -0.0044582151</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 80   data_5   Plane       Buy it!  0.0062391944</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 81   data_6   Plane       Buy it! -0.0471241474</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 82   data_7   Plane       Buy it! -0.0364558697</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 83   data_8   Plane       Buy it! -0.0388043001</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 84   data_9   Plane       Buy it! -0.0075369678</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 85  data_10   Plane       Buy it! -0.0426410846</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 86  data_11   Plane       Buy it! -0.0340783074</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 87  data_12   Plane       Buy it!  0.0107976813</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 88  data_13   Plane       Buy it! -0.0173558500</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 89  data_14   Plane       Buy it! -0.0044582151</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 90  data_15   Plane       Buy it! -0.0264133178</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 91  data_16   Plane       Buy it!  0.0085876267</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 92  data_17   Plane       Buy it! -0.0347770639</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 93  data_18   Plane       Buy it!  0.0098886639</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 94  data_19   Plane       Buy it! -0.0388043001</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 95  data_20   Plane       Buy it! -0.0044582151</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 96  data_21   Plane       Buy it! -0.0747967511</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 97  data_22   Plane       Buy it! -0.0130623635</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 98  data_23   Plane       Buy it! -0.0141695142</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 99  data_24   Plane       Buy it!  0.0276225824</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 100 data_25   Plane       Buy it! -0.0044582151</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 101  data_1   Horse       Buy it!  0.0036799069</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 102  data_2   Horse       Buy it!  0.0043156696</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 103  data_3   Horse       Buy it! -0.0540812612</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 104  data_4   Horse       Buy it!  0.0106867831</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 105  data_5   Horse       Buy it! -0.0085252933</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 106  data_6   Horse       Buy it! -0.0384263806</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 107  data_7   Horse       Buy it!  0.0258265361</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 108  data_8   Horse       Buy it!  0.0190743729</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 109  data_9   Horse       Buy it! -0.0116923684</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 110 data_10   Horse       Buy it!  0.0122550707</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 111 data_11   Horse       Buy it! -0.0508862883</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 112 data_12   Horse       Buy it!  0.0131859323</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 113 data_13   Horse       Buy it!  0.0244545676</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 114 data_14   Horse       Buy it!  0.0106867831</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 115 data_15   Horse       Buy it!  0.0091626411</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 116 data_16   Horse       Buy it! -0.0017731301</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 117 data_17   Horse       Buy it!  0.0016040355</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 118 data_18   Horse       Buy it! -0.0012679771</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 119 data_19   Horse       Buy it!  0.0190743729</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 120 data_20   Horse       Buy it!  0.0106867831</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 121 data_21   Horse       Buy it!  0.0144092096</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 122 data_22   Horse       Buy it! -0.0059669111</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 123 data_23   Horse       Buy it!  0.0213959143</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 124 data_24   Horse       Buy it!  0.0095540537</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 125 data_25   Horse       Buy it!  0.0106867831</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 126  data_1     Car Don't buy it! -0.0829409659</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 127  data_2     Car Don't buy it! -0.1293456554</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 128  data_3     Car Don't buy it! -0.0767518133</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 129  data_4     Car Don't buy it!  0.0816929191</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 130  data_5     Car Don't buy it!  0.0139867701</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 131  data_6     Car Don't buy it!  0.2360776812</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 132  data_7     Car Don't buy it!  0.0162088834</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 133  data_8     Car Don't buy it! -0.0319471434</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 134  data_9     Car Don't buy it! -0.0353038236</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 135 data_10     Car Don't buy it!  0.1319514513</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 136 data_11     Car Don't buy it!  0.2165275514</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 137 data_12     Car Don't buy it! -0.0916520059</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 138 data_13     Car Don't buy it! -0.1103340983</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 139 data_14     Car Don't buy it!  0.0816929191</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 140 data_15     Car Don't buy it!  0.1596592814</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 141 data_16     Car Don't buy it!  0.0621427931</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 142 data_17     Car Don't buy it! -0.0162291266</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 143 data_18     Car Don't buy it! -0.1544250846</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 144 data_19     Car Don't buy it! -0.0319471434</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 145 data_20     Car Don't buy it!  0.0816929191</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 146 data_21     Car Don't buy it!  0.0288127325</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 147 data_22     Car Don't buy it! -0.0881990492</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 148 data_23     Car Don't buy it! -0.0880924463</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 149 data_24     Car Don't buy it! -0.1297579408</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 150 data_25     Car Don't buy it!  0.0816929191</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 151  data_1     Cat Don't buy it!  0.1495060474</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 152  data_2     Cat Don't buy it!  0.0773846582</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 153  data_3     Cat Don't buy it!  0.0829844773</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 154  data_4     Cat Don't buy it!  0.2131770104</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 155  data_5     Cat Don't buy it!  0.1329464763</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 156  data_6     Cat Don't buy it!  0.0396998934</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 157  data_7     Cat Don't buy it!  0.1459460706</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 158  data_8     Cat Don't buy it!  0.1007250994</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 159  data_9     Cat Don't buy it! -0.0120451283</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 160 data_10     Cat Don't buy it!  0.0953815952</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 161 data_11     Cat Don't buy it!  0.0046903305</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 162 data_12     Cat Don't buy it!  0.0310495924</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 163 data_13     Cat Don't buy it!  0.1248947829</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 164 data_14     Cat Don't buy it!  0.2131770104</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 165 data_15     Cat Don't buy it!  0.1099872068</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 166 data_16     Cat Don't buy it!  0.1781674474</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 167 data_17     Cat Don't buy it!  0.1126148626</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 168 data_18     Cat Don't buy it!  0.0610031039</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 169 data_19     Cat Don't buy it!  0.1007250994</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 170 data_20     Cat Don't buy it!  0.2131770104</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 171 data_21     Cat Don't buy it!  0.1632384509</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 172 data_22     Cat Don't buy it!  0.0277385805</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 173 data_23     Cat Don't buy it!  0.2352782488</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 174 data_24     Cat Don't buy it!  0.0781521872</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 175 data_25     Cat Don't buy it!  0.2131770104</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 176  data_1     Dog Don't buy it!  0.0611630306</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 177  data_2     Dog Don't buy it!  0.0366678759</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 178  data_3     Dog Don't buy it! -0.0062686061</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 179  data_4     Dog Don't buy it!  0.1709518880</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 180  data_5     Dog Don't buy it!  0.1569231749</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 181  data_6     Dog Don't buy it! -0.0843380913</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 182  data_7     Dog Don't buy it!  0.1487641335</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 183  data_8     Dog Don't buy it!  0.1208236292</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 184  data_9     Dog Don't buy it! -0.0326774567</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 185 data_10     Dog Don't buy it! -0.0014058501</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 186 data_11     Dog Don't buy it! -0.0704263076</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 187 data_12     Dog Don't buy it! -0.0517539755</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 188 data_13     Dog Don't buy it!  0.1224124506</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 189 data_14     Dog Don't buy it!  0.1709518880</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 190 data_15     Dog Don't buy it! -0.0342049822</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 191 data_16     Dog Don't buy it!  0.1848636717</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 192 data_17     Dog Don't buy it!  0.0148400217</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 193 data_18     Dog Don't buy it!  0.0632768273</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 194 data_19     Dog Don't buy it!  0.1208236292</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 195 data_20     Dog Don't buy it!  0.1709518880</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 196 data_21     Dog Don't buy it! -0.0254341364</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 197 data_22     Dog Don't buy it! -0.0574510172</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 198 data_23     Dog Don't buy it!  0.0640833899</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 199 data_24     Dog Don't buy it!  0.0364213064</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 200 data_25     Dog Don't buy it!  0.1709518880</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 201  data_1   Plane Don't buy it! -0.0589393936</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 202  data_2   Plane Don't buy it! -0.0387734398</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 203  data_3   Plane Don't buy it! -0.0005148934</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 204  data_4   Plane Don't buy it! -0.1243088245</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 205  data_5   Plane Don't buy it! -0.1103374362</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 206  data_6   Plane Don't buy it! -0.2147325128</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 207  data_7   Plane Don't buy it! -0.1095705852</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 208  data_8   Plane Don't buy it! -0.1046056524</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 209  data_9   Plane Don't buy it! -0.1265170276</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 210 data_10   Plane Don't buy it! -0.1829112619</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 211 data_11   Plane Don't buy it! -0.2057260424</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 212 data_12   Plane Don't buy it! -0.0977876857</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 213 data_13   Plane Don't buy it! -0.0233663823</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 214 data_14   Plane Don't buy it! -0.1243088245</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 215 data_15   Plane Don't buy it! -0.2378229797</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 216 data_16   Plane Don't buy it! -0.1153023541</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 217 data_17   Plane Don't buy it! -0.1126815826</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 218 data_18   Plane Don't buy it!  0.0143221356</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 219 data_19   Plane Don't buy it! -0.1046056524</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 220 data_20   Plane Don't buy it! -0.1243088245</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 221 data_21   Plane Don't buy it! -0.1735530943</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 222 data_22   Plane Don't buy it! -0.0971428081</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 223 data_23   Plane Don't buy it! -0.0357606187</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 224 data_24   Plane Don't buy it! -0.0400039628</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 225 data_25   Plane Don't buy it! -0.1243088245</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 226  data_1   Horse Don't buy it!  0.1581736356</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 227  data_2   Horse Don't buy it!  0.1631113887</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 228  data_3   Horse Don't buy it!  0.0591952018</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 229  data_4   Horse Don't buy it!  0.1433188468</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 230  data_5   Horse Don't buy it!  0.1489919424</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 231  data_6   Horse Don't buy it!  0.0387932211</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 232  data_7   Horse Don't buy it!  0.0548679009</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 233  data_8   Horse Don't buy it!  0.0691429600</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 234  data_9   Horse Don't buy it!  0.1515502334</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 235 data_10   Horse Don't buy it!  0.1495479941</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 236 data_11   Horse Don't buy it!  0.0301912650</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 237 data_12   Horse Don't buy it!  0.1752963960</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 238 data_13   Horse Don't buy it!  0.0895212665</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 239 data_14   Horse Don't buy it!  0.1433188468</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 240 data_15   Horse Don't buy it!  0.1418066919</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 241 data_16   Horse Don't buy it!  0.1347168982</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 242 data_17   Horse Don't buy it!  0.1477700025</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 243 data_18   Horse Don't buy it!  0.1651539207</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 244 data_19   Horse Don't buy it!  0.0691429600</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 245 data_20   Horse Don't buy it!  0.1433188468</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 246 data_21   Horse Don't buy it!  0.1546177715</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 247 data_22   Horse Don't buy it!  0.1701743603</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 248 data_23   Horse Don't buy it!  0.1622343361</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 249 data_24   Horse Don't buy it!  0.1628230214</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 250 data_25   Horse Don't buy it!  0.1433188468</span>
 <span class='r-in'></span>
 <span class='r-in'><span class='co'># Plot the result for both classes</span></span>
 <span class='r-in'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>grad</span>, output_idx <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span><span class='op'>)</span></span>
