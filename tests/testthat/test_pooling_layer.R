@@ -7,7 +7,7 @@ test_that("Test 1D average pooling layer", {
   x_ref <- torch_randn(1, 4, 30)
   kernel_size <- c(2)
 
-  avg_pool1d <- avg_pool1d_layer(kernel_size, NULL, NULL)
+  avg_pool1d <- avg_pool1d_layer(kernel_size, c(4, 30), c(4, 15))
 
   # Works properly
   y_true <- nnf_avg_pool1d(x, kernel_size)
@@ -49,7 +49,7 @@ test_that("Test 2D average pooling layer", {
   x_ref <- torch_randn(1, 4, 20, 10)
   kernel_size <- c(2,2)
 
-  avg_pool2d <- avg_pool2d_layer(kernel_size, NULL, NULL)
+  avg_pool2d <- avg_pool2d_layer(kernel_size, c(4, 20, 10), c(4, 10, 5))
 
   # Works properly
   y_true <- nnf_avg_pool2d(x, kernel_size)
@@ -93,7 +93,7 @@ test_that("Test 1D maximum pooling layer", {
   x_ref <- torch_randn(1, 4, 30)
   kernel_size <- c(2)
 
-  max_pool1d <- max_pool1d_layer(kernel_size, NULL, NULL)
+  max_pool1d <- max_pool1d_layer(kernel_size, c(4, 30), c(4, 15))
 
   # Works properly
   y_true <- nnf_max_pool1d(x, kernel_size)
@@ -134,7 +134,7 @@ test_that("Test 2D maximum pooling layer", {
   x_ref <- torch_randn(1, 4, 20, 10)
   kernel_size <- c(2,2)
 
-  max_pool2d <- max_pool2d_layer(kernel_size, NULL, NULL)
+  max_pool2d <- max_pool2d_layer(kernel_size, c(4, 20, 10), c(4, 10, 5))
 
   # Works properly
   y_true <- nnf_max_pool2d(x, kernel_size)

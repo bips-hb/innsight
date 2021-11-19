@@ -112,7 +112,7 @@ avg_pool1d_layer <- nn_module(
                                        stride = c(self$strides, 1),
                                        groups = channels)
 
-    lost_length <- self$input$shape[3] - input_grad$shape[3]
+    lost_length <- self$input_dim[2] - input_grad$shape[3]
     if (lost_length != 0) {
       input_grad <- nnf_pad(input_grad, c(0, 0, 0, lost_length))
     }
@@ -243,8 +243,8 @@ avg_pool2d_layer <- nn_module(
                                          stride = c(self$strides, 1),
                                          groups = channels)
 
-      lost_height <- self$input$shape[3] - input_grad$shape[3]
-      lost_width <- self$input$shape[4] - input_grad$shape[4]
+      lost_height <- self$input_dim[2] - input_grad$shape[3]
+      lost_width <- self$input_dim[3] - input_grad$shape[4]
       if (lost_height != 0 | lost_width != 0) {
         input_grad <- nnf_pad(input_grad, c(0, 0, 0, lost_width, 0, lost_height))
       }
@@ -379,7 +379,7 @@ max_pool1d_layer <- nn_module(
                                       stride = c(self$strides, 1),
                                       groups = channels)
 
-    lost_length <- self$input$shape[3] - input_grad$shape[3]
+    lost_length <- self$input_dim[2] - input_grad$shape[3]
     if (lost_length != 0) {
       input_grad <- nnf_pad(input_grad, c(0, 0, 0, lost_length))
     }
@@ -512,8 +512,8 @@ max_pool2d_layer <- nn_module(
                                        stride = c(self$strides, 1),
                                        groups = channels)
 
-    lost_height <- self$input$shape[3] - input_grad$shape[3]
-    lost_width <- self$input$shape[4] - input_grad$shape[4]
+    lost_height <- self$input_dim[2] - input_grad$shape[3]
+    lost_width <- self$input_dim[3] - input_grad$shape[4]
     if (lost_height != 0 | lost_width != 0) {
       input_grad <- nnf_pad(input_grad, c(0, 0, 0, lost_width, 0, lost_height))
     }
