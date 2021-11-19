@@ -103,7 +103,10 @@ $$W_1 * W_2 * W_3. $$" />
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/Introduction.html">Introduction to `innsight`</a>
+      <a href="../articles/Custom_Model_Definition.html">Custom Model Definition</a>
+    </li>
+    <li>
+      <a href="../articles/Introduction.html">Introduction to innsight</a>
     </li>
   </ul>
 </li>
@@ -237,7 +240,7 @@ either as an array (<code>'array'</code>), a torch tensor (<code>'torch.tensor'<
 type.</p>
 <p><hr>
 <a id="method-plot"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/graphics/plot.default.html'>plot()</a></code></h3>
-<p>This method visualizes the result of the <em>Connectio nWeight</em> method in a
+<p>This method visualizes the result of the <em>ConnectionWeights</em> method in a
 <a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot2::ggplot</a>. You can use the argument <code>output_idx</code> to select
 individual output nodes for the plot. The different results for the
 selected outputs are visualized using the method <a href='https://ggplot2.tidyverse.org/reference/facet_grid.html'>ggplot2::facet_grid</a>.
@@ -317,17 +320,17 @@ plotly plot.</p></dd>
 <span class='r-in'></span>
 <span class='r-in'><span class='co'># Apply method Connection Weights</span></span>
 <span class='r-in'><span class='va'>cw</span> <span class='op'>&lt;-</span> <span class='va'>ConnectionWeights</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>converter</span><span class='op'>)</span></span>
-<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backwardpass 'ConnectionWeights':</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backward pass 'ConnectionWeights':</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |===================================                                   |  50%  |                                                                              |======================================================================| 100%</span>
 <span class='r-in'></span>
 <span class='r-in'><span class='co'># Print the result as a data.frame</span></span>
 <span class='r-in'><span class='va'>cw</span><span class='op'>$</span><span class='fu'>get_result</span><span class='op'>(</span><span class='st'>"data.frame"</span><span class='op'>)</span></span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   feature class       value</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1     Car    Y1 -0.21158482</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2     Cat    Y1 -0.04318295</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3     Dog    Y1 -0.17746229</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4   Plane    Y1  0.05082686</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 5   Horse    Y1  0.05691995</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 1     Car    Y1  0.10638191</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 2     Cat    Y1 -0.19602560</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 3     Dog    Y1 -0.15363313</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 4   Plane    Y1  0.05230428</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 5   Horse    Y1 -0.18677433</span>
 <span class='r-in'></span>
 <span class='r-in'><span class='co'># Plot the result</span></span>
 <span class='r-in'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>cw</span><span class='op'>)</span></span>
@@ -349,7 +352,7 @@ plotly plot.</p></dd>
 <span class='r-in'></span>
 <span class='r-in'><span class='co'># Apply the Connection Weights method</span></span>
 <span class='r-in'><span class='va'>cw</span> <span class='op'>&lt;-</span> <span class='va'>ConnectionWeights</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>converter</span><span class='op'>)</span></span>
-<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backwardpass 'ConnectionWeights':</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backward pass 'ConnectionWeights':</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=======================                                               |  33%  |                                                                              |===============================================                       |  67%  |                                                                              |======================================================================| 100%</span>
 <span class='r-in'></span>
 <span class='r-in'><span class='co'># Get the result as a torch tensor</span></span>
@@ -393,7 +396,7 @@ plotly plot.</p></dd>
 <span class='r-in'>  <span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>cw</span>, output_idx <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span><span class='op'>)</span></span>
 <span class='r-in'><span class='op'>}</span></span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> Loaded Tensorflow version 2.7.0</span>
-<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backwardpass 'ConnectionWeights':</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backward pass 'ConnectionWeights':</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |============                                                          |  17%  |                                                                              |=======================                                               |  33%  |                                                                              |===================================                                   |  50%  |                                                                              |===============================================                       |  67%  |                                                                              |==========================================================            |  83%  |                                                                              |======================================================================| 100%</span>
 <span class='r-plt img'><img src='ConnectionWeights-3.png' alt='' width='700' height='433' /></span>
 <span class='r-in'></span>
@@ -426,7 +429,7 @@ plotly plot.</p></dd>
 <span class='r-in'></span>
 <span class='r-in'><span class='co'># create new instance of 'LRP'</span></span>
 <span class='r-in'><span class='va'>cw</span> <span class='op'>&lt;-</span> <span class='va'>ConnectionWeights</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>converter</span><span class='op'>)</span></span>
-<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backwardpass 'ConnectionWeights':</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backward pass 'ConnectionWeights':</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=======================                                               |  33%  |                                                                              |===============================================                       |  67%  |                                                                              |======================================================================| 100%</span>
 <span class='r-in'></span>
 <span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://plotly-r.com'>plotly</a></span><span class='op'>)</span></span>

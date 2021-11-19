@@ -109,7 +109,10 @@ RevealCancel-Rule ('reveal_cancel')." />
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/Introduction.html">Introduction to `innsight`</a>
+      <a href="../articles/Custom_Model_Definition.html">Custom Model Definition</a>
+    </li>
+    <li>
+      <a href="../articles/Introduction.html">Introduction to innsight</a>
     </li>
   </ul>
 </li>
@@ -406,44 +409,26 @@ be used. A too high number can significantly increase the runtime.</p></dd>
 <span class='r-in'></span>
 <span class='r-in'><span class='co'># Apply method DeepLift</span></span>
 <span class='r-in'><span class='va'>deeplift</span> <span class='op'>&lt;-</span> <span class='va'>DeepLift</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>converter</span>, <span class='va'>data</span>, x_ref <span class='op'>=</span> <span class='va'>ref</span><span class='op'>)</span></span>
-<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backwardpass 'DeepLift':</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backward pass 'DeepLift':</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |===================================                                   |  50%  |                                                                              |======================================================================| 100%</span>
 <span class='r-in'></span>
-<span class='r-in'><span class='co'># Print the result as a torch tensor</span></span>
-<span class='r-in'><span class='va'>deeplift</span><span class='op'>$</span><span class='fu'>get_result</span><span class='op'>(</span><span class='st'>"torch.tensor"</span><span class='op'>)</span></span>
+<span class='r-in'><span class='co'># Print the result as a torch tensor for first two data points</span></span>
+<span class='r-in'><span class='va'>deeplift</span><span class='op'>$</span><span class='fu'>get_result</span><span class='op'>(</span><span class='st'>"torch.tensor"</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span><span class='op'>]</span></span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> torch_tensor</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> (1,.,.) = </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  0.01 *</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   4.7835  4.8339</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   -11.6055 -1.4452</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>    7.7348 -1.6899</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>    9.1400 -7.9978</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   -1.6908 -1.7282</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.1390  0.1881</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0254 -0.0591</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.1635  0.2468</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0439 -0.0318</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.1353  0.1167</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> (2,.,.) = </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0297  0.0116</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.1164 -0.0072</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.1583  0.0337</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.3050  0.2076</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.1608 -0.1101</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> (3,.,.) = </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.0229 -0.0221</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.0971 -0.0154</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.2374 -0.0449</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0280 -0.0881</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0310  0.0349</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> (4,.,.) = </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0735  0.0598</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.1575  0.0234</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.1596  0.0306</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0069 -0.0021</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.1248 -0.1079</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> (5,.,.) = </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> ... [the output was truncated (use n=-1 to disable)]</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> [ CPUFloatType{25,5,2} ]</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0400 -0.1390</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0154  0.0949</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0305 -0.0990</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0042  0.0575</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.1424  0.1425</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [ CPUFloatType{2,5,2} ]</span>
 <span class='r-in'></span>
 <span class='r-in'><span class='co'># Plot the result for both classes</span></span>
 <span class='r-in'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>deeplift</span>, output_idx <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span><span class='op'>)</span></span>
@@ -471,312 +456,17 @@ be used. A too high number can significantly increase the runtime.</p></dd>
 <span class='r-in'><span class='co'># means</span></span>
 <span class='r-in'><span class='va'>x_ref</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>colMeans</a></span><span class='op'>(</span><span class='va'>iris</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>3</span>, <span class='fl'>4</span><span class='op'>)</span><span class='op'>]</span><span class='op'>)</span>, nrow <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span></span>
 <span class='r-in'><span class='va'>deeplift_rescale</span> <span class='op'>&lt;-</span> <span class='va'>DeepLift</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>converter</span>, <span class='va'>iris</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>3</span>, <span class='fl'>4</span><span class='op'>)</span><span class='op'>]</span>, x_ref <span class='op'>=</span> <span class='va'>x_ref</span><span class='op'>)</span></span>
-<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backwardpass 'DeepLift':</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backward pass 'DeepLift':</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=======================                                               |  33%  |                                                                              |===============================================                       |  67%  |                                                                              |======================================================================| 100%</span>
 <span class='r-in'></span>
-<span class='r-in'><span class='co'># Get the result as a dataframe</span></span>
-<span class='r-in'><span class='va'>deeplift_rescale</span><span class='op'>$</span><span class='fu'>get_result</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>"data.frame"</span><span class='op'>)</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>         data      feature               class         value</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1     data_1 Petal.Length Species == "setosa"  5.786828e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2     data_2 Petal.Length Species == "setosa"  5.786828e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3     data_3 Petal.Length Species == "setosa"  5.975665e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4     data_4 Petal.Length Species == "setosa"  5.592952e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 5     data_5 Petal.Length Species == "setosa"  5.786828e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 6     data_6 Petal.Length Species == "setosa"  6.058068e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 7     data_7 Petal.Length Species == "setosa"  6.247999e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 8     data_8 Petal.Length Species == "setosa"  5.592952e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 9     data_9 Petal.Length Species == "setosa"  5.786828e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 10   data_10 Petal.Length Species == "setosa"  5.187864e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 11   data_11 Petal.Length Species == "setosa"  5.592952e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 12   data_12 Petal.Length Species == "setosa"  5.394083e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 13   data_13 Petal.Length Species == "setosa"  5.365065e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 14   data_14 Petal.Length Species == "setosa"  5.867732e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 15   data_15 Petal.Length Species == "setosa"  6.159433e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 16   data_16 Petal.Length Species == "setosa"  6.532457e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 17   data_17 Petal.Length Species == "setosa"  6.986089e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 18   data_18 Petal.Length Species == "setosa"  6.247999e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 19   data_19 Petal.Length Species == "setosa"  5.598973e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 20   data_20 Petal.Length Species == "setosa"  6.036686e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 21   data_21 Petal.Length Species == "setosa"  5.190277e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 22   data_22 Petal.Length Species == "setosa"  6.532457e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 23   data_23 Petal.Length Species == "setosa"  6.511707e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 24   data_24 Petal.Length Species == "setosa"  6.572961e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 25   data_25 Petal.Length Species == "setosa"  4.768115e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 26   data_26 Petal.Length Species == "setosa"  5.394083e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 27   data_27 Petal.Length Species == "setosa"  6.297836e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 28   data_28 Petal.Length Species == "setosa"  5.592952e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 29   data_29 Petal.Length Species == "setosa"  5.786828e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 30   data_30 Petal.Length Species == "setosa"  5.394083e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 31   data_31 Petal.Length Species == "setosa"  5.394083e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 32   data_32 Petal.Length Species == "setosa"  6.532457e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 33   data_33 Petal.Length Species == "setosa"  5.187864e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 34   data_34 Petal.Length Species == "setosa"  5.786828e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 35   data_35 Petal.Length Species == "setosa"  5.592952e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 36   data_36 Petal.Length Species == "setosa"  6.159433e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 37   data_37 Petal.Length Species == "setosa"  5.975665e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 38   data_38 Petal.Length Species == "setosa"  5.365065e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 39   data_39 Petal.Length Species == "setosa"  5.975665e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 40   data_40 Petal.Length Species == "setosa"  5.592952e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 41   data_41 Petal.Length Species == "setosa"  6.454197e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 42   data_42 Petal.Length Species == "setosa"  6.454197e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 43   data_43 Petal.Length Species == "setosa"  5.975665e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 44   data_44 Petal.Length Species == "setosa"  7.372791e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 45   data_45 Petal.Length Species == "setosa"  5.563210e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 46   data_46 Petal.Length Species == "setosa"  6.247999e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 47   data_47 Petal.Length Species == "setosa"  5.394083e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 48   data_48 Petal.Length Species == "setosa"  5.786828e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 49   data_49 Petal.Length Species == "setosa"  5.592952e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 50   data_50 Petal.Length Species == "setosa"  5.786828e-01</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 51   data_51 Petal.Length Species == "setosa"  1.161246e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 52   data_52 Petal.Length Species == "setosa"  9.041270e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 53   data_53 Petal.Length Species == "setosa"  1.259371e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 54   data_54 Petal.Length Species == "setosa"  3.691216e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 55   data_55 Petal.Length Species == "setosa"  1.000305e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 56   data_56 Petal.Length Species == "setosa"  1.001322e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 57   data_57 Petal.Length Species == "setosa"  1.015581e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 58   data_58 Petal.Length Species == "setosa"  1.249630e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 59   data_59 Petal.Length Species == "setosa"  1.109051e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 60   data_60 Petal.Length Species == "setosa"  2.152685e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 61   data_61 Petal.Length Species == "setosa" -1.306985e-05</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 62   data_62 Petal.Length Species == "setosa"  5.820504e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 63   data_63 Petal.Length Species == "setosa"  1.340316e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 64   data_64 Petal.Length Species == "setosa"  1.161246e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 65   data_65 Petal.Length Species == "setosa" -2.659187e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 66   data_66 Petal.Length Species == "setosa"  8.539401e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 67   data_67 Petal.Length Species == "setosa"  9.041270e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 68   data_68 Petal.Length Species == "setosa"  2.111363e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 69   data_69 Petal.Length Species == "setosa"  9.041270e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 70   data_70 Petal.Length Species == "setosa"  1.766774e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 71   data_71 Petal.Length Species == "setosa"  9.416455e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 72   data_72 Petal.Length Species == "setosa"  3.691216e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 73   data_73 Petal.Length Species == "setosa"  1.259371e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 74   data_74 Petal.Length Species == "setosa"  1.213697e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 75   data_75 Petal.Length Species == "setosa"  7.680223e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 76   data_76 Petal.Length Species == "setosa"  8.539401e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 77   data_77 Petal.Length Species == "setosa"  1.252925e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 78   data_78 Petal.Length Species == "setosa"  1.157438e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 79   data_79 Petal.Length Species == "setosa"  9.041270e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 80   data_80 Petal.Length Species == "setosa" -1.306985e-05</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 81   data_81 Petal.Length Species == "setosa"  5.213276e-05</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 82   data_82 Petal.Length Species == "setosa" -1.715038e-05</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 83   data_83 Petal.Length Species == "setosa"  2.148229e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 84   data_84 Petal.Length Species == "setosa"  1.315382e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 85   data_85 Petal.Length Species == "setosa"  9.041270e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 86   data_86 Petal.Length Species == "setosa"  8.404162e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 87   data_87 Petal.Length Species == "setosa"  1.091375e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 88   data_88 Petal.Length Species == "setosa"  8.877307e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 89   data_89 Petal.Length Species == "setosa"  5.089723e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 90   data_90 Petal.Length Species == "setosa"  3.691216e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 91   data_91 Petal.Length Species == "setosa"  8.800988e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 92   data_92 Petal.Length Species == "setosa"  1.064404e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 93   data_93 Petal.Length Species == "setosa"  3.591168e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 94   data_94 Petal.Length Species == "setosa"  1.249630e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 95   data_95 Petal.Length Species == "setosa"  6.418366e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 96   data_96 Petal.Length Species == "setosa"  6.308465e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 97   data_97 Petal.Length Species == "setosa"  6.418366e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 98   data_98 Petal.Length Species == "setosa"  7.680223e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 99   data_99 Petal.Length Species == "setosa" -7.764744e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 100 data_100 Petal.Length Species == "setosa"  5.089723e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 101 data_101 Petal.Length Species == "setosa"  1.051110e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 102 data_102 Petal.Length Species == "setosa"  1.055910e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 103 data_103 Petal.Length Species == "setosa"  1.272806e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 104 data_104 Petal.Length Species == "setosa"  1.405127e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 105 data_105 Petal.Length Species == "setosa"  1.161981e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 106 data_106 Petal.Length Species == "setosa"  1.509406e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 107 data_107 Petal.Length Species == "setosa"  7.772498e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 108 data_108 Petal.Length Species == "setosa"  1.694404e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 109 data_109 Petal.Length Species == "setosa"  1.496989e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 110 data_110 Petal.Length Species == "setosa"  1.083239e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 111 data_111 Petal.Length Species == "setosa"  9.833663e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 112 data_112 Petal.Length Species == "setosa"  1.165249e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 113 data_113 Petal.Length Species == "setosa"  1.108628e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 114 data_114 Petal.Length Species == "setosa"  9.280673e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 115 data_115 Petal.Length Species == "setosa"  7.585587e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 116 data_116 Petal.Length Species == "setosa"  8.962807e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 117 data_117 Petal.Length Species == "setosa"  1.356058e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 118 data_118 Petal.Length Species == "setosa"  1.459089e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 119 data_119 Petal.Length Species == "setosa"  1.440558e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 120 data_120 Petal.Length Species == "setosa"  1.336797e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 121 data_121 Petal.Length Species == "setosa"  1.059276e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 122 data_122 Petal.Length Species == "setosa"  8.704212e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 123 data_123 Petal.Length Species == "setosa"  1.626051e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 124 data_124 Petal.Length Species == "setosa"  1.009433e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 125 data_125 Petal.Length Species == "setosa"  1.193726e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 126 data_126 Petal.Length Species == "setosa"  1.581113e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 127 data_127 Petal.Length Species == "setosa"  9.416455e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 128 data_128 Petal.Length Species == "setosa"  1.009433e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 129 data_129 Petal.Length Species == "setosa"  1.151977e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 130 data_130 Petal.Length Species == "setosa"  1.712118e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 131 data_131 Petal.Length Species == "setosa"  1.520735e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 132 data_132 Petal.Length Species == "setosa"  1.533128e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 133 data_133 Petal.Length Species == "setosa"  1.082923e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 134 data_134 Petal.Length Species == "setosa"  1.410090e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 135 data_135 Petal.Length Species == "setosa"  1.829657e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 136 data_136 Petal.Length Species == "setosa"  1.202366e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 137 data_137 Petal.Length Species == "setosa"  9.641047e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 138 data_138 Petal.Length Species == "setosa"  1.356058e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 139 data_139 Petal.Length Species == "setosa"  9.416455e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 140 data_140 Petal.Length Species == "setosa"  1.063626e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 141 data_141 Petal.Length Species == "setosa"  9.641047e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 142 data_142 Petal.Length Species == "setosa"  8.061634e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 143 data_143 Petal.Length Species == "setosa"  1.055910e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 144 data_144 Petal.Length Species == "setosa"  1.133095e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 145 data_145 Petal.Length Species == "setosa"  9.490352e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 146 data_146 Petal.Length Species == "setosa"  8.520021e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 147 data_147 Petal.Length Species == "setosa"  9.975224e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 148 data_148 Petal.Length Species == "setosa"  1.036409e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 149 data_149 Petal.Length Species == "setosa"  9.390843e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 150 data_150 Petal.Length Species == "setosa"  1.135804e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 151   data_1  Petal.Width Species == "setosa"  2.073211e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 152   data_2  Petal.Width Species == "setosa"  2.073211e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 153   data_3  Petal.Width Species == "setosa"  2.053850e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 154   data_4  Petal.Width Species == "setosa"  2.092731e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 155   data_5  Petal.Width Species == "setosa"  2.073211e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 156   data_6  Petal.Width Species == "setosa"  2.021892e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 157   data_7  Petal.Width Species == "setosa"  2.024285e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 158   data_8  Petal.Width Species == "setosa"  2.092731e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 159   data_9  Petal.Width Species == "setosa"  2.073211e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 160  data_10  Petal.Width Species == "setosa"  2.130347e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 161  data_11  Petal.Width Species == "setosa"  2.092731e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 162  data_12  Petal.Width Species == "setosa"  2.112408e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 163  data_13  Petal.Width Species == "setosa"  2.110967e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 164  data_14  Petal.Width Species == "setosa"  2.053809e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 165  data_15  Petal.Width Species == "setosa"  2.034650e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 166  data_16  Petal.Width Species == "setosa"  1.981727e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 167  data_17  Petal.Width Species == "setosa"  1.942290e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 168  data_18  Petal.Width Species == "setosa"  2.024285e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 169  data_19  Petal.Width Species == "setosa"  2.083892e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 170  data_20  Petal.Width Species == "setosa"  2.043976e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 171  data_21  Petal.Width Species == "setosa"  2.132242e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 172  data_22  Petal.Width Species == "setosa"  1.981727e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 173  data_23  Petal.Width Species == "setosa"  1.996754e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 174  data_24  Petal.Width Species == "setosa"  1.938691e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 175  data_25  Petal.Width Species == "setosa"  2.172375e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 176  data_26  Petal.Width Species == "setosa"  2.112408e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 177  data_27  Petal.Width Species == "setosa"  2.001720e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 178  data_28  Petal.Width Species == "setosa"  2.092731e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 179  data_29  Petal.Width Species == "setosa"  2.073211e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 180  data_30  Petal.Width Species == "setosa"  2.112408e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 181  data_31  Petal.Width Species == "setosa"  2.112408e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 182  data_32  Petal.Width Species == "setosa"  1.981727e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 183  data_33  Petal.Width Species == "setosa"  2.130347e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 184  data_34  Petal.Width Species == "setosa"  2.073211e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 185  data_35  Petal.Width Species == "setosa"  2.092731e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 186  data_36  Petal.Width Species == "setosa"  2.034650e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 187  data_37  Petal.Width Species == "setosa"  2.053850e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 188  data_38  Petal.Width Species == "setosa"  2.110967e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 189  data_39  Petal.Width Species == "setosa"  2.053850e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 190  data_40  Petal.Width Species == "setosa"  2.092731e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 191  data_41  Petal.Width Species == "setosa"  2.004773e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 192  data_42  Petal.Width Species == "setosa"  2.004773e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 193  data_43  Petal.Width Species == "setosa"  2.053850e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 194  data_44  Petal.Width Species == "setosa"  1.791671e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 195  data_45  Petal.Width Species == "setosa"  2.062749e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 196  data_46  Petal.Width Species == "setosa"  2.024285e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 197  data_47  Petal.Width Species == "setosa"  2.112408e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 198  data_48  Petal.Width Species == "setosa"  2.073211e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 199  data_49  Petal.Width Species == "setosa"  2.092731e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 200  data_50  Petal.Width Species == "setosa"  2.073211e+00</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 201  data_51  Petal.Width Species == "setosa"  6.194896e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 202  data_52  Petal.Width Species == "setosa"  1.013875e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 203  data_53  Petal.Width Species == "setosa"  9.191023e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 204  data_54  Petal.Width Species == "setosa"  2.869900e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 205  data_55  Petal.Width Species == "setosa"  9.891046e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 206  data_56  Petal.Width Species == "setosa"  2.749705e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 207  data_57  Petal.Width Species == "setosa"  1.272019e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 208  data_58  Petal.Width Species == "setosa"  4.176986e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 209  data_59  Petal.Width Species == "setosa"  2.717855e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 210  data_60  Petal.Width Species == "setosa"  7.333642e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 211  data_61  Petal.Width Species == "setosa"  3.376136e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 212  data_62  Petal.Width Species == "setosa"  1.092873e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 213  data_63  Petal.Width Species == "setosa"  1.981329e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 214  data_64  Petal.Width Species == "setosa"  6.194896e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 215  data_65  Petal.Width Species == "setosa"  2.888624e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 216  data_66  Petal.Width Species == "setosa"  6.606985e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 217  data_67  Petal.Width Species == "setosa"  1.013875e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 218  data_68  Petal.Width Species == "setosa"  1.778730e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 219  data_69  Petal.Width Species == "setosa"  1.013875e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 220  data_70  Petal.Width Species == "setosa"  2.765463e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 221  data_71  Petal.Width Species == "setosa"  1.704874e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 222  data_72  Petal.Width Species == "setosa"  2.869900e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 223  data_73  Petal.Width Species == "setosa"  9.191023e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 224  data_74  Petal.Width Species == "setosa"  1.124834e-06</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 225  data_75  Petal.Width Species == "setosa"  2.807076e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 226  data_76  Petal.Width Species == "setosa"  6.606985e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 227  data_77  Petal.Width Species == "setosa"  6.062557e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 228  data_78  Petal.Width Species == "setosa"  1.421958e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 229  data_79  Petal.Width Species == "setosa"  1.013875e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 230  data_80  Petal.Width Species == "setosa"  3.376136e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 231  data_81  Petal.Width Species == "setosa"  3.230721e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 232  data_82  Petal.Width Species == "setosa"  2.729709e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 233  data_83  Petal.Width Species == "setosa"  7.073054e-07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 234  data_84  Petal.Width Species == "setosa"  1.151332e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 235  data_85  Petal.Width Species == "setosa"  1.013875e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 236  data_86  Petal.Width Species == "setosa"  1.338896e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 237  data_87  Petal.Width Species == "setosa"  9.650306e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 238  data_88  Petal.Width Species == "setosa"  2.779381e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 239  data_89  Petal.Width Species == "setosa"  2.852471e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 240  data_90  Petal.Width Species == "setosa"  2.869900e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 241  data_91  Petal.Width Species == "setosa"  1.022573e-06</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 242  data_92  Petal.Width Species == "setosa"  6.330112e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 243  data_93  Petal.Width Species == "setosa"  7.870245e-07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 244  data_94  Petal.Width Species == "setosa"  4.176986e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 245  data_95  Petal.Width Species == "setosa"  2.831322e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 246  data_96  Petal.Width Species == "setosa"  9.219341e-07</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 247  data_97  Petal.Width Species == "setosa"  2.831322e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 248  data_98  Petal.Width Species == "setosa"  2.807076e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 249  data_99  Petal.Width Species == "setosa"  9.339002e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 250 data_100  Petal.Width Species == "setosa"  2.852471e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 251 data_101  Petal.Width Species == "setosa"  1.994599e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 252 data_102  Petal.Width Species == "setosa"  1.752483e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 253 data_103  Petal.Width Species == "setosa"  1.711161e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 254 data_104  Petal.Width Species == "setosa"  1.415082e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 255 data_105  Petal.Width Species == "setosa"  1.839434e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 256 data_106  Petal.Width Species == "setosa"  1.506972e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 257 data_107  Petal.Width Species == "setosa"  1.612175e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 258 data_108  Petal.Width Species == "setosa"  1.218472e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 259 data_109  Petal.Width Species == "setosa"  1.354217e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 260 data_110  Petal.Width Species == "setosa"  1.964110e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 261 data_111  Petal.Width Species == "setosa"  1.890306e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 262 data_112  Petal.Width Species == "setosa"  1.675584e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 263 data_113  Petal.Width Species == "setosa"  1.848858e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 264 data_114  Petal.Width Species == "setosa"  1.932059e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 265 data_115  Petal.Width Species == "setosa"  2.250489e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 266 data_116  Petal.Width Species == "setosa"  2.102172e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 267 data_117  Petal.Width Species == "setosa"  1.447127e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 268 data_118  Petal.Width Species == "setosa"  1.573753e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 269 data_119  Petal.Width Species == "setosa"  1.605573e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 270 data_120  Petal.Width Species == "setosa"  8.971838e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 271 data_121  Petal.Width Species == "setosa"  1.956140e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 272 data_122  Petal.Width Species == "setosa"  1.975258e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 273 data_123  Petal.Width Species == "setosa"  1.376642e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 274 data_124  Petal.Width Species == "setosa"  1.664093e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 275 data_125  Petal.Width Species == "setosa"  1.777867e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 276 data_126  Petal.Width Species == "setosa"  1.297262e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 277 data_127  Petal.Width Species == "setosa"  1.704874e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 278 data_128  Petal.Width Species == "setosa"  1.664093e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 279 data_129  Petal.Width Species == "setosa"  1.812837e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 280 data_130  Petal.Width Species == "setosa"  9.756823e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 281 data_131  Petal.Width Species == "setosa"  1.414636e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 282 data_132  Petal.Width Species == "setosa"  1.454500e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 283 data_133  Petal.Width Species == "setosa"  1.908587e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 284 data_134  Petal.Width Species == "setosa"  8.758424e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 285 data_135  Petal.Width Species == "setosa"  5.100123e-04</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 286 data_136  Petal.Width Species == "setosa"  1.826147e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 287 data_137  Petal.Width Species == "setosa"  2.062536e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 288 data_138  Petal.Width Species == "setosa"  1.447127e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 289 data_139  Petal.Width Species == "setosa"  1.704874e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 290 data_140  Petal.Width Species == "setosa"  1.886034e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 291 data_141  Petal.Width Species == "setosa"  2.062536e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 292 data_142  Petal.Width Species == "setosa"  2.181996e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 293 data_143  Petal.Width Species == "setosa"  1.752483e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 294 data_144  Petal.Width Species == "setosa"  1.889268e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 295 data_145  Petal.Width Species == "setosa"  2.091033e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 296 data_146  Petal.Width Species == "setosa"  2.141508e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 297 data_147  Petal.Width Species == "setosa"  1.792882e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 298 data_148  Petal.Width Species == "setosa"  1.849872e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 299 data_149  Petal.Width Species == "setosa"  2.064008e-03</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 300 data_150  Petal.Width Species == "setosa"  1.586693e-03</span>
+<span class='r-in'><span class='co'># Get the result as a dataframe and show first 5 rows</span></span>
+<span class='r-in'><span class='va'>deeplift_rescale</span><span class='op'>$</span><span class='fu'>get_result</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>"data.frame"</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span>, <span class='op'>]</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     data      feature               class     value</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 1 data_1 Petal.Length Species == "setosa" 0.5786828</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 2 data_2 Petal.Length Species == "setosa" 0.5786828</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 3 data_3 Petal.Length Species == "setosa" 0.5975665</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 4 data_4 Petal.Length Species == "setosa" 0.5592952</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 5 data_5 Petal.Length Species == "setosa" 0.5786828</span>
 <span class='r-in'></span>
 <span class='r-in'><span class='co'># Plot the result for the first datapoint in the data</span></span>
 <span class='r-in'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>deeplift_rescale</span>, data_idx <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span></span>
@@ -831,7 +521,7 @@ be used. A too high number can significantly increase the runtime.</p></dd>
 <span class='r-in'>  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://plotly-r.com'>plotly</a></span><span class='op'>)</span></span>
 <span class='r-in'>  <span class='fu'><a href='https://rdrr.io/r/graphics/boxplot.html'>boxplot</a></span><span class='op'>(</span><span class='va'>deeplift_revcancel</span>, as_plotly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
 <span class='r-in'><span class='op'>}</span></span>
-<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backwardpass 'DeepLift':</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backward pass 'DeepLift':</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |==========                                                            |  14%  |                                                                              |====================                                                  |  29%  |                                                                              |==============================                                        |  43%  |                                                                              |========================================                              |  57%  |                                                                              |==================================================                    |  71%  |                                                                              |============================================================          |  86%  |                                                                              |======================================================================| 100%</span>
 <span class='r-in'></span>
 <span class='r-in'><span class='co'># ------------------------- Advanced: Plotly -------------------------------</span></span>
@@ -852,7 +542,7 @@ be used. A too high number can significantly increase the runtime.</p></dd>
 <span class='r-in'></span>
 <span class='r-in'><span class='co'># create new instance of 'DeepLift'</span></span>
 <span class='r-in'><span class='va'>deeplift</span> <span class='op'>&lt;-</span> <span class='va'>DeepLift</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>converter</span>, <span class='va'>iris</span><span class='op'>[</span>, <span class='op'>-</span><span class='fl'>5</span><span class='op'>]</span><span class='op'>)</span></span>
-<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backwardpass 'DeepLift':</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Backward pass 'DeepLift':</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=======================                                               |  33%  |                                                                              |===============================================                       |  67%  |                                                                              |======================================================================| 100%</span>
 <span class='r-in'></span>
 <span class='r-in'><span class='co'># Get the ggplot and add your changes</span></span>
