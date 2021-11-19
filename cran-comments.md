@@ -1,13 +1,13 @@
-## Test environments
+## Test environments with LibTorch
 * GitHub Actions (ubuntu-18.04): 3.5, 3.6, 4.0, release, devel
 * GitHub Actions (windows): 3.6, release
 * Github Actions (macOS): release
 
 ## R CMD check results
 
-There was no errors or notes and the following warning occurred only on the
+There were no errors or notes and the following warning occurred only on the
 operating system Windows (see 
-[release](https://github.com/bips-hb/innsight/runs/4253363447?check_suite_focus=true#step:12:44) and [latest](https://github.com/bips-hb/innsight/runs/4253363511?check_suite_focus=true#step:12:44)):
+[release](https://github.com/bips-hb/innsight/runs/4264825567?check_suite_focus=true#step:12:44) and [3.6](https://github.com/bips-hb/innsight/runs/4264825610?check_suite_focus=true#step:12:44)):
 
 ```
 Warning: Found the following significant warnings:
@@ -27,3 +27,13 @@ LibTorch. In this regard, we have followed the recommendations of the authors
 of torch (see torch 
 [issue #651](https://github.com/mlverse/torch/issues/651#issuecomment-896783144))
 and disabled their execution on CRAN.
+
+## Test environments without LibTorch
+- R-hub windows-x86_64-devel (r-devel)
+- R-hub ubuntu-gcc-release (r-release)
+- R-hub fedora-clang-devel (r-devel)
+
+## R CMD check results
+
+There were no errors or warnings only one note: New submission and 
+irrelevant misspellings in names in DESCRIPTION.
