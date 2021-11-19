@@ -41,7 +41,7 @@ An object of the Converter class can be applied to the
 following methods:
 \itemize{
 \item Layerwise Relevance Propagation (\link{LRP}), Bach et al. (2015)
-\item Deep Learning Important Feartures (\link{DeepLift}), Shrikumar et al. (2017)
+\item Deep Learning Important Features (\link{DeepLift}), Shrikumar et al. (2017)
 \item \link{SmoothGrad} including 'SmoothGrad x Input', Smilkov et al. (2017)
 \item Vanilla \link{Gradient} including 'Gradient x Input'
 \item \link{ConnectionWeights}, Olden et al. (2004)

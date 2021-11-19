@@ -36,7 +36,7 @@
 #' An object of the Converter class can be applied to the
 #' following methods:
 #'   * Layerwise Relevance Propagation ([LRP]), Bach et al. (2015)
-#'   * Deep Learning Important Feartures ([DeepLift]), Shrikumar et al. (2017)
+#'   * Deep Learning Important Features ([DeepLift]), Shrikumar et al. (2017)
 #'   * [SmoothGrad] including 'SmoothGrad x Input', Smilkov et al. (2017)
 #'   * Vanilla [Gradient] including 'Gradient x Input'
 #'   * [ConnectionWeights], Olden et al. (2004)

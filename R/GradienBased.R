@@ -385,7 +385,7 @@ Gradient <- R6Class(
   public = list(
 
     #' @description
-    #' Create a new instance of the Vamilla Gradient method.
+    #' Create a new instance of the Vanilla Gradient method.
     #'
     #' @param converter An instance of the R6 class \code{\link{Converter}}.
     #' @param data The data for which the gradients are to be

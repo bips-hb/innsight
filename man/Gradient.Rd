@@ -173,7 +173,7 @@ plotly::ggplotly(p, tooltip = "text")
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
-Create a new instance of the Vamilla Gradient method.
+Create a new instance of the Vanilla Gradient method.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Gradient$new(
   converter,
