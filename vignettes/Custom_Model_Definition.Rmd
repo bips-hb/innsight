@@ -1,0 +1,312 @@
+---
+title: "Custom Model Definition"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 3
+vignette: >
+  %\VignetteIndexEntry{Custom Model Definition}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Besides models from the packages `keras`, `torch` and `neuralnet` it is also 
+possible to pass a self defined model in form of a named list to the converter
+class. This enables the interpretation of networks from other packages with 
+all available methods provided by the `innsight` package.
+
+## General Information
+If you want to create a custom model, your list (e.g. `model <- list()`) 
+needs at least the keys `model$input_dim` and `model$layers`. However, 
+there are other optional keys that can be used to name the input features and
+output nodes or to test the model for correctness. In summary:
+
+* **`$input_dim`**  
+An integer vector with the model input dimension without the batch axis, 
+e.g. for a dense layer with 5 input features use `c(5)` or for a 
+1D-convolutional layer with signal length 50 and 4 channels use `c(4,50)`.
+
+* **`$input_names`** (optional)  
+A list with the names for each input dimension excluding the batch axis, 
+e.g. for a dense layer with 3 input features use `list(c("X1", "X2", "X3"))` 
+or for a 1D-convolutional layer with signal length 5 and 2 channels use
+`list(c("C1", "C2"), c("L1","L2","L3","L4","L5"))`. By default (`NULL`),
+the names are generated.
+
+* **`$output_dim`** (optional)  
+An integer vector with the model output dimension analogous to `$input_dim`.
+This value does not need to be specified and will be calculated otherwise. 
+However, if it is set, the calculated value will be compared with it to 
+avoid errors during converting the model.
+
+* **`$output_names`** (optional)  
+A list with the names for each output dimension analogous to `$input_names`.
+By default (`NULL`), the names are generated.
+
+* **`$layers`**  
+(see next section)
+
+**Example:**
+```{r, eval = FALSE}
+model <- list()
+model$input_dim <- c(4)
+model$input_names <- list(c("Feat1", "Feat2", "Feat3", "Feat4")) # optional
+model$output_dim <- c(2) # optional
+model$output_names <- list(c("Out1", "Out2")) # optional
+model$layers <- list() # see next section 
+```
+
+## Adding Layers
+The component `$layers` is again a list that describes each individual layer
+of the model as another list in correct order. Additionally, depending on the
+layer type, other keys are required to create a well-defined model. Currently,
+the following layers are accepted:
+
+### Dense Layer
+* **`$type`**: `'Dense'`
+
+* **`$weight`**: The weight matrix of the dense layer with shape
+(`dim_out`, `dim_in`).
+
+* **`$bias`**: The bias vector of the dense layer with length `dim_out`.
+
+* **`activation_name`**: The name of the activation function for this
+dense layer, e.g. `'relu'`, `'tanh'` or `'softmax'`.
+
+* **`dim_in`** (optional): The input dimension of this layer excluding the
+batch axis e.g. for 3 input features use `c(3)`. This value is not necessary,
+but helpful to check the format of the weight matrix and the overall 
+correctness of the converted model.
+
+* **`dim_out`** (optional): The output dimension of this layer excluding the
+batch axis. This value is not necessary, but helpful to check the format of 
+the weight matrix and the overall correctness of the converted model.
+
+**Example:**
+```{r, eval = FALSE}
+# Define dense layer
+dense_layer <- list(
+  type = 'Dense',
+  weight = matrix(rnorm(5 * 2), 2, 5),
+  bias = rnorm(2),
+  activation_name = 'tanh',
+  dim_in = 5, # optional
+  dim_out = 2 # optional
+)
+
+# Adding layer to model
+model$layers$custom_dense <- dense_layer
+```
+
+### Convolutional Layers
+* **`$type`**: `'Conv1D'` or `'Conv2D'`
+
+* **`$weight`**: The weight array of the convolutional layer with shape 
+(`out_channels`, `in_channels`, `kernel_length`) for 1D or
+(`out_channels`, `in_channels`, `kernel_height`, `kernel_width`) for 2D.
+
+* **`$bias`**: The bias vector of the layer with length `out_channels`.
+
+* **`$activation_name`**: The name of the activation function for this
+layer, e.g. `'relu'`, `'tanh'` or `'softmax'`.
+
+* **`$dim_in`** (optional): The input dimension of this layer according
+to the format (`in_channels`, `in_length`) for 1D or
+(`in_channels`, `in_height`, `in_width`) for 2D. This value is not necessary,
+but helpful to check the format of the weight array and the overall 
+correctness of the converted model.
+
+* **`$dim_out`** (optional): The output dimension of this layer
+according to the format (`out_channels`, `out_length`) for 1D or
+(`out_channels`, `out_height`, `out_width`) for 2D. This value is not 
+necessary, but helpful to check the format of the weight array and the 
+overall correctness of the converted model.
+
+* **`$stride`** (optional): The stride of the convolution (single
+integer for 1D and tuple of two integers for 2D). If this value is not
+specified, the default values (1D: `1` and 2D: `c(1,1)`) are used.
+
+* **`$padding`** (optional): Zero-padding added to the sides of the
+input before convolution. For 1D-convolution a tuple of the form
+(`pad_left`, `pad_right`) and for 2D-convolution
+(`pad_left`, `pad_right`, `pad_top`, `pad_bottom`) is required. If this
+value is not specified, the default values (1D: `c(0,0)` and 2D:
+`c(0,0,0,0)`) are used.
+
+* **`$dilation`** (optional): Spacing between kernel elements (single
+integer for 1D and tuple of two integers for 2D). If this value is
+not specified, the default values (1D: `1` and 2D: `c(1,1)`) are used.
+
+**Examples:**  
+Create 1D-convolutional layer with: `'in_channels' = 3`, `'out_channels' = 8`,
+`'kernel_length' = 2`, `'activation_name' = 'tanh'` and default values for
+`'padding'`, `'stride'` and `'dilation'`:
+```{r, eval = FALSE}
+conv_1D <- list(
+      type = "Conv1D",
+      weight = array(rnorm(8*3*2), dim = c(8,3,2)), 
+      bias = rnorm(8),
+      activation_name = "tanh",
+      dim_in = c(3, 10), # optional
+      dim_out = c(8, 9) # optional
+    )
+# Adding layer to model
+model$layers$custom_conv1D <- conv_1D
+```
+
+Create 2D-convolutional layer with: `'in_channels' = 3`, `'out_channels' = 8`,
+`'kernel_height' = 2`, `'kernel_width' = 4`, `'activation_name' = 'relu'`,
+`'padding' = c(1,1,0,0)` and `'dilation' = c(1,2)`:
+```{r, eval = FALSE}
+conv_2D <- list(
+      type = "Conv2D",
+      weight = array(rnorm(8*3*2*4), dim = c(8,3,2,4)),
+      bias = rnorm(8),
+      padding = c(1,1,0,0),
+      dilation = c(1,2),
+      activation_name = "relu",
+      dim_in = c(3, 10, 10) # optional
+    )
+# Adding layer to model
+model$layers$custom_conv2D <- conv_2D
+```
+
+### Pooling Layers
+* **`$type`**: `'MaxPooling1D'`, `'MaxPooling2D'`, `'AveragePooling1D'`
+or `'AveragePooling2D'`
+
+* **`$kernel_size`**: The size of the pooling window as an integer
+value for 1D-pooling and an tuple of two integers for 2D-pooling.
+
+* **`$strides`** (optional): The stride of the pooling window (single
+integer for 1D and tuple of two integers for 2D). If this value is not
+specified (`NULL`), the value of `kernel_size` will be used.
+
+* **`dim_in`** (optional): The input dimension of this layer according
+to the format (`in_channels`, `in_length`) for 1D or
+(`in_channels`, `in_height`, `in_width`) for 2D. This value is not necessary,
+but helpful to check overall correctness of the converted model.
+
+* **`$dim_out`** (optional): The output dimension of this layer
+according to the format (`out_channels`, `out_length`) for 1D or
+(`out_channels`, `out_height`, `out_width`) for 2D. This value is not 
+necessary, but helpful to check overall correctness of the converted model.
+
+
+**Example:**
+Create 2D average pooling with kernel size `'c(2,2)'`:
+```{r, eval = FALSE}
+avg_pool2D <- list(
+  type = "AveragePooling2D",
+  kernel_size = c(2,2)
+  )
+# Adding layer to model
+model$layers$custom_avgpool2D <- avg_pool2D
+```
+
+
+### Flatten Layer
+* **`$type`**: `'Flatten'`
+
+* **`$dim_in`** (optional): The input dimension of this layer without the 
+batch dimension.
+
+* **`$dim_out`** (optional): The output dimension of this layer without
+the batch dimension.
+
+**Example:**
+```{r, eval = FALSE}
+flatten <- list(
+  type = "Flatten"
+  )
+# Adding layer to model
+model$layers$custom_flatten <- flatten
+```
+
+## Full Examples
+
+### Dense Network
+```{r, eval = torch::torch_is_installed()}
+library(innsight)
+
+model <- list()
+model$input_dim <- 5
+model$input_names <- list(c("Feat1", "Feat2", "Feat3", "Feat4", "Feat5"))
+model$output_dim <- 2
+model$output_names <- list(c("Cat", "no-Cat"))
+model$layers$Layer_1 <-
+  list(
+    type = "Dense",
+    weight = matrix(rnorm(5 * 20), 20, 5),
+    bias = rnorm(20),
+    activation_name = "tanh",
+    dim_in = 5L,
+    dim_out = 20L
+  )
+model$layers$Layer_2 <-
+  list(
+    type = "Dense",
+    weight = matrix(rnorm(20 * 2), 2, 20),
+    bias = rnorm(2),
+    activation_name = "softmax",
+    dim_in = 20L,
+    dim_out = 2L
+  )
+
+# Convert the model
+converter <- Converter$new(model)
+```
+
+### CNN for Images
+```{r, eval = torch::torch_is_installed()}
+library(innsight)
+
+model <- list()
+model$input_dim <- c(3, 30, 30)
+model$output_dim <- c(2)
+
+model$layers$Layer_1 <- list(
+  type = "Conv2D",
+  weight = array(rnorm(10*3*5*5), dim = c(10,3,5,5)),
+  bias = rnorm(10),
+  activation_name = "relu"
+)
+model$layers$Layer_2 <- list(
+  type = 'AveragePooling2D',
+  kernel_size = c(2,2),
+  dim_in = c(10, 26, 26) # optional
+)
+model$layers$Layer_3 <- list(
+  type = 'Conv2D',
+  weight = array(rnorm(8*10*4*4), dim = c(8,10,4,4)),
+  bias = rnorm(8),
+  activation_name = "relu",
+  padding = c(2,2,3,3),
+  dim_out = c(8, 16, 14) # optional
+)
+model$layers$Layer_4 <- list(
+  type = "AveragePooling2D",
+  kernel_size = c(2,2),
+  strides = c(2,3)
+)
+model$layers$Layer_5 <- list(
+  type = "Flatten",
+  dim_out = c(320) # optional
+)
+model$layers$Layer_6 <- list(
+  type = "Dense",
+  weight = array(rnorm(320*2), dim = c(2, 320)),
+  bias = rnorm(2),
+  activation_name = "softmax"
+)
+
+# Convert the model
+converter <- Converter$new(model)
+```
