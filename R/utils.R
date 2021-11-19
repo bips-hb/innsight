@@ -500,8 +500,8 @@ boxplot_3d_ggplot <- function(result, value_name) {
 
 boxplot_plotly <- function(result, aggr_channels, ref_datapoint, value_name) {
   if (!requireNamespace("plotly", quietly = FALSE)) {
-    stop("Please install the 'plotly' package if you want to create an
-         interactive plot.")
+    stop("Please install the 'plotly' package if you want to create an ",
+         "interactive plot.")
   }
 
   # Set the reference datapoint to "None" if ref_datapoint = NULL

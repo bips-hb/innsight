@@ -112,7 +112,7 @@ avg_pool1d_layer <- nn_module(
                                        stride = c(self$strides, 1),
                                        groups = channels)
 
-    lost_length <- self$input$shape[3] - input_grad$shape[3]
+    lost_length <- self$input_dim[2] - input_grad$shape[3]
     if (lost_length != 0) {
       input_grad <- nnf_pad(input_grad, c(0, 0, 0, lost_length))
     }
@@ -141,7 +141,8 @@ avg_pool2d_layer <- nn_module(
     output_dim = NULL,
     output = NULL,
     output_ref = NULL,
-    initialize = function(kernel_size, dim_in, dim_out, strides = NULL, dtype = "float") {
+    initialize = function(kernel_size, dim_in, dim_out, strides = NULL,
+                          dtype = "float") {
       self$kernel_size <- kernel_size
       self$input_dim <- dim_in
       self$output_dim <- dim_out
@@ -179,7 +180,8 @@ avg_pool2d_layer <- nn_module(
       output_ref
     },
 
-    get_input_relevances = function(rel_output, rule_name = "simple", rule_param = NULL) {
+    get_input_relevances = function(rel_output, rule_name = "simple",
+                                    rule_param = NULL) {
 
       # set default parameter
       if (is.null(rule_param)) {
@@ -241,8 +243,8 @@ avg_pool2d_layer <- nn_module(
                                          stride = c(self$strides, 1),
                                          groups = channels)
 
-      lost_height <- self$input$shape[3] - input_grad$shape[3]
-      lost_width <- self$input$shape[4] - input_grad$shape[4]
+      lost_height <- self$input_dim[2] - input_grad$shape[3]
+      lost_width <- self$input_dim[3] - input_grad$shape[4]
       if (lost_height != 0 | lost_width != 0) {
         input_grad <- nnf_pad(input_grad, c(0, 0, 0, lost_width, 0, lost_height))
       }
@@ -274,7 +276,8 @@ max_pool1d_layer <- nn_module(
   output_dim = NULL,
   output = NULL,
   output_ref = NULL,
-  initialize = function(kernel_size, dim_in, dim_out, strides = NULL, dtype = "float") {
+  initialize = function(kernel_size, dim_in, dim_out, strides = NULL,
+                        dtype = "float") {
     self$kernel_size <- kernel_size
     self$input_dim <- dim_in
     self$output_dim <- dim_out
@@ -312,7 +315,8 @@ max_pool1d_layer <- nn_module(
     output_ref
   },
 
-  get_input_relevances = function(rel_output, rule_name = "simple", rule_param = NULL) {
+  get_input_relevances = function(rel_output, rule_name = "simple",
+                                  rule_param = NULL) {
 
     # set default parameter
     if (is.null(rule_param)) {
@@ -375,7 +379,7 @@ max_pool1d_layer <- nn_module(
                                       stride = c(self$strides, 1),
                                       groups = channels)
 
-    lost_length <- self$input$shape[3] - input_grad$shape[3]
+    lost_length <- self$input_dim[2] - input_grad$shape[3]
     if (lost_length != 0) {
       input_grad <- nnf_pad(input_grad, c(0, 0, 0, lost_length))
     }
@@ -404,7 +408,8 @@ max_pool2d_layer <- nn_module(
   output_dim = NULL,
   output = NULL,
   output_ref = NULL,
-  initialize = function(kernel_size, dim_in, dim_out, strides = NULL, dtype = "float") {
+  initialize = function(kernel_size, dim_in, dim_out, strides = NULL,
+                        dtype = "float") {
     self$kernel_size <- kernel_size
     self$input_dim <- dim_in
     self$output_dim <- dim_out
@@ -443,7 +448,8 @@ max_pool2d_layer <- nn_module(
   },
 
 
-  get_input_relevances = function(rel_output, rule_name = "simple", rule_param = NULL) {
+  get_input_relevances = function(rel_output, rule_name = "simple",
+                                  rule_param = NULL) {
 
     # set default parameter
     if (is.null(rule_param)) {
@@ -506,8 +512,8 @@ max_pool2d_layer <- nn_module(
                                        stride = c(self$strides, 1),
                                        groups = channels)
 
-    lost_height <- self$input$shape[3] - input_grad$shape[3]
-    lost_width <- self$input$shape[4] - input_grad$shape[4]
+    lost_height <- self$input_dim[2] - input_grad$shape[3]
+    lost_width <- self$input_dim[3] - input_grad$shape[4]
     if (lost_height != 0 | lost_width != 0) {
       input_grad <- nnf_pad(input_grad, c(0, 0, 0, lost_width, 0, lost_height))
     }

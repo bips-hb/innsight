@@ -263,8 +263,8 @@ boxplot.GradientBased <- function(x, ...) {
 #' # Calculate the Gradients
 #' grad <- Gradient$new(converter, data)
 #'
-#' # Print the result as a data.frame
-#' grad$get_result("data.frame")
+#' # Print the result as a data.frame for first 5 rows
+#' grad$get_result("data.frame")[1:5,]
 #'
 #' # Plot the result for both classes
 #' plot(grad, output_idx = 1:2)
@@ -421,7 +421,7 @@ Gradient <- R6Class(
   ),
   private = list(
     run = function() {
-      message("Backwardpass 'Gradient':")
+      message("Backward pass 'Gradient':")
       gradients <- private$calculate_gradients(self$data)
 
       if (self$times_input) {
@@ -467,8 +467,8 @@ Gradient <- R6Class(
 #' # Calculate the smoothed Gradients
 #' smoothgrad <- SmoothGrad$new(converter, data)
 #'
-#' # Print the result as a data.frame
-#' smoothgrad$get_result("data.frame")
+#' # Print the result as a data.frame for first 5 rows
+#' smoothgrad$get_result("data.frame")[1:5, ]
 #'
 #' # Plot the result for both classes
 #' plot(smoothgrad, output_idx = 1:2)
@@ -653,7 +653,7 @@ SmoothGrad <- R6Class(
 
       noise <- torch_randn_like(data) * noise_scale
 
-      message("Backwardpass 'SmoothGrad':")
+      message("Backward pass 'SmoothGrad':")
       gradients <- private$calculate_gradients(data + noise)
 
       smoothgrads <-

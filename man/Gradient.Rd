@@ -36,8 +36,8 @@ converter <- Converter$new(model,
 # Calculate the Gradients
 grad <- Gradient$new(converter, data)
 
-# Print the result as a data.frame
-grad$get_result("data.frame")
+# Print the result as a data.frame for first 5 rows
+grad$get_result("data.frame")[1:5,]
 
 # Plot the result for both classes
 plot(grad, output_idx = 1:2)

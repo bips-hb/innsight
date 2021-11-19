@@ -217,8 +217,8 @@ if (is_keras_available()) {
     layer_dense(units = 64, activation = "relu") \%>\%
     layer_dense(units = 1, activation = "sigmoid")
 
-  # Convert this model
-  converter <- Converter$new(model)
+  # Convert this model and save model as list
+  converter <- Converter$new(model, save_model_as_list = TRUE)
 
   # Print the converted model as a named list
   str(converter$model_dict)

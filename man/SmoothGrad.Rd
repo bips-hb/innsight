@@ -30,8 +30,8 @@ converter <- Converter$new(model, input_dim = c(5))
 # Calculate the smoothed Gradients
 smoothgrad <- SmoothGrad$new(converter, data)
 
-# Print the result as a data.frame
-smoothgrad$get_result("data.frame")
+# Print the result as a data.frame for first 5 rows
+smoothgrad$get_result("data.frame")[1:5, ]
 
 # Plot the result for both classes
 plot(smoothgrad, output_idx = 1:2)

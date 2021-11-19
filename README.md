@@ -4,6 +4,8 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/bips-hb/innsight/workflows/R-CMD-check/badge.svg)](https://github.com/bips-hb/innsight/actions)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/innsight)](https://CRAN.R-project.org/package=innsight)
 <!-- badges: end -->
 
 `innsight` is an R package that interprets the behavior and explains
@@ -62,7 +64,9 @@ accepted:
     `layer_dropout`, `layer_flatten`
 
 But it is also possible to pass an arbitrary net in form of a named list
-(see vignette for details).
+(see
+[vignette](https://bips-hb.github.io/innsight/articles/Custom_Model_Definition.html)
+for details).
 
 ## Installation
 
