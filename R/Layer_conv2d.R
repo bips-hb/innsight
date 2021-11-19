@@ -545,8 +545,8 @@ conv2d_layer <- nn_module(
       self$W <- self$W$to(torch_double())
       self$b <- self$b$to(torch_double())
     } else {
-      stop(sprintf("Unknown argument for 'dtype' : %s .
-                   Use 'float' or 'double' instead", dtype))
+      stop("Unknown argument for 'dtype' : '", dtype, "'. ",
+           "Use 'float' or 'double' instead!")
     }
     self$dtype <- dtype
   }

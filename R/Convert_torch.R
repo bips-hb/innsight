@@ -129,7 +129,7 @@ convert_torch_sequential <- function(model) {
       )
       num <- num + 1
     } else if ("nn_dropout" %in% classes) {
-      message("Skipping Dropout-Layer...")
+      message("Skipping nn_dropout ...")
     } else if ("nn_relu" %in% classes) {
       model_dict$layers[[num - 1]]$activation_name <- "relu"
     } else if ("nn_leaky_relu" %in% classes) {
@@ -143,7 +143,8 @@ convert_torch_sequential <- function(model) {
     } else if ("nn_tanh" %in% classes) {
       model_dict$layers[[num - 1]]$activation_name <- "tanh"
     } else {
-      stop(sprintf("Unknown module of class '%s'!", classes[1]))
+      stop(sprintf("Unknown module of classes: '%s'!",
+                   paste(classes, collapse = "', '")))
     }
   }
 

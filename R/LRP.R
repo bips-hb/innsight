@@ -398,7 +398,7 @@ LRP <- R6Class(
 
       rel <- rel[,,self$output_idx, drop = FALSE]
 
-      message("Backwardpass 'LRP':")
+      message("Backward pass 'LRP':")
       # Define Progressbar
       pb <- txtProgressBar(min = 0, max = length(rev_layers), style = 3)
       i <- 0

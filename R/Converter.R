@@ -341,18 +341,17 @@ Converter <- R6Class("Converter",
       } else if (inherits(model, "nn_module") && is_nn_module(model)) {
         if (inherits(model, "nn_sequential")) {
           if (!testNumeric(input_dim, lower = 1)) {
-            stop("For a 'torch' model you have to specify the argument 'input_dim'!")
+            stop("For a 'torch' model, you have to specify the argument ",
+                 "'input_dim'!")
           }
           model_dict <- convert_torch_sequential(model)
           model_dict$input_dim <- input_dim
         } else {
-          stop("At the moment only sequential models are allowed!")
+          stop("At the moment, only sequential models are allowed!")
         }
       } else {
-        stop(sprintf(
-          "Unknown model of class \"%s\".",
-          paste0(class(model), collapse = "\", \"")
-        ))
+        stop(sprintf("Unknown module of classes: '%s'!",
+                     paste(class(model), collapse = "', '")))
       }
 
       if (!is.null(input_names)) {
@@ -514,8 +513,8 @@ Converter <- R6Class("Converter",
             stop(paste0(
               "Expected a padding vector in 'model_dict$layers[[",i,"]] ",
               "of length:\n", "   - 1: same padding for each side\n",
-              "   - 2: first value: padding for left side; second value: padding for right side\n",
-              "But your length: ", length(padding))
+              "   - 2: first value: padding for left side; second value: ",
+              "padding for right side\n But your length: ", length(padding))
             )
           }
 
@@ -753,10 +752,10 @@ Converter <- R6Class("Converter",
           modules_list[[paste0(type, "_", i)]] <- layer
 
         } else {
-          stop(sprintf("Unknown layer type '%s' in model dictionary. Only the
-                       types 'Dense', 'Conv1D', 'Conv2D', 'Flatten', 'AveragePooling1D',
-                       'AveragePooling2D', 'MaxPooling1D' and 'MaxPooling2D'
-                       are allowed!", type))
+          stop("Unknown layer type '", type, "' in model dictionary. Only ",
+               "types 'Dense', 'Conv1D', 'Conv2D', 'Flatten', ",
+               "'AveragePooling1D', 'AveragePooling2D', 'MaxPooling1D' ",
+               "and 'MaxPooling2D' are allowed!")
         }
       }
 
@@ -771,11 +770,11 @@ Converter <- R6Class("Converter",
 
       # Check for classification output
       if (length(model_dict$output_dim) != 1) {
-        stop(paste0(
+        stop(
           "This package only allows models with classification or regression ",
           "output, i.e. the model output dimension has to be one. ",
           "But your model has an output dimension of '",
-          length(model_dict$output_dim), "'!"))
+          length(model_dict$output_dim), "'!")
       }
 
       # Check input names
@@ -816,9 +815,9 @@ Converter <- R6Class("Converter",
       } else if (length(input_dim) == 3) {
         short_names <- c("C", "H", "W")
       } else {
-        stop(sprintf("Too many input dimensions. This package only allows
-                     model inputs with '1', '2' or '3' dimensions and not
-                     '%s'", length(imput_dim)))
+        stop("Too many input dimensions. This package only allows model ",
+             "inputs with '1', '2' or '3' dimensions and not '",
+             length(input_dim), "'!")
       }
       input_names <-
         mapply(function(x, y) paste0(rep(y, times = x), 1:x),

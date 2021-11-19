@@ -141,9 +141,10 @@ InterpretingMethod <- R6Class(
           as.array(data)
         },
         error = function(e) {
-          stop(sprintf("Failed to convert the argument '%s' to an array using
-                       the function 'base::as.array'. The class of your '%s':
-                       %s", name, name, paste(class(data), collapse = ", ")))
+          stop("Failed to convert the argument '", name, "' to an array ",
+               "using the function 'base::as.array'. The class of your ",
+               "argument '", name, "': '",
+               paste(class(data), collapse = "', '"), "'")
         }
       )
 
@@ -155,14 +156,14 @@ InterpretingMethod <- R6Class(
 
       if (length(dim(data)[-1]) != length(ordered_dim) ||
         !all(dim(data)[-1] == ordered_dim)) {
-        stop(sprintf(
-          "Unmatch in model dimension (*,%s) and dimension of argument '%s'
-          (%s). Try to change the argument 'channels_first', if only
-          the channels are wrong.",
-          paste0(ordered_dim, sep = "", collapse = ","),
-          name,
-          paste0(dim(data), sep = "", collapse = ",")
-        ))
+        stop(
+          "Unmatch in model dimension (*, ",
+          paste0(ordered_dim, collapse = ", "), ") and dimension of ",
+          "argument '", name, "' (",
+          paste0(dim(data), collapse = ", "),
+          "). Try to change the argument 'channels_first', if only ",
+          "the channels are wrong."
+        )
       }
 
 
@@ -345,8 +346,8 @@ InterpretingMethod <- R6Class(
       # using 'plotly::ggplotly'
       if (as_plotly) {
         if (!requireNamespace("plotly", quietly = FALSE)) {
-          stop("Please install the 'plotly' package if you want to create an
-         interactive plot.")
+          stop("Please install the 'plotly' package if you want to create",
+               "an interactive plot.")
         }
         p <-
           plotly::ggplotly(p, tooltip = "text", dynamicTicks = dynamicTicks)

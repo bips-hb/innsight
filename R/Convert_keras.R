@@ -15,7 +15,7 @@ convert_keras_model <- function(model) {
     assertChoice(type, implemented_layers)
 
     if (type == "Dropout" || type == "InputLayer") {
-      message(sprintf("Skipping %s-Layer...", type))
+      message(sprintf("Skipping %s ...", type))
     } else if (type == "Dense") {
       model_dict$layers[[name]] <- convert_keras_dense(layer)
       num <- num + 1

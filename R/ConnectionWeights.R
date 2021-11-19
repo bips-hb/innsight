@@ -216,7 +216,7 @@ ConnectionWeights <- R6Class(
 
     #'
     #' @description
-    #' This method visualizes the result of the *Connectio nWeight* method in a
+    #' This method visualizes the result of the *ConnectionWeights* method in a
     #' [ggplot2::ggplot]. You can use the argument `output_idx` to select
     #' individual output nodes for the plot. The different results for the
     #' selected outputs are visualized using the method [ggplot2::facet_grid].
@@ -334,8 +334,8 @@ ConnectionWeights <- R6Class(
 
       if (as_plotly) {
         if (!requireNamespace("plotly", quietly = FALSE)) {
-          stop("Please install the 'plotly' package if you want to create an
-         interactive plot.")
+          stop("Please install the 'plotly' package if you want to",
+               "create an interactive plot.")
         }
         p <- plotly::ggplotly(p, tooltip = "text", dynamicTicks = dynamicTicks)
         p <- plotly::layout(p,
@@ -363,7 +363,7 @@ ConnectionWeights <- R6Class(
       grad <- grad[,,index, drop = FALSE]
 
       layers <- rev(self$converter$model$modules_list)
-      message("Backwardpass 'ConnectionWeights':")
+      message("Backward pass 'ConnectionWeights':")
       # Define Progressbar
       pb <- txtProgressBar(min = 0, max = length(layers), style = 3)
       i <- 0

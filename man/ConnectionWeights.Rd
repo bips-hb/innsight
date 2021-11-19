@@ -227,7 +227,7 @@ type.
 \if{html}{\out{<a id="method-plot"></a>}}
 \if{latex}{\out{\hypertarget{method-plot}{}}}
 \subsection{Method \code{plot()}}{
-This method visualizes the result of the \emph{Connectio nWeight} method in a
+This method visualizes the result of the \emph{ConnectionWeights} method in a
 \link[ggplot2:ggplot]{ggplot2::ggplot}. You can use the argument \code{output_idx} to select
 individual output nodes for the plot. The different results for the
 selected outputs are visualized using the method \link[ggplot2:facet_grid]{ggplot2::facet_grid}.

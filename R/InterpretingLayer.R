@@ -99,7 +99,7 @@ get_activation <- function(act_name) {
     act <- function(x) x
   } else {
     stop(sprintf(
-      "Activation function \"%s\" is not implementet yet!",
+      "Activation function '%s' is not implementet yet!",
       act_name
     ))
   }

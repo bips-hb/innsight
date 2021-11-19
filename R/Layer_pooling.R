@@ -141,7 +141,8 @@ avg_pool2d_layer <- nn_module(
     output_dim = NULL,
     output = NULL,
     output_ref = NULL,
-    initialize = function(kernel_size, dim_in, dim_out, strides = NULL, dtype = "float") {
+    initialize = function(kernel_size, dim_in, dim_out, strides = NULL,
+                          dtype = "float") {
       self$kernel_size <- kernel_size
       self$input_dim <- dim_in
       self$output_dim <- dim_out
@@ -179,7 +180,8 @@ avg_pool2d_layer <- nn_module(
       output_ref
     },
 
-    get_input_relevances = function(rel_output, rule_name = "simple", rule_param = NULL) {
+    get_input_relevances = function(rel_output, rule_name = "simple",
+                                    rule_param = NULL) {
 
       # set default parameter
       if (is.null(rule_param)) {
@@ -274,7 +276,8 @@ max_pool1d_layer <- nn_module(
   output_dim = NULL,
   output = NULL,
   output_ref = NULL,
-  initialize = function(kernel_size, dim_in, dim_out, strides = NULL, dtype = "float") {
+  initialize = function(kernel_size, dim_in, dim_out, strides = NULL,
+                        dtype = "float") {
     self$kernel_size <- kernel_size
     self$input_dim <- dim_in
     self$output_dim <- dim_out
@@ -312,7 +315,8 @@ max_pool1d_layer <- nn_module(
     output_ref
   },
 
-  get_input_relevances = function(rel_output, rule_name = "simple", rule_param = NULL) {
+  get_input_relevances = function(rel_output, rule_name = "simple",
+                                  rule_param = NULL) {
 
     # set default parameter
     if (is.null(rule_param)) {
@@ -404,7 +408,8 @@ max_pool2d_layer <- nn_module(
   output_dim = NULL,
   output = NULL,
   output_ref = NULL,
-  initialize = function(kernel_size, dim_in, dim_out, strides = NULL, dtype = "float") {
+  initialize = function(kernel_size, dim_in, dim_out, strides = NULL,
+                        dtype = "float") {
     self$kernel_size <- kernel_size
     self$input_dim <- dim_in
     self$output_dim <- dim_out
@@ -443,7 +448,8 @@ max_pool2d_layer <- nn_module(
   },
 
 
-  get_input_relevances = function(rel_output, rule_name = "simple", rule_param = NULL) {
+  get_input_relevances = function(rel_output, rule_name = "simple",
+                                  rule_param = NULL) {
 
     # set default parameter
     if (is.null(rule_param)) {

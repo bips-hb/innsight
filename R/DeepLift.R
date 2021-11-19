@@ -368,7 +368,7 @@ DeepLift <- R6Class(
 
       mul <- mul[,,self$output_idx, drop = FALSE]
 
-      message("Backwardpass 'DeepLift':")
+      message("Backward pass 'DeepLift':")
       # Define Progressbar
       pb <- txtProgressBar(min = 0, max = length(rev_layers) + 1, style = 3)
       i <- 0
