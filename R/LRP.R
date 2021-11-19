@@ -35,8 +35,8 @@
 #' # Apply method LRP with simple rule (default)
 #' lrp <- LRP$new(converter, data)
 #'
-#' # Print the result as an array
-#' lrp$get_result()
+#' # Print the result as an array for data point one and two
+#' lrp$get_result()[1:2,,]
 #'
 #' # Plot the result for both classes
 #' plot(lrp, output_idx = 1:2)
@@ -58,11 +58,11 @@
 #' # create new instance of 'LRP'
 #' lrp <- LRP$new(converter, iris[, -5], rule_name = "simple")
 #'
-#' # get the result as an array
-#' lrp$get_result()
+#' # get the result as an array for data point one and two
+#' lrp$get_result()[1:2,,]
 #'
-#' # get the result as a torch tensor
-#' lrp$get_result(type = "torch.tensor")
+#' # get the result as a torch tensor for data point one and two
+#' lrp$get_result(type = "torch.tensor")[1:2]
 #'
 #' # use the alpha-beta rule with alpha = 2
 #' lrp <- LRP$new(converter, iris[, -5],

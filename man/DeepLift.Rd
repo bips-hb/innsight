@@ -41,8 +41,8 @@ converter <- Converter$new(model, input_dim = c(5))
 # Apply method DeepLift
 deeplift <- DeepLift$new(converter, data, x_ref = ref)
 
-# Print the result as a torch tensor
-deeplift$get_result("torch.tensor")
+# Print the result as a torch tensor for first two data points
+deeplift$get_result("torch.tensor")[1:2]
 
 # Plot the result for both classes
 plot(deeplift, output_idx = 1:2)
@@ -69,8 +69,8 @@ converter <- Converter$new(nn)
 x_ref <- matrix(colMeans(iris[, c(3, 4)]), nrow = 1)
 deeplift_rescale <- DeepLift$new(converter, iris[, c(3, 4)], x_ref = x_ref)
 
-# Get the result as a dataframe
-deeplift_rescale$get_result(type = "data.frame")
+# Get the result as a dataframe and show first 5 rows
+deeplift_rescale$get_result(type = "data.frame")[1:5, ]
 
 # Plot the result for the first datapoint in the data
 plot(deeplift_rescale, data_idx = 1)
