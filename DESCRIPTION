@@ -12,18 +12,19 @@ Authors@R:
              family = "Baudeu",
              role = "ctb",
              email = "raphael.baudeu@gmail.com"))
-Description: Interpretability methods to analyze the behavior and individual
-    predictions of modern Neural Networks. Implemented methods are: 'Connection
-    Weights' described by Olden et al. (2004) 
+Description: Interpretability methods to analyze the behavior and
+    individual predictions of modern Neural Networks. Implemented methods
+    are: 'Connection Weights' described by Olden et al. (2004)
     <doi:10.1016/j.ecolmodel.2004.03.013>, Layer-wise Relevance
     Propagation ('LRP') described by Bach et al. (2015)
     <doi:10.1371/journal.pone.0130140>, Deep Learning Important Features
-    ('DeepLIFT') described by Shrikumar et al.  (2017) <arXiv:1704.02685> and
-    gradient-based methods like 'SmoothGrad' described by Smilkov et al. (2017) 
-    <arXiv:1706.03825>, 'Gradient x Input' described by Baehrens et al. (2009)
-    <arXiv:0912.1128> or 'Vanilla Gradient'.
+    ('DeepLIFT') described by Shrikumar et al.  (2017) <arXiv:1704.02685>
+    and gradient-based methods like 'SmoothGrad' described by Smilkov et
+    al. (2017) <arXiv:1706.03825>, 'Gradient x Input' described by
+    Baehrens et al. (2009) <arXiv:0912.1128> or 'Vanilla Gradient'.
 License: MIT + file LICENSE
-URL: https://bips-hb.github.io/innsight, https://github.com/bips-hb/innsight/
+URL: https://bips-hb.github.io/innsight/,
+    https://github.com/bips-hb/innsight/
 BugReports: https://github.com/bips-hb/innsight/issues/
 Depends:
     R (>= 3.5.0)
@@ -34,11 +35,11 @@ Imports:
     torch
 Suggests:
     keras,
-    tensorflow,
-    plotly,
     knitr,
     neuralnet,
+    plotly,
     rmarkdown,
+    tensorflow,
     testthat (>= 3.0.0)
 VignetteBuilder: 
     knitr
