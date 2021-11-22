@@ -99,6 +99,9 @@ RevealCancel-Rule ('reveal_cancel')." />
   </a>
 </li>
 <li>
+  <a href="../articles/innsight.html">Get started</a>
+</li>
+<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
@@ -110,9 +113,6 @@ RevealCancel-Rule ('reveal_cancel')." />
   <ul class="dropdown-menu" role="menu">
     <li>
       <a href="../articles/Custom_Model_Definition.html">Custom Model Definition</a>
-    </li>
-    <li>
-      <a href="../articles/Introduction.html">Introduction to innsight</a>
     </li>
   </ul>
 </li>
@@ -416,18 +416,18 @@ be used. A too high number can significantly increase the runtime.</p></dd>
 <span class='r-in'><span class='va'>deeplift</span><span class='op'>$</span><span class='fu'>get_result</span><span class='op'>(</span><span class='st'>"torch.tensor"</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span><span class='op'>]</span></span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> torch_tensor</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> (1,.,.) = </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.1329 -0.0397</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.1531  0.0434</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0637 -0.0479</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0540 -0.0532</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0018 -0.0094</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0117  0.0126</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.0066  0.1120</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0063  0.1674</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.0728  0.0550</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0960 -0.0860</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> (2,.,.) = </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.2340 -0.0440</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.3632  0.1279</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.0323  0.0238</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.0644  0.0646</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.0197 -0.0799</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.1113  0.0062</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   0.0013 -0.0068</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.0147  0.1497</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.1674  0.0571</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  -0.0095  0.0060</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> [ CPUFloatType{2,5,2} ]</span>
 <span class='r-in'></span>
 <span class='r-in'><span class='co'># Plot the result for both classes</span></span>

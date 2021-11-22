@@ -91,6 +91,9 @@ $$x_i * d f(x)_j / d x_i.$$" />
   </a>
 </li>
 <li>
+  <a href="../articles/innsight.html">Get started</a>
+</li>
+<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
@@ -102,9 +105,6 @@ $$x_i * d f(x)_j / d x_i.$$" />
   <ul class="dropdown-menu" role="menu">
     <li>
       <a href="../articles/Custom_Model_Definition.html">Custom Model Definition</a>
-    </li>
-    <li>
-      <a href="../articles/Introduction.html">Introduction to innsight</a>
     </li>
   </ul>
 </li>
@@ -247,12 +247,12 @@ either <code>'float'</code> for <a href='https://torch.mlverse.org/docs/referenc
 <span class='r-in'></span>
 <span class='r-in'><span class='co'># Print the result as a data.frame for first 5 rows</span></span>
 <span class='r-in'><span class='va'>grad</span><span class='op'>$</span><span class='fu'>get_result</span><span class='op'>(</span><span class='st'>"data.frame"</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span>,<span class='op'>]</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>     data feature   class       value</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 1 data_1     Car Buy it! -0.13906768</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 2 data_2     Car Buy it! -0.14236891</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 3 data_3     Car Buy it! -0.06656680</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 4 data_4     Car Buy it! -0.15897360</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 5 data_5     Car Buy it! -0.08050454</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     data feature   class         value</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 1 data_1     Car Buy it! -0.0710013807</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 2 data_2     Car Buy it! -0.0009049699</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 3 data_3     Car Buy it! -0.1267098337</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 4 data_4     Car Buy it! -0.1126400083</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 5 data_5     Car Buy it! -0.1000966132</span>
 <span class='r-in'></span>
 <span class='r-in'><span class='co'># Plot the result for both classes</span></span>
 <span class='r-in'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>grad</span>, output_idx <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span><span class='op'>)</span></span>

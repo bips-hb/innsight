@@ -13,7 +13,7 @@
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Get the Insights of your Neural Network">
 <meta property="og:description" content="Interpretability methods to analyze the behavior and
-    individual predictions of modern Neural Networks. Implemented methods
+    individual predictions of modern neural networks. Implemented methods
     are: Connection Weights described by Olden et al. (2004)
     &lt;doi:10.1016/j.ecolmodel.2004.03.013&gt;, Layer-wise Relevance
     Propagation (LRP) described by Bach et al. (2015)
@@ -53,6 +53,9 @@
   </a>
 </li>
 <li>
+  <a href="articles/innsight.html">Get started</a>
+</li>
+<li>
   <a href="reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
@@ -64,9 +67,6 @@
   <ul class="dropdown-menu" role="menu">
 <li>
       <a href="articles/Custom_Model_Definition.html">Custom Model Definition</a>
-    </li>
-    <li>
-      <a href="articles/Introduction.html">Introduction to innsight</a>
     </li>
   </ul>
 </li>
@@ -92,7 +92,7 @@
   <div class="contents col-md-9">
 <div id="innsight---get-the-insights-of-your-neural-network" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
-<a href="#innsight---get-the-insights-of-your-neural-network" class="anchor"></a><code>innsight</code> - Get the insights of your Neural Network</h1></div>
+<a href="#innsight---get-the-insights-of-your-neural-network" class="anchor"></a><code>innsight</code> - Get the Insights of your Neural Network</h1></div>
 <!-- badges: start -->
 
 <p><code>innsight</code> is an R package that interprets the behavior and explains individual predictions of modern neural networks. Many methods for explaining individual predictions already exist, but hardly any of them are implemented or available in R. Most of these so-called <em>‘Feature Attribution’</em> methods are only implemented in Python and thus difficult to access or use for the R community. In this sense, the package <code>innsight</code> provides a common interface for various methods for the interpretability of neural networks and can therefore be considered as an R analogue to <a href="https://github.com/albermax/innvestigate">iNNvestigate</a> for Python.</p>
@@ -118,7 +118,7 @@
 <li>Connection Weights</li>
 </ul>
 <p>Example results for these methods on ImageNet with pretrained network Vgg16: <img src="https://github.com/bips-hb/innsight/blob/master/man/images/vgg16.png?raw=true" alt="vgg16"></p>
-<p>The package <code>innsight</code> aims to be as flexible as possible and independent of a specific deep learning package in which the passed network has been learned. Basically, a Neural Network of the libraries <a href="https://torch.mlverse.org/"><code>torch</code></a>, <a href="https://keras.rstudio.com/"><code>keras</code></a> and <a href="https://CRAN.R-project.org/package=neuralnet"><code>neuralnet</code></a> can be passed, which is internally converted into a <a href="https://torch.mlverse.org/"><code>torch</code></a> model with special insights needed for interpretation. Currently, the following model and layer types are accepted:</p>
+<p>The package <code>innsight</code> aims to be as flexible as possible and independent of a specific deep learning package in which the passed network has been learned. Basically, a neural network of the libraries <a href="https://torch.mlverse.org/"><code>torch</code></a>, <a href="https://keras.rstudio.com/"><code>keras</code></a> and <a href="https://CRAN.R-project.org/package=neuralnet"><code>neuralnet</code></a> can be passed, which is internally converted into a <a href="https://torch.mlverse.org/"><code>torch</code></a> model with special insights needed for interpretation. Currently, the following model and layer types are accepted:</p>
 <ul>
 <li>
 <code><a href="https://torch.mlverse.org/docs/reference/nn_sequential.html">torch::nn_sequential</a></code> with layers <code>nn_linear</code>, <code>nn_conv1d</code>, <code>nn_conv2d</code>, <code>nn_max_pool1d</code>, <code>nn_max_pool2d</code>, <code>nn_avg_pool1d</code>, <code>nn_avg_pool2d</code>, <code>nn_dropout</code>, <code>nn_flatten</code> (see <a href="https://github.com/mlverse/torch/issues/716#issuecomment-946117545">torch issue #716</a> and use <code>classname = "nn_flatten"</code>)</li>
