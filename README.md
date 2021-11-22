@@ -1,5 +1,5 @@
 
-# `innsight` - Get the insights of your Neural Network
+# `innsight` - Get the Insights of your Neural Network
 
 <!-- badges: start -->
 
@@ -43,7 +43,7 @@ Vgg16:
 
 The package `innsight` aims to be as flexible as possible and
 independent of a specific deep learning package in which the passed
-network has been learned. Basically, a Neural Network of the libraries
+network has been learned. Basically, a neural network of the libraries
 [`torch`](https://torch.mlverse.org/),
 [`keras`](https://keras.rstudio.com/) and
 [`neuralnet`](https://CRAN.R-project.org/package=neuralnet) can be

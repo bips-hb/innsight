@@ -13,7 +13,7 @@ Authors@R:
              role = "ctb",
              email = "raphael.baudeu@gmail.com"))
 Description: Interpretability methods to analyze the behavior and
-    individual predictions of modern Neural Networks. Implemented methods
+    individual predictions of modern neural networks. Implemented methods
     are: 'Connection Weights' described by Olden et al. (2004)
     <doi:10.1016/j.ecolmodel.2004.03.013>, Layer-wise Relevance
     Propagation ('LRP') described by Bach et al. (2015)

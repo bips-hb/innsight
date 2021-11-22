@@ -80,7 +80,7 @@ and `ceil_mode` (`FALSE`))
 `classname = "nn_flatten"`)
 * **Skipped layers:** `nn_dropout`
 * **Activation functions:** `nn_relu`, `nn_leaky_relu`, `nn_softplus`,
-`nn_sigmoid`, `nn_softmax`, `nn_tanh` (contact me if you need any more)
+`nn_sigmoid`, `nn_softmax`, `nn_tanh` (open an issue if you need any more)
 
 If you want to create an instance of the class `Converter` with a torch 
 model that meets the above conditions, you have to keep the following things 
@@ -275,16 +275,14 @@ $$
 ([**SmoothGrad**](https://arxiv.org/abs/1706.03825)) with respect to the model
 inputs by averaging the gradients over number of inputs with added noise 
 (including **SmoothGrad x Input**):
-
 $$
 \text{SmoothGrad}(x)_i^C = \mathbb{E}_{\varepsilon \sim \mathcal{N}(0, \sigma^2)}\left[\frac{\partial f(x + \varepsilon)_C}{\partial (x + \varepsilon)_i}\right] \approx \frac{1}{n} \sum_{k=1}^n \frac{\partial f(x + \varepsilon_k)_C}{\partial (x + \varepsilon_k)_i}
 $$
 with $\varepsilon_1, \ldots \varepsilon_n \sim \mathcal{N}(0, \sigma^2)$.
 
-- **`LRP`** : Back propagation the model output to the model input neurons to 
+- **`LRP`** : Back-propagating the model output to the model input neurons to 
 obtain relevance scores for the model prediction which is known as
 [**Layer-wise Relevance Propagation**](https://doi.org/10.1371/journal.pone.0130140):
-
 $$
 f(x)_C \approx \sum_{i=1}^d R_i
 $$
@@ -294,7 +292,6 @@ with $R_i$ relevance score for input neuron $i$.
 respect to the model inputs and a reference input which is known as
 Deep Learning Important FeaTures 
 ([**DeepLift**](https://arxiv.org/abs/1704.02685)):
-
 $$
 \Delta f(x)_C = f(x)_C - f(x_\text{ref}) = \sum_{i=1}^d C_i
 $$
@@ -331,10 +328,10 @@ indices.
 
 ### Example 1: Gradient and Gradient x Input
 
-```{r, results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()}
-# Make sure that Example 1 from the section on neuralnet and one example
-# with CNNs were run last
+Make sure that Example 1 from the section on neuralnet and Example 2 from the 
+section on keras were run last.
 
+```{r, results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Apply method 'Gradient' for the dense network
 grad_dense <- Gradient$new(conv_dense, iris[-c(1,2,5)])
 
@@ -345,10 +342,10 @@ grad_cnn <- Gradient$new(conv_cnn, x, times_input = TRUE)
 
 ### Example 2: SmoothGrad and SmoothGrad x Input
 
-```{r, results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()}
-# Make sure that Example 1 from the section on neuralnet and one example
-# with CNNs were run last
+Make sure that Example 1 from the section on neuralnet and Example 2 from the 
+section on keras were run last.
 
+```{r, results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Apply method 'SmoothGrad' for the dense network
 smooth_dense <- SmoothGrad$new(conv_dense, iris[-c(1,2,5)])
 
@@ -359,10 +356,10 @@ smooth_cnn <- SmoothGrad$new(conv_cnn, x, times_input = TRUE)
 
 ### Example 3: LRP
 
-```{r, results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()}
-# Make sure that Example 1 from the section on neuralnet and one example
-# with CNNs were run last
+Make sure that Example 1 from the section on neuralnet and Example 2 from the 
+section on keras were run last.
 
+```{r, results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Apply method 'LRP' for the dense network
 lrp_dense <- LRP$new(conv_dense, iris[-c(1,2,5)])
 
@@ -374,10 +371,10 @@ lrp_cnn <- LRP$new(conv_cnn, x, rule_name = "alpha_beta", rule_param = 1,
 
 ### Example 4: DeepLift
 
-```{r, results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()}
-# Make sure that Example 1 from the section on neuralnet and one example
-# with CNNs were run last
+Make sure that Example 1 from the section on neuralnet and Example 2 from the 
+section on keras were run last.
 
+```{r, results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Define reference value
 x_ref <- array(colMeans(iris[-c(1,2,5)]), dim = c(1,2))
 # Apply method 'DeepLift' for the dense network
@@ -419,7 +416,7 @@ result_array[c(1,71),,]
 #### Data Frame
 
 ```{r, eval = keras::is_keras_available() & torch::torch_is_installed()}
-# Get result as data.frame (make sure 'grad_cnn' is defined!)
+# Get result as data.frame (make sure 'lrp_cnn' is defined!)
 result_data.frame <- lrp_cnn$get_result("data.frame")
 
 # Show the first 5 rows
@@ -452,15 +449,14 @@ and then save it back to the attribute `Method$result` as a torch tensor.
 
 #### Plot Function
 
-Plot result for the first data point and all outputs:  
-(make sure `grad_dense` is defined!)
+Plot result for the first data point and all outputs: (make sure `smooth_dense`
+and `lrp_cnn` are defined!)
 
 ```{r, eval = keras::is_keras_available() & torch::torch_is_installed()}
 plot(smooth_dense, output_idx = 1:3)
 # You can plot several data points at once
 plot(smooth_dense, data_idx = c(1,71), output_idx = 1:3)
 # Plot result for the first data point and first and fourth output
-# (make sure 'lrp_cnn' is defined!)
 plot(lrp_cnn, aggr_channels = 'norm', output_idx = c(1,4))
 ```
 
@@ -472,7 +468,7 @@ plot(lrp_cnn, aggr_channels = 'norm', output_idx = c(1), as_plotly = TRUE)
 #### Boxplot Function
 
 Plot result for the first data point and first two outputs:  
-(make sure 'smooth_dense' is defined!)
+(make sure `smooth_dense` is defined!)
 
 ```{r, eval = keras::is_keras_available() & torch::torch_is_installed()}
 boxplot(smooth_dense, output_idx = 1:2)

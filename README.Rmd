@@ -12,7 +12,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# `innsight` - Get the insights of your Neural Network
+# `innsight` - Get the Insights of your Neural Network
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/bips-hb/innsight/workflows/R-CMD-check/badge.svg)](https://github.com/bips-hb/innsight/actions)
@@ -48,7 +48,7 @@ Example results for these methods on ImageNet with pretrained network Vgg16:
 
 The package `innsight` aims to be as flexible as possible and independent of a 
 specific deep learning package in which the passed network has been learned. 
-Basically, a Neural Network of the libraries [`torch`](https://torch.mlverse.org/), [`keras`](https://keras.rstudio.com/) and [`neuralnet`](https://CRAN.R-project.org/package=neuralnet)
+Basically, a neural network of the libraries [`torch`](https://torch.mlverse.org/), [`keras`](https://keras.rstudio.com/) and [`neuralnet`](https://CRAN.R-project.org/package=neuralnet)
 can be passed, which is internally converted into a [`torch`](https://torch.mlverse.org/) model with special
 insights needed for interpretation. Currently, the following model and layer types 
 are accepted:

@@ -7,7 +7,7 @@
 
 There were no errors or notes and the following warning occurred only on the
 operating system Windows (see 
-[release](https://github.com/bips-hb/innsight/runs/4264825567?check_suite_focus=true#step:12:44) and [3.6](https://github.com/bips-hb/innsight/runs/4264825610?check_suite_focus=true#step:12:44)):
+[release](https://github.com/bips-hb/innsight/runs/4266780339?check_suite_focus=true#step:12:44) and [3.6](https://github.com/bips-hb/innsight/runs/4266780419?check_suite_focus=true#step:12:44)):
 
 ```
 Warning: Found the following significant warnings:
@@ -32,8 +32,28 @@ and disabled their execution on CRAN.
 - R-hub windows-x86_64-devel (r-devel)
 - R-hub ubuntu-gcc-release (r-release)
 - R-hub fedora-clang-devel (r-devel)
+- Win-builder (r-oldrelease)
+- Win-builder (r-release)
+- Win-builder (r-devel)
 
 ## R CMD check results
 
 There were no errors or warnings only one note: New submission and 
-irrelevant misspellings in names in DESCRIPTION.
+irrelevant misspellings in names in DESCRIPTION:
+
+```
+checking CRAN incoming feasibility ... NOTE
+  Maintainer: 'Niklas Koenen <niklas.koenen@gmail.com>'
+  New submission
+  
+  Possibly misspelled words in DESCRIPTION:
+    Baehrens (24:5)
+  
+    Interpretability (15:14)
+    Shrikumar (21:31)
+    Smilkov (22:63)
+    al (17:53, 19:46, 21:44, 23:5, 24:17)
+    et (17:50, 19:43, 21:41, 22:71, 24:14)
+
+0 errors ✓ | 0 warnings ✓ | 1 note x
+```
