@@ -165,9 +165,18 @@ DeepLift <- R6Class(
     #' @field rule_name Name of the applied rule to calculate the contributions
     #' for the non-linear part of a neural network layer. Either
     #' \code{"rescale"} or \code{"reveal_cancel"}.
+    #' @field adjust_softmax This argument is only relevant if
+    #' `ignore_last_act = TRUE` and the last activation is 'softmax'. The
+    #' final softmax output involves a normalization over all classes, but
+    #' the linear layer before the softmax does not. To address this, you can
+    #' use this argument to normalize the contributions to the linear layer
+    #' by subtracting the mean contribution to all classes (default: `FALSE`).
+    #' See "3.6 Choice of target layer" in https://arxiv.org/abs/1704.02685
+    #' for more information.
     #'
     rule_name = NULL,
     x_ref = NULL,
+    adjust_softmax = FALSE,
 
 
     #' @description
@@ -194,6 +203,14 @@ DeepLift <- R6Class(
     #' @param output_idx This vector determines for which outputs the method
     #' will be applied. By default (`NULL`), all outputs (but limited to the
     #' first 10) are considered.
+    #' @param adjust_softmax This argument is only relevant if
+    #' `ignore_last_act = TRUE` and the last activation is 'softmax'. The
+    #' final softmax output involves a normalization over all classes, but
+    #' the linear layer before the softmax does not. To address this, you can
+    #' use this argument to normalize the contributions to the linear layer
+    #' by subtracting the mean contribution to all classes (default: `FALSE`).
+    #' See "3.6 Choice of target layer" in https://arxiv.org/abs/1704.02685
+    #' for more information.
     #'
     initialize = function(converter, data,
                           channels_first = TRUE,
@@ -201,12 +218,15 @@ DeepLift <- R6Class(
                           ignore_last_act = TRUE,
                           rule_name = "rescale",
                           x_ref = NULL,
+                          adjust_softmax = FALSE,
                           dtype = "float") {
       super$initialize(converter, data, channels_first, output_idx,
                        ignore_last_act, dtype)
 
       assertChoice(rule_name, c("rescale", "reveal_cancel"))
+      assertLogical(adjust_softmax)
       self$rule_name <- rule_name
+      self$adjust_softmax <- adjust_softmax
 
       if (is.null(x_ref)) {
         x_ref <- array(0, dim = c(1, dim(data)[-1]))
@@ -376,8 +396,14 @@ DeepLift <- R6Class(
       if (self$ignore_last_act &&
         !("Flatten_Layer" %in% last_layer$".classes")) {
         mul <- last_layer$get_input_multiplier(mul,
-          rule_name = "ignore_last_act"
-        )
+          rule_name = "ignore_last_act")
+
+        # Adjustments for Softmax Layers (see "3.6 Choice of target layer" in
+        # https://arxiv.org/abs/1704.02685)
+        if (self$adjust_softmax & last_layer$activation_name == "softmax") {
+          mul <- mul - mul$mean(-1, keepdim = TRUE)
+        }
+
       } else {
         mul <- last_layer$get_input_multiplier(mul, self$rule_name)
       }

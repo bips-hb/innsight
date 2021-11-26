@@ -168,6 +168,15 @@ interpretation.}
 \item{\code{rule_name}}{Name of the applied rule to calculate the contributions
 for the non-linear part of a neural network layer. Either
 \code{"rescale"} or \code{"reveal_cancel"}.}
+
+\item{\code{adjust_softmax}}{This argument is only relevant if
+\code{ignore_last_act = TRUE} and the last activation is 'softmax'. The
+final softmax output involves a normalization over all classes, but
+the linear layer before the softmax does not. To address this, you can
+use this argument to normalize the contributions to the linear layer
+by subtracting the mean contribution to all classes (default: \code{FALSE}).
+See "3.6 Choice of target layer" in https://arxiv.org/abs/1704.02685
+for more information.}
 }
 \if{html}{\out{</div>}}
 }
@@ -201,6 +210,7 @@ Create a new instance of the DeepLift method.
   ignore_last_act = TRUE,
   rule_name = "rescale",
   x_ref = NULL,
+  adjust_softmax = FALSE,
   dtype = "float"
 )}\if{html}{\out{</div>}}
 }
@@ -232,6 +242,15 @@ contributions. Use one of \code{'rescale'} and \code{'reveal_cancel'}.}
 \item{\code{x_ref}}{The reference input of size \emph{(1, dim_in)} for the
 interpretation. With the default value \code{NULL} you use an input
 of zeros.}
+
+\item{\code{adjust_softmax}}{This argument is only relevant if
+\code{ignore_last_act = TRUE} and the last activation is 'softmax'. The
+final softmax output involves a normalization over all classes, but
+the linear layer before the softmax does not. To address this, you can
+use this argument to normalize the contributions to the linear layer
+by subtracting the mean contribution to all classes (default: \code{FALSE}).
+See "3.6 Choice of target layer" in https://arxiv.org/abs/1704.02685
+for more information.}
 
 \item{\code{dtype}}{The data type for the calculations. Use
 either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
