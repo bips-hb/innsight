@@ -166,13 +166,18 @@ test_that("DeepLift: Dense-Net (keras)", {
   library(keras)
   library(torch)
 
-  data <- matrix(rnorm(4 * 10), nrow = 10)
+  data <- matrix(runif(4 * 10), nrow = 10)
+
+  init <- initializer_random_uniform(minval = -1, maxval = 1)
 
   model <- keras_model_sequential()
   model %>%
-    layer_dense(units = 16, activation = "relu", input_shape = c(4)) %>%
-    layer_dense(units = 8, activation = "tanh") %>%
-    layer_dense(units = 3, activation = "softmax")
+    layer_dense(units = 16, activation = "relu", input_shape = c(4),
+                kernel_initializer = init, bias_initializer = init) %>%
+    layer_dense(units = 8, activation = "tanh",
+                kernel_initializer = init, bias_initializer = init) %>%
+    layer_dense(units = 3, activation = "softmax",
+                kernel_initializer = init, bias_initializer = init)
 
   converter <- Converter$new(model)
   x_ref <- matrix(rnorm(4), nrow = 1)
@@ -249,17 +254,23 @@ test_that("DeepLift: Conv1D-Net", {
 
   data <- array(rnorm(4 * 64 * 3), dim = c(4, 64, 3))
 
+  init <- initializer_random_uniform(minval = -0.5, maxval = 0.5)
+
   model <- keras_model_sequential()
   model %>%
     layer_conv_1d(
       input_shape = c(64, 3), kernel_size = 16, filters = 8,
-      activation = "softplus"
-    ) %>%
-    layer_conv_1d(kernel_size = 16, filters = 4, activation = "tanh") %>%
-    layer_conv_1d(kernel_size = 16, filters = 2, activation = "relu") %>%
+      activation = "relu", kernel_initializer = init,
+      bias_initializer = init) %>%
+    layer_conv_1d(kernel_size = 16, filters = 4, activation = "relu",
+                  kernel_initializer = init, bias_initializer = init) %>%
+    layer_conv_1d(kernel_size = 16, filters = 2, activation = "tanh",
+                  kernel_initializer = init, bias_initializer = init) %>%
     layer_flatten() %>%
-    layer_dense(units = 64, activation = "relu") %>%
-    layer_dense(units = 16, activation = "relu") %>%
+    layer_dense(units = 64, activation = "relu",
+                kernel_initializer = init, bias_initializer = init) %>%
+    layer_dense(units = 16, activation = "relu",
+                kernel_initializer = init, bias_initializer = init) %>%
     layer_dense(units = 1, activation = "sigmoid")
 
   # test non-fitted model
@@ -295,7 +306,7 @@ test_that("DeepLift: Conv1D-Net", {
 
   d <- DeepLift$new(converter, data,
     x_ref = x_ref,
-    dtype = "float",
+    dtype = "double",
     ignore_last_act = TRUE,
     channels_first = FALSE
   )
@@ -316,6 +327,8 @@ test_that("DeepLift: Conv1D-Net", {
   deeplift_rc <- d$get_result(type = "torch.tensor")
 
   expect_equal(dim(deeplift_rc), c(4, 64, 3, 1))
+  expect_lt(as.array(mean(abs(deeplift_rc$sum(dim = c(2, 3)) -
+                                contrib_true)^2)), 1e-12)
 
   d <- DeepLift$new(converter, data,
     x_ref = x_ref,
@@ -337,23 +350,27 @@ test_that("DeepLift: Conv2D-Net", {
 
   data <- array(rnorm(4 * 32 * 32 * 3), dim = c(4, 32, 32, 3))
 
+  init <- initializer_random_uniform(minval = -0.25, maxval = 0.25)
+
   model <- keras_model_sequential()
   model %>%
     layer_conv_2d(
       input_shape = c(32, 32, 3), kernel_size = 8, filters = 8,
-      activation = "softplus", padding = "same"
-    ) %>%
+      activation = "softplus", padding = "same",
+      kernel_initializer = init, bias_initializer = init) %>%
     layer_conv_2d(
       kernel_size = 8, filters = 4, activation = "tanh",
-      padding = "same"
-    ) %>%
+      padding = "same",
+      kernel_initializer = init, bias_initializer = init) %>%
     layer_conv_2d(
       kernel_size = 4, filters = 2, activation = "relu",
-      padding = "same"
-    ) %>%
+      padding = "same",
+      kernel_initializer = init, bias_initializer = init) %>%
     layer_flatten() %>%
-    layer_dense(units = 64, activation = "relu") %>%
-    layer_dense(units = 16, activation = "relu") %>%
+    layer_dense(units = 64, activation = "relu",
+                kernel_initializer = init, bias_initializer = init) %>%
+    layer_dense(units = 16, activation = "relu",
+                kernel_initializer = init, bias_initializer = init) %>%
     layer_dense(units = 2, activation = "softmax")
 
   # test non-fitted model
@@ -391,7 +408,7 @@ test_that("DeepLift: Conv2D-Net", {
 
   d <- DeepLift$new(converter, data,
     x_ref = x_ref,
-    dtype = "float",
+    dtype = "double",
     ignore_last_act = TRUE,
     channels_first = FALSE
   )
@@ -406,7 +423,7 @@ test_that("DeepLift: Conv2D-Net", {
   # Reveal-Cancel rule
   d <- DeepLift$new(converter, data,
     x_ref = x_ref,
-    dtype = "float",
+    dtype = "double",
     ignore_last_act = FALSE,
     rule_name = "reveal_cancel",
     channels_first = FALSE
@@ -414,6 +431,8 @@ test_that("DeepLift: Conv2D-Net", {
   deeplift_rc <- d$get_result(type = "torch.tensor")
 
   expect_equal(dim(deeplift_rc), c(4, 32, 32, 3, 2))
+  expect_lt(as.array(mean(abs(deeplift_rc$sum(dim = c(2, 3, 4)) -
+                                contrib_true)^2)), 1e-12)
 
   d <- DeepLift$new(converter, data,
     x_ref = x_ref,
