@@ -243,7 +243,7 @@ LRP <- R6Class(
         channels_first = self$channels_first,
         save_input = TRUE,
         save_preactivation = TRUE,
-        save_output = FALSE,
+        save_output = TRUE,
         save_last_layer = TRUE
       )
 

@@ -52,39 +52,9 @@ avg_pool1d_layer <- nn_module(
 
   get_input_relevances = function(rel_output, rule_name = "simple", rule_param = NULL) {
 
-    # set default parameter
-    if (is.null(rule_param)) {
-      if (rule_name == "epsilon") {
-        rule_param <- 0.001
-      } else if (rule_name == "alpha_beta") {
-        rule_param <- 0.5
-      }
-    }
-
     z <- self$output$unsqueeze(-1)
-    # Apply rule
-    if (rule_name == "epsilon") {
-      z <- z + rule_param * torch_sgn(z) + (z == 0) * 1e-12
-      rel_input <- self$get_gradient(rel_output / z) * self$input$unsqueeze(-1)
-    } else if (rule_name == "alpha_beta") {
-      pos_input <- self$input * (self$input >= 0)
-      neg_input <- self$input * (self$input <= 0)
-      pos_out <- nnf_avg_pool1d(pos_input,
-                                self$kernel_size, self$strides)$unsqueeze(-1)
-      neg_out <- nnf_avg_pool1d(neg_input,
-                                self$kernel_size, self$strides)$unsqueeze(-1)
-
-      rel_pos <- self$get_gradient(rel_output / (pos_out + (pos_out == 0) * 1e-12)) *
-        pos_input$unsqueeze(-1)
-      rel_neg <- self$get_gradient(rel_output / (neg_out + (neg_out == 0) * 1e-12)) *
-        neg_input$unsqueeze(-1)
-
-      rel_input <- rel_pos * rule_param + rel_neg * (1 - rule_param)
-
-    } else {
-      z <- z + (z == 0) * 1e-12
-      rel_input <- self$get_gradient(rel_output / z) * self$input$unsqueeze(-1)
-    }
+    z <- z + (z == 0) * 1e-12
+    rel_input <- self$get_gradient(rel_output / z) * self$input$unsqueeze(-1)
 
     rel_input
   },
@@ -182,40 +152,9 @@ avg_pool2d_layer <- nn_module(
 
     get_input_relevances = function(rel_output, rule_name = "simple",
                                     rule_param = NULL) {
-
-      # set default parameter
-      if (is.null(rule_param)) {
-        if (rule_name == "epsilon") {
-          rule_param <- 0.001
-        } else if (rule_name == "alpha_beta") {
-          rule_param <- 0.5
-        }
-      }
-
       z <- self$output$unsqueeze(-1)
-      # Apply rule
-      if (rule_name == "epsilon") {
-        z <- z + rule_param * torch_sgn(z) + (z == 0) * 1e-12
-        rel_input <- self$get_gradient(rel_output / z) * self$input$unsqueeze(-1)
-      } else if (rule_name == "alpha_beta") {
-        pos_input <- self$input * (self$input >= 0)
-        neg_input <- self$input * (self$input <= 0)
-        pos_out <- nnf_avg_pool2d(pos_input,
-                                  self$kernel_size, self$strides)$unsqueeze(-1)
-        neg_out <- nnf_avg_pool2d(neg_input,
-                                  self$kernel_size, self$strides)$unsqueeze(-1)
-
-        rel_pos <- self$get_gradient(rel_output / (pos_out + (pos_out == 0) * 1e-12)) *
-          pos_input$unsqueeze(-1)
-        rel_neg <- self$get_gradient(rel_output / (neg_out + (neg_out == 0) * 1e-12)) *
-          neg_input$unsqueeze(-1)
-
-        rel_input <- rel_pos * rule_param + rel_neg * (1 - rule_param)
-
-      } else {
-        z <- z + (z == 0) * 1e-12
-        rel_input <- self$get_gradient(rel_output / z) * self$input$unsqueeze(-1)
-      }
+      z <- z + (z == 0) * 1e-12
+      rel_input <- self$get_gradient(rel_output / z) * self$input$unsqueeze(-1)
 
       rel_input
     },
