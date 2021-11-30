@@ -70,14 +70,17 @@ for details).
 
 ## Installation
 
-The package can be installed with the following command (successful
-installation of
-[`devtools`](https://www.r-project.org/nosvn/pandoc/devtools.html) is
+The package can be installed directly from CRAN and the development
+version from GitHub with the following commands (successful installation
+of [`devtools`](https://www.r-project.org/nosvn/pandoc/devtools.html) is
 required)
 
 ``` r
+# Stable version
+install.packages("innsight")
+
+# Development version
 devtools::install_github("bips-hb/innsight")
-library(innsight)
 ```
 
 Internally, any passed model is converted to a `torch` model, thus the
