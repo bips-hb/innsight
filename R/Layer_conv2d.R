@@ -261,18 +261,18 @@ conv2d_layer <- nn_module(
       z <- rel_output / (output$pos + (output$pos == 0) * 1e-16)$unsqueeze(5)
 
       t1 <- self$get_gradient(z, (self$W * (self$W > 0)))
-      t2 <- self$get_gradient(z, (self$W * (self$W <= 0)))
+      t2 <- self$get_gradient(z, (self$W * (self$W < 0)))
 
       input <- self$input$unsqueeze(5)
-      rel_pos <- t1 * (input * (input > 0)) + t2 * (input * (input <= 0))
+      rel_pos <- t1 * (input * (input > 0)) + t2 * (input * (input < 0))
 
       # - negative part
       z <- rel_output / (output$neg + (output$neg == 0) * 1e-16)$unsqueeze(5)
 
       t1 <- self$get_gradient(z, (self$W * (self$W > 0)))
-      t2 <- self$get_gradient(z, (self$W * (self$W <= 0)))
+      t2 <- self$get_gradient(z, (self$W * (self$W < 0)))
 
-      rel_neg <- t1 * (input * (input <= 0)) + t2 * (input * (input > 0))
+      rel_neg <- t1 * (input * (input < 0)) + t2 * (input * (input > 0))
 
       # calculate over all relevance for the lower layer
       rel_input <- rel_pos * rule_param + rel_neg * (1 - rule_param)
@@ -496,7 +496,7 @@ conv2d_layer <- nn_module(
 
     if (use_bias == TRUE) {
       b_pos <- self$b * (self$b > 0) * 0.5
-      b_neg <- self$b * (self$b <= 0) * 0.5
+      b_neg <- self$b * (self$b < 0) * 0.5
     } else {
       b_pos <- NULL
       b_neg <- NULL
@@ -515,11 +515,11 @@ conv2d_layer <- nn_module(
 
     # input (+) x weight (+) and input (-) x weight (-)
     output$pos <- conv2d(input * (input > 0), self$W * (self$W > 0), b_pos) +
-      conv2d(input * (input <= 0), self$W * (self$W <= 0), b_pos)
+      conv2d(input * (input < 0), self$W * (self$W < 0), b_pos)
 
     # input (+) x weight (-) and input (-) x weight (+)
-    output$neg <- conv2d(input * (input > 0), self$W * (self$W <= 0), b_neg) +
-      conv2d(input * (input <= 0), self$W * (self$W > 0), b_neg)
+    output$neg <- conv2d(input * (input > 0), self$W * (self$W < 0), b_neg) +
+      conv2d(input * (input < 0), self$W * (self$W > 0), b_neg)
 
     output
   },

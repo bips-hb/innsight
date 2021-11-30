@@ -11,6 +11,7 @@ avg_pool1d_layer <- nn_module(
   output_dim = NULL,
   output = NULL,
   output_ref = NULL,
+  weight = NULL,
   initialize = function(kernel_size, dim_in, dim_out, strides = NULL, dtype = "float") {
     self$kernel_size <- kernel_size
     self$input_dim <- dim_in
@@ -69,15 +70,21 @@ avg_pool1d_layer <- nn_module(
   get_gradient = function(output, weight = NULL) {
     channels <- output$shape[2]
 
-    if (self$dtype == "double") {
-      weight <-
-        torch_ones(c(channels, 1, self$kernel_size, 1), dtype = torch_double()) /
-        prod(self$kernel_size)
+    if (is.null(self$weight)) {
+      if (self$dtype == "double") {
+        weight <-
+          torch_ones(c(channels, 1, self$kernel_size, 1), dtype = torch_double()) /
+          prod(self$kernel_size)
+      } else {
+        weight <-
+          torch_ones(c(channels, 1, self$kernel_size, 1)) /
+          prod(self$kernel_size)
+      }
+      self$weight <- weight
     } else {
-      weight <-
-        torch_ones(c(channels, 1, self$kernel_size, 1)) /
-        prod(self$kernel_size)
+      weight <- self$weight
     }
+
     input_grad <- nnf_conv_transpose2d(output, weight,
                                        stride = c(self$strides, 1),
                                        groups = channels)
@@ -91,6 +98,11 @@ avg_pool1d_layer <- nn_module(
   },
 
   set_dtype = function(dtype) {
+    if (!is.null(self$weight) & dtype == "float") {
+      self$weight <- self$weight$to(torch_float())
+    } else if (!is.null(self$weight) & dtype == "double") {
+      self$weight <- self$weight$to(torch_double())
+    }
     self$dtype <- dtype
   },
 
@@ -111,6 +123,7 @@ avg_pool2d_layer <- nn_module(
     output_dim = NULL,
     output = NULL,
     output_ref = NULL,
+    weight = NULL,
     initialize = function(kernel_size, dim_in, dim_out, strides = NULL,
                           dtype = "float") {
       self$kernel_size <- kernel_size
@@ -168,15 +181,21 @@ avg_pool2d_layer <- nn_module(
 
     get_gradient = function(output, weight = NULL) {
       channels <- output$shape[2]
-      if (self$dtype == "double") {
-        weight <-
-          torch_ones(c(channels, 1, self$kernel_size, 1), dtype = torch_double()) /
-          prod(self$kernel_size)
+
+      if (is.null(self$weight)) {
+        if (self$dtype == "double") {
+          weight <-
+            torch_ones(c(channels, 1, self$kernel_size, 1), dtype = torch_double()) /
+            prod(self$kernel_size)
+        } else {
+          weight <-
+            torch_ones(c(channels, 1, self$kernel_size, 1)) /
+            prod(self$kernel_size)
+        }
       } else {
-        weight <-
-          torch_ones(c(channels, 1, self$kernel_size, 1)) /
-          prod(self$kernel_size)
+        weight <- self$weight
       }
+
 
       input_grad <- nnf_conv_transpose3d(output, weight,
                                          stride = c(self$strides, 1),
@@ -192,6 +211,11 @@ avg_pool2d_layer <- nn_module(
     },
 
     set_dtype = function(dtype) {
+      if (!is.null(self$weight) & dtype == "float") {
+        self$weight <- self$weight$to(torch_float())
+      } else if (!is.null(self$weight) & dtype == "double") {
+        self$weight <- self$weight$to(torch_double())
+      }
       self$dtype <- dtype
     },
 
