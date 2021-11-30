@@ -133,10 +133,13 @@
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
-<p>The package can be installed with the following command (successful installation of <a href="https://www.r-project.org/nosvn/pandoc/devtools.html"><code>devtools</code></a> is required)</p>
+<p>The package can be installed directly from CRAN and the development version from GitHub with the following commands (successful installation of <a href="https://www.r-project.org/nosvn/pandoc/devtools.html"><code>devtools</code></a> is required)</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"bips-hb/innsight"</span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://bips-hb.github.io/innsight/">innsight</a></span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="co"># Stable version</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"innsight"</span><span class="op">)</span>
+
+<span class="co"># Development version</span>
+<span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"bips-hb/innsight"</span><span class="op">)</span></code></pre></div>
 <p>Internally, any passed model is converted to a <code>torch</code> model, thus the correct functionality of this package relies on a complete and correct installation of <code>torch</code>. For this reason, the following command must be run manually to install the missing libraries LibTorch and LibLantern:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/install_torch.html">install_torch</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
@@ -291,6 +294,8 @@
     <div class="links">
 <h2>Links</h2>
 <ul class="list-unstyled">
+<li>Download from CRAN at <br><a href="https://cloud.r-project.org/package=innsight">https://​cloud.r-project.org/​package=innsight</a>
+</li>
 <li>Browse source code at <br><a href="https://github.com/bips-hb/innsight/">https://​github.com/​bips-hb/​innsight/​</a>
 </li>
 <li>Report a bug at <br><a href="https://github.com/bips-hb/innsight/issues/">https://​github.com/​bips-hb/​innsight/​issues/​</a>

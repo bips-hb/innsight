@@ -491,7 +491,7 @@ stored as a list (<code>FALSE</code>).</p></dd>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> List of 5</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>  $ layers      :List of 6</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   ..$ Conv2D_1 :List of 9</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ weight         : num [1:8, 1:3, 1:8, 1:8] 0.073 0.0751 0.0808 -0.0425 0.0598 ...</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ weight         : num [1:8, 1:3, 1:8, 1:8] 0.016 0.0874 -0.0329 0.0537 -0.0213 ...</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ bias           : num [1:8] 0 0 0 0 0 0 0 0</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ activation_name: chr "relu"</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ dim_in         : int [1:3] 3 32 32</span>
@@ -501,7 +501,7 @@ stored as a list (<code>FALSE</code>).</p></dd>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ dilation       : int [1:2] 1 1</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ type           : chr "Conv2D"</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   ..$ Conv2D_2 :List of 9</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ weight         : num [1:4, 1:8, 1:8, 1:8] -0.060305 -0.025026 -0.000948 0.057423 0.06554 ...</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ weight         : num [1:4, 1:8, 1:8, 1:8] -3.61e-05 6.71e-02 3.78e-02 2.30e-02 -4.76e-02 ...</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ bias           : num [1:4] 0 0 0 0</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ activation_name: chr "tanh"</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ dim_in         : int [1:3] 8 32 32</span>
@@ -511,7 +511,7 @@ stored as a list (<code>FALSE</code>).</p></dd>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ dilation       : int [1:2] 1 1</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ type           : chr "Conv2D"</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   ..$ Conv2D_3 :List of 9</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ weight         : num [1:2, 1:4, 1:4, 1:4] -0.078 -0.2281 0.0847 0.1222 -0.1562 ...</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ weight         : num [1:2, 1:4, 1:4, 1:4] 0.048 -0.0787 0.0579 0.0699 0.0373 ...</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ bias           : num [1:2] 0 0</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ activation_name: chr "relu"</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ dim_in         : int [1:3] 4 32 32</span>
@@ -526,14 +526,14 @@ stored as a list (<code>FALSE</code>).</p></dd>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ dim_out: int 2048</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   ..$ Dense_5  :List of 6</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ type           : chr "Dense"</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ weight         : num [1:64, 1:2048] -0.04252 0.02555 0.00223 0.01542 -0.02422 ...</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ weight         : num [1:64, 1:2048] 0.0437 0.038 0.0254 -0.0101 0.035 ...</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ bias           : num [1:64] 0 0 0 0 0 0 0 0 0 0 ...</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ activation_name: chr "relu"</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ dim_in         : int 2048</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ dim_out        : int 64</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   ..$ Dense_6  :List of 6</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ type           : chr "Dense"</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ weight         : num [1, 1:64] 0.2623 0.1963 0.1584 -0.0263 0.2234 ...</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ weight         : num [1, 1:64] -0.1516 0.0854 0.085 -0.2118 0.2267 ...</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ bias           : num 0</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ activation_name: chr "sigmoid"</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   .. ..$ dim_in         : int 64</span>
@@ -585,9 +585,9 @@ stored as a list (<code>FALSE</code>).</p></dd>
 <span class='r-in'><span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'>torch</span><span class='fu'>::</span><span class='fu'><a href='https://torch.mlverse.org/docs/reference/torch_randn.html'>torch_randn</a></span><span class='op'>(</span><span class='fl'>3</span>, <span class='fl'>5</span><span class='op'>)</span></span>
 <span class='r-in'><span class='fu'>torch_model</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span></span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> torch_tensor</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  0.1185  0.8815</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  0.9979  0.0021</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  0.2815  0.7185</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  0.0011  0.9989</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  0.6136  0.3864</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  0.9530  0.0470</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> [ CPUFloatType{3,2} ]</span>
 </pre>
   </div>
