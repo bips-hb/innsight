@@ -325,12 +325,12 @@ conv1d_layer <- nn_module(
         x_ref <- self$preactivation_ref
 
         delta_output_pos <-
-          0.5 * (act(x_ref + delta_x_pos) - act(x_ref)) +
-          0.5 * (act(x) - act(x_ref + delta_x_neg))
+          ( 0.5 * (act(x_ref + delta_x_pos) - act(x_ref)) +
+            0.5 * (act(x) - act(x_ref + delta_x_neg))) * (delta_x_pos != 0)
 
         delta_output_neg <-
-          0.5 * (act(x_ref + delta_x_neg) - act(x_ref)) +
-          0.5 * (act(x) - act(x_ref + delta_x_pos))
+          ( 0.5 * (act(x_ref + delta_x_neg) - act(x_ref)) +
+            0.5 * (act(x) - act(x_ref + delta_x_pos))) * (delta_x_neg != 0)
 
         mult_pos <- mult_output *
           (delta_output_pos /

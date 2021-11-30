@@ -290,12 +290,12 @@ dense_layer <- nn_module(
         delta_x <- self$get_pos_and_neg_outputs(self$input - self$input_ref)
 
         delta_output_pos <-
-          0.5 * (act(x_ref + delta_x$pos) - act(x_ref)) +
-          0.5 * (act(x) - act(x_ref + delta_x$neg))
+          ( 0.5 * (act(x_ref + delta_x$pos) - act(x_ref)) +
+            0.5 * (act(x) - act(x_ref + delta_x$neg))) * (delta_x$pos != 0)
 
         delta_output_neg <-
-          0.5 * (act(x_ref + delta_x$neg) - act(x_ref)) +
-          0.5 * (act(x) - act(x_ref + delta_x$pos))
+          ( 0.5 * (act(x_ref + delta_x$neg) - act(x_ref)) +
+            0.5 * (act(x) - act(x_ref + delta_x$pos))) * (delta_x$neg != 0)
 
         mult_pos <-
           mult_output * (delta_output_pos / (delta_x$pos + 1e-16))$unsqueeze(3)

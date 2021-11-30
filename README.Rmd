@@ -66,11 +66,15 @@ But it is also possible to pass an arbitrary net in form of a named list
 
 ## Installation
 
-The package can be installed with the following command (successful 
+The package can be installed directly from CRAN and the development version
+from GitHub with the following commands (successful 
 installation of [`devtools`](https://www.r-project.org/nosvn/pandoc/devtools.html) is required)
 ```{r, eval = FALSE}
+# Stable version
+install.packages("innsight")
+
+# Development version
 devtools::install_github("bips-hb/innsight")
-library(innsight)
 ```
 Internally, any passed model is converted to a `torch` model, thus the correct 
 functionality of this package relies on a complete and correct installation
