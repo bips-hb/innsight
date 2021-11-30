@@ -61,7 +61,7 @@ avg_pool1d_layer <- nn_module(
   },
 
 
-  get_input_multiplier = function(multiplier) {
+  get_input_multiplier = function(multiplier, rule_name = NULL) {
     input_multiplier <- self$get_gradient(multiplier)
 
     input_multiplier
@@ -173,7 +173,7 @@ avg_pool2d_layer <- nn_module(
     },
 
 
-    get_input_multiplier = function(multiplier) {
+    get_input_multiplier = function(multiplier, rule_name = NULL) {
       input_multiplier <- self$get_gradient(multiplier)
 
       input_multiplier
@@ -285,7 +285,7 @@ max_pool1d_layer <- nn_module(
     rel_input
   },
 
-  get_input_multiplier = function(multiplier) {
+  get_input_multiplier = function(multiplier, rule_name = NULL) {
     input_multiplier <- self$get_gradient(multiplier)
 
     input_multiplier
