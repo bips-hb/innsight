@@ -1,7 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://bips-hb.github.io/innsight/404.html</loc>
+  </url>
+  <url>
+    <loc>https://bips-hb.github.io/innsight/LICENSE-text.html</loc>
+  </url>
+  <url>
+    <loc>https://bips-hb.github.io/innsight/articles/Custom_Model_Definition.html</loc>
+  </url>
+  <url>
+    <loc>https://bips-hb.github.io/innsight/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>https://bips-hb.github.io/innsight/articles/innsight.html</loc>
+  </url>
+  <url>
+    <loc>https://bips-hb.github.io/innsight/authors.html</loc>
+  </url>
+  <url>
     <loc>https://bips-hb.github.io/innsight/index.html</loc>
+  </url>
+  <url>
+    <loc>https://bips-hb.github.io/innsight/news/index.html</loc>
   </url>
   <url>
     <loc>https://bips-hb.github.io/innsight/reference/ConnectionWeights.html</loc>
@@ -31,12 +52,9 @@
     <loc>https://bips-hb.github.io/innsight/reference/SmoothGrad.html</loc>
   </url>
   <url>
+    <loc>https://bips-hb.github.io/innsight/reference/index.html</loc>
+  </url>
+  <url>
     <loc>https://bips-hb.github.io/innsight/reference/innsight-package.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/articles/Custom_Model_Definition.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/articles/innsight.html</loc>
   </url>
 </urlset>
