@@ -1,7 +1,7 @@
 
 # `innsight` - Get the Insights of your Neural Network
 
-<a href='https://bips-hb.github.io/innsight'><img src='man/figures/logo.png' align="right" height="220" /></a>
+<a href='https://bips-hb.github.io/innsight'><img src='man/figures/logo.png' align="right" width="200" /></a>
 
 <!-- badges: start -->
 
