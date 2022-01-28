@@ -103,6 +103,21 @@
 <p><a href="https://bips-hb.github.io/innsight"><img src="reference/figures/logo.png" align="right" width="200"></a></p>
 <!-- badges: start -->
 
+<div class="section level2">
+<h2 id="table-of-contents">Table of Contents<a class="anchor" aria-label="anchor" href="#table-of-contents"></a>
+</h2>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#usage">Usage</a></li>
+<li><a href="#examples">Examples</a></li>
+<li><a href="#contributing-and-future-work">Contributing and Future Work</a></li>
+<li><a href="#funding">Funding</a></li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h2>
 <p><code>innsight</code> is an R package that interprets the behavior and explains individual predictions of modern neural networks. Many methods for explaining individual predictions already exist, but hardly any of them are implemented or available in R. Most of these so-called <em>‘Feature Attribution’</em> methods are only implemented in Python and thus difficult to access or use for the R community. In this sense, the package <code>innsight</code> provides a common interface for various methods for the interpretability of neural networks and can therefore be considered as an R analogue to <a href="https://github.com/albermax/innvestigate" class="external-link">iNNvestigate</a> for Python.</p>
 <p>This package implements several model-specific interpretability (Feature Attribution) methods based on neural networks in R, e.g.,</p>
 <ul>
@@ -135,6 +150,7 @@
 </li>
 </ul>
 <p>But it is also possible to pass an arbitrary net in form of a named list (see <a href="https://bips-hb.github.io/innsight/articles/Custom_Model_Definition.html">vignette</a> for details).</p>
+</div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -263,7 +279,7 @@
 <span class="va">p_image</span> <span class="op">&lt;-</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/grid.raster.html" class="external-link">rasterGrob</a></span><span class="op">(</span><span class="va">image</span> <span class="op">/</span> <span class="fl">255</span><span class="op">)</span>
 
 <span class="co"># Preprocess image</span>
-<span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/reticulate/man/array_reshape.html" class="external-link">array_reshape</a></span><span class="op">(</span><span class="va">image</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">image</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rstudio.github.io/reticulate/reference/array_reshape.html" class="external-link">array_reshape</a></span><span class="op">(</span><span class="va">image</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">image</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
 <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://keras.rstudio.com/reference/imagenet_preprocess_input.html" class="external-link">imagenet_preprocess_input</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>
 
 <span class="co"># Get pretrained Vgg16</span>
@@ -286,6 +302,23 @@
 <span class="fu">gridExtra</span><span class="fu">::</span><span class="fu">grid.arrange</span><span class="op">(</span><span class="va">p_image</span>, <span class="va">p_lrp_ab</span>, layout_matrix <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="reference/figures/README-Example_2-1.png" width="100%"></p>
 </div>
+</div>
+<div class="section level2">
+<h2 id="contributing-and-future-work">Contributing and Future Work<a class="anchor" aria-label="anchor" href="#contributing-and-future-work"></a>
+</h2>
+<p>If you would like to contribute, please open an issue or submit a pull request.</p>
+<p>This package becomes even more alive and valuable if people are using it for their analyses. Therefore, don’t hesitate to write me (<a href="mailto:niklas.koenen@gmail.com" class="email">niklas.koenen@gmail.com</a>) or create a feature request if you are missing something for your analyses or have great ideas for extending this package. Currently, we are working on the following:</p>
+<ul>
+<li>
+<input type="checkbox" disabled>
+Extension to non-sequential models in <code>keras</code> with multiple in- and outputs, e.g. for mixed data of tabular and image data</li>
+<li>
+<input type="checkbox" disabled>
+More methods, e.g. Grad-CAM, integrated gradients, etc.</li>
+<li>
+<input type="checkbox" disabled>
+More examples and documentation (contact me if you have a non-trivial application for me)</li>
+</ul>
 </div>
 <div class="section level2">
 <h2 id="funding">Funding<a class="anchor" aria-label="anchor" href="#funding"></a>
@@ -335,6 +368,7 @@
 <ul class="list-unstyled">
 <li><a href="https://github.com/bips-hb/innsight/actions" class="external-link"><img src="https://github.com/bips-hb/innsight/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
 <li><a href="https://CRAN.R-project.org/package=innsight" class="external-link"><img src="https://www.r-pkg.org/badges/version/innsight" alt="CRAN status"></a></li>
+<li><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
 </ul>
 </div>
 
@@ -349,7 +383,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.0.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
 </div>
 
       </footer>
