@@ -18,7 +18,19 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/bips-hb/innsight/workflows/R-CMD-check/badge.svg)](https://github.com/bips-hb/innsight/actions)
 [![CRAN status](https://www.r-pkg.org/badges/version/innsight)](https://CRAN.R-project.org/package=innsight)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
+
+## Table of Contents
+
+* [Introduction](#introduction)
+* [Installation](#installation)
+* [Usage](#usage)
+* [Examples](#examples)
+* [Contributing and Future Work](#contributing-and-future-work)
+* [Funding](#funding)
+
+## Introduction
 
 `innsight` is an R package that interprets the behavior and explains individual
 predictions of modern neural networks. Many methods for explaining individual
@@ -220,6 +232,21 @@ p_lrp_ab <- plot(lrp_ab)
 
 gridExtra::grid.arrange(p_image, p_lrp_ab, layout_matrix = matrix(c(1,2,2), nrow = 1))
 ```
+
+## Contributing and Future Work
+
+If you would like to contribute, please open an issue or submit a pull request.
+
+This package becomes even more alive and valuable if people are using it for 
+their analyses. Therefore, don't hesitate to write me (<niklas.koenen@gmail.com>) 
+or create a feature request if you are missing something for your analyses or 
+have great ideas for extending this package. Currently, we are working on the following:
+
+- [ ] Extension to non-sequential models in `keras` with multiple in- and 
+outputs, e.g. for mixed data of tabular and image data
+- [ ] More methods, e.g. Grad-CAM, integrated gradients, etc.
+- [ ] More examples and documentation (contact me if you have a non-trivial
+application for me)
 
 ## Funding
 This work is funded by the German Research Foundation (DFG) in the context
