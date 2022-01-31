@@ -81,11 +81,12 @@ jobs:
           pak::pkg_install("rcmdcheck")
         shell: Rscript {0}
         
-      - name: Install conda env
+      - name: Install Python
         run: |
           install.packages("reticulate")
-          reticulate::conda_create(envname = "r-reticulate", python_version = "3.7")
-          reticulate::use_condaenv(condaenv = "r-reticulate")
+          reticulate::install_python(version = "3.7")
+          reticulate::virtualenv_create(version = "3.7")
+          reticulate::use_python_version(version = "3.7")
         shell: Rscript {0}
 
       - name: Install TensorFlow + Keras
