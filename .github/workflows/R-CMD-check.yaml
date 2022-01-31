@@ -84,12 +84,12 @@ jobs:
       - name: Install Miniconda
         run: |
           install.packages("reticulate")
-          reticulate::conda_create(envname = "r-reticulate", python_version = "3.7.12", conda = "~/miniconda")
+          reticulate::conda_create(envname = "r-reticulate", python_version = "3.7.12")
         shell: Rscript {0}
 
       - name: Install TensorFlow + Keras
         run: |
-          keras::install_keras(conda = "~/miniconda")
+          keras::install_keras(envname = "r-reticulate")
         shell: Rscript {0}
 
       - name: Install LibTorch
