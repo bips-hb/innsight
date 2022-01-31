@@ -80,10 +80,16 @@ jobs:
           pak::local_install_dev_deps(upgrade = TRUE)
           pak::pkg_install("rcmdcheck")
         shell: Rscript {0}
+        
+      - name: Install conda env
+        run: |
+          install.packages("reticulate")
+          reticulate::conda_create(python_version = "3.7")
+        shell: Rscript {0}
 
       - name: Install TensorFlow + Keras
         run: |
-          keras::install_keras(python_version = "3.7")
+          keras::install_keras(method = "conda", python_version = "3.7")
         shell: Rscript {0}
 
       - name: Install LibTorch
