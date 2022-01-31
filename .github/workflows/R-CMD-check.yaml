@@ -89,7 +89,7 @@ jobs:
 
       - name: Install TensorFlow + Keras
         run: |
-          keras::install_keras(python_version = "3.8")
+          keras::install_keras(pip = TRUE, pip_ignore_installed = TRUE)
         shell: Rscript {0}
 
       - name: Install LibTorch
