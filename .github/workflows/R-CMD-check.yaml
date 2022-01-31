@@ -84,9 +84,9 @@ jobs:
       - name: Install Python
         run: |
           install.packages("reticulate")
-          reticulate::install_python(version = "3.7")
-          reticulate::virtualenv_create(version = "3.7")
-          reticulate::use_python_version(version = "3.7")
+          reticulate::install_python(version = "miniconda3-3.7.0")
+          reticulate::virtualenv_create(version = "miniconda3-3.7.0")
+          reticulate::use_python_version(version = "miniconda3-3.7.0")
         shell: Rscript {0}
 
       - name: Install TensorFlow + Keras
