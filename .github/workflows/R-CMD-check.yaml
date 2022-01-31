@@ -81,12 +81,10 @@ jobs:
           pak::pkg_install("rcmdcheck")
         shell: Rscript {0}
         
-      - name: Install Python
+      - name: Install Miniconda
         run: |
           install.packages("reticulate")
-          reticulate::install_python(version = "miniconda3-3.7.0")
-          reticulate::virtualenv_create(version = "miniconda3-3.7.0")
-          reticulate::use_python_version(version = "miniconda3-3.7.0")
+          reticulate::install_miniconda(force = TRUE)
         shell: Rscript {0}
 
       - name: Install TensorFlow + Keras
