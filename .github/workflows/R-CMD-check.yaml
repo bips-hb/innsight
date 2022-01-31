@@ -89,7 +89,7 @@ jobs:
 
       - name: Install TensorFlow + Keras
         run: |
-          keras::install_keras()
+          keras::install_keras(python_version = "3.7")
         shell: Rscript {0}
 
       - name: Install LibTorch
