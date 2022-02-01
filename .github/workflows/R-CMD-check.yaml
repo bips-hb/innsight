@@ -84,7 +84,11 @@ jobs:
       - name: Install Miniconda
         run: |
           install.packages("reticulate")
-          reticulate::install_miniconda()
+          if (.Platform$OS.type == 'windows') {
+            reticulate::conda_create(packages = c("python=3.7", "numpy"))
+          } else {
+            reticulate::install_miniconda()
+          }
         shell: Rscript {0}
 
       - name: Install TensorFlow + Keras
