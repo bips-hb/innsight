@@ -81,15 +81,16 @@ jobs:
           pak::pkg_install("rcmdcheck")
         shell: Rscript {0}
         
-      - name: Install Miniconda
+      - name: Install conda
         run: |
           install.packages("reticulate")
-          reticulate::install_miniconda()
+          reticulate::conda_create("r-reticulate", packages = c("python=3.7", "numpy"))
+          reticulate::use_condaenv("r-reticulate")
         shell: Rscript {0}
 
       - name: Install TensorFlow + Keras
         run: |
-          keras::install_keras(pip = TRUE, pip_ignore_installed = TRUE)
+          keras::install_keras()
         shell: Rscript {0}
 
       - name: Install LibTorch
