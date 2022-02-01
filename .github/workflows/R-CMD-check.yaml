@@ -84,13 +84,11 @@ jobs:
       - name: Install conda
         run: |
           install.packages("reticulate")
-          reticulate::conda_create("r-reticulate", packages = c("python=3.7", "numpy"))
-          reticulate::use_condaenv("r-reticulate")
-        shell: Rscript {0}
-
-      - name: Install TensorFlow + Keras
-        run: |
-          keras::install_keras()
+          exe <- if (Sys.info()[['sysname']] == "windows") "condabin/conda.bat" else "bin/conda"
+          conda <- file.path(reticulate::miniconda_path(), exe)
+          pth <- reticulate::conda_create("r-reticulate", packages = c("python=3.7", "numpy"), conda = conda)
+          reticulate::use_condaenv("r-reticulate", required = TRUE)
+          keras::install_keras(method = "conda", conda = pth)
         shell: Rscript {0}
 
       - name: Install LibTorch
