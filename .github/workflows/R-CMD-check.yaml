@@ -84,7 +84,7 @@ jobs:
       - name: Install conda
         run: |
           install.packages("reticulate")
-          if (Sys.info()[['sysname']] == "windows") {
+          if (.Platform$OS.type == 'windows') {
             reticulate::conda_create(packages = c("python=3.7", "numpy"))
           } else {
             reticulate::install_miniconda()
