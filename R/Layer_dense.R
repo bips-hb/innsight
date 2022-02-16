@@ -208,7 +208,7 @@ dense_layer <- nn_module(
       rel_input <-
         self$get_gradient(rel_output / z, self$W) * input
     } else if (rule_name == "alpha_beta") {
-      out_part <- self$get_pos_and_neg_outputs(self$input)
+      out_part <- self$get_pos_and_neg_outputs(self$input, use_bias = TRUE)
 
       # Apply the simple rule for each part:
       # - positive part
