@@ -93,3 +93,93 @@ flatten_layer <- nn_module(
     rel_input
   }
 )
+
+
+#
+# Concatenate layer
+#
+
+concatenate_layer <- nn_module(
+  classname = "Concatenate_Layer",
+  inherit = OtherLayer,
+
+  dim = NULL,
+
+  initialize = function(dim, dim_in, dim_out) {
+    self$input_dim <- dim_in
+    self$output_dim <- dim_out
+    if (dim == -1) {
+      self$dim <- length(dim_in)
+    } else {
+      elf$dim <- dim
+    }
+  },
+
+  forward = function(x, channels_first = FALSE, ...) {
+    if (channels_first) {
+      axis <- 2
+    } else {
+      axis <- self$dim
+    }
+    output <- torch_cat(x, dim = axis)
+
+    output
+  },
+
+  update_ref = function(x_ref, channels_first = FALSE, ...) {
+    if (channels_first) {
+      axis <- 2
+    } else {
+      axis <- self$dim
+    }
+    output_ref <- torch_cat(x_ref, dim = axis)
+
+    output_ref
+  },
+
+
+  reshape_to_input = function(rel_output) {
+    split_size <- lapply(self$input_dim, function(x) x[self$dim - 1])
+    rel_input <- torch_split(rel_output, split_size, self$dim)
+
+    rel_input
+  }
+)
+
+#
+# Adding layer
+#
+add_layer <- nn_module(
+  classname = "Adding_Layer",
+  inherit = OtherLayer,
+
+  initialize = function(dim_in, dim_out) {
+    self$input_dim <- dim_in
+    self$output_dim <- dim_out
+  },
+
+  forward = function(x, ...) {
+    torch_stack(x, dim = length(self$input_dim))$sum(length(self$input_dim))
+  }
+)
+
+#
+# Skipping Layer
+#
+skipping_layer <- nn_module(
+  classname = "Skipping_Layer",
+  inherit = OtherLayer,
+
+  initialize = function(dim_in, dim_out) {
+    self$input_dim <- dim_in
+    self$output_dim <- dim_out
+  },
+
+  forward = function(x, ...) {
+    x
+  },
+
+  update_ref = function(x_ref, ...) {
+    x_ref
+  }
+)
