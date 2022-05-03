@@ -52,6 +52,7 @@ Collate:
     'Convert_keras.R'
     'Convert_neuralnet.R'
     'Convert_torch.R'
+    'ConvertedModel.R'
     'Converter.R'
     'DeepLift.R'
     'GradienBased.R'
