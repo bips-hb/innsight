@@ -111,7 +111,7 @@ concatenate_layer <- nn_module(
     if (dim == -1) {
       self$dim <- length(dim_in)
     } else {
-      elf$dim <- dim
+      self$dim <- dim
     }
   },
 
