@@ -98,7 +98,7 @@ dense_layer <- nn_module(
   #' dimensions \emph{(batch_size, out_features)}
   #'
   forward = function(x, save_input = TRUE, save_preactivation = TRUE,
-                     save_output = TRUE) {
+                     save_output = TRUE, ...) {
     if (save_input) {
       self$input <- x
     }
@@ -136,7 +136,7 @@ dense_layer <- nn_module(
   #' passing through the layer, of dimension \emph{(1, out_features)}
   #'
   update_ref = function(x_ref, save_input = TRUE, save_preactivation = TRUE,
-                        save_output = TRUE) {
+                        save_output = TRUE, ...) {
     if (save_input) {
       self$input_ref <- x_ref
     }
