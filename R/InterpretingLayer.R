@@ -1,30 +1,7 @@
-#'
-#' A Neural Network Layer for Interpreting its Input
-#'
-#' Implementation of a layer of a neural network as a torch module, to be used
-#' as a parent module to dense and convolutional layer modules. The main
-#' difference with the pre-implemented modules in torch is that many values
-#' are stored during the forward pass.
-#'
-#' @section Attributes:
-#' \describe{
-#'   \item{`self$input_dim`}{Dimension of the input without batch dimension}
-#'   \item{`self$input`}{The last recorded input for this layer}
-#'   \item{`self$input_ref`}{The last recorded reference input for this layer}
-#'   \item{`preactivation`}{The last recoreded preactivation of this layer}
-#'   \item{`preactivation_ref`}{The last recorded reference preactivation of
-#'     this layer}
-#'   \item{`self$output_dim`}{The dimension of the output of this layer}
-#'   \item{`self$output`}{The last recorded output of this layer}
-#'   \item{`self$output_ref`}{The last recored reference output of this layer}
-#'   \item{`activation_f`}{The activation function of this layer implemented
-#'     in torch}
-#'   \item{`activation_name`}{The name of the activation function}
-#' }
-#'
-#' @noRd
-#'
-#'
+###############################################################################
+#                   Super-class for Layers with weights
+###############################################################################
+
 InterpretingLayer <- nn_module(
   classname = "InterpretingLayer",
   input_dim = NULL,
@@ -37,6 +14,9 @@ InterpretingLayer <- nn_module(
   output_ref = NULL,
   activation_f = NULL,
   activation_name = NULL,
+  W = NULL,
+  b = NULL,
+  dtype = NULL,
 
   initialize = function() {
   },
@@ -53,33 +33,34 @@ InterpretingLayer <- nn_module(
     self$output_ref <- NULL
   },
 
+  set_dtype = function(dtype) {
+    if (dtype == "float") {
+      self$W <- self$W$to(torch_float())
+      self$b <- self$b$to(torch_float())
+    } else if (dtype == "double") {
+      self$W <- self$W$to(torch_double())
+      self$b <- self$b$to(torch_double())
+    } else {
+      stop("Unknown argument for 'dtype' : '", dtype, "'. ",
+           "Use 'float' or 'double' instead!")
+    }
+    self$dtype <- dtype
+  },
+
   get_activation = function(act_name) {
     activation <- get_activation(act_name)
 
     self$activation_f <- activation$act_func
     self$activation_name <- activation$act_name
-  }
+  },
+
 )
 
 
-#
-#         Layer utils
-#
+###############################################################################
+#                                Utils
+###############################################################################
 
-
-#
-# @title Get activation function
-# @name get_activation
-# @description
-# This function takes the name of an activation function as input and outputs
-# the corresponding function.
-# @param act_name The name of the activation function. Implemented functions
-# are \emph{"relu"},\emph{"leaky_relu"},\emph{"softplus"},
-# \emph{"sigmoid"/"logistic"},\emph{"tanh"},
-# \emph{"linear"} and \emph{"softmax"}.
-# @return Returns an object \code{result} with attributes \code{result$act}
-# and \code{result$act_name}, the activation function and name respectively.
-#
 get_activation <- function(act_name) {
   result <- NULL
 
