@@ -1,8 +1,8 @@
 
-#
-#   Super class for other layer types which are not based on a dense
-#   or convolutional layers
-#
+###############################################################################
+#      Super class for other layer types which are not based on a dense
+#      or convolutional layers
+###############################################################################
 
 OtherLayer <- nn_module(
   classname = "OtherLayer",
@@ -31,9 +31,9 @@ OtherLayer <- nn_module(
 )
 
 
-#
-# Flatten Layer
-#
+###############################################################################
+#                               Flatten Layer
+###############################################################################
 flatten_layer <- nn_module(
   classname = "Flatten_Layer",
   inherit = OtherLayer,
@@ -94,10 +94,9 @@ flatten_layer <- nn_module(
   }
 )
 
-
-#
-# Concatenate layer
-#
+###############################################################################
+#                           Concatenate Layer
+###############################################################################
 
 concatenate_layer <- nn_module(
   classname = "Concatenate_Layer",
@@ -146,9 +145,9 @@ concatenate_layer <- nn_module(
   }
 )
 
-#
-# Adding layer
-#
+###############################################################################
+#                           Adding Layer
+###############################################################################
 add_layer <- nn_module(
   classname = "Adding_Layer",
   inherit = OtherLayer,
@@ -163,9 +162,9 @@ add_layer <- nn_module(
   }
 )
 
-#
-# Skipping Layer
-#
+###############################################################################
+#                           Skipping Layer
+###############################################################################
 skipping_layer <- nn_module(
   classname = "Skipping_Layer",
   inherit = OtherLayer,
