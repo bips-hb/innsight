@@ -1,10 +1,9 @@
+###############################################################################
+#                       Super-class for pooling layers
+###############################################################################
 
-
-#
-# ----------------------------- Average Pooling -------------------------------
-#
-avg_pool1d_layer <- nn_module(
-  classname = "AvgPool1D_Layer",
+PoolingLayer <- nn_module(
+  classname = "PoolingLayer",
   input_dim = NULL,
   input = NULL,
   input_ref = NULL,
@@ -12,7 +11,9 @@ avg_pool1d_layer <- nn_module(
   output = NULL,
   output_ref = NULL,
   weight = NULL,
-  initialize = function(kernel_size, dim_in, dim_out, strides = NULL, dtype = "float") {
+
+  initialize = function(kernel_size, dim_in, dim_out, strides = NULL,
+                        dtype = "float") {
     self$kernel_size <- kernel_size
     self$input_dim <- dim_in
     self$output_dim <- dim_out
@@ -24,8 +25,52 @@ avg_pool1d_layer <- nn_module(
     }
   },
 
+  forward = function(x) {
+    x
+  },
+
+  get_gradient = function(x) {
+    x
+  },
+
+  get_input_multiplier = function(multiplier, rule_name = NULL) {
+    input_multiplier <- self$get_gradient(multiplier)
+
+    input_multiplier
+  },
+
+  reset = function() {
+    self$input <- NULL
+    self$input_ref <- NULL
+    self$output <- NULL
+    self$output_ref <- NULL
+  },
+
+  set_dtype = function(dtype) {
+    if (!is.null(self$weight) & dtype == "float") {
+      self$weight <- self$weight$to(torch_float())
+    } else if (!is.null(self$weight) & dtype == "double") {
+      self$weight <- self$weight$to(torch_double())
+    }
+    self$dtype <- dtype
+  }
+)
+
+###############################################################################
+#                           Average Pooling
+###############################################################################
+
+avg_pool1d_layer <- nn_module(
+  classname = "AvgPool1D_Layer",
+  inherit = PoolingLayer,
+  weight = NULL,
+
+  initialize = function(kernel_size, dim_in, dim_out, strides = NULL, dtype = "float") {
+    super$initialize(kernel_size, dim_in, dim_out, strides, dtype)
+  },
+
   forward = function(x, save_input = TRUE, save_preactivation = TRUE,
-                     save_output = TRUE) {
+                     save_output = TRUE, ...) {
     if (save_input) {
       self$input <- x
     }
@@ -38,7 +83,7 @@ avg_pool1d_layer <- nn_module(
   },
 
   update_ref = function(x_ref, save_input = TRUE, save_preactivation = TRUE,
-                        save_output = TRUE) {
+                        save_output = TRUE, ...) {
     if (save_input) {
       self$input_ref <- x_ref
     }
@@ -50,7 +95,6 @@ avg_pool1d_layer <- nn_module(
     output_ref
   },
 
-
   get_input_relevances = function(rel_output, rule_name = "simple", rule_param = NULL) {
 
     z <- self$output$unsqueeze(-1)
@@ -58,13 +102,6 @@ avg_pool1d_layer <- nn_module(
     rel_input <- self$get_gradient(rel_output / z) * self$input$unsqueeze(-1)
 
     rel_input
-  },
-
-
-  get_input_multiplier = function(multiplier, rule_name = NULL) {
-    input_multiplier <- self$get_gradient(multiplier)
-
-    input_multiplier
   },
 
   get_gradient = function(output, weight = NULL) {
@@ -95,50 +132,22 @@ avg_pool1d_layer <- nn_module(
     }
 
     input_grad
-  },
-
-  set_dtype = function(dtype) {
-    if (!is.null(self$weight) & dtype == "float") {
-      self$weight <- self$weight$to(torch_float())
-    } else if (!is.null(self$weight) & dtype == "double") {
-      self$weight <- self$weight$to(torch_double())
-    }
-    self$dtype <- dtype
-  },
-
-  reset = function() {
-    self$input <- NULL
-    self$input_ref <- NULL
-    self$output <- NULL
-    self$output_ref <- NULL
   }
 )
 
 
 avg_pool2d_layer <- nn_module(
     classname = "AvgPool2D_Layer",
-    input_dim = NULL,
-    input = NULL,
-    input_ref = NULL,
-    output_dim = NULL,
-    output = NULL,
-    output_ref = NULL,
+    inherit = PoolingLayer,
     weight = NULL,
+
     initialize = function(kernel_size, dim_in, dim_out, strides = NULL,
                           dtype = "float") {
-      self$kernel_size <- kernel_size
-      self$input_dim <- dim_in
-      self$output_dim <- dim_out
-      self$dtype <- dtype
-      if (is.null(strides)) {
-        self$strides <- kernel_size
-      } else {
-        self$strides <- strides
-      }
+      super$initialize(kernel_size, dim_in, dim_out, strides, dtype)
     },
 
     forward = function(x, save_input = TRUE, save_preactivation = TRUE,
-                       save_output = TRUE) {
+                       save_output = TRUE, ...) {
       if (save_input) {
         self$input <- x
       }
@@ -151,7 +160,7 @@ avg_pool2d_layer <- nn_module(
     },
 
     update_ref = function(x_ref, save_input = TRUE, save_preactivation = TRUE,
-                          save_output = TRUE) {
+                          save_output = TRUE, ...) {
       if (save_input) {
         self$input_ref <- x_ref
       }
@@ -170,13 +179,6 @@ avg_pool2d_layer <- nn_module(
       rel_input <- self$get_gradient(rel_output / z) * self$input$unsqueeze(-1)
 
       rel_input
-    },
-
-
-    get_input_multiplier = function(multiplier, rule_name = NULL) {
-      input_multiplier <- self$get_gradient(multiplier)
-
-      input_multiplier
     },
 
     get_gradient = function(output, weight = NULL) {
@@ -208,52 +210,25 @@ avg_pool2d_layer <- nn_module(
       }
 
       input_grad
-    },
-
-    set_dtype = function(dtype) {
-      if (!is.null(self$weight) & dtype == "float") {
-        self$weight <- self$weight$to(torch_float())
-      } else if (!is.null(self$weight) & dtype == "double") {
-        self$weight <- self$weight$to(torch_double())
-      }
-      self$dtype <- dtype
-    },
-
-    reset = function() {
-      self$input <- NULL
-      self$input_ref <- NULL
-      self$output <- NULL
-      self$output_ref <- NULL
     }
 )
 
 
-#
-# ----------------------------- Maximum Pooling -------------------------------
-#
+###############################################################################
+#                           Maximum Pooling
+###############################################################################
+
 max_pool1d_layer <- nn_module(
   classname = "MaxPool1D_Layer",
-  input_dim = NULL,
-  input = NULL,
-  input_ref = NULL,
-  output_dim = NULL,
-  output = NULL,
-  output_ref = NULL,
+  inherit = PoolingLayer,
+
   initialize = function(kernel_size, dim_in, dim_out, strides = NULL,
                         dtype = "float") {
-    self$kernel_size <- kernel_size
-    self$input_dim <- dim_in
-    self$output_dim <- dim_out
-    self$dtype <- dtype
-    if (is.null(strides)) {
-      self$strides <- kernel_size
-    } else {
-      self$strides <- strides
-    }
+    super$initialize(kernel_size, dim_in, dim_out, strides, dtype)
   },
 
   forward = function(x, save_input = TRUE, save_preactivation = TRUE,
-                     save_output = TRUE) {
+                     save_output = TRUE, ...) {
     if (save_input) {
       self$input <- x
     }
@@ -266,7 +241,7 @@ max_pool1d_layer <- nn_module(
   },
 
   update_ref = function(x_ref, save_input = TRUE, save_preactivation = TRUE,
-                        save_output = TRUE) {
+                        save_output = TRUE, ...) {
     if (save_input) {
       self$input_ref <- x_ref
     }
@@ -283,12 +258,6 @@ max_pool1d_layer <- nn_module(
     rel_input <- self$get_gradient(rel_output)
 
     rel_input
-  },
-
-  get_input_multiplier = function(multiplier, rule_name = NULL) {
-    input_multiplier <- self$get_gradient(multiplier)
-
-    input_multiplier
   },
 
   get_gradient = function(output, weight = NULL) {
@@ -316,46 +285,22 @@ max_pool1d_layer <- nn_module(
       torch_reshape(input_grad, c(output_shape[1],-1 , self$input$shape[-1])),
       2, -1)
 
-
     input_grad
-  },
-
-  set_dtype = function(dtype) {
-    self$dtype <- dtype
-  },
-
-  reset = function() {
-    self$input <- NULL
-    self$input_ref <- NULL
-    self$output <- NULL
-    self$output_ref <- NULL
   }
 )
 
 
 max_pool2d_layer <- nn_module(
   classname = "MaxPool2D_Layer",
-  input_dim = NULL,
-  input = NULL,
-  input_ref = NULL,
-  output_dim = NULL,
-  output = NULL,
-  output_ref = NULL,
+  inherit = PoolingLayer,
+
   initialize = function(kernel_size, dim_in, dim_out, strides = NULL,
                         dtype = "float") {
-    self$kernel_size <- kernel_size
-    self$input_dim <- dim_in
-    self$output_dim <- dim_out
-    self$dtype <- dtype
-    if (is.null(strides)) {
-      self$strides <- kernel_size
-    } else {
-      self$strides <- strides
-    }
+    super$initialize(kernel_size, dim_in, dim_out, strides, dtype)
   },
 
   forward = function(x, save_input = TRUE, save_preactivation = TRUE,
-                     save_output = TRUE) {
+                     save_output = TRUE, ...) {
     if (save_input) {
       self$input <- x
     }
@@ -368,7 +313,7 @@ max_pool2d_layer <- nn_module(
   },
 
   update_ref = function(x_ref, save_input = TRUE, save_preactivation = TRUE,
-                        save_output = TRUE) {
+                        save_output = TRUE, ...) {
     if (save_input) {
       self$input_ref <- x_ref
     }
@@ -386,13 +331,6 @@ max_pool2d_layer <- nn_module(
     rel_input <- self$get_gradient(rel_output)
 
     rel_input
-  },
-
-
-  get_input_multiplier = function(multiplier, rule_name = NULL) {
-    input_multiplier <- self$get_gradient(multiplier)
-
-    input_multiplier
   },
 
   get_gradient = function(output, weight = NULL, input = NULL) {
@@ -421,18 +359,6 @@ max_pool2d_layer <- nn_module(
       torch_reshape(input_grad, c(output_shape[1],-1 , self$input$shape[-1])),
       2, -1)
 
-
     input_grad
-  },
-
-  set_dtype = function(dtype) {
-    self$dtype <- dtype
-  },
-
-  reset = function() {
-    self$input <- NULL
-    self$input_ref <- NULL
-    self$output <- NULL
-    self$output_ref <- NULL
   }
 )
