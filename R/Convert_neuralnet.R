@@ -21,7 +21,7 @@ convert_neuralnet_model <- function(model) {
     stop("You can't use custom activation functions for this package.")
   }
 
-  model_dict <- list()
+  model_as_list <- list()
   for (i in seq_along(weights)) {
     name <- sprintf("Dense_%s", i)
 
@@ -29,24 +29,38 @@ convert_neuralnet_model <- function(model) {
     b <- as.vector(weights[[i]][1, ])
     w <- t(matrix(weights[[i]][-1, ], ncol = length(b)))
 
+    # consider the activation of the last layer
     if (i == length(weights) && model$linear.output == TRUE) {
       act_name <- "linear"
     }
-    model_dict$layers[[name]] <-
+
+    # convert the layer as a list with all important parameters
+    # The argument 'input_layers' saves all the previous layers of the current
+    # layer. '0' means that the current layer is an input layer. Similarly,
+    # the argument 'output_layers' saves all indices of the succeeding layers,
+    # whereby '-1' means that the current layer is an output layer
+    model_as_list$layers[[name]] <-
       list(
         type = "Dense",
         weight = w,
         bias = b,
         activation_name = act_name,
         dim_in = dim(w)[2],
-        dim_out = dim(w)[1]
+        dim_out = dim(w)[1],
+        input_layers = i - 1,
+        output_layers = ifelse(i == length(weights), -1, i + 1)
       )
   }
 
-  model_dict$input_dim <- ncol(model$covariate)
-  model_dict$output_dim <- ncol(model$response)
-  model_dict$input_names <- list(model$model.list$variables)
-  model_dict$output_names <- list(model$model.list$response)
+  # Save other attributes of the model
+  model_as_list$input_dim <- list(ncol(model$covariate))
+  model_as_list$output_dim <- list(ncol(model$response))
+  model_as_list$input_names <- list(list(model$model.list$variables))
+  model_as_list$output_names <- list(list(model$model.list$response))
+  # Neuralnet implements only sequential models, hence the input node is the
+  # first and the output node the last layer
+  model_as_list$input_nodes <- c(1)
+  model_as_list$output_nodes <- c(i)
 
-  model_dict
+  model_as_list
 }
