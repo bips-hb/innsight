@@ -107,21 +107,51 @@ InterpretingMethod <- R6Class(
       assertChoice(type, c("array", "data.frame", "torch.tensor",
                            "torch_tensor"))
 
-      result <- self$result
+      # Get the result as an array
       if (type == "array") {
-        result <- as_array(result)
-        input_names <- self$converter$model_dict$input_names
+        # Get the input names and move the channel dimension (if necessary)
+        input_names <- self$converter$input_names
         if (!self$channels_first) {
-          channel_names <- input_names[1]
-          input_names <- input_names[-1]
-          input_names <- append(input_names, channel_names)
+          input_names <- move_channels_last(input_names)
         }
-        dim_names <- list(seq_len(dim(result)[1]),
-                          self$converter$model_dict$output_names[[1]])
-        dim_names <- append(dim_names, input_names, 1)
-        dimnames(result) <- dim_names
-      } else if (type == "data.frame") {
-        result <- private$get_dataframe()
+        # Convert the torch_tensor result into a named array
+        result <- tensor_list_to_named_array(
+          self$result, input_names, self$converter$output_names, self$output_idx)
+      }
+      # Get the result as a data.frame
+      else if (type == "data.frame") {
+        # Convert the torch_tensor result into a data.frame
+        result <- create_dataframe_from_result(
+          seq_len(dim(self$data[[1]])[1]), self$result, self$converter$input_names,
+          self$converter$output_names, self$output_idx)
+        # Remove unnecessary columns
+        if (all(result$input_dimension <= 2)) {
+          result$feature_2 <- NULL
+        }
+        if (all(result$input_dimension <= 1)) {
+          result$channel <- NULL
+        }
+      }
+      # Get the result as a torch_tensor and remove unnecessary axis
+      else {
+        num_inputs <- length(self$converter$input_names)
+        out_null_idx <- unlist(lapply(self$output_idx, is.null))
+        out_nonnull_idx <- seq_along(self$converter$output_names)[!out_null_idx]
+        result <- self$result
+        # Name the inner list or remove the inner list
+        for (out_idx in seq_along(result)) {
+          if (num_inputs == 1) {
+            result[[out_idx]] <- result[[out_idx]][[1]]
+          } else {
+            names(result[[out_idx]]) <- paste0("Input_", seq_len(num_inputs))
+          }
+        }
+        # Name the outer list or remove it
+        if (length(self$output_idx) == 1) {
+          result <- result[[1]]
+        } else {
+          names(result) <- paste0("Output_", out_nonnull_idx)
+        }
       }
 
       result
@@ -178,59 +208,6 @@ InterpretingMethod <- R6Class(
 
         input_data
       })
-    },
-    get_dataframe = function() {
-      result <- as.array(self$result)
-      input_names <- self$converter$model_dict$input_names
-      num_data <- dim(result)[1]
-      data_names <- paste0("data_", 1:num_data)
-      class <- unlist(self$converter$model_dict$output_names)[self$output_idx]
-
-      if (length(input_names) == 1) {
-        df <- expand.grid(
-          data = data_names,
-          feature = input_names[[1]],
-          class = class
-        )
-      }
-      # input (channels, signal_length)
-      else if (length(input_names) == 2) {
-        if (self$channels_first) {
-          df <- expand.grid(
-            data = data_names,
-            channel = input_names[[1]],
-            feature_l = input_names[[2]],
-            class = class
-          )
-        } else {
-          df <- expand.grid(
-            data = data_names,
-            feature_l = input_names[[2]],
-            channel = input_names[[1]],
-            class = class
-          )
-        }
-      } else if (length(input_names) == 3) {
-        if (self$channels_first) {
-          df <- expand.grid(
-            data = data_names,
-            channel = input_names[[1]],
-            feature_h = input_names[[2]],
-            feature_w = input_names[[3]],
-            class = class
-          )
-        } else {
-          df <- expand.grid(
-            data = data_names,
-            feature_h = input_names[[2]],
-            feature_w = input_names[[3]],
-            channel = input_names[[1]],
-            class = class
-          )
-        }
-      }
-      df$value <- as.vector(result)
-      df
     },
 
     # ----------------------- Plot Function ----------------------------------
@@ -490,3 +467,153 @@ check_output_idx <- function(output_idx, output_dim) {
 
   output_idx
 }
+
+
+tensor_list_to_named_array <- function(torch_result, input_names, output_names,
+                                       output_idx) {
+  # get the indices of the output for which we have and haven't calculated
+  # attribution values
+  out_null_idx <- unlist(lapply(output_idx, is.null))
+  out_nonnull_idx <- seq_along(output_names)[!out_null_idx]
+
+  # select only relevant output indices and output names
+  output_idx <- output_idx[out_nonnull_idx]
+  output_names <- output_names[out_nonnull_idx]
+
+  # 'torch_result' is a list (with output layer indices) of list (input layer
+  # indices) and the inner list contains the corresponding result of the
+  # respective output and input layer combination
+  result <- lapply(
+    # for each output layer
+    seq_along(torch_result),
+    function(out_idx) {
+      result_i <- lapply(
+        # and for each input layer
+        seq_along(torch_result[[out_idx]]),
+        function(in_idx) {
+          # get the corresponding result
+          result_ij <- torch_result[[out_idx]][[in_idx]]
+          # if the output layer isn't connected to the input layer, we set
+          # the value NaN
+          if (is.null(result_ij)) {
+            result_ij <- NaN
+          }
+          # otherwise convert the result to an array and set dimnames
+          else {
+            result_ij <- as_array(result_ij)
+            in_name <- input_names[[in_idx]]
+            out_name <-
+              list(output_names[[out_idx]][[1]][output_idx[[out_idx]]])
+            names <- append(list(NULL), in_name)
+            names <- append(names, out_name)
+            dimnames(result_ij) <- names
+          }
+
+          result_ij
+        }
+      )
+      # Skip one list dimension if there is only one input layer, otherwise
+      # set the names of the list entries
+      if (length(input_names) == 1) {
+        result_i <- result_i[[1]]
+      } else {
+        names(result_i) <- paste0("Input_", seq_along(input_names))
+      }
+
+      result_i
+    }
+  )
+  # Skip one list dimension if there is only one output layer, otherwise set
+  # the names of the list entries
+  if (length(output_idx) == 1) {
+    result <- result[[1]]
+  } else {
+    names(result) <- paste0("Output_", out_nonnull_idx)
+  }
+
+  result
+}
+
+
+create_dataframe_from_result <- function(data_idx, result, input_names,
+                                         output_names, output_idx) {
+
+  null_idx <- unlist(lapply(output_idx, is.null))
+  nonnull_idx <- seq_along(output_names)[!null_idx]
+  output_idx <- output_idx[nonnull_idx]
+  output_names <- output_names[nonnull_idx]
+
+  fun <- function(result, out_idx, in_idx, input_names, output_names,
+                  output_idx, nonnull_idx) {
+    res <- result[[out_idx]][[in_idx]]
+    result_df <-
+      create_grid(data_idx, input_names[[in_idx]],
+                  output_names[[out_idx]][[1]][output_idx[[out_idx]]])
+    if (is.null(res)) {
+      result_df$value <- NaN
+    } else {
+      result_df$value <- as.vector(as.array(res))
+    }
+    result_df$model_input <- paste0("Input_", in_idx)
+    result_df$model_output <- paste0("Output_", nonnull_idx[out_idx])
+
+    result_df
+  }
+
+  result <- apply_results(result, fun, input_names, output_names,
+                          output_idx, nonnull_idx)
+  result_df <- do.call("rbind",
+                       lapply(result, function(x) do.call("rbind", x)))
+
+  result_df[, c(1, 8, 9, 3, 4, 2, 5, 7, 6)]
+}
+
+create_grid <- function(data_idx, input_names, output_names) {
+  dimension <- length(input_names)
+
+  if (dimension == 1) {
+    feature = input_names[[1]]
+    feature_2 <- NaN
+    channel <- NaN
+  } else if (dimension == 2) {
+    feature = input_names[[2]]
+    feature_2 <- NaN
+    channel <- input_names[[1]]
+  } else {
+    feature = input_names[[2]]
+    feature_2 <- input_names[[3]]
+    channel <- input_names[[1]]
+  }
+
+  expand.grid(data = paste0("data_", data_idx),
+              channel = channel,
+              feature = feature,
+              feature_2 = feature_2,
+              output_node = output_names,
+              input_dimension = dimension)
+}
+
+move_channels_last <- function(names) {
+  for (idx in seq_along(names)) {
+    if (length(names[[idx]]) == 2) { # 1d input
+      names[[idx]] <- names[[idx]][c(2,1)]
+    } else if (length(names[[idx]]) == 3) { # 2d input
+      names[[idx]] <- names[[idx]][c(2,3,1)]
+    }
+  }
+
+  names
+}
+
+
+apply_results <- function(result, FUN, ...) {
+  # loop over all the output layers
+  lapply(seq_along(result), function(out_idx) {
+    # then loop over all input layers
+    lapply(seq_along(result[[out_idx]]), function(in_idx) {
+      # apply FUN to results
+      FUN(result, out_idx, in_idx, ...)
+    })
+  })
+}
+
