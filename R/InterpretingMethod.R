@@ -219,153 +219,13 @@ InterpretingMethod <- R6Class(
                     value_name = "value") {
 
       # Check correctness of arguments
-      assertNumeric(data_idx, lower = 1, upper = dim(self$result)[1])
-      assertSubset(output_idx, self$output_idx)
+      assertIntegerish(data_idx, lower = 1, upper = dim(self$data[[1]])[1])
+      output_idx <- check_output_idx_for_plot(output_idx, self$output_idx)
       assert(
         checkFunction(aggr_channels),
         checkChoice(aggr_channels, c("norm", "sum", "mean"))
       )
       assertLogical(as_plotly)
-
-      if (length(output_idx) == 0) {
-        classes <- self$output_idx[1]
-        classes_idx <- 1
-      } else {
-        classes <- output_idx
-        classes_idx <- match(classes, self$output_idx)
-      }
-
-      if (!is.function(aggr_channels)) {
-        if (aggr_channels == "norm") {
-          aggr_channels <- function(x) sum(x^2)^0.5
-        } else if (aggr_channels == "sum") {
-          aggr_channels <- sum
-        } else if (aggr_channels == "mean") {
-          aggr_channels <- mean
-        }
-      }
-
-      # The input and output names are used for every plot-function
-      input_names <- self$converter$model_dict$input_names
-      output_names <- unlist(self$converter$model_dict$output_names)[classes]
-
-      # Depending on the number of dimensions, a different plot-function
-      # is used
-      num_dims <- length(dim(self$result))
-      # 1D Input
-      if (num_dims == 3) {
-        # Filter all results by the given 'data_idx' and 'classes'
-        res <- self$result[data_idx, , classes_idx, drop = FALSE]
-        # Plot the result
-        p <- plot_1d_input(
-          res, value_name, paste0("data_", data_idx),
-          input_names,
-          output_names,
-          self$channels_first, FALSE
-        )
-        dynamicTicks <- FALSE
-      }
-      # 2D Input
-      else if (num_dims == 4) {
-        # Filter all results by the given 'data_idx' and 'classes'
-        res <- as_array(self$result[data_idx, , , classes_idx, drop = FALSE])
-
-        # Depending on the dataformat the channels are on axis '2' or '3'
-        if (self$channels_first) {
-          dims <- c(1, 3, 4)
-          d <- 2
-        } else {
-          dims <- c(1, 2, 4)
-          d <- 3
-        }
-        # Summarize the channels by function 'aggr_channels'
-        res <- torch_tensor(apply(res, dims, aggr_channels))$unsqueeze(d)
-        # Modify input names because we changed the number of channels
-        input_names[[1]] <- c("aggr")
-
-        # Plot the result
-        p <- plot_2d_input(
-          res, value_name, paste0("data_", data_idx), input_names,
-          output_names, self$channels_first, FALSE
-        )
-        dynamicTicks <- TRUE
-      }
-      # 3D Input
-      else if (num_dims == 5) {
-        # Filter all results by the given 'data_idx' and 'classes'
-        res <- as_array(self$result[data_idx, , , , classes_idx, drop = FALSE])
-        # Depending on the dataformat the channels are on axis '2' or '3'
-        if (self$channels_first) {
-          dims <- c(1, 3, 4, 5)
-          d <- 2
-        } else {
-          dims <- c(1, 2, 3, 5)
-          d <- 4
-        }
-        # Summarize the channels by function 'aggr_channels'
-        res <- torch_tensor(apply(res, dims, aggr_channels))$unsqueeze(d)
-        # Modify input names because we changed the number of channels
-        input_names[[1]] <- c("aggr")
-        # Plot the result
-        p <- plot_3d_input(
-          res, value_name, paste0("data_", data_idx), input_names,
-          output_names, self$channels_first, FALSE
-        )
-        dynamicTicks <- TRUE
-      }
-
-      # Set the size of labels and titles
-      p <- p +
-        theme(
-          strip.text.x = element_text(size = 10),
-          strip.text.y = element_text(size = 10),
-          axis.title.x = element_text(size = 12),
-          axis.title.y = element_text(size = 12)
-        )
-
-      # If 'as_plotly = TRUE', we transform the ggplot into a plotly plot by
-      # using 'plotly::ggplotly'
-      if (as_plotly) {
-        if (!requireNamespace("plotly", quietly = FALSE)) {
-          stop("Please install the 'plotly' package if you want to create",
-               "an interactive plot.")
-        }
-        p <-
-          plotly::ggplotly(p, tooltip = "text", dynamicTicks = dynamicTicks)
-      }
-      p
-    },
-
-    # ------------------------ Boxplots -------------------------------------
-
-    boxplot = function(output_idx, data_idx, ref_data_idx, aggr_channels,
-                       preprocess_FUN, as_plotly, individual_data_idx,
-                       individual_max, value_name) {
-
-      # Check correctness of arguments
-      dim_result <- dim(self$result)
-      assertFunction(preprocess_FUN)
-      assert(
-        checkFunction(aggr_channels),
-        checkChoice(aggr_channels, c("norm", "sum", "mean"))
-      )
-      assertLogical(as_plotly)
-      assert(
-        checkNumeric(data_idx, lower = 1, upper = dim_result[1]),
-        checkChoice(data_idx, c("all"))
-      )
-      assertSubset(output_idx, self$output_idx)
-      assertInt(ref_data_idx,
-        lower = 1, upper = dim_result[1], null.ok = TRUE
-      )
-      checkNumeric(individual_data_idx,
-        lower = 1, upper = dim_result[1], null.ok = TRUE
-      )
-
-      # Set default value for 'data_idx'
-      if (is.character(data_idx) && data_idx == "all") {
-        data_idx <- 1:(dim_result[1])
-      }
 
       # Set aggregation function for channels
       if (!is.function(aggr_channels)) {
@@ -378,46 +238,76 @@ InterpretingMethod <- R6Class(
         }
       }
 
-      # Set default value for 'output_idx'
-      if (length(output_idx) == 0) {
-        classes <- self$output_idx[1]
-        classes_idx <- 1
-      } else {
-        classes <- output_idx
-        classes_idx <- match(classes, self$output_idx)
+      # Get only relevant model outputs
+      null_idx <- unlist(lapply(output_idx, is.null))
+      result <- self$result[!null_idx]
+
+      # Get the relevant output and class node indices
+      # This is done by matching the given output indices ('output_idx') with
+      # the calculated output indices ('self$output_idx'). Afterwards,
+      # all non-relevant output indices are removed
+      idx_matches <- lapply(seq_along(output_idx), function(i)
+        match(output_idx[[i]], self$output_idx[[i]]))[!null_idx]
+
+      # Define function for aggregating the channels
+      aggregate_channels <- function(result, out_idx, in_idx, idx_matches) {
+        res <- result[[out_idx]][[in_idx]]
+        if (is.null(res)) {
+          res <- NULL
+        } else {
+          d <- length(dim(res))
+          idx <- idx_matches[[out_idx]]
+
+          # Select only relevant data and output class
+          res <- res$index_select(1, as.integer(data_idx))
+          res <- res$index_select(-1, as.integer(idx))
+          res <- as_array(res)
+
+          # Only aggregate if the input is non-tabular
+          if (d != 3) {
+            # get arguments for aggregating
+            num_axis <- length(dim(res))
+            channel_axis <- ifelse(self$channels_first, 2, num_axis - 1)
+            aggr_axis <- setdiff(seq_len(num_axis), channel_axis)
+
+            # aggregate channels
+            res <- apply(res, aggr_axis, aggr_channels)
+            dim(res) <- append(dim(res), 1, channel_axis)
+          }
+        }
+
+        res
       }
 
-      # Set default for 'individual_data_idx' (only for plotly plots)
-      if (is.null(individual_data_idx)) {
-        individual_data_idx <- data_idx
-      }
-      if (length(individual_data_idx) > individual_max) {
-        individual_data_idx <- individual_data_idx[1:individual_max]
-      }
+      result <- apply_results(result, aggregate_channels, idx_matches)
 
-      if (as_plotly) {
-        result <- private$get_dataframe()
-        all_data_ids <- c(data_idx, individual_data_idx, ref_data_idx)
-        output_names <- unlist(self$converter$model_dict$output_names)
-        result <- result[result$data %in% paste0("data_", all_data_ids) &
-          result$class %in% output_names[classes], ]
-        result$summary_data <- result$data %in% paste0("data_", data_idx)
-        result$individual_data <-
-          result$data %in% paste0("data_", c(individual_data_idx, ref_data_idx))
+      # Get and modify input names
+      input_names <- lapply(self$converter$input_names, function(in_name) {
+        if (length(in_name) > 1) {
+          in_name[[1]] <- "aggregated"
+        }
+        in_name
+      })
 
-        result$value <- preprocess_FUN(result$value)
-        p <- boxplot_plotly(result, aggr_channels, ref_data_idx, value_name)
-      } else {
-        output_names <- unlist(self$converter$model_dict$output_names)[classes]
-        input_names <- self$converter$model_dict$input_names
-        p <- boxplot_ggplot(
-          self$result, aggr_channels, ref_data_idx, value_name,
-          data_idx, classes_idx, input_names, output_names,
-          preprocess_FUN, self$channels_first
-        )
-      }
+      result_df <- create_dataframe_from_result(
+        data_idx, result, input_names, self$converter$output_names, output_idx)
+
+      # Get plot
+      p <- plot_func(result_df, value_name, as_plotly)
 
       p
+    },
+
+    # ------------------------ Boxplots -------------------------------------
+
+    boxplot = function(output_idx, data_idx, ref_data_idx, aggr_channels,
+                       preprocess_FUN, as_plotly, individual_data_idx,
+                       individual_max, value_name) {
+
+      #
+      # to do!
+      #
+      stop("ToDo: Boxplot function!!")
     }
   )
 )
@@ -591,6 +481,41 @@ create_grid <- function(data_idx, input_names, output_names) {
               feature_2 = feature_2,
               output_node = output_names,
               input_dimension = dimension)
+}
+
+
+check_output_idx_for_plot <- function(output_idx, true_output_idx) {
+  if (is.null(output_idx)) {
+    # Find first non-NULL value
+    output_idx <- rep(list(NULL), length(true_output_idx))
+    idx <- which(unlist(lapply(true_output_idx, is.null)) == FALSE)[1]
+    output_idx[[idx]] <- true_output_idx[[idx]][1]
+  } else if (testIntegerish(output_idx)) {
+    assertSubset(output_idx, true_output_idx[[1]])
+    output_idx <- list(output_idx)
+  } else if (testList(output_idx, max.len = length(true_output_idx))) {
+    for (out_idx in seq_along(true_output_idx)) {
+      assertSubset(output_idx[[out_idx]], true_output_idx[[out_idx]],
+                   .var.name = paste0("output_idx[[", out_idx, "]]"))
+    }
+  } else {
+    values <- unlist(lapply(true_output_idx, paste, collapse = ","))
+    values <- paste0("[[", seq_along(values), "]] ", values, " ")
+    stop("The argument 'output_idx' has to be either a vector with value of '",
+         paste(true_output_idx[[1]], collapse = ","),
+         "' or a list of length '", length(true_output_idx),
+         "' with values of '", values, "'. Only for these output nodes ",
+         "the method has been applied!")
+  }
+
+  # Fill up with NULLs
+  if (length(output_idx) < length(true_output_idx)) {
+    output_idx <-
+      append(output_idx,
+             rep(list(NULL), length(true_output_idx) - length(output_idx)))
+  }
+
+  output_idx
 }
 
 move_channels_last <- function(names) {

@@ -66,3 +66,4 @@ Collate:
     'Layer_pooling.R'
     'innsight.R'
     'utils.R'
+    'utils_plot.R'
