@@ -1,3 +1,8 @@
+
+###############################################################################
+#                         Interpreting Method
+###############################################################################
+
 #' @title Super class for Interpreting Methods
 #' @description This is a super class for all data-based interpreting methods.
 #' Implemented are the following methods:
@@ -77,15 +82,8 @@ InterpretingMethod <- R6Class(
       self$dtype <- dtype
       self$converter$model$set_dtype(dtype)
 
-      assertIntegerish(output_idx,
-        null.ok = TRUE, lower = 1,
-        upper = converter$model_dict$output_dim
-      )
-
-      if (is.null(output_idx)) {
-        output_idx <-1:min(converter$model_dict$output_dim)
-      }
-      self$output_idx <- output_idx
+      # Check output indices
+      self$output_idx <- check_output_idx(output_idx, converter$output_dim)
 
       self$data <- private$test_data(data)
     },
@@ -134,46 +132,52 @@ InterpretingMethod <- R6Class(
       if (missing(data)) {
         stop("Argument 'data' is missing!")
       }
-      data <- tryCatch({
-          if (is.data.frame(data)) {
-            data <- as.matrix(data)
+      if (!is.list(data) | is.data.frame(data)) {
+        data <- list(data)
+      }
+
+      lapply(seq_along(data), function(i) {
+        input_data <- data[[i]]
+        input_data <- tryCatch({
+          if (is.data.frame(input_data)) {
+            input_data <- as.matrix(input_data)
           }
-          as.array(data)
+          as.array(input_data)
         },
         error = function(e) {
-          stop("Failed to convert the argument '", name, "' to an array ",
+          stop("Failed to convert the argument '", name, "[[", i, "]]' to an array ",
                "using the function 'base::as.array'. The class of your ",
-               "argument '", name, "': '",
-               paste(class(data), collapse = "', '"), "'")
+               "argument '", name, "[[", i, "]]': '",
+               paste(class(input_data), collapse = "', '"), "'")
+        })
+
+        ordered_dim <- self$converter$input_dim[[i]]
+        if (!self$channels_first) {
+          channels <- ordered_dim[1]
+          ordered_dim <- c(ordered_dim[-1], channels)
         }
-      )
 
-      ordered_dim <- self$converter$model_dict$input_dim
-      if (!self$channels_first) {
-        channels <- ordered_dim[1]
-        ordered_dim <- c(ordered_dim[-1], channels)
-      }
-
-      if (length(dim(data)[-1]) != length(ordered_dim) ||
-        !all(dim(data)[-1] == ordered_dim)) {
-        stop(
-          "Unmatch in model dimension (*, ",
-          paste0(ordered_dim, collapse = ", "), ") and dimension of ",
-          "argument '", name, "' (",
-          paste0(dim(data), collapse = ", "),
-          "). Try to change the argument 'channels_first', if only ",
-          "the channels are wrong."
-        )
-      }
+        if (length(dim(input_data)[-1]) != length(ordered_dim) ||
+            !all(dim(input_data)[-1] == ordered_dim)) {
+          stop(
+            "Unmatch in model dimension (*, ",
+            paste0(ordered_dim, collapse = ", "), ") and dimension of ",
+            "argument '", name, "[[", i, "]]' (",
+            paste0(dim(input_data), collapse = ", "),
+            "). Try to change the argument 'channels_first', if only ",
+            "the channels are wrong."
+          )
+        }
 
 
-      if (self$dtype == "float") {
-        data <- torch_tensor(data, dtype = torch_float())
-      } else {
-        data <- torch_tensor(data, dtype = torch_double())
-      }
+        if (self$dtype == "float") {
+          input_data <- torch_tensor(input_data, dtype = torch_float())
+        } else {
+          input_data <- torch_tensor(input_data, dtype = torch_double())
+        }
 
-      data
+        input_data
+      })
     },
     get_dataframe = function() {
       result <- as.array(self$result)
@@ -440,3 +444,49 @@ InterpretingMethod <- R6Class(
     }
   )
 )
+
+
+###############################################################################
+#                                 Utils
+###############################################################################
+
+check_output_idx <- function(output_idx, output_dim) {
+  # for the default value, choose from the first output the first ten
+  # (maybe less) output nodes
+  if (is.null(output_idx)) {
+    output_idx <- list(1:min(10, output_dim[[1]]))
+  }
+  # or only a number (assumes the first output)
+  else if (testIntegerish(output_idx,
+                          lower = 1,
+                          upper = output_dim[[1]])) {
+    output_idx <- list(output_idx)
+  }
+  # the argument output_idx is a list of output_nodes for each output
+  else if (testList(output_idx, max.len = length(output_dim))) {
+    n <- 1
+    for (output in output_idx) {
+      limit <- output_dim[[n]]
+      assertInt(limit)
+      if (!testIntegerish(output, lower = 1, upper = limit, null.ok = TRUE)) {
+        stop("Assertion on 'output_idx[[", n, "]]' failed: Values ",
+             paste(output, collapse = ",")," is not <= ", limit, ".")
+      }
+      n <- n + 1
+    }
+  } else {
+    stop("The argument 'output_idx' has to be either a vector with maximum value of '",
+         output_dim[[1]], "' or a list of length '",
+         length(output_dim), "' with maximal values of '",
+         paste(unlist(output_dim), collapse = ","), "'.")
+  }
+
+  # Fill up with NULLs
+  if (length(output_idx) < length(output_dim)) {
+    output_idx <-
+      append(output_idx,
+             rep(list(NULL), length(output_dim) - length(output_idx)))
+  }
+
+  output_idx
+}
