@@ -31,10 +31,24 @@
 ConvertedModel <- nn_module(
   classname = "ConvertedModel",
   modules_list = NULL,
+  graph = NULL,
+  input_nodes = NULL,
+  output_nodes = NULL,
+  output_order = NULL,
   dtype = NULL,
-  initialize = function(modules_list, dtype = "float") {
+  initialize = function(modules_list, graph, input_nodes, output_nodes, dtype = "float") {
     self$modules_list <- modules_list
+    self$graph <- graph
+    self$input_nodes <- input_nodes
+    self$output_nodes <- output_nodes
     self$dtype <- dtype
+
+    # Calculate output order
+    last_step <- graph[[length(graph)]]
+    graph_output_nodes <- last_step$current_nodes
+    graph_output_nodes[[last_step$used_idx]] <- last_step$used_node
+    graph_output_nodes <- unlist(graph_output_nodes)
+    self$output_order <- match(output_nodes, graph_output_nodes)
   },
 
   ### -------------------------forward and update------------------------------
@@ -65,27 +79,59 @@ ConvertedModel <- nn_module(
   forward = function(x, channels_first = TRUE, save_input = FALSE,
                      save_preactivation = FALSE, save_output = FALSE,
                      save_last_layer = FALSE) {
+    # Convert the input to a list
+    if (!is.list(x)) {
+      x <- list(x)
+    }
+
+    # If the channels are last, we have to move the channel axis to the first
+    # position after the batch dimension
     if (channels_first == FALSE) {
-      x <- torch_movedim(x, -1, 2)
+      x <- lapply(x, function(x_i) torch_movedim(x_i, source = -1, destination = 2))
     }
 
-    num_modules <- length(self$modules_list)
-    i <- 1
-
-    for (module in self$modules_list) {
-      if (save_last_layer & i == num_modules) {
-        save_preactivation <- TRUE
-        save_output <- TRUE
+    # This is the main part of the forward pass.
+    # We move the graph forward step by step whereby each step correspond to
+    # one layer
+    for (step in self$graph) {
+      # get the necessary inputs for the current layer
+      input <- x[step$used_idx]
+      # if this layer has only one input (and not a list of inputs), we need
+      # to convert it back to an tensor instead of a list
+      if (length(input) == 1) {
+        input <- input[[1]]
       }
-      if ("Flatten_Layer" %in% module$.classes) {
-        x <- module(x, channels_first, save_input, save_output)
-      } else {
-        x <- module(x, save_input, save_preactivation, save_output)
+      # If the current layer is an output layer and we want to save the
+      # intermediate values of the last layer (independent of the treatment of
+      # the previous layers)
+      if (save_last_layer & any(step$used_node %in% self$output_nodes)) {
+        out <- self$modules_list[[step$used_node]](
+          input,
+          channels_first = channels_first,
+          save_input = save_input,
+          save_preactivation = TRUE,
+          save_output = TRUE)
+      }
+      # Otherwise we use the normal forward pass
+      else {
+        out <- self$modules_list[[step$used_node]](
+          input,
+          channels_first = channels_first,
+          save_input = save_input,
+          save_preactivation = save_preactivation,
+          save_output = save_output)
       }
 
-      i <- i + 1
+      # Remove the used inputs from our original input
+      x <- x[-step$used_idx]
+      # Add the layer output to the input x, hence we can proceed propagation
+      # in the next step
+      x <- append(x, rep(list(out), step$times),
+                  after = min(step$used_idx) - 1)
     }
-    x
+
+    # Make sure that we have the correct order of the output
+    x[self$output_order]
   },
 
   #'
@@ -113,27 +159,60 @@ ConvertedModel <- nn_module(
   #'
   update_ref = function(x_ref, channels_first = TRUE, save_input = FALSE,
                         save_preactivation = FALSE, save_output = FALSE,
-                        save_last_preactivation = FALSE) {
+                        save_last_layer = FALSE) {
+    # Convert the input to a list
+    if (!is.list(x_ref)) {
+      x_ref <- list(x_ref)
+    }
+
+    # If the channels are last, we have to move the channel axis to the first
+    # position after the batch dimension
     if (channels_first == FALSE) {
-      x_ref <- torch_movedim(x_ref, -1, 2)
+      x_ref <- lapply(x_ref, function(x_i) torch_movedim(x_i, source = -1, destination = 2))
     }
 
-    num_modules <- length(self$modules_list)
-    i <- 1
+    # This is the main part of the forward pass.
+    # We move the graph forward step by step whereby each step correspond to
+    # one layer
+    for (step in self$graph) {
+      # get the necessary inputs for the current layer
+      input <- x_ref[step$used_idx]
+      # if this layer has only one input (and not a list of inputs), we need
+      # to convert it back to an tensor instead of a list
+      if (length(input) == 1) {
+        input <- input[[1]]
+      }
+      # If the current layer is an output layer and we want to save the
+      # intermediate values of the last layer (independent of the treatment of
+      # the previous layers)
+      if (save_last_layer & any(step$used_node %in% self$output_nodes)) {
+        out <- self$modules_list[[step$used_node]]$update_ref(
+          input,
+          channels_first = channels_first,
+          save_input = save_input,
+          save_preactivation = TRUE,
+          save_output = TRUE)
+      }
+      # Otherwise we use the normal forward pass
+      else {
+        out <- self$modules_list[[step$used_node]]$update_ref(
+          input,
+          channels_first = channels_first,
+          save_input = save_input,
+          save_preactivation = save_preactivation,
+          save_output = save_output)
+      }
 
-    for (module in self$modules_list) {
-      if (save_last_preactivation & i == num_modules) {
-        save_preactivation <- TRUE
-      }
-      if ("Flatten_Layer" %in% module$.classes) {
-        x_ref <- module(x_ref, channels_first, save_input, save_output)
-      } else {
-        x_ref <- module$update_ref(x_ref, save_input, save_preactivation,
-                                   save_output)
-      }
-      i <- i + 1
+      # Remove the used inputs from our original input
+      x_ref <- x_ref[-step$used_idx]
+      # Add the layer output to the input x, hence we can proceed propagation
+      # in the next step
+      x_ref <- append(x_ref, rep(list(out), step$times),
+                      after = min(step$used_idx) - 1)
     }
-    x_ref
+
+    # Make sure that we have the correct order of the output
+    x_ref[self$output_order]
   },
 
   #'
@@ -154,9 +233,7 @@ ConvertedModel <- nn_module(
   #'
   set_dtype = function(dtype) {
     for (module in self$modules_list) {
-      if (!("Flatten_Layer" %in% module$.classes)) {
-        module$set_dtype(dtype)
-      }
+      module$set_dtype(dtype)
     }
     self$dtype <- dtype
   },
