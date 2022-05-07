@@ -1,54 +1,138 @@
 
+################################################################################
+#                            General Errors
+################################################################################
+
 test_that("Test general errors", {
   library(torch)
 
-  expect_error(Converter$new(NULL))
-  expect_error(Converter$new(NA))
-  expect_error(Converter$new(c(3)))
-  expect_error(Converter$new("124"))
+  expect_error(Converter$new(dtype = "adsf"))  # dtype
+  expect_error(Converter$new(save_model_as_list = "No")) # save_model_as_list
+  expect_error(Converter$new(NULL)) # not torch, keras or neuralnet
+  expect_error(Converter$new(c(3))) # not torch, keras or neuralnet
 
-  model <- nn_sequential(
-    nn_linear(5, 20),
-    nn_relu(),
-    nn_linear(20, 10, FALSE),
-    nn_tanh(),
-    nn_linear(10, 3),
-    nn_softmax(2)
-  )
+  # No entry 'layers'
+  model <- list(NULL)
+  expect_error(Converter$new(model))
+  # No entry 'input_dim'
+  model <- list(layers = list())
+  expect_error(Converter$new(model))
+  # 'input_dim' not as numeric
+  model <- list(layers = list(), input_dim = c("as"))
+  expect_error(Converter$new(model))
+  # 'input_nodes' missing
+  model <- list(layers = list(), input_dim = list(c(2)))
+  expect_error(Converter$new(model))
+  # 'input_nodes' out of range
+  model <- list(layers = list("Dense"), input_dim = list(c(2)),
+                input_nodes = c(3))
+  expect_error(Converter$new(model))
+  # 'input_nodes' wrong
+  model <- list(layers = list("Dense"), input_dim = list(c(2)),
+                input_nodes = "asdf")
+  expect_error(Converter$new(model))
+  # 'output_nodes' missing
+  model <- list(layers = list("Dense"), input_dim = list(c(2)),
+                input_nodes = c(1))
+  expect_error(Converter$new(model))
+  # 'output_nodes' out of range
+  model <- list(layers = list("Dense"), input_dim = list(c(2)),
+                input_nodes = c(1), output_nodes = c(3))
+  expect_error(Converter$new(model))
+  # 'output_nodes' wrong
+  model <- list(layers = list("Dense"), input_dim = list(c(2)),
+                input_nodes = c(1), output_nodes = list(c("a")))
+  expect_error(Converter$new(model))
+  # 'output_dim' not numeric
+  model <- list(layers = list("Dense"), input_dim = list(c(2)),
+                input_nodes = c(1), output_nodes = c(1), output_dim = "adf")
+  expect_error(Converter$new(model))
+  # 'input_names' not characters
+  model <- list(layers = list("Dense"), input_dim = list(c(2)),
+                input_nodes = c(1), output_nodes = c(1), input_names = c(1,2,3))
+  expect_error(Converter$new(model))
+  # 'output_names' not characters
+  model <- list(layers = list("Dense"), input_dim = list(c(2)),
+                input_nodes = c(1), output_nodes = c(1), output_names = c(1,2,3))
+  expect_error(Converter$new(model))
 
-  Converter$new(model, input_dim = c(5))
-  expect_error(Converter$new(model, input_dim = c(4)))
-  Converter$new(model, input_dim = c(5),
-                input_names = list(c("a", "b", "c", "d", "e")))
-  expect_error(Converter$new(model, input_dim = c(5),
-                             input_names = list(c("a", "b", "c", "d"))))
-  Converter$new(model, input_dim = c(5),
-                output_names = list(c("a", "b", "c")))
-  expect_error(Converter$new(model, input_dim = c(5),
-                             output_names = list(c("a"))))
+  # Define model
+  create_model <- function(type, input_layers = NULL, output_layers = NULL) {
+    list(
+      input_dim = c(2),
+      input_nodes = c(1),
+      output_nodes = c(1),
+      layers = list(
+        list(
+          type = type,
+          weight = array(rnorm(2*3), dim = c(3,2)),
+          bias = rnorm(3),
+          activation_name = "relu",
+          input_layers = input_layers,
+          output_layers = output_layers
+        )
+      )
+    )
+  }
 
-  # Test non classification output
+  # Checks for converting layers
+
+  # 'type' wrong
+  expect_error(Converter$new(create_model("asd")))
+  # 'input_layers' missing
+  expect_error(Converter$new(create_model("Dense")))
+  # 'input_layers' wrong
+  expect_error(Converter$new(create_model("Dense", "sadf")))
+  # 'output_layers' missing
+  expect_error(Converter$new(create_model("Dense", c(0))))
+  # 'output_layers' wrong
+  expect_error(Converter$new(create_model("Dense", c(0), NA)))
+  # 'output_dim' wrong
+  model <- create_model("Dense", c(0), c(-1))
+  model$output_dim <- c(2)
+  expect_error(Converter$new(model))
+  # Test non classification/regression output
   model <- NULL
   model$input_dim <- c(3,5,5)
+  model$input_nodes <- c(1)
+  model$output_nodes <- c(1)
   model$layers$Layer_1 <-
     list(
       type = "AveragePooling2D",
       strides = NULL,
-      kernel_size = c(2,2)
+      kernel_size = c(2,2),
+      input_layers = 0,
+      output_layers = -1
     )
   expect_error(Converter$new(model))
+  # 'input_names' wrong dimensions
+  model <- create_model("Dense", c(0), c(-1))
+  model$input_names <- c("A", "B", "C")
+  expect_error(Converter$new(model))
+  # 'output_names' wrong dimensions
+  model <- create_model("Dense", c(0), c(-1))
+  model$output_names <- c("A", "B")
+  expect_error(Converter$new(model))
+
+  # Without error but saving model as list
+  model <- create_model("Dense", c(0), c(-1))
+  conv <- Converter$new(model, save_model_as_list = TRUE)
 
   # Test for too many input dimensions
   model <- NULL
   model$input_dim <- c(3,5,5,5)
+  model$input_nodes <- c(1)
+  model$output_nodes <- c(1)
   model$layers$Layer_1 <-
     list(
-      type = "Flatten"
+      type = "Flatten",
+      input_layers = 0,
+      output_layers = -1
     )
   expect_error(Converter$new(model))
 })
 
-test_that("Test non sequential model", {
+test_that("Torch: Test non sequential model", {
   library(torch)
 
   net <- nn_module(
@@ -74,6 +158,47 @@ test_that("Test non sequential model", {
   expect_error(Converter$new(model))
 })
 
+
+
+################################################################################
+#                            Package: Neuralnet
+################################################################################
+test_that("Test package Neuralnet", {
+  library(neuralnet)
+  library(torch)
+
+  data(iris)
+  nn <- neuralnet((Species == "setosa") ~ Petal.Length + Petal.Width,
+                  iris,
+                  linear.output = FALSE,
+                  hidden = c(3, 2), act.fct = "tanh", rep = 1
+  )
+  converter <- Converter$new(nn)
+
+  # Test if converting was successful
+
+  # Forward pass
+  y_true <- predict(nn, iris)
+  y_pred <- as_array(converter$model(
+    list(torch_tensor(as.matrix(iris[,c(3,4)]))))[[1]])
+  expect_equal(dim(y_true), dim(y_pred))
+  expect_lt(mean((y_true - y_pred)^2), 1e-12)
+
+  # update_ref method
+  x_ref <- iris[sample(nrow(iris), 1), 3:4]
+  y_ref_true <- as.vector(predict(nn, x_ref))
+  y_ref <- as.array(converter$model$update_ref(torch_tensor(as.matrix(x_ref)))[[1]])
+  dim_y_ref <- dim(y_ref)
+  expect_equal(dim_y_ref, c(1, 1))
+  expect_lt((y_ref_true - y_ref)^2, 1e-12)
+
+})
+
+
+################################################################################
+#                            Package: torch
+################################################################################
+
 test_that("Test torch sequential model: Dense", {
   library(torch)
 
@@ -91,10 +216,15 @@ test_that("Test torch sequential model: Dense", {
 
   converter <- Converter$new(model, input_dim = c(5))
   y_true <- as_array(model(input))
-  y <- as_array(converter$model(input))
+  y <- as_array(converter$model(list(input))[[1]])
 
   expect_equal(dim(y), dim(y_true))
   expect_lt(mean((y - y_true)^2), 1e-12)
+})
+
+
+test_that("Test torch sequential model: Dense with dropout", {
+  library(torch)
 
   # Dropout layer
   model <- nn_sequential(
@@ -106,31 +236,44 @@ test_that("Test torch sequential model: Dense", {
     nn_linear(10, 1),
     nn_sigmoid()
   )
+  model$eval()
 
   Converter$new(model, input_dim = c(5))
+  input <- torch_randn(10, 5)
 
-  # Unknown layer
+  expect_error(Converter$new(model))
+
+  converter <- Converter$new(model, input_dim = c(5))
+  y_true <- as_array(model(input))
+  y <- as_array(converter$model(list(input))[[1]])
+
+  expect_equal(dim(y), dim(y_true))
+  expect_lt(mean((y - y_true)^2), 1e-12)
+})
+
+test_that("Test torch sequential model: Unknwon layer type", {
+  library(torch)
+
   model <- nn_sequential(
     nn_linear(5,5),
     nn_batch_norm1d(5))
   expect_error(Converter$new(model, input_dim = c(5)))
-
 })
 
 test_that("Test torch sequential model: 1D Conv", {
   library(torch)
 
-  # See issue #716 (https://github.com/mlverse/torch/issues/716)
-  nn_flatten <- nn_module(
-    classname = "nn_flatten",
-    initialize = function(start_dim = 2, end_dim = -1) {
-      self$start_dim <- start_dim
-      self$end_dim <- end_dim
-    },
-    forward = function(x) {
-      torch_flatten(x, start_dim = self$start_dim, end_dim = self$end_dim)
-    }
-  )
+  # # See issue #716 (https://github.com/mlverse/torch/issues/716)
+  # nn_flatten <- nn_module(
+  #   classname = "nn_flatten",
+  #   initialize = function(start_dim = 2, end_dim = -1) {
+  #     self$start_dim <- start_dim
+  #     self$end_dim <- end_dim
+  #   },
+  #   forward = function(x) {
+  #     torch_flatten(x, start_dim = self$start_dim, end_dim = self$end_dim)
+  #   }
+  # )
 
   input <- torch_randn(10, 3, 100)
 
@@ -157,13 +300,14 @@ test_that("Test torch sequential model: 1D Conv", {
 
   converter <- Converter$new(model, input_dim = c(3, 100))
   y_true <- as_array(model(input))
-  y <- as_array(converter$model(input))
+  y <- as_array(converter$model(list(input))[[1]])
 
   expect_equal(dim(y), dim(y_true))
   expect_lt(mean((y - y_true)^2), 1e-12)
+})
 
-  # Test failures
-  # padding mode
+test_that("Test torch sequential model: 1D Conv failures", {
+  # unsupported padding mode
   model <- nn_sequential(
     nn_conv1d(3,2,10, padding_mode = "reflect"),
     nn_relu(),
@@ -171,6 +315,7 @@ test_that("Test torch sequential model: 1D Conv", {
     nn_linear(22, 2)
   )
   expect_error(Converter$new(model, input_dim = c(3,20)))
+
   # padding for pooling layers
   model <- nn_sequential(
     nn_conv1d(3,2,10),
@@ -180,6 +325,8 @@ test_that("Test torch sequential model: 1D Conv", {
     nn_linear(12, 2)
   )
   expect_error(Converter$new(model, input_dim = c(3,20)))
+
+  # Padding for pooling layers is not supported
   model <- nn_sequential(
     nn_conv1d(3,2,10),
     nn_relu(),
@@ -191,20 +338,9 @@ test_that("Test torch sequential model: 1D Conv", {
 })
 
 
+
 test_that("Test torch sequential model: 2D Conv", {
   library(torch)
-
-  # See issue #716 (https://github.com/mlverse/torch/issues/716)
-  nn_flatten <- nn_module(
-    classname = "nn_flatten",
-    initialize = function(start_dim = 2, end_dim = -1) {
-      self$start_dim <- start_dim
-      self$end_dim <- end_dim
-    },
-    forward = function(x) {
-      torch_flatten(x, start_dim = self$start_dim, end_dim = self$end_dim)
-    }
-  )
 
   input <- torch_randn(10, 3, 30, 30)
 
@@ -234,54 +370,15 @@ test_that("Test torch sequential model: 2D Conv", {
 
   converter <- Converter$new(model, input_dim = c(3, 30, 30))
   y_true <- as_array(model(input))
-  y <- as_array(converter$model(input))
+  y <- as_array(converter$model(list(input))[[1]])
 
   expect_equal(dim(y), dim(y_true))
   expect_lt(mean((y - y_true)^2), 1e-12)
-
-  # Test failures
-  # padding mode
-  model <- nn_sequential(
-    nn_conv2d(3,2,5, padding_mode = "reflect"),
-    nn_relu(),
-    nn_flatten(),
-    nn_linear(72, 2)
-  )
-  expect_error(Converter$new(model, input_dim = c(3,10,10)))
-  # padding for pooling layers
-  model <- nn_sequential(
-    nn_conv2d(3,2,5),
-    nn_relu(),
-    nn_avg_pool2d(2, padding = c(1)),
-    nn_flatten(),
-    nn_linear(32, 2)
-  )
-  expect_error(Converter$new(model, input_dim = c(3,10,10)))
-  model <- nn_sequential(
-    nn_conv2d(3,2,5),
-    nn_relu(),
-    nn_max_pool2d(2, padding = c(1)),
-    nn_flatten(),
-    nn_linear(32, 2)
-  )
-  expect_error(Converter$new(model, input_dim = c(3,10,10)))
-
 })
+
 
 test_that("Test torch sequential model: 2D Conv with pooling", {
   library(torch)
-
-  # See issue #716 (https://github.com/mlverse/torch/issues/716)
-  nn_flatten <- nn_module(
-    classname = "nn_flatten",
-    initialize = function(start_dim = 2, end_dim = -1) {
-      self$start_dim <- start_dim
-      self$end_dim <- end_dim
-    },
-    forward = function(x) {
-      torch_flatten(x, start_dim = self$start_dim, end_dim = self$end_dim)
-    }
-  )
 
   input <- torch_randn(10, 3, 30, 30)
 
@@ -301,15 +398,16 @@ test_that("Test torch sequential model: 2D Conv with pooling", {
 
   expect_error(Converter$new(model))
 
+  # forward pass
   converter <- Converter$new(model, input_dim = c(3, 30, 30))
   y_true <- as_array(model(input))
-  y <- as_array(converter$model(input, TRUE, TRUE, TRUE, TRUE))
-
+  y <- as_array(converter$model(list(input), TRUE, TRUE, TRUE, TRUE)[[1]])
   expect_equal(dim(y), dim(y_true))
   expect_lt(mean((y - y_true)^2), 1e-12)
 
+  # update x_ref
   x_ref <- array(rnorm(3 * 30 * 30), dim = c(1, 3, 30, 30))
-  y_ref <- as.array(converter$model$update_ref(torch_tensor(x_ref)))
+  y_ref <- as_array(converter$model$update_ref(torch_tensor(x_ref))[[1]])
   dim_y_ref <- dim(y_ref)
   y_ref_true <- as.array(model(x_ref))
   dim_y_ref_true <- dim(y_ref_true)
@@ -319,281 +417,51 @@ test_that("Test torch sequential model: 2D Conv with pooling", {
 
   ## other attributes
   # input dimension
-  expect_equal(converter$model_dict$input_dim, c(3, 30, 30))
+  expect_equal(converter$input_dim[[1]], c(3, 30, 30))
   # output dimension
-  expect_equal(converter$model_dict$output_dim, 2)
-
-  for (module in converter$model$modules_list) {
-    expect_equal(module$input_dim, dim(module$input)[-1])
-    expect_equal(module$output_dim, dim(module$output)[-1])
-  }
-
+  expect_equal(converter$output_dim[[1]], 2)
 })
 
-test_that("Test neuralnet model", {
-  library(neuralnet)
-  library(torch)
-
-  data(iris)
-  #
-  # --------------------- positive tests --------------------------------------
-  #
-  nn <- neuralnet((Species == "setosa") ~ Petal.Length + Petal.Width,
-                  iris,
-                  linear.output = TRUE,
-                  hidden = c(3, 2), act.fct = "tanh", rep = 3
+test_that("Test torch sequential model: 1D Conv failures", {
+  # unsupported padding mode
+  model <- nn_sequential(
+    nn_conv2d(3,2,5, padding_mode = "reflect"),
+    nn_relu(),
+    nn_flatten(),
+    nn_linear(72, 2)
   )
-  converter <- Converter$new(nn)
+  expect_error(Converter$new(model, input_dim = c(3,10,10)))
 
-  nn <- neuralnet((Species == "setosa") ~ Petal.Length + Petal.Width,
-                  iris,
-                  linear.output = FALSE,
-                  hidden = c(3, 2), act.fct = "tanh", rep = 1
+  # padding for pooling layers
+  model <- nn_sequential(
+    nn_conv2d(3,2,5),
+    nn_relu(),
+    nn_avg_pool2d(2, padding = c(1)),
+    nn_flatten(),
+    nn_linear(32, 2)
   )
-  converter <- Converter$new(nn)
+  expect_error(Converter$new(model, input_dim = c(3,10,10)))
 
-  # forward method
-  y_true <- as.vector(predict(nn, iris))
-  dim_y_true <- c(150, 1)
-  y <- as.array(converter$model(torch_tensor(as.matrix(iris[, 3:4]))))
-  dim_y <- dim(y)
-
-  expect_equal(dim_y, dim_y_true)
-  expect_lt(mean((y_true - y)^2), 1e-12)
-
-  # update_ref method
-  x_ref <- iris[sample(nrow(iris), 1), 3:4]
-  y_ref_true <- as.vector(predict(nn, x_ref))
-  y_ref <- as.array(converter$model$update_ref(torch_tensor(as.matrix(x_ref))))
-  dim_y_ref <- dim(y_ref)
-  expect_equal(dim_y_ref, c(1, 1))
-  expect_lt((y_ref_true - y_ref)^2, 1e-12)
-
-  # doesn't converge
-  expect_warning(
-    nn_not_converged <-
-      neuralnet(
-        Species ~ ., iris, linear.output = TRUE, hidden = c(3, 2),
-        act.fct = "tanh", rep = 1, stepmax = 1e+01
-  ))
-  expect_error(Converter$new(nn_not_converged))
-
-  # custom activation function
-  nn <- neuralnet((Species == "setosa") ~ Petal.Length + Petal.Width,
-                  iris,
-                  linear.output = FALSE,
-                  hidden = c(3, 2), act.fct = function(x) tanh(x), rep = 1
+  # padding in pooling layer
+  model <- nn_sequential(
+    nn_conv2d(3,2,5),
+    nn_relu(),
+    nn_max_pool2d(2, padding = c(1)),
+    nn_flatten(),
+    nn_linear(32, 2)
   )
-  expect_error(Converter$new(nn))
+  expect_error(Converter$new(model, input_dim = c(3,10,10)))
 })
 
-test_that("Test list model: Dense", {
-  library(torch)
+################################################################################
+#                            Package: Keras
+################################################################################
 
-  model <- NULL
-  model$input_dim <- 5
-  model$input_names <- list(c("Feat1", "Feat2", "Feat3", "Feat4", "Feat5"))
-  model$output_dim <- 2
-  model$output_names <- list(c("Cat", "no-Cat"))
-  model$layers$Layer_1 <-
-    list(
-      type = "Dense",
-      weight = matrix(rnorm(5 * 20), 20, 5),
-      bias = rnorm(20),
-      activation_name = "tanh",
-      dim_in = 5L,
-      dim_out = 20L
-    )
-  model$layers$Layer_2 <-
-    list(
-      type = "Dense",
-      weight = matrix(rnorm(20 * 2), 2, 20),
-      bias = rnorm(2),
-      activation_name = "softmax",
-      dim_in = 20L,
-      dim_out = 2L
-    )
+#
+# Sequential Models
+#
 
-  # Convert the model
-  converter <- Converter$new(model)
-  expect_true("Converter" %in% class(converter))
-
-  # get the model
-  model_torch <- converter$model
-
-  # test output dimension
-  input <- torch_randn(10,5)
-  out <- model_torch(input)
-  expect_equal(dim(out), c(10, 2))
-
-  # Test failure
-  # type
-  model$layers$Layer_1$type <- "asdf"
-  expect_error(Converter$new(model))
-  model$layers$Layer_1$type <- "Dense"
-  # weight
-  model$layers$Layer_1$weight <- t(model$layers$Layer_1$weight)
-  expect_error(Converter$new(model))
-  model$layers$Layer_1$weight <- t(model$layers$Layer_1$weight)
-  # activation function
-  model$layers$Layer_1$activation_name <- "asdf"
-  expect_error(Converter$new(model))
-
-})
-
-
-test_that("Test list model: 1D Convolution", {
-  library(torch)
-
-  model <- NULL
-  model$input_dim <- c(3, 10)
-  model$output_dim <- 2
-  model$output_names <- list(c("Cat", "no-Cat"))
-  model$layers$Layer_1 <-
-    list(
-      type = "Conv1D",
-      weight = array(rnorm(8*3*2), dim = c(8,3,2)),
-      bias = rnorm(8),
-      activation_name = "tanh",
-      dim_in = c(3L, 10L),
-      dim_out = c(8L, 9L)
-    )
-  model$layers$Layer_2 <-
-    list(
-      type = "Conv1D",
-      weight = array(rnorm(2*8*2), dim = c(2,8,2)),
-      bias = rnorm(2),
-      activation_name = "tanh",
-      dim_in = c(8L, 9L),
-      dim_out = c(2L, 8L)
-    )
-  model$layers$Layer_3 <-
-    list(
-      type = "Flatten",
-      dim_in = c(2,8),
-      dim_out = 16L
-    )
-  model$layers$Layer_4 <-
-    list(
-      type = "Dense",
-      weight = matrix(rnorm(16 * 2), 2, 16),
-      bias = rnorm(2),
-      activation_name = "softmax",
-      dim_in = 16,
-      dim_out = 2L
-    )
-
-  # Convert the model
-  converter <- Converter$new(model)
-  expect_true("Converter" %in% class(converter))
-
-  # get the model
-  model_torch <- converter$model
-
-  # test output dimension
-  input <- torch_randn(10,3,10)
-  out <- model_torch(input)
-  expect_equal(dim(out), c(10, 2))
-
-  # Test failures
-  # Padding
-  model$layers$Layer_1$padding <- c(1,2,3)
-  expect_error(Converter$new(model))
-  model$layers$Layer_1$padding <- NULL
-  # Forward pass
-  dim(model$layers$Layer_1$weight) <- c(3,8,2)
-  expect_error(Converter$new(model))
-
-
-})
-
-test_that("Test list model: 2D Convolution", {
-  library(torch)
-
-  model <- NULL
-  model$input_dim <- c(3, 10, 10)
-  model$output_dim <- 2
-  model$output_names <- list(c("Cat", "no-Cat"))
-  model$layers$Layer_1 <-
-    list(
-      type = "Conv2D",
-      weight = array(rnorm(8*3*2*2), dim = c(8,3,2,2)),
-      bias = rnorm(8),
-      activation_name = "tanh",
-      dim_in = c(3L, 10L, 10L),
-      dim_out = c(8L, 9L, 9L)
-    )
-  model$layers$Layer_2 <-
-    list(
-      type = "Conv2D",
-      weight = array(rnorm(2*8*2*2), dim = c(2,8,2,2)),
-      bias = rnorm(2),
-      padding = c(1),
-      stride = c(1),
-      activation_name = "tanh",
-      dim_in = c(8L, 9L, 9L),
-      dim_out = c(2L, 10L, 10L)
-    )
-  model$layers$Layer_3 <-
-    list(
-      type = "Conv2D",
-      weight = array(rnorm(2*2*2*2), dim = c(2,2,2,2)),
-      bias = rnorm(2),
-      padding = c(1, 0),
-      dilation = c(1),
-      activation_name = "tanh",
-      dim_in = c(2L, 10L, 10L),
-      dim_out = c(2L, 9L, 11L)
-    )
-  model$layers$Layer_4 <-
-    list(
-      type = "Flatten",
-      dim_in = c(2,9,11),
-      dim_out = 198
-    )
-  model$layers$Layer_5 <-
-    list(
-      type = "Dense",
-      weight = matrix(rnorm(198 * 2), 2, 198),
-      bias = rnorm(2),
-      activation_name = "softmax",
-      dim_in = 198,
-      dim_out = 2L
-    )
-
-  # Convert the model
-  converter <- Converter$new(model)
-  expect_true("Converter" %in% class(converter))
-
-  # get the model
-  model_torch <- converter$model
-
-  # test output dimension
-  input <- torch_randn(10,3,10,10)
-  out <- model_torch(input)
-  expect_equal(dim(out), c(10, 2))
-
-  # Test failures
-  # padding
-  model$layers$Layer_1$padding <- c(1,2,3)
-  expect_error(Converter$new(model))
-  model$layers$Layer_1$padding <- NULL
-  # stride
-  model$layers$Layer_1$stride <- c(1,2,3)
-  expect_error(Converter$new(model))
-  model$layers$Layer_1$stride <- NULL
-  # dilation
-  model$layers$Layer_1$dilation <- c(1,2,3)
-  expect_error(Converter$new(model))
-  model$layers$Layer_1$dilation <- NULL
-  # Forward pass
-  dim(model$layers$Layer_1$weight) <- c(3,8,2,2)
-  expect_error(Converter$new(model))
-})
-
-
-
-test_that("Test keras model: Dense", {
+test_that("Test keras sequential: Dense", {
   library(keras)
   library(torch)
 
@@ -607,13 +475,12 @@ test_that("Test keras model: Dense", {
     layer_dropout(0.1) %>%
     layer_dense(units = 3, activation = "softmax")
 
-  # test non-fitted model
   converter <- Converter$new(model)
 
   # forward method
   y_true <- as.array(model(data))
   dim_y_true <- dim(y_true)
-  y <- as.array(converter$model(torch_tensor(data)))
+  y <- as_array(converter$model(list(torch_tensor(data)))[[1]])
   dim_y <- dim(y)
 
   expect_equal(dim_y, dim_y_true)
@@ -621,7 +488,7 @@ test_that("Test keras model: Dense", {
 
   # update_ref
   x_ref <- matrix(rnorm(4), nrow = 1, ncol = 4)
-  y_ref <- as.array(converter$model$update_ref(torch_tensor(x_ref)))
+  y_ref <- as_array(converter$model$update_ref(list(torch_tensor(x_ref)))[[1]])
   dim_y_ref <- dim(y_ref)
   y_ref_true <- as.array(model(x_ref))
   dim_y_ref_true <- dim(y_ref_true)
@@ -631,46 +498,19 @@ test_that("Test keras model: Dense", {
 
   ## other attributes
   # input dimension
-  converter_input_dim <- converter$model_dict$input_dim
+  converter_input_dim <- converter$input_dim[[1]]
   expect_equal(converter_input_dim, 4)
   # output dimension
-  converter_output_dim <- converter$model_dict$output_dim
+  converter_output_dim <- converter$output_dim[[1]]
   expect_equal(converter_output_dim, 3)
-
-  converter$model(torch_tensor(data), TRUE, TRUE, TRUE, TRUE)
-
-  for (module in converter$model$modules_list) {
-    expect_equal(module$input_dim, dim(module$input)[-1])
-    expect_equal(module$output_dim, dim(module$output)[-1])
-  }
-})
-
-test_that("Test keras model: General", {
-  library(keras)
-
-  model <- keras_model_sequential()
-  model %>%
-    layer_conv_1d(3, 2, input_shape = c(10,3)) %>%
-    layer_average_pooling_1d(padding = "same") %>%
-    layer_flatten()
-
-  expect_error(Converter$new(model))
-
-  model <- keras_model_sequential()
-  model %>%
-    layer_conv_2d(3, c(3,4), strides = 2, input_shape = c(10,10,3),
-                  padding = "same") %>%
-    layer_conv_2d(3, c(1,2), strides = 2, padding = "same") %>%
-    layer_flatten()
-  c <- Converter$new(model)
 })
 
 
-test_that("Test keras model: Conv1D with 'valid' padding", {
+test_that("Test keras sequential: Conv1D with 'valid' padding", {
   library(keras)
   library(torch)
 
-  data <- array(rnorm(64 * 128 * 4), dim = c(64, 128, 4))
+  data <- array(rnorm(10 * 128 * 4), dim = c(10, 128, 4))
 
   model <- keras_model_sequential()
   model %>%
@@ -693,8 +533,7 @@ test_that("Test keras model: Conv1D with 'valid' padding", {
   # forward method
   y_true <- as.array(model(data))
   dim_y_true <- dim(y_true)
-  y <- as.array(converter$model(torch_tensor(data), channels_first = FALSE,
-                                TRUE, TRUE, TRUE))
+  y <- as_array(converter$model(list(torch_tensor(data)), channels_first = FALSE)[[1]])
   dim_y <- dim(y)
 
   expect_equal(dim_y, dim_y_true)
@@ -702,9 +541,8 @@ test_that("Test keras model: Conv1D with 'valid' padding", {
 
   # update_ref
   x_ref <- array(rnorm(128 * 4), dim = c(1, 128, 4))
-  y_ref <- as.array(converter$model$update_ref(torch_tensor(x_ref),
-                                               channels_first = FALSE
-  ))
+  y_ref <- as_array(converter$model$update_ref(list(torch_tensor(x_ref)),
+                                               channels_first = FALSE)[[1]])
   dim_y_ref <- dim(y_ref)
   y_ref_true <- as.array(model(x_ref))
   dim_y_ref_true <- dim(y_ref_true)
@@ -714,21 +552,16 @@ test_that("Test keras model: Conv1D with 'valid' padding", {
 
   ## other attributes
   # input dimension
-  expect_equal(converter$model_dict$input_dim, c(4, 128))
+  expect_equal(converter$input_dim[[1]], c(4, 128))
   # output dimension
-  expect_equal(converter$model_dict$output_dim, 1)
-
-  for (module in converter$model$modules_list) {
-    expect_equal(module$input_dim, dim(module$input)[-1])
-    expect_equal(module$output_dim, dim(module$output)[-1])
-  }
+  expect_equal(converter$output_dim[[1]], 1)
 })
 
-test_that("Test keras model: Conv1D with 'same' padding", {
+test_that("Test keras sequential: Conv1D with 'same' padding", {
   library(keras)
   library(torch)
 
-  data <- array(rnorm(64 * 128 * 4), dim = c(64, 128, 4))
+  data <- array(rnorm(10 * 128 * 4), dim = c(10, 128, 4))
 
   model <- keras_model_sequential()
   model %>%
@@ -754,39 +587,33 @@ test_that("Test keras model: Conv1D with 'same' padding", {
 
   # forward method
   y_true <- as.array(model(data))
-  y <- as.array(converter$model(torch_tensor(data), channels_first = FALSE,
-                                TRUE, TRUE, TRUE))
+  y <- as.array(converter$model(list(torch_tensor(data)),
+                                channels_first = FALSE)[[1]])
   expect_equal(dim(y), dim(y_true))
   expect_lt(mean((y_true - y)^2), 1e-12)
 
   # update
   x_ref <- array(rnorm(128 * 4), dim = c(1, 128, 4))
   y_ref <-
-    as.array(converter$model$update_ref(torch_tensor(x_ref),
-                                        channels_first = FALSE
-    ))
+    as.array(converter$model$update_ref(list(torch_tensor(x_ref)),
+                                        channels_first = FALSE)[[1]])
   y_ref_true <- as.array(model(x_ref))
   expect_equal(dim(y_ref), dim(y_ref_true))
   expect_lt(mean((y_ref_true - y_ref)^2), 1e-12)
 
   ## other attributes
   # input dimension
-  expect_equal(converter$model_dict$input_dim, c(4, 128))
+  expect_equal(converter$input_dim[[1]], c(4, 128))
   # output dimension
-  expect_equal(converter$model_dict$output_dim, 1)
-
-  for (module in converter$model$modules_list) {
-    expect_equal(module$input_dim, dim(module$input)[-1])
-    expect_equal(module$output_dim, dim(module$output)[-1])
-  }
+  expect_equal(converter$output_dim[[1]], 1)
 })
 
 
-test_that("Test keras model: Conv2D with 'valid' padding", {
+test_that("Test keras sequential: Conv2D with 'valid' padding", {
   library(keras)
   library(torch)
 
-  data <- array(rnorm(64 * 32 * 32 * 3), dim = c(64, 32, 32, 3))
+  data <- array(rnorm(10 * 32 * 32 * 3), dim = c(10, 32, 32, 3))
 
   model <- keras_model_sequential()
   model %>%
@@ -814,37 +641,31 @@ test_that("Test keras model: Conv2D with 'valid' padding", {
 
   # forward method
   y_true <- as.array(model(data))
-  y <- as.array(converter$model(torch_tensor(data), channels_first = FALSE,
-                                TRUE, TRUE, TRUE))
+  y <- as.array(converter$model(list(torch_tensor(data)),
+                                channels_first = FALSE)[[1]])
   expect_equal(dim(y), dim(y_true))
   expect_lt(mean((y_true - y)^2), 1e-12)
 
   # update
   x_ref <- array(rnorm(32 * 32 * 3), dim = c(1, 32, 32, 3))
-  y_ref <- as.array(converter$model$update_ref(torch_tensor(x_ref),
-                                               channels_first = FALSE
-  ))
+  y_ref <- as.array(converter$model$update_ref(list(torch_tensor(x_ref)),
+                                               channels_first = FALSE)[[1]])
   y_ref_true <- as.array(model(x_ref))
   expect_equal(dim(y_ref), dim(y_ref_true))
   expect_lt((y_ref_true - y_ref)^2, 1e-12)
 
   ## other attributes
   # input dimension
-  expect_equal(converter$model_dict$input_dim, c(3, 32, 32))
+  expect_equal(converter$input_dim[[1]], c(3, 32, 32))
   # output dimension
-  expect_equal(converter$model_dict$output_dim, 1)
-
-  for (module in converter$model$modules_list) {
-    expect_equal(module$input_dim, dim(module$input)[-1])
-    expect_equal(module$output_dim, dim(module$output)[-1])
-  }
+  expect_equal(converter$output_dim[[1]], 1)
 })
 
-test_that("Test keras model: Conv2D with 'same' padding", {
+test_that("Test keras sequential: Conv2D with 'same' padding", {
   library(keras)
   library(torch)
 
-  data <- array(rnorm(64 * 32 * 32 * 3), dim = c(64, 32, 32, 3))
+  data <- array(rnorm(10 * 32 * 32 * 3), dim = c(10, 32, 32, 3))
 
   model <- keras_model_sequential()
   model %>%
@@ -870,37 +691,31 @@ test_that("Test keras model: Conv2D with 'same' padding", {
 
   # forward method
   y_true <- as.array(model(data))
-  y <- as.array(converter$model(torch_tensor(data), channels_first = FALSE,
-                                TRUE, TRUE, TRUE))
+  y <- as.array(converter$model(list(torch_tensor(data)),
+                                channels_first = FALSE)[[1]])
   expect_equal(dim(y), dim(y_true))
   expect_lt(mean(abs(y_true - y)^2), 1e-12)
 
   # update
   x_ref <- array(rnorm(32 * 32 * 3), dim = c(1, 32, 32, 3))
-  y_ref <- as.array(converter$model$update_ref(torch_tensor(x_ref),
-                                               channels_first = FALSE
-  ))
+  y_ref <- as.array(converter$model$update_ref(list(torch_tensor(x_ref)),
+                                               channels_first = FALSE)[[1]])
   y_ref_true <- as.array(model(x_ref))
   expect_equal(dim(y_ref), dim(y_ref_true))
   expect_lt((y_ref_true - y_ref)^2, 1e-12)
 
   ## other attributes
   # input dimension
-  expect_equal(converter$model_dict$input_dim, c(3, 32, 32))
+  expect_equal(converter$input_dim[[1]], c(3, 32, 32))
   # output dimension
-  expect_equal(converter$model_dict$output_dim, 1)
-
-  for (module in converter$model$modules_list) {
-    expect_equal(module$input_dim, dim(module$input)[-1])
-    expect_equal(module$output_dim, dim(module$output)[-1])
-  }
+  expect_equal(converter$output_dim[[1]], 1)
 })
 
-test_that("Test keras model: CNN with average pooling", {
+test_that("Test keras sequential: CNN with average pooling", {
   library(torch)
   library(keras)
 
-  data <- array(rnorm(64 * 32 * 32 * 3), dim = c(64, 32, 32, 3))
+  data <- array(rnorm(10 * 32 * 32 * 3), dim = c(10, 32, 32, 3))
 
   model <- keras_model_sequential()
   model %>%
@@ -927,29 +742,147 @@ test_that("Test keras model: CNN with average pooling", {
 
   # forward method
   y_true <- as.array(model(data))
-  y <- as.array(converter$model(torch_tensor(data), channels_first = FALSE,
-                                TRUE, TRUE, TRUE))
+  y <- as.array(converter$model(list(torch_tensor(data)),
+                                channels_first = FALSE)[[1]])
   expect_equal(dim(y), dim(y_true))
   expect_lt(mean(abs(y_true - y)^2), 1e-12)
 
   # update
   x_ref <- array(rnorm(32 * 32 * 3), dim = c(1, 32, 32, 3))
-  y_ref <- as.array(converter$model$update_ref(torch_tensor(x_ref),
-                                               channels_first = FALSE
-  ))
+  y_ref <- as.array(converter$model$update_ref(list(torch_tensor(x_ref)),
+                                               channels_first = FALSE)[[1]])
   y_ref_true <- as.array(model(x_ref))
   expect_equal(dim(y_ref), dim(y_ref_true))
   expect_lt((y_ref_true - y_ref)^2, 1e-12)
 
   ## other attributes
   # input dimension
-  expect_equal(converter$model_dict$input_dim, c(3, 32, 32))
+  expect_equal(converter$input_dim[[1]], c(3, 32, 32))
   # output dimension
-  expect_equal(converter$model_dict$output_dim, 1)
-
-  for (module in converter$model$modules_list) {
-    expect_equal(module$input_dim, dim(module$input)[-1])
-    expect_equal(module$output_dim, dim(module$output)[-1])
-  }
-
+  expect_equal(converter$output_dim[[1]], 1)
 })
+
+
+#
+# Other Models
+#
+test_that("Test keras model: Sequential", {
+  library(keras)
+
+  main_input <- layer_input(shape = c(10,10,2), name = 'main_input')
+  lstm_out <- main_input %>%
+    layer_conv_2d(2, c(2,2)) %>%
+    layer_flatten() %>%
+    layer_dense(units = 4)
+  main_output <- lstm_out %>%
+    layer_dense(units = 5, activation = 'tanh') %>%
+    layer_dense(units = 4, activation = 'tanh') %>%
+    layer_dense(units = 2, activation = 'tanh') %>%
+    layer_dense(units = 3, activation = 'softmax', name = 'main_output')
+  model <- keras_model(
+    inputs = c(main_input),
+    outputs = c(main_output)
+  )
+
+  conv <- Converter$new(model)
+  data <- lapply(list(c(10,10,2)), function(x) array(rnorm(10 * prod(x)), dim = c(10, x)))
+  data_torch <- lapply(data, torch_tensor)
+
+  # forward method
+  y_true <- as.array(model(data))
+  y <- as_array(conv$model(data_torch, channels_first = FALSE)[[1]])
+  expect_equal(dim(y), dim(y_true))
+  expect_lt(mean(abs(y_true - y)^2), 1e-12)
+
+  # update
+  x_ref <- lapply(list(c(10,10,2)), function(x) array(rnorm(prod(x)), dim = c(1, x)))
+  x_ref_torch <- lapply(x_ref, torch_tensor)
+  y_ref <- as_array(conv$model$update_ref(x_ref_torch, channels_first = FALSE)[[1]])
+  y_ref_true <- as.array(model(x_ref))
+  expect_equal(dim(y_ref), dim(y_ref_true))
+  expect_lt(mean((y_ref_true - y_ref)^2), 1e-12)
+})
+
+
+test_that("Test keras model: Two inputs + one output", {
+  library(keras)
+
+  main_input <- layer_input(shape = c(10,10,2), name = 'main_input')
+  lstm_out <- main_input %>%
+    layer_conv_2d(2, c(2,2)) %>%
+    layer_flatten() %>%
+    layer_dense(units = 4)
+  auxiliary_input <- layer_input(shape = c(5), name = 'aux_input')
+  main_output <- layer_concatenate(c(lstm_out, auxiliary_input)) %>%
+    layer_dense(units = 5, activation = 'tanh') %>%
+    layer_dense(units = 4, activation = 'tanh') %>%
+    layer_dense(units = 2, activation = 'tanh') %>%
+    layer_dense(units = 3, activation = 'softmax', name = 'main_output')
+  model <- keras_model(
+    inputs = c(main_input, auxiliary_input),
+    outputs = c(main_output)
+  )
+
+  conv <- Converter$new(model)
+  data <- lapply(list(c(10,10,2), c(5)), function(x) array(rnorm(10 * prod(x)), dim = c(10, x)))
+  data_torch <- lapply(data, torch_tensor)
+
+  # forward method
+  y_true <- as.array(model(data))
+  y <- as_array(conv$model(data_torch, channels_first = FALSE)[[1]])
+  expect_equal(dim(y), dim(y_true))
+  expect_lt(mean(abs(y_true - y)^2), 1e-12)
+
+  # update
+  x_ref <- lapply(list(c(10,10,2), c(5)), function(x) array(rnorm(prod(x)), dim = c(1, x)))
+  x_ref_torch <- lapply(x_ref, torch_tensor)
+  y_ref <- as_array(conv$model$update_ref(x_ref_torch, channels_first = FALSE)[[1]])
+  y_ref_true <- as.array(model(x_ref))
+  expect_equal(dim(y_ref), dim(y_ref_true))
+  expect_lt(mean((y_ref_true - y_ref)^2), 1e-12)
+})
+
+test_that("Test keras model: Two inputs + two output", {
+  library(keras)
+
+  main_input <- layer_input(shape = c(10,10,2), name = 'main_input')
+  lstm_out <- main_input %>%
+    layer_conv_2d(2, c(2,2)) %>%
+    layer_flatten() %>%
+    layer_dense(units = 4)
+  auxiliary_input <- layer_input(shape = c(5), name = 'aux_input')
+  auxiliary_output <- layer_concatenate(c(lstm_out, auxiliary_input)) %>%
+    layer_dense(units = 2, activation = 'softmax', name = 'aux_output')
+  main_output <- layer_concatenate(c(lstm_out, auxiliary_input)) %>%
+    layer_dense(units = 5, activation = 'tanh') %>%
+    layer_dense(units = 4, activation = 'tanh') %>%
+    layer_dense(units = 2, activation = 'tanh') %>%
+    layer_dense(units = 3, activation = 'softmax', name = 'main_output')
+  model <- keras_model(
+    inputs = c(auxiliary_input, main_input),
+    outputs = c(auxiliary_output, main_output)
+  )
+
+  conv <- Converter$new(model)
+  data <- lapply(list(c(5), c(10,10,2)), function(x) array(rnorm(10 * prod(x)), dim = c(10, x)))
+  data_torch <- lapply(data, torch_tensor)
+
+  # forward method
+  y_true <- lapply(model(data), as.array)
+  y <- lapply(conv$model(data_torch, channels_first = FALSE), as_array)
+  expect_equal(lapply(y, dim), lapply(y_true, dim))
+  expect_lt(mean(unlist(lapply(seq_along(y),
+                               function(i) mean((y_true[[i]] - y[[i]])^2)))),
+            1e-12)
+
+  # update
+  x_ref <- lapply(list(c(10,10,2), c(5)), function(x) array(rnorm(prod(x)), dim = c(1, x)))
+  x_ref_torch <- lapply(x_ref, torch_tensor)
+  y_ref <-lapply(conv$model(data_torch, channels_first = FALSE), as_array)
+  y_ref_true <- lapply(model(data), as.array)
+  expect_equal(lapply(y_ref, dim), lapply(y_ref_true, dim))
+  expect_lt(mean(unlist(lapply(seq_along(y_ref),
+                               function(i) mean((y_ref_true[[i]] - y_ref[[i]])^2)))),
+            1e-12)
+})
+
