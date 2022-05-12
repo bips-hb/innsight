@@ -67,3 +67,4 @@ Collate:
     'innsight.R'
     'utils.R'
     'utils_plot.R'
+    'utils_boxplot.R'

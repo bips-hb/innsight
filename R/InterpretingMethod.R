@@ -221,22 +221,10 @@ InterpretingMethod <- R6Class(
       # Check correctness of arguments
       assertIntegerish(data_idx, lower = 1, upper = dim(self$data[[1]])[1])
       output_idx <- check_output_idx_for_plot(output_idx, self$output_idx)
-      assert(
-        checkFunction(aggr_channels),
-        checkChoice(aggr_channels, c("norm", "sum", "mean"))
-      )
       assertLogical(as_plotly)
 
       # Set aggregation function for channels
-      if (!is.function(aggr_channels)) {
-        if (aggr_channels == "norm") {
-          aggr_channels <- function(x) sum(x^2)^0.5
-        } else if (aggr_channels == "sum") {
-          aggr_channels <- sum
-        } else if (aggr_channels == "mean") {
-          aggr_channels <- mean
-        }
-      }
+      aggr_channels <- get_aggr_function(aggr_channels)
 
       # Get only relevant model outputs
       null_idx <- unlist(lapply(output_idx, is.null))
@@ -249,37 +237,8 @@ InterpretingMethod <- R6Class(
       idx_matches <- lapply(seq_along(output_idx), function(i)
         match(output_idx[[i]], self$output_idx[[i]]))[!null_idx]
 
-      # Define function for aggregating the channels
-      aggregate_channels <- function(result, out_idx, in_idx, idx_matches) {
-        res <- result[[out_idx]][[in_idx]]
-        if (is.null(res)) {
-          res <- NULL
-        } else {
-          d <- length(dim(res))
-          idx <- idx_matches[[out_idx]]
-
-          # Select only relevant data and output class
-          res <- res$index_select(1, as.integer(data_idx))
-          res <- res$index_select(-1, as.integer(idx))
-          res <- as_array(res)
-
-          # Only aggregate if the input is non-tabular
-          if (d != 3) {
-            # get arguments for aggregating
-            num_axis <- length(dim(res))
-            channel_axis <- ifelse(self$channels_first, 2, num_axis - 1)
-            aggr_axis <- setdiff(seq_len(num_axis), channel_axis)
-
-            # aggregate channels
-            res <- apply(res, aggr_axis, aggr_channels)
-            dim(res) <- append(dim(res), 1, channel_axis)
-          }
-        }
-
-        res
-      }
-
-      result <- apply_results(result, aggregate_channels, idx_matches)
+      result <- apply_results(result, aggregate_channels, idx_matches, data_idx,
+                              self$channels_first, aggr_channels)
 
       # Get and modify input names
       input_names <- lapply(self$converter$input_names, function(in_name) {
@@ -305,9 +264,93 @@ InterpretingMethod <- R6Class(
                        individual_max, value_name) {
 
       #
-      # to do!
+      # Do checks
       #
-      stop("ToDo: Boxplot function!!")
+
+      # output_idx
+      output_idx <- check_output_idx_for_plot(output_idx, self$output_idx)
+      # data_idx
+      num_data <- dim(self$data[[1]])[1]
+      if (identical(data_idx, "all")) {
+        data_idx <- seq_len(num_data)
+      }
+      assertIntegerish(data_idx, lower = 1,
+                       upper = num_data,
+                       any.missing = FALSE)
+      # ref_data_idx
+      assertInt(ref_data_idx, lower = 1, upper = num_data, null.ok = TRUE)
+      # aggr_channels
+      aggr_channels <- get_aggr_function(aggr_channels)
+      # preprocess_FUN
+      assertFunction(preprocess_FUN)
+      # as_plotly
+      assertLogical(as_plotly)
+      # individual_data_idx
+      assertIntegerish(individual_data_idx, lower = 1, upper = num_data, null.ok = TRUE,
+                       any.missing = FALSE)
+      # individual_max
+      assertInt(individual_max, lower = 1)
+      individual_max <- min(individual_max, num_data)
+
+      # Set the individual instances for the plot
+      if (!as_plotly) {
+        individual_idx <- ref_data_idx
+      } else {
+        individual_idx <- unique(
+          c(ref_data_idx, individual_data_idx[seq_len(individual_max)]))
+        individual_idx <- individual_idx[!is.na(individual_idx)]
+      }
+
+
+      # Get only relevant model outputs
+      null_idx <- unlist(lapply(output_idx, is.null))
+      result <- self$result[!null_idx]
+
+      # Get the relevant output and class node indices
+      # This is done by matching the given output indices ('output_idx') with
+      # the calculated output indices ('self$output_idx'). Afterwards,
+      # all non-relevant output indices are removed
+      idx_matches <- lapply(seq_along(output_idx), function(i)
+        match(output_idx[[i]], self$output_idx[[i]]))[!null_idx]
+
+      # apply preprocess function
+      preprocess <- function(result, out_idx, in_idx, idx_matches) {
+        res <- result[[out_idx]][[in_idx]]
+        if (is.null(res)) {
+          res <- NULL
+        } else {
+          res <- preprocess_FUN(res)
+        }
+
+        res
+      }
+      result <- apply_results(result, preprocess, idx_matches)
+
+      # Get and modify input names
+      input_names <- lapply(self$converter$input_names, function(in_name) {
+        if (length(in_name) > 1) {
+          in_name[[1]] <- "aggregated"
+        }
+        in_name
+      })
+
+      # Create boxplot data
+      boxplot_data_aggr <-
+        apply_results(result, aggregate_channels, idx_matches, data_idx,
+                      self$channels_first, aggr_channels)
+      df_boxplot_aggr <- create_dataframe_from_result(
+        data_idx, boxplot_data_aggr, input_names, self$converter$output_names, output_idx)
+
+      # Get data for individuals
+      individual_data_aggr <-
+        apply_results(result, aggregate_channels, idx_matches, individual_idx,
+                      self$channels_first, aggr_channels)
+      df_individual_aggr <- create_dataframe_from_result(
+        individual_idx, individual_data_aggr, input_names, self$converter$output_names, output_idx)
+
+      p <- boxplot_func(df_boxplot_aggr, df_individual_aggr, value_name, as_plotly)
+
+      p
     }
   )
 )
@@ -428,34 +471,39 @@ tensor_list_to_named_array <- function(torch_result, input_names, output_names,
 create_dataframe_from_result <- function(data_idx, result, input_names,
                                          output_names, output_idx) {
 
-  null_idx <- unlist(lapply(output_idx, is.null))
-  nonnull_idx <- seq_along(output_names)[!null_idx]
-  output_idx <- output_idx[nonnull_idx]
-  output_names <- output_names[nonnull_idx]
+  if (length(data_idx) == 0) {
+    result_df <- NULL
+  } else {
+    null_idx <- unlist(lapply(output_idx, is.null))
+    nonnull_idx <- seq_along(output_names)[!null_idx]
+    output_idx <- output_idx[nonnull_idx]
+    output_names <- output_names[nonnull_idx]
 
-  fun <- function(result, out_idx, in_idx, input_names, output_names,
-                  output_idx, nonnull_idx) {
-    res <- result[[out_idx]][[in_idx]]
-    result_df <-
-      create_grid(data_idx, input_names[[in_idx]],
-                  output_names[[out_idx]][[1]][output_idx[[out_idx]]])
-    if (is.null(res)) {
-      result_df$value <- NaN
-    } else {
-      result_df$value <- as.vector(as.array(res))
+    fun <- function(result, out_idx, in_idx, input_names, output_names,
+                    output_idx, nonnull_idx) {
+      res <- result[[out_idx]][[in_idx]]
+      result_df <-
+        create_grid(data_idx, input_names[[in_idx]],
+                    output_names[[out_idx]][[1]][output_idx[[out_idx]]])
+      if (is.null(res)) {
+        result_df$value <- NaN
+      } else {
+        result_df$value <- as.vector(as.array(res))
+      }
+      result_df$model_input <- paste0("Input_", in_idx)
+      result_df$model_output <- paste0("Output_", nonnull_idx[out_idx])
+
+      result_df
     }
-    result_df$model_input <- paste0("Input_", in_idx)
-    result_df$model_output <- paste0("Output_", nonnull_idx[out_idx])
 
-    result_df
+    result <- apply_results(result, fun, input_names, output_names,
+                            output_idx, nonnull_idx)
+    result_df <- do.call("rbind",
+                         lapply(result, function(x) do.call("rbind", x)))
+    result_df <- result_df[, c(1, 8, 9, 3, 4, 2, 5, 7, 6)]
   }
 
-  result <- apply_results(result, fun, input_names, output_names,
-                          output_idx, nonnull_idx)
-  result_df <- do.call("rbind",
-                       lapply(result, function(x) do.call("rbind", x)))
-
-  result_df[, c(1, 8, 9, 3, 4, 2, 5, 7, 6)]
+  result_df
 }
 
 create_grid <- function(data_idx, input_names, output_names) {
@@ -540,5 +588,55 @@ apply_results <- function(result, FUN, ...) {
       FUN(result, out_idx, in_idx, ...)
     })
   })
+}
+
+get_aggr_function <- function(aggr_channels) {
+  assert(
+    checkFunction(aggr_channels),
+    checkChoice(aggr_channels, c("norm", "sum", "mean"))
+  )
+
+  if (!is.function(aggr_channels)) {
+    if (aggr_channels == "norm") {
+      aggr_channels <- function(x) sum(x^2)^0.5
+    } else if (aggr_channels == "sum") {
+      aggr_channels <- sum
+    } else if (aggr_channels == "mean") {
+      aggr_channels <- mean
+    }
+  }
+
+  aggr_channels
+}
+
+# Define function for aggregating the channels
+aggregate_channels <- function(result, out_idx, in_idx, idx_matches, data_idx,
+                               channels_first, aggr_channels) {
+  res <- result[[out_idx]][[in_idx]]
+  if (is.null(res)) {
+    res <- NULL
+  } else {
+    d <- length(dim(res))
+    idx <- idx_matches[[out_idx]]
+
+    # Select only relevant data and output class
+    res <- res$index_select(1, as.integer(data_idx))
+    res <- res$index_select(-1, as.integer(idx))
+    res <- as_array(res)
+
+    # Only aggregate if the input is non-tabular
+    if (d != 3) {
+      # get arguments for aggregating
+      num_axis <- length(dim(res))
+      channel_axis <- ifelse(channels_first, 2, num_axis - 1)
+      aggr_axis <- setdiff(seq_len(num_axis), channel_axis)
+
+      # aggregate channels
+      res <- apply(res, aggr_axis, aggr_channels)
+      dim(res) <- append(dim(res), 1, channel_axis)
+    }
+  }
+
+  res
 }
 

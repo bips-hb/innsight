@@ -134,6 +134,13 @@ plot_extended <- function(result_df, value_name) {
                            value_name, 3)
 
   result_df$feature <- as.character(result_df$feature)
+  for (dim in c(1,2,3)) {
+    feature_names <- result_df$feature[result_df$input_dimension == dim]
+    feature_names <- as.numeric(factor(feature_names,
+                                       levels = unique(feature_names)))
+    result_df$feature[result_df$input_dimension == dim] <- feature_names
+  }
+  result_df$feature <- as.numeric(result_df$feature)
 
   # Make feature_2 numeric
   result_df$feature_2 <-
@@ -181,25 +188,39 @@ plot_extended <- function(result_df, value_name) {
                         scales = "free")
   }
 
+  data_tab <- result_df[result_df$input_dimension == 1,]
+  if (nrow(data_tab) == 0) data_tab <- NULL
+  data_1D <- result_df[result_df$input_dimension == 2,]
+  if (nrow(data_1D) == 0) data_1D <- NULL
+  data_2D <- result_df[result_df$input_dimension == 3,]
+  if (nrow(data_2D) == 0) data_2D <- NULL
+
   suppressWarnings(
     p <- ggplot() +
-      geom_raster(data = result_df[result_df$input_dimension == 3,],
-                  mapping = aes(x = .data$feature,
+      {if (!is.null(data_2D)) {
+        geom_raster(data = data_2D,
+                    mapping = aes(x = as.integer(.data$feature),
                                 y = .data$feature_2,
                                 fill = .data$fill,
-                                text = hover_3)) +
-      geom_bar(data = result_df[result_df$input_dimension == 2,],
-               mapping = aes(x = .data$feature,
-                             y = .data$value,
-                             fill = .data$fill,
-                             text = hover_2),
-               stat = "identity") +
-      geom_bar(data = result_df[result_df$input_dimension == 1,],
-               mapping = aes(x = .data$feature,
-                             y = .data$value,
-                             fill = .data$fill,
-                             text = hover_1),
-               stat = "identity") +
+                                text = hover_3))
+          }
+      } +
+      {if (!is.null(data_1D)) {
+        geom_bar(data = data_1D,
+                 mapping = aes(x = .data$feature,
+                               y = .data$value,
+                               fill = .data$fill,
+                               text = hover_2),
+                 stat = "identity")
+      }} +
+      {if (!is.null(data_tab)) {
+        geom_bar(data = data_tab,
+                mapping = aes(x = as.integer(.data$feature),
+                              y = .data$value,
+                              fill = .data$fill,
+                              text = hover_1),
+                stat = "identity")
+      }} +
       facet +
       geom_hline(data = result_df[result_df$input_dimension != 3,],
                  aes(yintercept = 0), show.legend = FALSE) +
