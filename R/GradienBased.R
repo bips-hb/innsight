@@ -1,3 +1,7 @@
+###############################################################################
+#                         Super class: GradientBased
+###############################################################################
+
 #'
 #' @title Super class for Gradient-based Interpretation Methods
 #' @description Super class for gradient-based interpretation methods. This
@@ -183,8 +187,10 @@ GradientBased <- R6Class(
   ),
   private = list(
     calculate_gradients = function(input) {
-      input$requires_grad <- TRUE
+      # Set 'requires_grad' for the input tensors
+      lapply(input, function(i) i$requires_grad <- TRUE)
 
+      # Run input through the model
       out <- self$converter$model(input,
                                   channels_first = self$channels_first,
                                   save_input = FALSE,
@@ -194,26 +200,63 @@ GradientBased <- R6Class(
 
 
       if (self$ignore_last_act) {
-        output <- rev(self$converter$model$modules_list)[[1]]$preactivation
-      } else {
-        output <- out
+        out <- lapply(self$converter$model$output_nodes,
+                      function(x) self$converter$model$modules_list[[x]]$preactivation)
       }
 
-      # Implemented is only the case where the output is one-dimensional
-      assertTRUE(length(dim(output)) == 2)
-      out_sum <- sum(output, dim = 1)
+      # Add up the output over the batch dimension
+      out_sum <- lapply(out, torch_sum, dim = 1)
 
       # Define Progressbar
-      pb <- txtProgressBar(min = 0, max = length(self$output_idx), style = 3)
+      pb <- txtProgressBar(min = 0, max = length(unlist(self$output_idx)), style = 3)
+      n <- 1
 
-      res <- lapply(seq_len(length(self$output_idx)), function(i) {
-        setTxtProgressBar(pb, i)
-        autograd_grad(out_sum[self$output_idx[i]], input, retain_graph = TRUE)[[1]]
-      })
+      # Definition of some temporary functions --------------------------------
+      # Define function for calculating the gradients of one output
+      calc_gradient_for_one_output <- function(idx, list_idx) {
+        setTxtProgressBar(pb, n)
+        n <<- n + 1
 
+        autograd_grad(out_sum[[list_idx]][idx], input, retain_graph = TRUE,
+                      allow_unused = TRUE)
+      }
+
+      # Define function for stacking the results
+      stack_outputs <- function(input_idx, results) {
+        batch <- lapply(seq_along(results), function(i) {
+          result <- results[[i]][[input_idx]]
+          if (is_undefined_tensor(result)) result <- NULL
+
+          result
+        })
+
+        if (is.null(batch[[1]])) {
+          result <- NULL
+        } else {
+          result <- torch_stack(batch, dim = -1)
+        }
+
+        result
+      }
+
+      # Define function for calculating gradients for multiple outputs
+      calc_gradient_for_list_idx <- function(list_idx) {
+        # Loop over every entry for the model output of index 'list_idx'
+        res <- lapply(self$output_idx[[list_idx]], calc_gradient_for_one_output,
+                      list_idx = list_idx)
+
+        lapply(seq_along(res[[1]]), stack_outputs, results = res)
+      }
+      # End of definitions ----------------------------------------------------
+
+      output_idx <-
+        seq_along(self$output_idx)[!unlist(lapply(self$output_idx, is.null))]
+      grads <- lapply(output_idx, calc_gradient_for_list_idx)
+
+      lapply(input, function(i) i$requires_grad <- FALSE)
       close(pb)
 
-      torch_stack(res, dim = -1)
+      grads
     }
   )
 )
@@ -227,6 +270,10 @@ boxplot.GradientBased <- function(x, ...) {
   x$boxplot(...)
 }
 
+
+###############################################################################
+#                               Vanilla Gradient
+###############################################################################
 
 #' @title Vanilla Gradient Method
 #' @name Gradient
@@ -425,7 +472,7 @@ Gradient <- R6Class(
       gradients <- private$calculate_gradients(self$data)
 
       if (self$times_input) {
-        gradients <- gradients * self$data$unsqueeze(-1)
+        gradients <- calc_times_input(gradients, self$data)
       }
 
       gradients
@@ -433,6 +480,10 @@ Gradient <- R6Class(
   )
 )
 
+
+###############################################################################
+#                                 SmoothGrad
+###############################################################################
 
 #' @title SmoothGrad Method
 #' @name SmoothGrad
@@ -642,33 +693,63 @@ SmoothGrad <- R6Class(
   ),
   private = list(
     run = function() {
-      data <-
+      data <- lapply(self$data, function(input)
         torch_repeat_interleave(
-          self$data,
+          input,
           repeats = torch_tensor(self$n, dtype = torch_long()),
           dim = 1
-        )
+        ))
 
-      noise_scale <- self$noise_level * (max(data) - min(data))
+      data <- lapply(data, function(input) {
+        noise_scale <- self$noise_level * (max(input) - min(input))
+        noise <- torch_randn_like(input) * noise_scale
 
-      noise <- torch_randn_like(data) * noise_scale
+        input + noise
+      })
 
       message("Backward pass 'SmoothGrad':")
-      gradients <- private$calculate_gradients(data + noise)
-
-      smoothgrads <-
-        torch_stack(lapply(gradients$chunk(dim(self$data)[1]),
-          FUN = torch_mean,
-          dim = 1
-        ),
-        dim = 1
-        )
+      gradients <- private$calculate_gradients(data)
 
       if (self$times_input) {
-        smoothgrads <- smoothgrads * self$data$unsqueeze(-1)
+        gradients <- calc_times_input(gradients, data)
       }
+
+      smoothgrads <- lapply(gradients, function(grad_output)
+        lapply(grad_output, function(grad_input) {
+          if (is.null(grad_input)) {
+            res <- NULL
+          } else {
+            res <- torch_stack(
+              lapply(grad_input$chunk(dim(self$data[[1]])[1]),
+                     FUN = torch_mean, dim = 1
+              ),
+              dim = 1
+            )
+          }
+        }))
 
       smoothgrads
     }
   )
 )
+
+
+###############################################################################
+#                                     Utils
+###############################################################################
+
+calc_times_input <- function(gradients, input) {
+  for (i in seq_along(gradients)) {
+    for (k in seq_along(gradients[[i]])) {
+      grad <- gradients[[i]][[k]]
+      if (is.null(grad)) {
+        gradients[[i]][k] <- list(NULL)
+      } else {
+        gradients[[i]][[k]] <- grad * input[[k]]$unsqueeze(-1)
+      }
+    }
+  }
+
+  gradients
+}
+
