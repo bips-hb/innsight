@@ -22,7 +22,7 @@ OtherLayer <- nn_module(
     self$reshape_to_input(...)
   },
 
-  reshape_to_input = function(rel_output) {
+  reshape_to_input = function(rel_output, ...) {
     rel_output
   },
 
@@ -77,7 +77,7 @@ flatten_layer <- nn_module(
   #
   #   input   : torch Tensor of size [batch_size, in_channels, * , model_out]
   #
-  reshape_to_input = function(rel_output) {
+  reshape_to_input = function(rel_output, ...) {
     batch_size <- dim(rel_output)[1]
     model_out <- rev(dim(rel_output))[1]
 
@@ -137,7 +137,7 @@ concatenate_layer <- nn_module(
   },
 
 
-  reshape_to_input = function(rel_output) {
+  reshape_to_input = function(rel_output, ...) {
     split_size <- lapply(self$input_dim, function(x) x[self$dim - 1])
     rel_input <- torch_split(rel_output, split_size, self$dim)
 

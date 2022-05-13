@@ -380,53 +380,148 @@ LRP <- R6Class(
   ),
   private = list(
     run = function() {
-      rev_layers <- rev(self$converter$model$modules_list)
-      last_layer <- rev_layers[[1]]
 
-      if (self$ignore_last_act) {
-        rel <- torch_diag_embed(last_layer$preactivation)
-      } else {
-        rel <- torch_diag_embed(last_layer$output)
-
-        # For probabilistic output we need to subtract 0.5, such that
-        # 0 means no relevance
-        if (last_layer$activation_name %in%
-          c("softmax", "sigmoid", "logistic")) {
-          rel <- rel - 0.5
-        }
-      }
-
-      rel <- rel[,,self$output_idx, drop = FALSE]
+      # Declare vector for relevances for each output node
+      rel_list <- vector(mode = "list",
+                         length = length(self$converter$model$output_nodes))
 
       message("Backward pass 'LRP':")
       # Define Progressbar
-      pb <- txtProgressBar(min = 0, max = length(rev_layers), style = 3)
-      i <- 0
+      pb <- txtProgressBar(min = 0,
+                           max = length(self$converter$model$graph),
+                           style = 3)
+      n <- 0
+      # We go through the graph in reversed order
+      for (step in rev(self$converter$model$graph)) {
+        # Get the current layer
+        layer <- self$converter$model$modules_list[[step$used_node]]
 
-      # other layers
-      for (layer in rev_layers) {
-        if ("Flatten_Layer" %in% layer$".classes") {
-          rel <- layer$reshape_to_input(rel)
-          layer$reset()
-        } else {
-          rel <- layer$get_input_relevances(
-            rel,
-            self$rule_name,
-            self$rule_param
-          )
-          layer$reset()
+        # Get the upper layer relevance ...
+        # ... for an output layer
+        if (step$used_node %in% self$converter$model$output_nodes) {
+          # check if current node is required in 'self$output_idx'
+          # get index of the current layer in 'self$output_idx'
+          idx <- match(step$used_node,
+                       self$converter$model$output_nodes)
+          # The current node is not required, i.e. we do not need to calculate
+          # relevances for this output
+          if (is.null(self$output_idx[[idx]])) {
+            rel <- NULL
+          }
+          # Otherwise ...
+          else {
+            # get the corresponding output depending on the argument 'ignore_last_act'
+            if (self$ignore_last_act) {
+              rel <- torch_diag_embed(layer$preactivation)
+            } else {
+              rel <- torch_diag_embed(layer$output)
+
+              # For probabilistic output we need to subtract 0.5, such that
+              # 0 means no relevance
+              if (layer$activation_name %in%
+                  c("softmax", "sigmoid", "logistic")) {
+                rel <- rel - 0.5
+              }
+            }
+
+            # Get necessary output nodes and fill up with zeros
+            #
+            # We flatten the list of outputs and put the corresponding outputs
+            # into the last axis of the relevance tensor, e.g. we have
+            # output_idx = list(c(1), c(2,4,5)) and the current layer (of shape (10,4))
+            # corresponds to the first entry (c(1)), then we concatenate the
+            # output of this layer (shape (10,1)) and three times the same
+            # tensor with zeros (shape (10,3) )
+            tensor_list <- list()
+            for (i in seq_along(self$output_idx)) {
+              out_idx <- self$output_idx[[i]]
+              # if current layer, use the true output/preactivation and only
+              # relevant output nodes
+              if (i == idx) {
+                tensor_list <- append(tensor_list, list(rel[,,out_idx, drop = FALSE]))
+              }
+              # otherwise, create for each output node a tensor of zeros
+              else if (!is.null(out_idx)) {
+                dims <- c(rel$shape[-length(rel$shape)], length(out_idx))
+                tensor_list <- append(tensor_list, list(torch_zeros(dims)))
+              }
+            }
+            # concatenate all together
+            rel <- torch_cat(tensor_list, dim = -1)
+          }
         }
-        i <- i + 1
-        setTxtProgressBar(pb, i)
-      }
-      if (!self$channels_first) {
-        rel <- torch_movedim(rel, 2, length(dim(rel)) - 1)
-      }
+        # ... or a normal layer
+        else {
+          # Get relevant entries from 'rel_list' for the current layer
+          rel <- rel_list[seq_len(step$times) + min(step$used_idx) - 1]
+          if (step$times == 1) {
+            rel <- rel[[1]]
+          } else {
+            # If more than one output for this layer was created, we sum up
+            # all relevances from the corresponding upper nodes
+            result <- 0
+            for (res in rel) {
+              if (!is.null(res)) {
+                result <- result + res
+              }
+            }
+            rel <- result
+          }
+        }
 
+        # Remove the used relevances from 'rel_list'
+        rel_list <- rel_list[-(seq_len(step$times) + min(step$used_idx) - 1)]
+
+        # Apply the LRP method for the current layer and reset the layer
+        # afterwards
+        if (!is.null(rel)) {
+          rel <- layer$get_input_relevances(rel, rule_name = self$rule_name,
+                                            rule_param = self$rule_param)
+        }
+        layer$reset()
+
+        # Transform it back to a list
+        if (!is.list(rel)) {
+          rel <- list(rel)
+        }
+
+        # Save the lower-layer relevances in the list 'rel_list' in the
+        # required order
+        order <- order(step$used_idx)
+        ordered_idx <- step$used_idx[order]
+        rel_ordered <- rel[order]
+        for (i in seq_along(step$used_idx)) {
+          rel_list <- append(rel_list, rel_ordered[i], after = ordered_idx[i] - 1)
+        }
+
+        # Update progress bar
+        n <- n + 1
+        setTxtProgressBar(pb, n)
+      }
       close(pb)
 
+      # If necessary, move channels last
+      if (self$channels_first == FALSE) {
+        rel_list <- lapply(rel_list, function(x) torch_movedim(x, source = 2, destination = -2))
+      }
 
-      rel
+      # As mentioned above, the results of the individual output nodes are
+      # stored in the last dimension of the results for each input. Hence,
+      # we need to transform it back to the structure: outer list (model output)
+      # and inner list (model input)
+      result <- list()
+      sum_nodes <- 0
+      for (i in seq_along(self$output_idx)) {
+        if (!is.null(self$output_idx[[i]])) {
+          res_output_i <- lapply(rel_list, torch_index_select, dim = -1,
+                                 index = as.integer(self$output_idx[[i]] + sum_nodes))
+          result <- append(result, list(res_output_i))
+
+          sum_nodes <- sum_nodes + length(self$output_idx[[i]])
+        }
+      }
+
+      result
     }
   )
 )
