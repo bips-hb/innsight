@@ -362,11 +362,73 @@ test_that("LRP: Conv2D-Net", {
   )
 })
 
+
+test_that("LRP: Keras model with two inputs + two outputs", {
+  library(keras)
+
+  main_input <- layer_input(shape = c(10,10,2), name = 'main_input')
+  lstm_out <- main_input %>%
+    layer_conv_2d(2, c(2,2)) %>%
+    layer_flatten() %>%
+    layer_dense(units = 4)
+  auxiliary_input <- layer_input(shape = c(5), name = 'aux_input')
+  auxiliary_output <- layer_concatenate(c(lstm_out, auxiliary_input)) %>%
+    layer_dense(units = 2, activation = 'softmax', name = 'aux_output')
+  main_output <- layer_concatenate(c(lstm_out, auxiliary_input)) %>%
+    layer_dense(units = 5, activation = 'tanh') %>%
+    layer_dense(units = 4, activation = 'tanh') %>%
+    layer_dense(units = 2, activation = 'tanh') %>%
+    layer_dense(units = 3, activation = 'softmax', name = 'main_output')
+  model <- keras_model(
+    inputs = c(auxiliary_input, main_input),
+    outputs = c(auxiliary_output, main_output)
+  )
+
+  converter <- Converter$new(model)
+  data <- lapply(list(c(5), c(10,10,2)),
+                 function(x) array(rnorm(10 * prod(x)), dim = c(10, x)))
+
+  lrp <- LRP$new(converter, data, channels_first = FALSE,
+                       output_idx = list(c(2), c(1,3)))
+  result <- lrp$get_result()
+  expect_equal(length(result), 2)
+  expect_equal(length(result[[1]]), 2)
+  expect_equal(dim(result[[1]][[1]]), c(10,5,1))
+  expect_equal(dim(result[[1]][[2]]), c(10,10,10,2,1))
+  expect_equal(length(result[[2]]), 2)
+  expect_equal(dim(result[[2]][[1]]), c(10,5,2))
+  expect_equal(dim(result[[2]][[2]]), c(10,10,10,2,2))
+
+  lrp_eps <- LRP$new(converter, data, channels_first = FALSE, rule_name = "epsilon",
+                         output_idx = list(c(1), c(1,2)))
+  result <- lrp_eps$get_result()
+  expect_equal(length(result), 2)
+  expect_equal(length(result[[1]]), 2)
+  expect_equal(dim(result[[1]][[1]]), c(10,5,1))
+  expect_equal(dim(result[[1]][[2]]), c(10,10,10,2,1))
+  expect_equal(length(result[[2]]), 2)
+  expect_equal(dim(result[[2]][[1]]), c(10,5,2))
+  expect_equal(dim(result[[2]][[2]]), c(10,10,10,2,2))
+
+  lrp_ab <- LRP$new(converter, data, channels_first = FALSE, rule_name = "alpha_beta",
+                    rule_param = 0.5, output_idx = list(c(2), c(2, 3)))
+  result <- lrp_ab$get_result()
+  expect_equal(length(result), 2)
+  expect_equal(length(result[[1]]), 2)
+  expect_equal(dim(result[[1]][[1]]), c(10,5,1))
+  expect_equal(dim(result[[1]][[2]]), c(10,10,10,2,1))
+  expect_equal(length(result[[2]]), 2)
+  expect_equal(dim(result[[2]][[1]]), c(10,5,2))
+  expect_equal(dim(result[[2]][[2]]), c(10,10,10,2,2))
+})
+
+
 test_that("LRP: Correctness", {
   library(keras)
   library(torch)
 
-  data <- array(rnorm(10 * 32 * 32 * 3), dim = c(10, 32, 32, 3))
+  data <- torch_tensor(array(rnorm(10 * 32 * 32 * 3), dim = c(10, 32, 32, 3)) * 5,
+                       dtype = torch_double())
 
   model <- keras_model_sequential()
   model %>%
@@ -389,20 +451,21 @@ test_that("LRP: Correctness", {
     layer_dense(units = 1, activation = "sigmoid", use_bias = FALSE)
 
   # test non-fitted model
-  converter <- Converter$new(model)
+  converter <- Converter$new(model, dtype = "double")
 
-  lrp <- LRP$new(converter, data, channels_first = FALSE)
-  converter$model(data, channels_first = FALSE, save_last_layer = TRUE)
+  lrp <- LRP$new(converter, data, channels_first = FALSE, dtype = "double")
+  res <- converter$model(data, channels_first = FALSE, save_last_layer = TRUE)
   out <- converter$model$modules_list[[7]]$preactivation
   lrp_result_sum <-
     lrp$get_result(type = "torch.tensor")$sum(dim = c(2, 3, 4))
-  expect_lt(as.array(mean(abs(lrp_result_sum - out)^2)), 1e-5)
+  expect_lt(as.array(mean(abs(lrp_result_sum - out)^2)), 1e-10)
 
   lrp <-
-    LRP$new(converter, data, channels_first = FALSE, ignore_last_act = FALSE)
-  converter$model(data, channels_first = FALSE, save_last_layer = TRUE)
+    LRP$new(converter, data, channels_first = FALSE, ignore_last_act = FALSE,
+            dtype = "double")
+  res <- converter$model(data, channels_first = FALSE, save_last_layer = TRUE)
   out <- converter$model$modules_list[[7]]$output - 0.5
   lrp_result_no_last_act_sum <-
     lrp$get_result(type = "torch.tensor")$sum(dim = c(2, 3, 4))
-  expect_lt(as.array(mean(abs(lrp_result_no_last_act_sum - out)^2)), 1e-5)
+  expect_lt(as.array(mean(abs(lrp_result_no_last_act_sum - out)^2)), 1e-10)
 })

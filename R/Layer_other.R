@@ -22,6 +22,10 @@ OtherLayer <- nn_module(
     self$reshape_to_input(...)
   },
 
+  get_input_multiplier = function(...) {
+    self$reshape_to_input(...)
+  },
+
   reshape_to_input = function(rel_output, ...) {
     rel_output
   },

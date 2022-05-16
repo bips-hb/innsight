@@ -209,7 +209,7 @@ DeepLift <- R6Class(
       self$rule_name <- rule_name
 
       if (is.null(x_ref)) {
-        x_ref <- array(0, dim = c(1, dim(data)[-1]))
+          x_ref <- lapply(lapply(self$data, dim), function(x) array(0, dim = c(1,x[-1])))
       }
       self$x_ref <- private$test_data(x_ref, name = "x_ref")
 
@@ -227,7 +227,7 @@ DeepLift <- R6Class(
       )
 
 
-      self$result <- private$run()
+      self$result <- private$run("DeepLift")
     },
 
 
@@ -356,56 +356,6 @@ DeepLift <- R6Class(
       private$boxplot(output_idx, data_idx, ref_data_idx, aggr_channels,
                       preprocess_FUN, as_plotly, individual_data_idx,
                       individual_max, "Contribution")
-    }
-  ),
-  private = list(
-    run = function() {
-      rev_layers <- rev(self$converter$model$modules_list)
-      last_layer <- rev_layers[[1]]
-      rev_layers <- rev_layers[-1]
-
-      mul <- torch_diag_embed(torch_ones_like(last_layer$output))
-
-      mul <- mul[,,self$output_idx, drop = FALSE]
-
-      message("Backward pass 'DeepLift':")
-      # Define Progressbar
-      pb <- txtProgressBar(min = 0, max = length(rev_layers) + 1, style = 3)
-      i <- 0
-
-      if (self$ignore_last_act &&
-        !("Flatten_Layer" %in% last_layer$".classes")) {
-        mul <- last_layer$get_input_multiplier(mul,
-          rule_name = "ignore_last_act"
-        )
-      } else {
-        mul <- last_layer$get_input_multiplier(mul, self$rule_name)
-      }
-      last_layer$reset()
-
-      i <- i + 1
-      setTxtProgressBar(pb, i)
-
-      # other layers
-      for (layer in rev_layers) {
-        if ("Flatten_Layer" %in% layer$".classes") {
-          mul <- layer$reshape_to_input(mul)
-        } else {
-          mul <- layer$get_input_multiplier(mul, self$rule_name)
-        }
-        layer$reset()
-
-        i <- i + 1
-        setTxtProgressBar(pb, i)
-      }
-      if (!self$channels_first) {
-        mul <- torch_movedim(mul, 2, length(dim(mul)) - 1)
-      }
-      x_diff <- (self$data - self$x_ref)$unsqueeze(-1)
-
-      close(pb)
-
-      mul * x_diff
     }
   )
 )
