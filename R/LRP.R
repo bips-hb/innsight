@@ -514,7 +514,7 @@ LRP <- R6Class(
       for (i in seq_along(self$output_idx)) {
         if (!is.null(self$output_idx[[i]])) {
           res_output_i <- lapply(rel_list, torch_index_select, dim = -1,
-                                 index = as.integer(self$output_idx[[i]] + sum_nodes))
+                                 index = as.integer(seq_len(length(self$output_idx[[i]])) + sum_nodes))
           result <- append(result, list(res_output_i))
 
           sum_nodes <- sum_nodes + length(self$output_idx[[i]])

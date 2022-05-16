@@ -39,8 +39,8 @@ boxplot_func <- function(boxplot_df, individual_df, value_name = "Relevance", as
       stop("Please install the 'plotly' package if you want to create",
            "an interactive plot.")
     }
-    #p <-
-    #  plotly::ggplotly(p, tooltip = "text", dynamicTicks = FALSE)
+    p <-
+      plotly::ggplotly(p, tooltip = "text", dynamicTicks = FALSE)
     warning("The plotly-plots for 'boxplot' are not implemented yet! Coming soon!")
   }
 
@@ -49,14 +49,20 @@ boxplot_func <- function(boxplot_df, individual_df, value_name = "Relevance", as
 
 boxplot_bar <- function(boxplot_df, individual_df, value_name) {
 
-  p <- ggplot() +
+  p <- ggplot()
+
+  if (!is.null(individual_df)) {
+    p <- p +
+      geom_errorbar(data = individual_df,
+                    aes(x = .data$feature, ymin = .data$value, ymax = .data$value),
+                    color = "red", size = 1, width = 0.8)
+  }
+
+  p <- p +
+    stat_boxplot(data = boxplot_df, aes(x = .data$feature, y = .data$value),
+                 geom='errorbar', linetype=1, width = 0.6) +
     geom_boxplot(data = boxplot_df,
                  aes(x = .data$feature, y = .data$value), show.legend = FALSE, width = 0.8) +
-    stat_boxplot(data = boxplot_df, aes(x = .data$feature, y = .data$value),
-                  geom='errorbar', linetype=1, width = 0.8) +
-    geom_errorbar(data = individual_df,
-                 aes(x = .data$feature, ymin = .data$value, ymax = .data$value),
-                 color = "red", size = 1, width = 0.8) +
     facet_grid(cols = vars(output_node), scales = "fixed") +
     geom_hline(yintercept = 0) +
     xlab(ifelse(all(boxplot_df$input_dimension == 2), "Signal Length", "Feature")) +

@@ -467,7 +467,7 @@ Converter <- R6Class("Converter",
       # Check modules and graph and register input and output shapes for each
       # layer
       tmp <-
-        check_and_register_shapes(modules_list, graph, model_as_list)
+        check_and_register_shapes(modules_list, graph, model_as_list, dtype)
 
       # Create torch model of class 'ConvertedModel'
       model <- ConvertedModel(tmp$modules_list, graph, model_as_list$input_nodes,
@@ -879,9 +879,15 @@ create_structered_graph <- function(input_layers, output_layers, model_as_list) 
 
 
 
-check_and_register_shapes <- function(modules_list, graph, model_as_list) {
+check_and_register_shapes <- function(modules_list, graph, model_as_list, dtype) {
 
-  x <- lapply(model_as_list$input_dim, function(shape) torch_randn(c(1, shape)))
+  if (dtype == "float") {
+    x <- lapply(model_as_list$input_dim, function(shape) torch_randn(c(1, shape)))
+  } else {
+    x <- lapply(model_as_list$input_dim,
+                function(shape) torch_randn(c(1, shape), dtype = torch_double()))
+  }
+
 
   for (step in graph) {
     input <- x[step$used_idx]

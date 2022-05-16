@@ -175,7 +175,11 @@ plot_extended <- function(result_df, value_name) {
     # normalize result for all data points, and outputs
     result_df$fill <-  result_df$value /
       ave(result_df$value, result_df$output_node, result_df$model_output,
-          FUN = function(x) max(abs(x)))
+          FUN = function(x) {
+            res <- NA
+            if (length(x) != 0) res <- max(abs(x))
+            res
+            })
 
     facet <- facet_grid(model_output + output_node ~ model_input,
                         scales = "free")
