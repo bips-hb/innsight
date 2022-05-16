@@ -14,7 +14,7 @@ test_that("ConnectionWeights: General errors", {
   expect_error(ConnectionWeights$new(converter, channels_first = NULL))
   expect_error(ConnectionWeights$new(converter, dtype = "asdf"))
 
-  cw <- ConnectionWeights$new(converter)
+  cw <- ConnectionWeights$new(converter, output_idx = c(1))
 
   # Test method 'get_results'
   res_array <- cw$get_result()

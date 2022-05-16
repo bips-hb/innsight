@@ -142,12 +142,9 @@
 #' @export
 ConnectionWeights <- R6Class(
   classname = "ConnectionWeights",
+  inherit = InterpretingMethod,
   public = list(
-    converter = NULL,
-    channels_first = NULL,
-    dtype = NULL,
-    result = NULL,
-    output_idx = NULL,
+    times_input = NULL,
 
     #' @param converter The converter of class [Converter] with the stored and
     #' torch-converted model.
@@ -162,56 +159,44 @@ ConnectionWeights <- R6Class(
     #' [torch::torch_double].
     #'
     initialize = function(converter,
+                          data = NULL,
                           output_idx = NULL,
                           channels_first = TRUE,
+                          times_input = FALSE,
                           dtype = "float") {
+
       assertClass(converter, "Converter")
       self$converter <- converter
 
-      assertIntegerish(output_idx, null.ok = TRUE, lower = 1,
-                       upper = converter$model_dict$output_dim)
-
-
-      if (is.null(output_idx)) output_idx <-
-        1:min(converter$model_dict$output_dim, 10)
-      self$output_idx <- output_idx
-
       assert_logical(channels_first)
       self$channels_first <- channels_first
+
+      assert_logical(times_input)
+      self$times_input <- times_input
 
       assertChoice(dtype, c("float", "double"))
       self$dtype <- dtype
       self$converter$model$set_dtype(dtype)
 
-      self$result <- private$run()
-    },
+      # Check output indices
+      self$output_idx <- check_output_idx(output_idx, converter$output_dim)
 
-    #'
-    #' @description
-    #' This function returns the result of the *Connection Weights* method
-    #' either as an array (`'array'`), a torch tensor (`'torch.tensor'` or
-    #' `'torch_tensor'`) of size (dim_in, dim_out) or as a data.frame
-    #' (`'data.frame'`).
-    #'
-    #' @param type The data type of the result. Use one of `'array'`,
-    #' `'torch.tensor'`, `'torch_tensor'` or `'data.frame'`
-    #' (default: `'array'`).
-    #'
-    #' @return The result of this method for the given data in the chosen
-    #' type.
-    #'
-    get_result = function(type = "array") {
-      assertChoice(type,
-                   c("array", "data.frame", "torch.tensor", "torch_tensor"))
-
-      result <- self$result
-      if (type == "array") {
-        result <- as.array(result)
-      } else if (type == "data.frame") {
-        result <- private$get_dataframe()
+      if (times_input & is.null(data)) {
+        stop("If you want to use the ConnectionWeights method with the ",
+             "'times_input' argument, you must also specify 'data'!")
+      } else if (times_input) {
+        self$data <- private$test_data(data)
       }
 
-      result
+      self$ignore_last_act <- FALSE
+
+      result <- private$run("Connection-Weights")
+
+      if (self$times_input) {
+        result <- calc_times_input(result, self$data)
+      }
+
+      self$result <- result
     },
 
     #'
@@ -252,184 +237,21 @@ ConnectionWeights <- R6Class(
     #' Returns either a [ggplot2::ggplot] (`as_plotly = FALSE`) or a
     #' [plotly::plot_ly] object (`as_plotly = TRUE`) with the plotted results.
     #'
-    plot = function(output_idx = NULL,
+    plot = function(data_idx = 1,
                     aggr_channels = 'sum',
+                    output_idx = NULL,
                     preprocess_FUN = identity,
                     as_plotly = FALSE) {
 
-      assertSubset(output_idx, self$output_idx)
-      assert(
-        checkFunction(aggr_channels),
-        checkChoice(aggr_channels, c("norm", "sum", "mean"))
-      )
-      assertFunction(preprocess_FUN)
-      assertLogical(as_plotly)
-
-      if (length(output_idx) == 0) {
-        classes <- self$output_idx[1]
-        classes_idx <- 1
+      if (!self$times_input) {
+        data_idx <- 1
+        self$data <- list(array(0, dim = c(1,1)))
+        no_data <- TRUE
       } else {
-        classes <- output_idx
-        classes_idx <- match(classes, self$output_idx)
+        no_data <- FALSE
       }
-
-      if (!is.function(aggr_channels)) {
-        if (aggr_channels == "norm") {
-          aggr_channels <- function(x) sum(x^2)^0.5
-        } else if (aggr_channels == "sum") {
-          aggr_channels <- sum
-        } else if (aggr_channels == "mean") {
-          aggr_channels <- mean
-        }
-      }
-
-      l <- length(dim(self$result))
-      output_names <- unlist(self$converter$model_dict$output_names)[classes]
-      input_names <- self$converter$model_dict$input_names
-      result <- preprocess_FUN(self$result)
-
-      # 1D Input
-      if (l == 2) {
-        result <- result[,classes_idx, drop = FALSE]$unsqueeze(1)
-        p <- plot_1d_input(result, "Relative Importance", "data_1",
-                           input_names, output_names, TRUE, TRUE)
-        dynamicTicks <- FALSE
-      }
-      # 2D Input
-      else if (l == 3) {
-        result <- as_array(result[, , classes_idx, drop = FALSE]$unsqueeze(1))
-        if (self$channels_first) {
-          dims <- c(1, 3, 4)
-          d <- 2
-        } else {
-          dims <- c(1, 2, 4)
-          d <- 3
-        }
-
-        # Summarize the channels by function 'aggr_channels'
-        result <- torch_tensor(apply(result, dims, aggr_channels))$unsqueeze(d)
-        input_names[[1]] <- c("aggr")
-        p <- plot_2d_input(result, "Relative Importance", "data_1", input_names,
-                           output_names, self$channels_first, TRUE)
-        dynamicTicks <- TRUE
-      }
-      # 3D Input
-      else if (l == 4) {
-        result <- as_array(result[, , , classes_idx, drop = FALSE]$unsqueeze(1))
-        if (self$channels_first) {
-          dims <- c(1, 3, 4, 5)
-          d <- 2
-        } else {
-          dims <- c(1, 2, 3, 5)
-          d <- 4
-        }
-
-        # Summarize the channels by function 'aggr_channels'
-        result <- torch_tensor(apply(result, dims, aggr_channels))$unsqueeze(d)
-        input_names[[1]] <- c("aggr")
-        p <- plot_3d_input(result, "Relative Importance", "data_1", input_names,
-                           output_names, self$channels_first, TRUE)
-        dynamicTicks <- TRUE
-      }
-
-      if (as_plotly) {
-        if (!requireNamespace("plotly", quietly = FALSE)) {
-          stop("Please install the 'plotly' package if you want to",
-               "create an interactive plot.")
-        }
-        p <- plotly::ggplotly(p, tooltip = "text", dynamicTicks = dynamicTicks)
-        p <- plotly::layout(p,
-                            xaxis = list(rangemode = "tozero"),
-                            yaxis = list(rangemode = "tozero"))
-      }
-      p
-    }
-  ),
-  private = list(
-    run = function() {
-      if (self$dtype == "double") {
-        grad <-
-          torch_tensor(diag(self$converter$model_dict$output_dim),
-            dtype = torch_double()
-          )$unsqueeze(1)
-      } else {
-        grad <-
-          torch_tensor(diag(self$converter$model_dict$output_dim),
-            dtype = torch_float()
-          )$unsqueeze(1)
-      }
-
-      index <- torch_tensor(self$output_idx, dtype = torch_long())
-      grad <- grad[,,index, drop = FALSE]
-
-      layers <- rev(self$converter$model$modules_list)
-      message("Backward pass 'ConnectionWeights':")
-      # Define Progressbar
-      pb <- txtProgressBar(min = 0, max = length(layers), style = 3)
-      i <- 0
-
-      for (layer in layers) {
-        if ("Flatten_Layer" %in% layer$".classes") {
-          grad <- layer$reshape_to_input(grad)
-        } else {
-          grad <- layer$get_gradient(grad, layer$W)
-        }
-
-        i <- i + 1
-        setTxtProgressBar(pb, i)
-      }
-      if (!self$channels_first) {
-        grad <- torch_movedim(grad, 2, length(dim(grad)) - 1)
-      }
-      close(pb)
-
-      grad$squeeze(1)
-    },
-    get_dataframe = function() {
-      result <- as.array(self$result)
-      input_names <- self$converter$model_dict$input_names
-      class <- unlist(self$converter$model_dict$output_names)[self$output_idx]
-
-      if (length(input_names) == 1) {
-        df <- expand.grid(
-          feature = input_names[[1]],
-          class = class
-        )
-      }
-      # input (channels, signal_length)
-      else if (length(input_names) == 2) {
-        if (self$channels_first) {
-          df <- expand.grid(
-            channel = input_names[[1]],
-            feature_l = input_names[[2]],
-            class = class
-          )
-        } else {
-          df <- expand.grid(
-            feature_l = input_names[[2]],
-            channel = input_names[[1]],
-            class = class
-          )
-        }
-      } else if (length(input_names) == 3) {
-        if (self$channels_first) {
-          df <- expand.grid(
-            channel = input_names[[1]],
-            feature_h = input_names[[2]],
-            feature_w = input_names[[3]],
-            class = class
-          )
-        } else {
-          df <- expand.grid(
-            feature_h = input_names[[2]],
-            feature_w = input_names[[3]],
-            channel = input_names[[1]],
-            class = class
-          )
-        }
-      }
-      df$value <- as.vector(result)
-      df
+      private$plot(data_idx, output_idx, aggr_channels,
+                   as_plotly, "Relative Importance", no_data)
     }
   )
 )

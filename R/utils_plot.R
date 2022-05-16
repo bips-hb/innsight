@@ -1,7 +1,8 @@
 #' @import ggplot2
 
 
-plot_func <- function(result_df, value_name = "Relevance", as_plotly = FALSE) {
+plot_func <- function(result_df, value_name = "Relevance", as_plotly = FALSE,
+                      no_data = FALSE) {
 
   num_inputs <- length(unique(result_df$model_input))
   num_outputs <- length(unique(result_df$model_output))
@@ -10,9 +11,9 @@ plot_func <- function(result_df, value_name = "Relevance", as_plotly = FALSE) {
   # regular plots for neural networks with one input and one output layer
   if (num_inputs == 1 & num_outputs == 1) {
     if (all(result_df$input_dimension == 3)) {
-      p <- plot_image(result_df, value_name)
+      p <- plot_image(result_df, value_name, no_data)
     } else if (all(result_df$input_dimension %in% c(1,2))) {
-      p <- plot_bar(result_df, value_name)
+      p <- plot_bar(result_df, value_name, no_data)
     } else {
       stop("Error")
     }
@@ -23,7 +24,7 @@ plot_func <- function(result_df, value_name = "Relevance", as_plotly = FALSE) {
     warning("Plotting multiple inputs is currently still a big work in progress. ",
             "For this reason there are still some bugs to be fixed and the ",
             "output might change a lot in the future.")
-    p <- plot_extended(result_df, value_name)
+    p <- plot_extended(result_df, value_name, no_data)
   }
 
   p <- p +
@@ -46,7 +47,7 @@ plot_func <- function(result_df, value_name = "Relevance", as_plotly = FALSE) {
   p
 }
 
-plot_bar <- function(result_df, value_name) {
+plot_bar <- function(result_df, value_name, no_data) {
   # normalize result for all data points
   result_df$fill <- result_df$value /
     ave(result_df$value, result_df$data, result_df$output_node,
@@ -65,7 +66,11 @@ plot_bar <- function(result_df, value_name) {
     )
   }
 
-  facet <- facet_grid(data ~ output_node, scales = "free_y")
+  if (no_data) {
+    facet <- facet_grid(cols = vars(.data$output_node), scales = "free_y")
+  } else {
+    facet <- facet_grid(data ~ output_node, scales = "free_y")
+  }
 
   # For a custom hovertext in the plotly-plot, we have to define the
   # aesthetic "text" what results in a warning "Unknown aesthetics". But as
@@ -88,7 +93,7 @@ plot_bar <- function(result_df, value_name) {
   p
 }
 
-plot_image <- function(result_df, value_name) {
+plot_image <- function(result_df, value_name, no_data) {
   # normalize result for all data points
   result_df$fill <- result_df$value /
     ave(result_df$value, result_df$data, result_df$output_node,
@@ -96,7 +101,11 @@ plot_image <- function(result_df, value_name) {
 
   # Define hovertext for plotly
   hovertext <-  get_hovertext(result_df, value_name, 3)
-  facet <- facet_grid(data ~ output_node, scales = "free")
+  if (no_data) {
+    facet <- facet_grid(cols = vars(.data$output_node), scales = "free")
+  } else {
+    facet <- facet_grid(data ~ output_node, scales = "free")
+  }
 
   # Make axis continuous
   result_df$feature <- as.integer(result_df$feature)

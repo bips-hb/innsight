@@ -215,7 +215,16 @@ InterpretingMethod <- R6Class(
               if (self$ignore_last_act) {
                 rule_name <- "ignore_last_act"
               }
-            } else {
+            } else if (method_name == "Connection-Weights") {
+              if (self$dtype == "float") {
+                rel <- torch_diag_embed(torch_ones(c(1, layer$output_dim)))
+              } else {
+                rel <- torch_diag_embed(
+                  torch_ones(c(1, layer$output_dim), dtype = torch_double()))
+              }
+
+            }
+            else {
               rel <- torch_diag_embed(out)
             }
 
@@ -275,6 +284,8 @@ InterpretingMethod <- R6Class(
                                               rule_param = self$rule_param)
           } else if (method_name == "DeepLift") {
             rel <- layer$get_input_multiplier(rel, rule_name = rule_name)
+          } else if (method_name == "Connection-Weights") {
+            rel <- layer$get_gradient(rel, layer$W)
           }
         }
         layer$reset()
@@ -397,7 +408,8 @@ InterpretingMethod <- R6Class(
                     output_idx = c(),
                     aggr_channels = 'sum',
                     as_plotly = FALSE,
-                    value_name = "value") {
+                    value_name = "value",
+                    no_data = FALSE) {
 
       # Check correctness of arguments
       assertIntegerish(data_idx, lower = 1, upper = dim(self$data[[1]])[1])
@@ -433,7 +445,7 @@ InterpretingMethod <- R6Class(
         data_idx, result, input_names, self$converter$output_names, output_idx)
 
       # Get plot
-      p <- plot_func(result_df, value_name, as_plotly)
+      p <- plot_func(result_df, value_name, as_plotly, no_data)
 
       p
     },

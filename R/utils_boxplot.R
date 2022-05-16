@@ -49,7 +49,18 @@ boxplot_func <- function(boxplot_df, individual_df, value_name = "Relevance", as
 
 boxplot_bar <- function(boxplot_df, individual_df, value_name) {
 
-  p <- ggplot()
+  p <- ggplot() +
+    stat_boxplot(data = boxplot_df, aes(x = .data$feature, y = .data$value),
+                 geom='errorbar', linetype=1, width = 0.6) +
+    geom_boxplot(data = boxplot_df,
+                 aes(x = .data$feature, y = .data$value), show.legend = FALSE, width = 0.8) +
+    facet_grid(cols = vars(.data$output_node), scales = "fixed") +
+    geom_hline(yintercept = 0) +
+    xlab(ifelse(all(boxplot_df$input_dimension == 2), "Signal Length", "Feature")) +
+    ylab(value_name) +
+    scale_x_discrete(
+      guide = guide_axis(check.overlap = TRUE)
+    )
 
   if (!is.null(individual_df)) {
     p <- p +
@@ -57,19 +68,6 @@ boxplot_bar <- function(boxplot_df, individual_df, value_name) {
                     aes(x = .data$feature, ymin = .data$value, ymax = .data$value),
                     color = "red", size = 1, width = 0.8)
   }
-
-  p <- p +
-    stat_boxplot(data = boxplot_df, aes(x = .data$feature, y = .data$value),
-                 geom='errorbar', linetype=1, width = 0.6) +
-    geom_boxplot(data = boxplot_df,
-                 aes(x = .data$feature, y = .data$value), show.legend = FALSE, width = 0.8) +
-    facet_grid(cols = vars(output_node), scales = "fixed") +
-    geom_hline(yintercept = 0) +
-    xlab(ifelse(all(boxplot_df$input_dimension == 2), "Signal Length", "Feature")) +
-    ylab(value_name) +
-    scale_x_discrete(
-      guide = guide_axis(check.overlap = TRUE)
-    )
 
   p
 
@@ -90,7 +88,7 @@ boxplot_image <- function(boxplot_df, value_name) {
   ggplot(data = res_df) +
     geom_raster(aes(x = .data$feature, y = .data$feature_2, fill = .data$x)) +
     scale_fill_gradient2(low = "blue", mid = "white", high = "red") +
-    facet_grid(cols = vars(output_node)) +
+    facet_grid(cols = vars(.data$output_node)) +
     xlab("Image Width") +
     labs(fill = paste0(value_name, "\n (median)")) +
     ylab("Image Height") +
@@ -100,3 +98,10 @@ boxplot_image <- function(boxplot_df, value_name) {
 }
 
 
+boxplot_extended <- function(boxplot_df, individual_df, value_name) {
+  #
+  # to do!
+  #
+
+  NULL
+}
