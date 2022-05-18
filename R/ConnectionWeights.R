@@ -145,6 +145,7 @@ ConnectionWeights <- R6Class(
   inherit = InterpretingMethod,
   public = list(
     times_input = NULL,
+    global = NULL,
 
     #' @param converter The converter of class [Converter] with the stored and
     #' torch-converted model.
@@ -186,6 +187,14 @@ ConnectionWeights <- R6Class(
              "'times_input' argument, you must also specify 'data'!")
       } else if (times_input) {
         self$data <- private$test_data(data)
+        self$global <- FALSE
+      } else {
+        if (!is.null(data)) {
+          message("If 'times_input' = FALSE, then the method Connection-Weights ",
+                  "is a global method and independent of the data. ",
+                  "Therefore, the argument 'data' will be ignored.")
+        }
+        self$global <- TRUE
       }
 
       self$ignore_last_act <- FALSE
@@ -244,14 +253,54 @@ ConnectionWeights <- R6Class(
                     as_plotly = FALSE) {
 
       if (!self$times_input) {
+        if (!identical(data_idx, 1)) {
+          message(paste0(
+            "Without the 'times_input' argument, the method 'Connection-Weights'",
+            " is a global method, therefore no individual data instances ",
+            "can be plotted. Your argument 'data_idx': c(",
+            paste(data_idx, collapse = ", "), ")\n",
+            "The argument 'data_idx' will be ignored in the following!"))
+        }
         data_idx <- 1
         self$data <- list(array(0, dim = c(1,1)))
         no_data <- TRUE
       } else {
         no_data <- FALSE
       }
+
       private$plot(data_idx, output_idx, aggr_channels,
                    as_plotly, "Relative Importance", no_data)
+    },
+
+    boxplot = function(output_idx = NULL,
+                       data_idx = "all",
+                       ref_data_idx = NULL,
+                       aggr_channels = 'norm',
+                       preprocess_FUN = abs,
+                       as_plotly = FALSE,
+                       individual_data_idx = NULL,
+                       individual_max = 20) {
+
+      if (self$global) {
+        stop("\n[innsight] ERROR in boxplot for 'ConnectionWeights':\n",
+             "Only if the result of the Connection-Weights method is ",
+             "multiplied by the data ('times_input' = TRUE), it is a local ",
+             "method and only then boxplots can be generated over multiple ",
+             "instances. Thus, the argument 'data' must be specified and ",
+             "'times_input = TRUE' when applying the 'ConnectionWeights$new' ",
+             "method.", call. = FALSE)
+      }
+
+      private$boxplot(output_idx, data_idx, ref_data_idx, aggr_channels,
+                      preprocess_FUN, as_plotly, individual_data_idx,
+                      individual_max, "Relative Importance")
     }
   )
 )
+
+
+#' @importFrom graphics boxplot
+#' @exportS3Method
+boxplot.ConnectionWeights <- function(x, ...) {
+  x$boxplot(...)
+}

@@ -55,12 +55,12 @@ plot_bar <- function(result_df, value_name, no_data) {
 
   if (all(result_df$input_dimension == 2)) {
     x_label <- "Signal Length"
-    hovertext <- get_hovertext(result_df, value_name, 2)
+    hovertext <- get_hovertext(result_df, value_name, 2, no_data)
     result_df$feature <- as.numeric(result_df$feature)
     x_scale <- scale_x_continuous(expand = c(0,0))
   } else {
     x_label <- "Feature"
-    hovertext <-  get_hovertext(result_df, value_name, 1)
+    hovertext <-  get_hovertext(result_df, value_name, 1, no_data)
     x_scale <- scale_x_discrete(
       guide = guide_axis(check.overlap = TRUE)
     )
@@ -100,7 +100,7 @@ plot_image <- function(result_df, value_name, no_data) {
         FUN = function(x) max(abs(x)))
 
   # Define hovertext for plotly
-  hovertext <-  get_hovertext(result_df, value_name, 3)
+  hovertext <-  get_hovertext(result_df, value_name, 3, no_data)
   if (no_data) {
     facet <- facet_grid(cols = vars(.data$output_node), scales = "free")
   } else {
@@ -115,7 +115,7 @@ plot_image <- function(result_df, value_name, no_data) {
     p <-
       ggplot(data = result_df) +
       geom_raster(aes(
-        x = .data$feature_2, y = .data$feature, fill = .data$fill,
+        x = .data$feature, y = .data$feature_2, fill = .data$fill,
         text = hovertext
       )) +
       scale_fill_gradient2(low = "blue", mid = "white", high = "red",
@@ -133,14 +133,14 @@ plot_image <- function(result_df, value_name, no_data) {
   p
 }
 
-plot_extended <- function(result_df, value_name) {
+plot_extended <- function(result_df, value_name, no_data) {
   # Get all hovertexts
   hover_1 <- get_hovertext(result_df[result_df$input_dimension == 1,],
-                           value_name, 1)
+                           value_name, 1, no_data)
   hover_2 <- get_hovertext(result_df[result_df$input_dimension == 2,],
-                           value_name, 2)
+                           value_name, 2, no_data)
   hover_3 <- get_hovertext(result_df[result_df$input_dimension == 3,],
-                           value_name, 3)
+                           value_name, 3, no_data)
 
   result_df$feature <- as.character(result_df$feature)
   for (dim in c(1,2,3)) {
@@ -254,25 +254,31 @@ plot_extended <- function(result_df, value_name) {
 #
 #       Utils
 #
-get_hovertext <- function(result_df, value_name, dim) {
+get_hovertext <- function(result_df, value_name, dim, no_data = TRUE) {
+
+  if (no_data) {
+    hover_data <- ""
+  } else {
+    hover_data <- paste0("</br> Datapoint: ", result_df$data)
+  }
   if (dim == 1) {
-    hovertext <- paste(
+    hovertext <- paste0(
       "<b></br>", value_name, ":", signif(result_df$value), "</b>\n",
-      "</br> Datapoint: ", result_df$data,
+      hover_data, #"</br> Datapoint: ", result_df$data,
       "</br> Output:      ", result_df$output_node,
       "</br> Feature:    ", result_df$feature
     )
   } else if (dim == 2) {
-    hovertext <- paste(
+    hovertext <- paste0(
       "<b></br>", value_name, ":", signif(result_df$value), "</b>\n",
-      "</br> Datapoint: ", result_df$data,
+      hover_data, #"</br> Datapoint: ", result_df$data,
       "</br> Output:      ", result_df$output_node,
       "</br> Length:      ", result_df$feature
     )
   } else {
-    text <- paste(
+    text <- paste0(
       "<b></br>", value_name, ":", signif(result_df$value), "</b>\n",
-      "</br> Datapoint: ", result_df$data,
+      hover_data, #"</br> Datapoint: ", result_df$data,
       "</br> Output:      ", result_df$output_node,
       "</br> Height:      ", result_df$feature_2,
       "</br> Width:       ", result_df$feature
