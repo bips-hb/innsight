@@ -227,7 +227,7 @@ plot_extended <- function(result_df, value_name, include_data, boxplot,
     if (!requireNamespace(pkg, quietly = FALSE)) {
       stop(
         "Please install the '",pkg, "' package if you want to create an ",
-        "interactive plot."
+        "plot for multiple input layers."
       )
     }
   }
