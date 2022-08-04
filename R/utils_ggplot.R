@@ -222,6 +222,15 @@ plot_image <- function(result_df, value_name = "value", facet_rows = NULL,
 #----- Plot function for multimodal data --------------------------------------
 plot_extended <- function(result_df, value_name, include_data, boxplot,
                           data_idx = NULL) {
+  # Load required packages
+  for (pkg in c("grid", "gtable", "gridExtra")) {
+    if (!requireNamespace(pkg, quietly = FALSE)) {
+      stop(
+        "Please install the '",pkg, "' package if you want to create an ",
+        "interactive plot."
+      )
+    }
+  }
 
   # Combine output node with output layer
   result_df$output_node <- paste(as.character(result_df$model_output),

@@ -87,6 +87,9 @@ generic functions are listed below:
 \item \code{\link[=[[.innsight_ggplot2]{[[}}
 \item \code{\link[=[<-.innsight_ggplot2]{[<-}}
 }
+
+\emph{Note:} Since this is not a standard visualization, the suggested packages
+\code{'grid'}, \code{'gridExtra'} and \code{'gtable'} must be installed.
 }
 }
 \section{Slots}{

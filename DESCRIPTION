@@ -32,8 +32,12 @@ Imports:
     checkmate,
     ggplot2,
     R6,
-    torch
+    torch,
+    methods
 Suggests:
+    gtable,
+    grid,
+    gridExtra,
     keras,
     knitr,
     neuralnet,
@@ -65,6 +69,7 @@ Collate:
     'Layer_other.R'
     'Layer_pooling.R'
     'innsight.R'
-    'utils.R'
-    'utils_plot.R'
-    'utils_boxplot.R'
+    'utils_ggplot.R'
+    'utils_plotly.R'
+    'innsight_ggplot2.R'
+    'innsight_plotly.R'

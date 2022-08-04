@@ -1,6 +1,3 @@
-# #' @importFrom grid unit convertHeight grobHeight rectGrob gpar
-# #' @importFrom gtable gtable_add_rows gtable_add_grob gtable_add_padding
-# #' @importFrom gridExtra arrangeGrob
 #' @importFrom methods is new
 NULL
 
@@ -102,6 +99,9 @@ NULL
 #' - \code{\link[=[.innsight_ggplot2]{[}}
 #' - \code{\link[=[[.innsight_ggplot2]{[[}}
 #' - \code{\link[=[<-.innsight_ggplot2]{[<-}}
+#'
+#' *Note:* Since this is not a standard visualization, the suggested packages
+#' `'grid'`, `'gridExtra'` and `'gtable'` must be installed.
 #'
 #' @examples
 #' # To Do!
