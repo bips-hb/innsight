@@ -1,17 +1,152 @@
+# #' @importFrom grid unit convertHeight grobHeight rectGrob gpar
+# #' @importFrom gtable gtable_add_rows gtable_add_grob gtable_add_padding
+# #' @importFrom gridExtra arrangeGrob
+#' @importFrom methods is new
+NULL
 
+#' S4-Class for ggplot2-based plots
+#'
+#' The S4 class `innsight_ggplot2` visualizes the results of the methods
+#' provided from the package `innsight` using [ggplot2]. In addition, it
+#' allows easier analysis of the results and modification of the
+#' visualization by basic generic functions. The individual slots are for
+#' internal use only and should not be modified.
+#'
+#' @slot grobs The individual ggplot2 objects arranged as a matrix (see
+#' details for more information)
+#' @slot multiplot A logical value indicating whether there are multiple
+#' input layers and therefore correspondingly individual ggplot2 objects
+#' instead of one single object.
+#' @slot output_strips A list containing the labels and themes of the strips
+#' for the output nodes. This slot is only relevant if `multiplot` is `TRUE`.
+#' @slot col_dims A list of the length of `output_strips` assigning to
+#' each strip the column index of `grobs` of the associated strip.
+#' @slot boxplot A logical value indicating whether the result of individual
+#' data points or a boxplot over multiple instances is displayed.
+#'
+#' @details
+#'
+#' This S4 class is a simple extension of a [ggplot2] object that enables
+#' a more detailed analysis of the results and a way to visualize the results
+#' of models with multiple input layers (e.g., images and tabular data).
+#' The distinction between one and multiple input layers decides the behavior
+#' of this class, and this information is stored in the slot `multiplot`.
+#'
+#' ## One input layer (`multiplot = FALSE`)
+#'
+#' If the model passed to a method from the innsight package has only one
+#' input layer, the S4 class `innsight_ggplot2` is just a wrapper of a
+#' single ggplot2 object. This object is stored as a 1x1 matrix in
+#' the slot `grobs` and the slots `output_strips` and `col_dims` contain
+#' only empty lists because no second line of stripes describing the input
+#' layer is needed.
+#' Although it is an object of the class `innsight_ggplot2`,
+#' the generic function [+.innsight_ggplot2] provides a ggplot2-typical usage
+#' to modify the representation. The graphical objects are simply forwarded to
+#' the ggplot2 object in `grobs` and added using [ggplot2::+.gg]. In addition,
+#' some generic functions are implemented to visualize or examine
+#' individual aspects of the overall plot in more detail. All available
+#' generic functions are listed below:
+#'
+#' - \code{\link[=+.innsight_ggplot2]{+}}
+#' - \code{\link[=plot.innsight_ggplot2]{plot}},
+#' \code{\link[=print.innsight_ggplot2]{print}} and \code{\link[=show.innsight_ggplot2]{show}}
+#' (all behave the same)
+#' - \code{\link[=[.innsight_ggplot2]{[}}
+#' - \code{\link[=[[.innsight_ggplot2]{[[}}
+#'
+#' *Note:* In this case, the generic function `[<-` is not implemented
+#' because there is only one ggplot2 object and not multiple ones.
+#'
+#' ## Multiple input layers (`multiplot = TRUE`)
+#'
+#' If the passed model has multiple input layers, a ggplot2 object is
+#' created for each data point, input layer and output node and then stored
+#' as a matrix in the slot `grobs`. During visualization, these are combined
+#' using the function [`gridExtra::arrangeGrob`] and corresponding strips for
+#' the output layer/node names are added at the top. The labels, column
+#' indices and theme for the extra row of strips are stored in the slots
+#' `output_strips` and `col_dims`. The strips for the input
+#' layer and the data points (if not boxplot) are created using
+#' [ggplot2::facet_grid] in the individual ggplot2 objects of the grob matrix.
+#' An example structure is shown below:
+#'
+#' ```
+#' |      Output 1: Node 1      |      Output 1: Node 3      |
+#' |   Input 1   |   Input 2    |   Input 1   |   Input 2    |
+#' |---------------------------------------------------------|-------------
+#' |             |              |             |              |
+#' | grobs[1,1]  |  grobs[1,2]  | grobs[1,3]  | grobs[1,4]   | data point 1
+#' |             |              |             |              |
+#' |---------------------------------------------------------|-------------
+#' |             |              |             |              |
+#' | grobs[2,1]  |  grobs[2,2]  | grobs[2,3]  | grobs[2,4]   | data point 2
+#' |             |              |             |              |
+#' ```
+#'
+#' Similar to the other case, generic functions are implemented to add
+#' graphical objects from ggplot2, create the whole plot or select only
+#' specific rows/columns. The difference, however, is that each entry in
+#' each row and column is a separate ggplot2 object and can be modified
+#' individually. For example, adds `+ ggplot2::xlab("X")` the x-axis label
+#' "X" to all objects and not only to those in the last row. The generic
+#' function \code{\link[=[<-.innsight_ggplot2]{[<-}} allows you to replace
+#' a selection of objects in `grobs` and thus, for example, to change
+#' the x-axis title only in the bottom row (see examples). All available
+#' generic functions are listed below:
+#'
+#' - \code{\link[=+.innsight_ggplot2]{+}}
+#' - \code{\link[=plot.innsight_ggplot2]{plot}},
+#' \code{\link[=print.innsight_ggplot2]{print}} and \code{\link[=show.innsight_ggplot2]{show}}
+#' (all behave the same)
+#' - \code{\link[=[.innsight_ggplot2]{[}}
+#' - \code{\link[=[[.innsight_ggplot2]{[[}}
+#' - \code{\link[=[<-.innsight_ggplot2]{[<-}}
+#'
+#' @examples
+#' # To Do!
+#'
+#' @name innsight_ggplot2
+#' @rdname innsight_ggplot2-class
 setClass("innsight_ggplot2", slots = list(
   grobs = "matrix", multiplot = "logical", output_strips = "list",
   col_dims = "list", boxplot = "logical"
 ))
 
+
+#' Generic print, plot and show for `innsight_ggplot2`
+#'
+#' The class [innsight_ggplot2] provides the generic visualization functions
+#' [base::print], [base::plot] and [methods::show], which all behave the
+#' same in this case. They create the plot of the results
+#' (see [innsight_ggplot2] for details) and return it invisibly.
+#'
+#' @param x An instance of the S4 class [innsight_ggplot2].
+#' @param object An instance of the S4 class [innsight_ggplot2].
+#' @param ... Further arguments passed to the base function `print` if
+#' `x@multiplot` is `FALSE`. Otherwise, if `x@multiplot` is `TRUE`, the
+#' arguments are passed to [gridExtra::arrangeGrob].
+#' @param y unused argument
+#'
+#' @return For multiple plots (`x@multiplot = TRUE`), a [gtable::gtable] and
+#' otherwise a [ggplot2::ggplot] object is returned invisibly.
+#'
+#' @seealso [`innsight_ggplot2`],
+#' [`+.innsight_ggplot2`],
+#' \code{\link{[.innsight_ggplot2}},
+#' \code{\link{[[.innsight_ggplot2}},
+#' \code{\link{[<-.innsight_ggplot2}}
+#'
+#' @rdname innsight_ggplot2-print
+#' @aliases print,innsight_ggplot2-method print.innsight_ggplot2
+#' @export
 setMethod(
   "print", list(x = "innsight_ggplot2"),
   function(x, ...) {
     if (x@multiplot) {
-
       # Arrange grobs
       mat <- matrix(seq_along(x@grobs), nrow = nrow(x@grobs))
-      fig <- do.call(arrangeGrob,
+      fig <- do.call(gridExtra::arrangeGrob,
                       list(grobs = x@grobs, layout_matrix = mat, ...))
 
       # Add strips for the output layer
@@ -27,6 +162,9 @@ setMethod(
   }
 )
 
+#' @rdname innsight_ggplot2-print
+#' @aliases show,innsight_ggplot2-method show.innsight_ggplot2
+#' @export
 setMethod(
   "show", list(object = "innsight_ggplot2"),
   function(object) {
@@ -34,12 +172,39 @@ setMethod(
   }
 )
 
+#' @rdname innsight_ggplot2-print
+#' @aliases plot,innsight_ggplot2-method plot.innsight_ggplot2
+#' @export
 setMethod(
   "plot", list(x = "innsight_ggplot2"),
-  function(x, ...) {
+  function(x, y, ...) {
     print(x, ...)
   }
 )
+
+#' Generic add function for `innsight_ggplot2`
+#'
+#' This generic add function allows to treat an instance of [innsight_ggplot2]
+#' as an ordinary plot object of [ggplot2]. For example geoms, themes and
+#' scales can be added as usual (see [ggplot2::+.gg] for more information).
+#'
+#' **Note:** If `e1` represents a multiplot (i.e., `e1@mulitplot = TRUE`),
+#' `e2` is added to each individual plot. If only specific plots need to be
+#' changed, the generic assignment function should be used (see
+#' [innsight_ggplot2] for more details).
+#'
+#' @param e1 An instance of the s4 class [innsight_ggplot2].
+#' @param e2 An object of class [ggplot2::ggplot] or a [ggplot2::theme].
+#'
+#' @seealso [`innsight_ggplot2`],
+#' [`print.innsight_ggplot2`],
+#' \code{\link{[.innsight_ggplot2}},
+#' \code{\link{[[.innsight_ggplot2}},
+#' \code{\link{[<-.innsight_ggplot2}}
+#'
+#' @rdname innsight_ggplot2-plus
+#' @aliases +,innsight_ggplot2,ANY-method +.innsight_ggplot2
+#' @export
 setMethod(
   "+", list(e1 = "innsight_ggplot2"),
   function(e1, e2) {
@@ -67,9 +232,40 @@ setMethod(
   }
 )
 
+#' Indexing plots of `innsight_ggplot2`
+#'
+#' The s4 class [`innsight_ggplot2`] visualizes the results in the form of
+#' a matrix, with the output nodes (and also the input layers) in the columns
+#' and the selected data points in the rows. With these basic generic indexing
+#' functions, the plots of individual rows and columns can be accessed,
+#' modified and the overall plot can be adjusted accordingly.
+#'
+#' @param x An instance of the s4 class [`innsight_ggplot2`].
+#' @param i The numeric (or missing) index for the rows.
+#' @param j The numeric (or missing) index for the columns.
+#' @param value Another instance of the s4 class `innsight_ggplot2` but of
+#' shape `i` x `j`.
+#' @param drop unused argument
+#' @param ... other unused arguments
+#'
+#' @return
+#' * `[.innsight_ggplot2`: Selects only the plots from the `i`-th row and
+#' `j`-th column and returns them as a new instance of [`innsight_ggplot2`].
+#' * `[[.innsight_ggplot2`: Selects only the single plot in the `i`-th row and
+#' `j`-th column and returns it an [ggplot2::ggplot] object.
+#' * `[<-.innsight_ggplot2`: Replaces the plots from the `i`-th row and `j`-th
+#' column with those from `value` and returns the modified instance of
+#' [`innsight_ggplot2`].
+#'
+#' @seealso [`innsight_ggplot2`], [`print.innsight_ggplot2`],
+#' [`+.innsight_ggplot2`]
+#'
+#' @rdname innsight_ggplot2-indexing
+#' @aliases [,innsight_ggplot2-method [.innsight_ggplot2
+#' @export
 setMethod(
   "[", list(x = "innsight_ggplot2"),
-  function(x, i, j, ..., drop) {
+  function(x, i, j, ..., drop = TRUE) {
     #----- Multiplot -----------------------------------------------------------
     if (x@multiplot) {
       # Check indices and set defaults (if necessary)
@@ -130,9 +326,12 @@ setMethod(
   }
 )
 
+#' @rdname innsight_ggplot2-indexing
+#' @aliases [[,innsight_ggplot2-method [[.innsight_ggplot2
+#' @export
 setMethod(
   "[[", list(x = "innsight_ggplot2"),
-  function(x, i, j, ..., drop) {
+  function(x, i, j, ...) {
     # Check indices
     if (x@multiplot) {
       upper_row <- nrow(x@grobs)
@@ -150,7 +349,9 @@ setMethod(
   }
 )
 
-
+#' @rdname innsight_ggplot2-indexing
+#' @aliases [<-,innsight_ggplot2-method [<-.innsight_ggplot2
+#' @export
 setMethod(
   "[<-", list(x = "innsight_ggplot2"),
   function(x, i, j, ..., value) {
@@ -211,15 +412,16 @@ generate_strips <- function(output_strips) {
   # get background color
   col <- output_strips$theme$plot.background$colour
   # Create rectangle for background
-  rect <- rectGrob(gp = gpar(fill = col, col = col))
+  rect <- grid::rectGrob(gp = grid::gpar(fill = col, col = col))
   for (i in seq_along(strips)) {
     l <- ifelse(i == 1, 20, 10)
     r <- ifelse(i == length(strips), 20, 10)
     # Add padding
     strips[[i]] <-
-      gtable_add_padding(strips[[i]], unit(c(0, r, 0, l), "points"))
+      gtable::gtable_add_padding(strips[[i]],
+                                 grid::unit(c(0, r, 0, l), "points"))
     # Add background
-    strips[[i]] <- gtable_add_grob(strips[[i]], rect,
+    strips[[i]] <- gtable::gtable_add_grob(strips[[i]], rect,
                                    t = 1, l = 1, z = -Inf,
                                    b = nrow(strips[[i]]),
                                    r = ncol(strips[[i]])
@@ -289,10 +491,11 @@ add_strips <- function(gtab, object) {
   strips <- generate_strips(object@output_strips)
 
   # Get height of strips and add rows in the gtable
-  h <- unit(convertHeight(grobHeight(strips[[1]]), "points"), units = "points")
+  h <- grid::unit(grid::convertHeight(
+    grid::grobHeight(strips[[1]]), "points"), units = "points")
 
   # Add row for strips
-  gtab <- gtable_add_rows(gtab, h, pos = 0)
+  gtab <- gtable::gtable_add_rows(gtab, h, pos = 0)
 
   # Add strips to the gtable
   l <- 0
@@ -300,7 +503,8 @@ add_strips <- function(gtab, object) {
   for (i in seq_along(strips)) {
     l <- r + 1
     r <- l + object@col_dims[[i]] - 1
-    gtab <- gtable_add_grob(gtab, strips[[i]], t = 1, l = l, r = r, z = -Inf)
+    gtab <- gtable::gtable_add_grob(gtab, strips[[i]],
+                                    t = 1, l = l, r = r, z = -Inf)
   }
 
   gtab
