@@ -95,7 +95,7 @@ create_plotly <- function(result_df, value_name = "Relevance",
   new("innsight_plotly",
     plots = plots, shapes = shapes_and_annot$shapes,
     annotations = shapes_and_annot$annotations, multiplot = multiplot,
-    boxplot = boxplot, layout = layouts, col_dims = col_dims
+    layout = layouts, col_dims = col_dims
   )
 }
 

@@ -1,9 +1,96 @@
 
-
+#' S4 class for plotly-based plots
+#'
+#' The S4 class `innsight_plotly` visualizes the results of the methods
+#' provided from the package `innsight` using [plotly](https://plotly.com/r/).
+#' In addition, it allows easier analysis of the results and modification of the
+#' visualization by basic generic functions. The individual slots are for
+#' internal use only and should not be modified.
+#'
+#' @slot plots The individual plotly objects arranged as a matrix (see
+#' details for more information).
+#' @slot shapes A list of two lists with the names `shapes_strips` and
+#' `shapes_other`. The list `shapes_strips` contains the shapes for the
+#' strips and may not be manipulated. The other list `shapes_other` contains
+#' a matrix of the same size as `plots` and each entry contains the shapes
+#' of the corresponding plot.
+#' @slot annotations A list of two lists with the names `annotations_strips`
+#' and `annotations_other`. The list `annotations_strips` contains the annotations
+#' for the strips and may not be manipulated. The other list `annotations_other`
+#' contains a matrix of the same size as `plots` and each entry contains the
+#' annotations of the corresponding plot.
+#' @slot multiplot A logical value indicating whether there are multiple
+#' input layers and therefore correspondingly individual ggplot2 objects
+#' instead of one single object.
+#' @slot layout This list contains all global layout options, e.g. update
+#' buttons, sliders, margins etc. (see [plotly::layout] for more details).
+#' @slot col_dims A list to assign a label to the columns for the output strips.
+#'
+#' @details
+#' This S4 class is a simple extension of a plotly object that enables
+#' a more detailed analysis of the results and a way to visualize the results
+#' of models with multiple input layers (e.g., images and tabular data).
+#'
+#' The overall plot is created in the following order:
+#'
+#' 1. The corresponding shapes and annotations of the slots `annotations`
+#' and `shapes` are added to each plot in `plots`. This also adds the strips
+#' at the top for the output node (or input layer) and, if necessary, on the
+#' right side for the data point.
+#' 2. Subsequently, all individual plots are combined into one plot with
+#' the help of the function [plotly::subplot].
+#' 3. Lastly, the global elements from the `layout` slot are added and if there
+#' are multiple input layers (`multiplot = TRUE`), another output strip is
+#' added for the columns.
+#'
+#' An example structure of the plot with multiple input layers is shown below:
+#' ```
+#' |      Output 1: Node 1      |      Output 1: Node 3      |
+#' |   Input 1   |   Input 2    |   Input 1   |   Input 2    |
+#' |---------------------------------------------------------|-------------
+#' |             |              |             |              |
+#' | plots[1,1]  |  plots[1,2]  | plots[1,3]  | plots[1,4]   | data point 1
+#' |             |              |             |              |
+#' |---------------------------------------------------------|-------------
+#' |             |              |             |              |
+#' | plots[2,1]  |  plots[2,2]  | plots[2,3]  | plots[2,4]   | data point 2
+#' |             |              |             |              |
+#' ```
+#'
+#' Additionally, some generic functions are implemented to visualize individual
+#' aspects of the overall plot or to examine them in more detail. All available
+#' generic functions are listed below:
+#'
+#' - \code{\link[=plot.innsight_plotly]{plot}},
+#' \code{\link[=print.innsight_plotly]{print}} and \code{\link[=show.innsight_plotly]{show}}
+#' (all behave the same)
+#' - \code{\link[=[.innsight_plotly]{[}}
+#' - \code{\link[=[[.innsight_plotly]{[[}}
+#'
+#' @name innsight_plotly
+#' @rdname innsight_plotly-class
 setClass("innsight_plotly", slots = list(
   plots = "matrix", shapes = "list", annotations = "list", multiplot = "logical",
-  boxplot = "logical", layout = "list", col_dims = "list"))
+  layout = "list", col_dims = "list"))
 
+#' Generic print, plot and show for `innsight_plotly`
+#'
+#' The class [`innsight_plotly`] provides the generic visualization functions
+#' \code{\link{print}}, \code{\link{plot}} and \code{\link{show}}, which all
+#' behave the same in this case. They create a plot of the results using
+#' [`plotly::subplot`] (see [`innsight_plotly`] for details) and return it
+#' invisibly.
+#'
+#' @param x An instance of the S4 class [`innsight_plotly`].
+#' @param shareX A logical value whether the x-axis should be shared among
+#' the subplots.
+#' @param object An instance of the S4 class [`innsight_plotly`].
+#' @param y unused argument
+#' @param ... Further arguments passed to [`plotly::subplot`].
+#'
+#' @rdname innsight_plotly-print
+#' @aliases print,innsight_plotly-method print.innsight_plotly
+#' @export
 setMethod(
   "print", list(x = "innsight_plotly"),
   function(x, shareX = TRUE, ...) {
@@ -38,11 +125,14 @@ setMethod(
       fig <- add_outputlayer_strips(fig, x@col_dims)
     }
 
-    fig
+    invisible(print(fig))
   }
 )
 
 
+#' @rdname innsight_plotly-print
+#' @aliases show,innsight_plotly-method show.innsight_plotly
+#' @export
 setMethod(
   "show", list(object = "innsight_plotly"),
   function(object) {
@@ -50,8 +140,9 @@ setMethod(
   }
 )
 
-
-
+#' @rdname innsight_plotly-print
+#' @aliases plot,innsight_plotly-method plot.innsight_plotly
+#' @export
 setMethod(
   "plot", list(x = "innsight_plotly"),
   function(x, ...) {
@@ -59,7 +150,32 @@ setMethod(
   }
 )
 
-
+#' Indexing plots of `innsight_plotly`
+#'
+#' The S4 class [`innsight_plotly`] visualizes the results as a matrix of
+#' plots based on [`plotly::plot_ly`]. The output nodes (and also input layers)
+#' are displayed in the columns and the selected data points in the rows. With
+#' these basic generic indexing functions, the plots of individual rows and
+#' columns can be accessed.
+#'
+#' @param x An instance of the S4 class [`innsight_plotly`].
+#' @param i The numeric (or missing) index for the rows.
+#' @param j The numeric (or missing) index for the columns.
+#' @param drop unused argument
+#' @param ... other unused arguments
+#'
+#' @return
+#' - `[.innsight_plotly`: Selects the plots from the i-th row and j-th
+#' column and returns them as a new instance of `innsight_plotly`.
+#' - `[[.innisght_plotly`: Selects only the single plot in the i-th row and
+#' j-th column and returns it as a plotly object.
+#'
+#' @seealso [`innsight_plotly`], [`print.innsight_plotly`],
+#' [`plot.innsight_plotly`], [`show.innsight_plotly`]
+#'
+#' @rdname innsight_plotly-indexing
+#' @aliases [,innsight_plotly-method [.innsight_plotly
+#' @export
 setMethod(
   "[", list(x = "innsight_plotly"),
   function(x, i, j, ..., drop) {
@@ -176,11 +292,13 @@ setMethod(
 
     new("innsight_plotly", plots = plots, shapes = shapes,
         annotations = annot, multiplot = x$multiplot,
-        boxplot = x$boxplot, layout = layout, col_dims = col_dims)
+        layout = layout, col_dims = col_dims)
   }
 )
 
-
+#' @rdname innsight_plotly-indexing
+#' @aliases [[,innsight_plotly-method [[.innsight_plotly
+#' @export
 setMethod(
   "[[", list(x = "innsight_plotly"),
   function(x, i, j, ..., drop) {
