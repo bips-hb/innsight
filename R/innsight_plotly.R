@@ -291,7 +291,7 @@ setMethod(
 
 
     new("innsight_plotly", plots = plots, shapes = shapes,
-        annotations = annot, multiplot = x$multiplot,
+        annotations = annot, multiplot = x@multiplot,
         layout = layout, col_dims = col_dims)
   }
 )
