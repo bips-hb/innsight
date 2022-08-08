@@ -47,7 +47,8 @@ NULL
 #'
 #' - \code{\link[=+.innsight_ggplot2]{+}}
 #' - \code{\link[=plot.innsight_ggplot2]{plot}},
-#' \code{\link[=print.innsight_ggplot2]{print}} and \code{\link[=show.innsight_ggplot2]{show}}
+#' \code{\link[=print.innsight_ggplot2]{print}} and
+#' \code{\link[=show.innsight_ggplot2]{show}}
 #' (all behave the same)
 #' - \code{\link[=[.innsight_ggplot2]{[}}
 #' - \code{\link[=[[.innsight_ggplot2]{[[}}
@@ -94,7 +95,8 @@ NULL
 #'
 #' - \code{\link[=+.innsight_ggplot2]{+}}
 #' - \code{\link[=plot.innsight_ggplot2]{plot}},
-#' \code{\link[=print.innsight_ggplot2]{print}} and \code{\link[=show.innsight_ggplot2]{show}}
+#' \code{\link[=print.innsight_ggplot2]{print}} and
+#' \code{\link[=show.innsight_ggplot2]{show}}
 #' (all behave the same)
 #' - \code{\link[=[.innsight_ggplot2]{[}}
 #' - \code{\link[=[[.innsight_ggplot2]{[[}}
@@ -146,15 +148,16 @@ setMethod(
     if (x@multiplot) {
       # Arrange grobs
       mat <- matrix(seq_along(x@grobs), nrow = nrow(x@grobs))
-      fig <- do.call(gridExtra::arrangeGrob,
-                      list(grobs = x@grobs, layout_matrix = mat, ...))
+      fig <- do.call(
+        gridExtra::arrangeGrob,
+        list(grobs = x@grobs, layout_matrix = mat, ...)
+      )
 
       # Add strips for the output layer
       fig <- add_strips(fig, x)
       plot(fig)
-    }
-    else { # plotting only a single ggplot
-      fig <- x@grobs[[1,1]]
+    } else { # plotting only a single ggplot
+      fig <- x@grobs[[1, 1]]
       print(fig, ...)
     }
 
@@ -219,7 +222,7 @@ setMethod(
         grobs <- apply(e1@grobs, 1:2, function(grob) grob[[1]] + e2)
       }
     } else {
-      grobs <- matrix(list(e1@grobs[[1,1]] + e2))
+      grobs <- matrix(list(e1@grobs[[1, 1]] + e2))
     }
 
     new("innsight_ggplot2",
@@ -282,25 +285,31 @@ setMethod(
 
       # Set labels, ticks and theme
       grobs <- set_theme(grobs, x@output_strips$theme,
-                         orig_grobs = x@grobs, i = i, j = j, labels = TRUE)
+        orig_grobs = x@grobs, i = i, j = j, labels = TRUE
+      )
 
       # Update the arguments 'output_strips' and 'col_dims'
-      res <- update_coldims_and_outputstrips(x@output_strips, x@col_dims, j)
+      res <- update_coldims_and_outstrips(x@output_strips, x@col_dims, j)
       col_dims <- res$col_dims
       output_strips <- res$output_strips
-    }
-    #----- Single plot ---------------------------------------------------------
-    else {
+    } else {
+      #----- Single plot ---------------------------------------------------------´
       # Get the saved facet vars in the ggplot2 object
-      facet_rows <- x@grobs[[1,1]]$facet$params$rows
-      facet_cols <- x@grobs[[1,1]]$facet$params$cols
-      facet_rows <- if (length(facet_rows) > 0)
-        quo_name(facet_rows[[1]]) else NULL
-      facet_cols <- if (length(facet_cols) > 0)
-        quo_name(facet_cols[[1]]) else NULL
+      facet_rows <- x@grobs[[1, 1]]$facet$params$rows
+      facet_cols <- x@grobs[[1, 1]]$facet$params$cols
+      facet_rows <- if (length(facet_rows) > 0) {
+        quo_name(facet_rows[[1]])
+      } else {
+        NULL
+      }
+      facet_cols <- if (length(facet_cols) > 0) {
+        quo_name(facet_cols[[1]])
+      } else {
+        NULL
+      }
 
       # Get the data for the plot
-      data <- x@grobs[[1,1]]$data
+      data <- x@grobs[[1, 1]]$data
 
       # Get indices of the data with the facet names regarding the selected
       # row and column indices (i and j)
@@ -311,7 +320,7 @@ setMethod(
       data <- data[idx_row & idx_col, ]
 
       # Update the plot with the new data
-      grobs <- matrix(list(x@grobs[[1,1]] %+% data))
+      grobs <- matrix(list(x@grobs[[1, 1]] %+% data))
       output_strips <- x@output_strips
       col_dims <- x@col_dims
     }
@@ -337,15 +346,25 @@ setMethod(
       upper_row <- nrow(x@grobs)
       upper_col <- ncol(x@grobs)
     } else {
-      facet_rows <- quo_name(x@grobs[[1,1]]$facet$params$rows[[1]])
-      facet_cols <- quo_name(x@grobs[[1,1]]$facet$params$cols[[1]])
-      upper_row <- length(unique(x@grobs[[1,1]]$data[[facet_rows]]))
-      upper_col <- length(unique(x@grobs[[1,1]]$data[[facet_cols]]))
+      facet_rows <- x@grobs[[1, 1]]$facet$params$rows
+      facet_cols <- x@grobs[[1, 1]]$facet$params$cols
+      if (length(facet_rows) == 0) {
+        upper_row <- 1
+      } else {
+        facet_rows <- quo_name(facet_rows[[1]])
+        upper_row <- length(unique(x@grobs[[1, 1]]$data[[facet_rows]]))
+      }
+      if (length(facet_cols) == 0) {
+        upper_col <- 1
+      } else {
+        facet_cols <- quo_name(facet_cols[[1]])
+        upper_col <- length(unique(x@grobs[[1, 1]]$data[[facet_cols]]))
+      }
     }
     assertInt(i, lower = 1, upper = upper_row)
     assertInt(j, lower = 1, upper = upper_col)
 
-    x[i,j]@grobs[[1,1]]
+    x[i, j]@grobs[[1, 1]]
   }
 )
 
@@ -357,7 +376,8 @@ setMethod(
   function(x, i, j, ..., value) {
     if (!x@multiplot) {
       stop("The method '[<-' is not implemented for single plots!",
-           call. = FALSE)
+        call. = FALSE
+      )
     }
 
     # If missing, set defaults
@@ -377,12 +397,12 @@ setMethod(
 
       # Insert grobs from value
       grobs <- x@grobs
-      grobs[i,j] <- grobs_value
+      grobs[i, j] <- grobs_value
 
       # Update facets
       grobs <- set_facets(grobs, x@boxplot)
     } else {
-      message(paste0(
+      warning(paste0(
         "Ignoring unknown object of class(es): ",
         paste(class(value), collapse = ", ")
       ))
@@ -418,13 +438,15 @@ generate_strips <- function(output_strips) {
     r <- ifelse(i == length(strips), 20, 10)
     # Add padding
     strips[[i]] <-
-      gtable::gtable_add_padding(strips[[i]],
-                                 grid::unit(c(0, r, 0, l), "points"))
+      gtable::gtable_add_padding(
+        strips[[i]],
+        grid::unit(c(0, r, 0, l), "points")
+      )
     # Add background
     strips[[i]] <- gtable::gtable_add_grob(strips[[i]], rect,
-                                   t = 1, l = 1, z = -Inf,
-                                   b = nrow(strips[[i]]),
-                                   r = ncol(strips[[i]])
+      t = 1, l = 1, z = -Inf,
+      b = nrow(strips[[i]]),
+      r = ncol(strips[[i]])
     )
   }
 
@@ -448,21 +470,21 @@ set_theme <- function(grobs, theme, i = NULL, j = NULL, orig_grobs = NULL,
       # left column and bottom row
       if (col == 1 & row < nrow(grobs)) {
         idx <- keys[startsWith(keys, "axis.text.x") |
-                      startsWith(keys, "axis.ticks.x")]
+          startsWith(keys, "axis.ticks.x")]
         if (labels) {
           ylabel <- orig_grobs[[i[row], 1]]$labels$y
         }
       } else if (col > 1 & row == nrow(grobs)) {
         idx <- keys[startsWith(keys, "axis.text.y") |
-                      startsWith(keys, "axis.ticks.y")]
+          startsWith(keys, "axis.ticks.y")]
         if (labels) {
           xlabel <- orig_grobs[[nrow(orig_grobs), j[col]]]$labels$x
         }
       } else if (col > 1 & row < nrow(grobs)) {
         idx <- keys[startsWith(keys, "axis.text.x") |
-                      startsWith(keys, "axis.ticks.x") |
-                      startsWith(keys, "axis.text.y") |
-                      startsWith(keys, "axis.ticks.y")]
+          startsWith(keys, "axis.ticks.x") |
+          startsWith(keys, "axis.text.y") |
+          startsWith(keys, "axis.ticks.y")]
       } else {
         idx <- NULL
         if (labels) {
@@ -492,7 +514,8 @@ add_strips <- function(gtab, object) {
 
   # Get height of strips and add rows in the gtable
   h <- grid::unit(grid::convertHeight(
-    grid::grobHeight(strips[[1]]), "points"), units = "points")
+    grid::grobHeight(strips[[1]]), "points"
+  ), units = "points")
 
   # Add row for strips
   gtab <- gtable::gtable_add_rows(gtab, h, pos = 0)
@@ -504,7 +527,8 @@ add_strips <- function(gtab, object) {
     l <- r + 1
     r <- l + object@col_dims[[i]] - 1
     gtab <- gtable::gtable_add_grob(gtab, strips[[i]],
-                                    t = 1, l = l, r = r, z = -Inf)
+      t = 1, l = l, r = r, z = -Inf
+    )
   }
 
   gtab
@@ -539,7 +563,7 @@ set_facets <- function(grobs, boxplot = FALSE) {
   grobs
 }
 
-update_coldims_and_outputstrips <- function(output_strips, col_dims, col_idx) {
+update_coldims_and_outstrips <- function(output_strips, col_dims, col_idx) {
   # Create a list of the same length as 'col_dims', but in each entry are
   # the indices of the corresponding grobs of the matrix
   list_idx <- NULL

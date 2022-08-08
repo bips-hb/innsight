@@ -35,7 +35,8 @@ generic functions are listed below:
 \itemize{
 \item \code{\link[=+.innsight_ggplot2]{+}}
 \item \code{\link[=plot.innsight_ggplot2]{plot}},
-\code{\link[=print.innsight_ggplot2]{print}} and \code{\link[=show.innsight_ggplot2]{show}}
+\code{\link[=print.innsight_ggplot2]{print}} and
+\code{\link[=show.innsight_ggplot2]{show}}
 (all behave the same)
 \item \code{\link[=[.innsight_ggplot2]{[}}
 \item \code{\link[=[[.innsight_ggplot2]{[[}}
@@ -81,7 +82,8 @@ generic functions are listed below:
 \itemize{
 \item \code{\link[=+.innsight_ggplot2]{+}}
 \item \code{\link[=plot.innsight_ggplot2]{plot}},
-\code{\link[=print.innsight_ggplot2]{print}} and \code{\link[=show.innsight_ggplot2]{show}}
+\code{\link[=print.innsight_ggplot2]{print}} and
+\code{\link[=show.innsight_ggplot2]{show}}
 (all behave the same)
 \item \code{\link[=[.innsight_ggplot2]{[}}
 \item \code{\link[=[[.innsight_ggplot2]{[[}}
