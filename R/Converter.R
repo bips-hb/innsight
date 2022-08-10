@@ -422,7 +422,7 @@ Converter <- R6Class("Converter",
         assertString(type)
         assertChoice(type, c("Flatten", "Skipping", "Dense", "Conv1D", "Conv2D",
                                 "MaxPooling1D", "MaxPooling2D", "AveragePooling1D",
-                                "AveragePooling2D", "Concatenate"))
+                                "AveragePooling2D", "Concatenate", "Add"))
 
         # Get the incoming and outgoing layers (as indices) of the current layer
         in_layers <- layer_as_list$input_layers
@@ -452,7 +452,8 @@ Converter <- R6Class("Converter",
           MaxPooling2D = create_pooling_layer(layer_as_list, type),
           AveragePooling1D = create_pooling_layer(layer_as_list, type),
           AveragePooling2D = create_pooling_layer(layer_as_list, type),
-          Concatenate = create_concatenate_layer(layer_as_list)
+          Concatenate = create_concatenate_layer(layer_as_list),
+          Add = create_add_layer(layer_as_list)
         )
 
         # Set a name for the layer
@@ -772,6 +773,19 @@ create_concatenate_layer <- function(layer_as_list) {
   assertInt(dim)
 
   concatenate_layer(dim, dim_in, dim_out)
+}
+
+# Add Layer -------------------------------------------------------------------
+create_add_layer <- function(layer_as_list) {
+  # Get arguments
+  dim_in <- layer_as_list$dim_in
+  dim_out <- layer_as_list$dim_out
+
+  # Check arguments
+  assertList(dim_in, null.ok = TRUE, types = "integerish")
+  assertIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE)
+
+  add_layer(dim_in, dim_out)
 }
 
 # Skipping Layer --------------------------------------------------------------
