@@ -432,7 +432,7 @@ test_that("DeepLift: Conv2D-Net", {
 
 
 
-test_that("DeepLift: Keras model with two inputs + two outputs", {
+test_that("DeepLift: Keras model with two inputs + two outputs (concat)", {
   library(keras)
 
   main_input <- layer_input(shape = c(10,10,2), name = 'main_input')
@@ -552,3 +552,110 @@ test_that("DeepLift: Keras model with two inputs + two outputs", {
   expect_lt(mean((contrib_true[[2]] - contrib_2)^2), 1e-10)
   expect_lt(mean((contrib_true[[3]] - contrib_3)^2), 1e-10)
 })
+
+
+
+test_that("DeepLift: Keras model with three inputs + one output (add)", {
+  library(keras)
+
+  input_1 <- layer_input(shape = c(12,15,3))
+  part_1 <- input_1 %>%
+    layer_conv_2d(3, c(4,4), activation = "relu", use_bias = FALSE) %>%
+    layer_conv_2d(2, c(3,3), activation = "relu", use_bias = FALSE) %>%
+    layer_flatten() %>%
+    layer_dense(20, activation = "relu", use_bias = FALSE)
+  input_2 <- layer_input(shape = c(10))
+  part_2 <- input_2 %>%
+    layer_dense(50, activation = "tanh", use_bias = FALSE)
+  input_3 <- layer_input(shape = c(20))
+  part_3 <- input_3 %>%
+    layer_dense(40, activation = "relu", use_bias = FALSE)
+
+  output <- layer_concatenate(c(part_1, part_3, part_2)) %>%
+    layer_dense(100, activation = "relu", use_bias = FALSE) %>%
+    layer_dense(1, activation = "linear", use_bias = FALSE)
+
+  model <- keras_model(
+    inputs = c(input_1, input_3, input_2),
+    outputs = output
+  )
+
+
+  converter <- Converter$new(model)
+
+  # Check DeepLift with rescale rule and ignoring last activation
+  data <- lapply(list(c(12,15,3), c(20), c(10)),
+                 function(x) torch_randn(c(10,x)))
+  x_ref <- lapply(list(c(12,15,3), c(20), c(10)),
+                          function(x) torch_randn(c(1,x)))
+
+  deeplift <- DeepLift$new(converter, data, x_ref = x_ref,
+                           channels_first = FALSE)
+  result <- deeplift$get_result()
+  expect_equal(length(result), 3)
+  expect_equal(dim(result[[1]]), c(10,12,15,3,1))
+  expect_equal(dim(result[[2]]), c(10,20,1))
+  expect_equal(dim(result[[3]]), c(10,10,1))
+
+  # Check correctness of DeepLift rescale rule without ignoring the last
+  # activation
+  data <- lapply(list(c(12,15,3), c(20), c(10)),
+                 function(x) torch_randn(c(10,x)))
+  x_ref <- lapply(list(c(12,15,3), c(20), c(10)),
+                  function(x) torch_randn(c(1,x)))
+  deeplift <- DeepLift$new(converter, data, x_ref = x_ref, ignore_last_act = FALSE,
+                           channels_first = FALSE)
+
+  y <- converter$model(data, channels_first = FALSE)
+  y_ref <- converter$model$update_ref(x_ref, channels_first = FALSE)
+  contrib_true <- as.array(y[[1]] - y_ref[[1]])
+
+  result <- deeplift$get_result("torch_tensor")
+  contrib <- as.array(
+    result$Input_1$sum(c(2,3,4,5)) +
+      result$Input_2$sum(c(2,3)) +
+      result$Input_3$sum(c(2,3)))
+
+  expect_lt(mean((contrib_true - contrib)^2), 1e-10)
+
+  # Check DeepLift with reveal-cancel rule and ignoring last activation
+  data <- lapply(list(c(12,15,3), c(20), c(10)),
+                 function(x) torch_randn(c(10,x)))
+  x_ref <- lapply(list(c(12,15,3), c(20), c(10)),
+                  function(x) torch_randn(c(1,x)))
+  deeplift <- DeepLift$new(converter, data, x_ref = x_ref, ignore_last_act = TRUE,
+                           channels_first = FALSE, rule_name = "reveal_cancel")
+
+  y <- converter$model(data, channels_first = FALSE)
+  y_ref <- converter$model$update_ref(x_ref, channels_first = FALSE)
+  contrib_true <- as.array(y[[1]] - y_ref[[1]])
+
+  result <- deeplift$get_result("torch_tensor")
+  contrib <- as.array(
+    result$Input_1$sum(c(2,3,4,5)) +
+      result$Input_2$sum(c(2,3)) +
+      result$Input_3$sum(c(2,3)))
+
+  expect_lt(mean((contrib_true - contrib)^2), 1e-10)
+
+  # Check correctness of DeepLift reveal-cancel rule without ignoring the last
+  # activation
+  data <- lapply(list(c(12,15,3), c(20), c(10)),
+                 function(x) torch_randn(c(10,x)))
+  x_ref <- lapply(list(c(12,15,3), c(20), c(10)),
+                  function(x) torch_randn(c(1,x)))
+  deeplift <- DeepLift$new(converter, data, x_ref = x_ref, channels_first = FALSE,
+                           ignore_last_act = FALSE, rule_name = "reveal_cancel")
+  y <- converter$model(data, channels_first = FALSE)
+  y_ref <- converter$model$update_ref(x_ref, channels_first = FALSE)
+  contrib_true <- as.array(y[[1]] - y_ref[[1]])
+
+  result <- deeplift$get_result("torch_tensor")
+  contrib <- as.array(
+    result$Input_1$sum(c(2,3,4,5)) +
+      result$Input_2$sum(c(2,3)) +
+      result$Input_3$sum(c(2,3)))
+
+  expect_lt(mean((contrib_true - contrib)^2), 1e-10)
+})
+

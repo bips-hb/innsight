@@ -422,7 +422,7 @@ test_that("LRP: Keras model with two inputs + two outputs", {
 })
 
 
-test_that("LRP: Correctness", {
+test_that("LRP: Correctness (CNN)", {
   library(keras)
   library(torch)
 
@@ -467,4 +467,87 @@ test_that("LRP: Correctness", {
   lrp_result_no_last_act_sum <-
     lrp$get_result(type = "torch.tensor")$sum(dim = c(2, 3, 4))
   expect_lt(as.array(mean(abs(lrp_result_no_last_act_sum - out)^2)), 1e-10)
+})
+
+
+test_that("LRP: Correctness (mixed model with add layer)", {
+  library(keras)
+  library(torch)
+
+  data <- lapply(list(c(12,15,3), c(20), c(10)),
+                 function(x) torch_randn(c(10,x)))
+
+  input_1 <- layer_input(shape = c(12,15,3))
+  part_1 <- input_1 %>%
+    layer_conv_2d(3, c(4,4), activation = "relu", use_bias = FALSE) %>%
+    layer_conv_2d(2, c(3,3), activation = "relu", use_bias = FALSE) %>%
+    layer_flatten() %>%
+    layer_dense(12, activation = "relu", use_bias = FALSE)
+  input_2 <- layer_input(shape = c(10))
+  part_2 <- input_2 %>%
+    layer_dense(12, activation = "tanh", use_bias = FALSE)
+  input_3 <- layer_input(shape = c(20))
+  part_3 <- input_3 %>%
+    layer_dense(12, activation = "relu", use_bias = FALSE)
+
+  output <- layer_add(c(part_1, part_3, part_2)) %>%
+    layer_dense(10, activation = "relu", use_bias = FALSE) %>%
+    layer_dense(1, activation = "linear", use_bias = FALSE)
+
+  model <- keras_model(
+    inputs = c(input_1, input_3, input_2),
+    outputs = output
+  )
+
+  conv <- Converter$new(model)
+
+  lrp <- LRP$new(conv, data, channels_first = FALSE)
+
+  res_total_true <- as.array(model(lapply(data, as.array)))
+  res <- lrp$result[[1]]
+  res_total <- as.array(
+    res[[1]]$sum(c(2,3,4,5)) + res[[2]]$sum(c(2,3)) + res[[3]]$sum(c(2,3)))
+
+  expect_lt(mean((res_total - res_total_true)^2), 1e-10)
+})
+
+test_that("LRP: Correctness (mixed model with concat layer)", {
+  library(keras)
+  library(torch)
+
+  data <- lapply(list(c(12,15,3), c(20), c(10)),
+                 function(x) torch_randn(c(10,x)))
+
+  input_1 <- layer_input(shape = c(12,15,3))
+  part_1 <- input_1 %>%
+    layer_conv_2d(3, c(4,4), activation = "relu", use_bias = FALSE) %>%
+    layer_conv_2d(2, c(3,3), activation = "relu", use_bias = FALSE) %>%
+    layer_flatten() %>%
+    layer_dense(20, activation = "relu", use_bias = FALSE)
+  input_2 <- layer_input(shape = c(10))
+  part_2 <- input_2 %>%
+    layer_dense(50, activation = "tanh", use_bias = FALSE)
+  input_3 <- layer_input(shape = c(20))
+  part_3 <- input_3 %>%
+    layer_dense(40, activation = "relu", use_bias = FALSE)
+
+  output <- layer_concatenate(c(part_1, part_3, part_2)) %>%
+    layer_dense(100, activation = "relu", use_bias = FALSE) %>%
+    layer_dense(1, activation = "linear", use_bias = FALSE)
+
+  model <- keras_model(
+    inputs = c(input_1, input_3, input_2),
+    outputs = output
+  )
+
+  conv <- Converter$new(model)
+
+  lrp <- LRP$new(conv, data, channels_first = FALSE)
+
+  res_total_true <- as.array(model(lapply(data, as.array)))
+  res <- lrp$result[[1]]
+  res_total <- as.array(
+    res[[1]]$sum(c(2,3,4,5)) + res[[2]]$sum(c(2,3)) + res[[3]]$sum(c(2,3)))
+
+  expect_lt(mean((res_total - res_total_true)^2), 1e-10)
 })

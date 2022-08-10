@@ -886,3 +886,54 @@ test_that("Test keras model: Two inputs + two output", {
             1e-12)
 })
 
+
+
+test_that("Test keras model: Two inputs + two output (second)", {
+  library(keras)
+
+  main_input <- layer_input(shape = c(12,15,2), name = 'main_input')
+  lstm_out <- main_input %>%
+    layer_conv_2d(2, c(2,2)) %>%
+    layer_flatten() %>%
+    layer_dense(units = 11)
+  auxiliary_input <- layer_input(shape = c(11), name = 'aux_input')
+  auxiliary_input_2 <- layer_input(shape = c(16), name = 'aux_input_2')
+  seq_test <- auxiliary_input_2 %>%
+    layer_dense(units = 11, activation = "relu")
+  seq_test_2 <- layer_add(c(seq_test, auxiliary_input)) %>%
+    layer_dense(units = 11, activation = "relu")
+  auxiliary_output <- layer_concatenate(c(lstm_out, seq_test, seq_test_2)) %>%
+    layer_dense(units = 2, activation = 'linear', name = 'aux_output')
+  main_output <- layer_concatenate(c(lstm_out, auxiliary_input)) %>%
+    layer_dense(units = 5, activation = 'tanh') %>%
+    layer_dense(units = 3, activation = 'softmax', name = 'main_output')
+  model <- keras_model(
+    inputs = c(auxiliary_input, main_input, auxiliary_input_2),
+    outputs = c(auxiliary_output, main_output)
+  )
+
+  conv <- Converter$new(model)
+  data <- lapply(list(c(11), c(12,15,2), c(16)),
+                 function(x) array(rnorm(10 * prod(x)), dim = c(10, x)))
+  data_torch <- lapply(data, torch_tensor)
+
+  # forward method
+  y_true <- lapply(model(data), as.array)
+  y <- lapply(conv$model(data_torch, channels_first = FALSE), as_array)
+  expect_equal(lapply(y, dim), lapply(y_true, dim))
+  expect_lt(mean(unlist(lapply(seq_along(y),
+                               function(i) mean((y_true[[i]] - y[[i]])^2)))),
+            1e-12)
+
+  # update
+  x_ref <- lapply(list(c(11), c(12,15,2), c(16)), function(x) array(rnorm(prod(x)), dim = c(1, x)))
+  x_ref_torch <- lapply(x_ref, torch_tensor)
+  y_ref <- lapply(conv$model(x_ref_torch, channels_first = FALSE), as_array)
+  y_ref_true <- lapply(model(x_ref), as.array)
+  expect_equal(lapply(y_ref, dim), lapply(y_ref_true, dim))
+  expect_lt(mean(unlist(lapply(seq_along(y_ref),
+                               function(i) mean((y_ref_true[[i]] - y_ref[[i]])^2)))),
+            1e-12)
+})
+
+
