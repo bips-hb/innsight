@@ -116,30 +116,20 @@ concatenate_layer <- nn_module(
     self$input_dim <- dim_in
     self$output_dim <- dim_out
     if (dim == -1) {
-      self$dim <- length(dim_in)
+      self$dim <- length(dim_in[[1]]) + 1 # add batch axis
     } else {
       self$dim <- dim
     }
   },
 
   forward = function(x, channels_first = FALSE, ...) {
-    if (channels_first) {
-      axis <- 2
-    } else {
-      axis <- self$dim
-    }
-    output <- torch_cat(x, dim = axis)
+    output <- torch_cat(x, dim = self$dim)
 
     output
   },
 
   update_ref = function(x_ref, channels_first = FALSE, ...) {
-    if (channels_first) {
-      axis <- 2
-    } else {
-      axis <- self$dim
-    }
-    output_ref <- torch_cat(x_ref, dim = axis)
+    output_ref <- torch_cat(x_ref, dim = self$dim)
 
     output_ref
   },
@@ -167,6 +157,14 @@ add_layer <- nn_module(
 
   forward = function(x, ...) {
     torch_stack(x, dim = length(self$input_dim))$sum(length(self$input_dim))
+  },
+
+  update_ref = function(x_ref, ...) {
+    torch_stack(x_ref, dim = length(self$input_dim))$sum(length(self$input_dim))
+  },
+
+  reshape_to_input = function(rel_output, ...) {
+    rep(list(rel_output / length(self$input_dim)), length(self$input_dim))
   }
 )
 
