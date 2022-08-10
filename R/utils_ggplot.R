@@ -152,7 +152,7 @@ plot_image <- function(result_df, value_name = "value", facet_rows = NULL,
                          as.character(result_df$data),
                          as.character(result_df$output_node),
                          FUN = function(x) max(abs(x)))
-        result_df$fill <- if (group_max == 0) 0 else result_df$value / group_max
+        result_df$fill <- ifelse(group_max == 0, 0, result_df$value / group_max)
     }
   }
 
