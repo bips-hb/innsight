@@ -145,14 +145,14 @@ plot_image <- function(result_df, value_name = "value", facet_rows = NULL,
                             as.character(result_df$feature),
                             as.character(result_df$feature_2),
                             FUN = median)
-      result_df$fill <- result_df$fill /
-        max(abs(result_df$fill[result_df$boxplot_data]))
+      max_median <- max(abs(result_df$fill[result_df$boxplot_data]))
+      result_df$fill <- if (max_median == 0) 0 else result_df$fill / max_median
     } else {
         group_max <- ave(result_df$value,
                          as.character(result_df$data),
                          as.character(result_df$output_node),
                          FUN = function(x) max(abs(x)))
-        result_df$fill <- result_df$value / group_max
+        result_df$fill <- if (group_max == 0) 0 else result_df$value / group_max
     }
   }
 
