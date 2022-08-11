@@ -409,7 +409,7 @@ InterpretingMethod <- R6Class(
                     aggr_channels = 'sum',
                     as_plotly = FALSE,
                     value_name = "value",
-                    no_data = FALSE) {
+                    include_data = TRUE) {
 
       # Check correctness of arguments
       assertIntegerish(data_idx, lower = 1, upper = dim(self$data[[1]])[1])
@@ -445,7 +445,11 @@ InterpretingMethod <- R6Class(
         data_idx, result, input_names, self$converter$output_names, output_idx)
 
       # Get plot
-      p <- plot_func(result_df, value_name, as_plotly, no_data)
+      if (as_plotly) {
+        p <- create_plotly(result_df, value_name, include_data, FALSE, NULL)
+      } else {
+        p <- create_ggplot(result_df, value_name, include_data, FALSE)
+      }
 
       p
     },
@@ -481,6 +485,7 @@ InterpretingMethod <- R6Class(
       # individual_data_idx
       assertIntegerish(individual_data_idx, lower = 1, upper = num_data, null.ok = TRUE,
                        any.missing = FALSE)
+      if (is.null(individual_data_idx)) individual_data_idx <- seq_len(num_data)
       # individual_max
       assertInt(individual_max, lower = 1)
       individual_max <- min(individual_max, num_data)
@@ -527,21 +532,24 @@ InterpretingMethod <- R6Class(
         in_name
       })
 
+      idx <- sort(unique(c(individual_idx, data_idx)))
       # Create boxplot data
-      boxplot_data_aggr <-
-        apply_results(result, aggregate_channels, idx_matches, data_idx,
+      result <-
+        apply_results(result, aggregate_channels, idx_matches, idx,
                       self$channels_first, aggr_channels)
-      df_boxplot_aggr <- create_dataframe_from_result(
-        data_idx, boxplot_data_aggr, input_names, self$converter$output_names, output_idx)
+      result_df <- create_dataframe_from_result(
+        idx, result, input_names, self$converter$output_names, output_idx)
 
-      # Get data for individuals
-      individual_data_aggr <-
-        apply_results(result, aggregate_channels, idx_matches, individual_idx,
-                      self$channels_first, aggr_channels)
-      df_individual_aggr <- create_dataframe_from_result(
-        individual_idx, individual_data_aggr, input_names, self$converter$output_names, output_idx)
+      idx <- as.numeric(gsub("data_", "", as.character(result_df$data)))
+      result_df$boxplot_data <- ifelse(idx %in% data_idx, TRUE, FALSE)
+      result_df$individual_data <- ifelse(idx %in% individual_idx, TRUE, FALSE)
 
-      p <- boxplot_func(df_boxplot_aggr, df_individual_aggr, value_name, as_plotly)
+      # Get plot
+      if (as_plotly) {
+        p <- create_plotly(result_df, value_name, FALSE, TRUE, ref_data_idx)
+      } else {
+        p <- create_ggplot(result_df, value_name, FALSE, TRUE, ref_data_idx)
+      }
 
       p
     }
@@ -670,6 +678,7 @@ create_dataframe_from_result <- function(data_idx, result, input_names,
     null_idx <- unlist(lapply(output_idx, is.null))
     nonnull_idx <- seq_along(output_names)[!null_idx]
     output_idx <- output_idx[nonnull_idx]
+    output_levels <- paste0("Output_", seq_along(output_names))
     output_names <- output_names[nonnull_idx]
 
     fun <- function(result, out_idx, in_idx, input_names, output_names,
@@ -684,7 +693,11 @@ create_dataframe_from_result <- function(data_idx, result, input_names,
         result_df$value <- as.vector(as.array(res))
       }
       result_df$model_input <- paste0("Input_", in_idx)
-      result_df$model_output <- paste0("Output_", nonnull_idx[out_idx])
+      result_df$model_output <- factor(
+        paste0("Output_", nonnull_idx[out_idx]),
+        levels = output_levels)
+
+
 
       result_df
     }
