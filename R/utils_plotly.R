@@ -27,16 +27,20 @@ create_plotly <- function(result_df, value_name = "Relevance",
     )
   }
 
+  safe_div <- function(x,y) {
+    if (y == 0)  x * 0 else x / y
+  }
+
   # Create normalized fill value
   if (boxplot) {
     result_df <- result_df %>%
       plotly::group_by(.data$output_node) %>%
-      plotly::mutate(fill = .data$value / max(abs(.data$value))) %>%
+      plotly::mutate(fill = safe_div(.data$value, max(abs(.data$value)))) %>%
       plotly::group_by(.data$output_node, .data$model_input)
   } else {
     result_df <- result_df %>%
       plotly::group_by(.data$data, .data$output_node) %>%
-      plotly::mutate(fill = .data$value / max(abs(.data$value))) %>%
+      plotly::mutate(fill = safe_div(.data$value, max(abs(.data$value)))) %>%
       plotly::group_by(.data$data, .data$output_node, .data$model_input)
   }
 
