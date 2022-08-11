@@ -62,6 +62,17 @@ test_that("ConnectionWeights (global): Dense-Net", {
   expect_equal(result$shape, c(1,4,3))
   expect_true(result$dtype == torch_double())
 
+  # get_result method
+  result <- cw_first$get_result()
+  expect_equal(dim(result), c(1,4,3))
+  expect_equal(dimnames(result),
+               list(NULL, c("X1", "X2", "X3", "X4"), c("Y1", "Y2", "Y3")))
+  result <- cw_first$get_result("torch.tensor")
+  expect_equal(dim(result), c(1,4,3))
+  result <- cw_first$get_result("data.frame")
+  expect_true(is.data.frame(result))
+  expect_equal(nrow(result), 12)
+
   # Test plot function with channels first
   p <- plot(cw_first)
   expect_s4_class(p, "innsight_ggplot2")
@@ -129,6 +140,17 @@ test_that("ConnectionWeights (global): Conv1D-Net", {
   result <- cw_last$result[[1]][[1]]
   expect_equal(result$shape, c(1,64,3,4))
   expect_true(result$dtype == torch_double())
+
+  # get_result method
+  result <- cw_first$get_result()
+  expect_equal(dim(result), c(1,3,64,4))
+  expect_equal(dimnames(result),
+               c(list(NULL), converter$input_names[[1]], converter$output_names[[1]]))
+  result <- cw_first$get_result("torch.tensor")
+  expect_equal(dim(result), c(1,3,64,4))
+  result <- cw_first$get_result("data.frame")
+  expect_true(is.data.frame(result))
+  expect_equal(nrow(result), 3*64*4)
 
   # Test plot function with channels first
   p <- plot(cw_first)
@@ -204,6 +226,17 @@ test_that("ConnectionWeights (global): Conv2D-Net", {
   expect_equal(result$shape, c(1,32,32,3,5))
   expect_true(result$dtype == torch_double())
 
+  # get_result method
+  result <- cw_first$get_result()
+  expect_equal(dim(result), c(1,3,32,32,5))
+  expect_equal(dimnames(result),
+               c(list(NULL), converter$input_names[[1]], converter$output_names[[1]]))
+  result <- cw_first$get_result("torch.tensor")
+  expect_equal(dim(result), c(1,3,32,32,5))
+  result <- cw_first$get_result("data.frame")
+  expect_true(is.data.frame(result))
+  expect_equal(nrow(result), 3*32*32*5)
+
   # Test plot function with channels first
   p <- plot(cw_first)
   expect_s4_class(p, "innsight_ggplot2")
@@ -277,6 +310,16 @@ test_that("ConnectionWeights (global): Keras model with two inputs + two outputs
   expect_equal(dim(result[[2]][[1]]), c(1,5,2))
   expect_equal(dim(result[[2]][[2]]), c(1,10,10,2,2))
 
+  # get_result method
+  result <- cw_first$get_result("torch.tensor")
+  expect_equal(dim(result[[1]][[1]]), c(1,5,1))
+  expect_equal(dim(result[[1]][[2]]), c(1,2,10,10,1))
+  expect_equal(dim(result[[2]][[1]]), c(1,5,2))
+  expect_equal(dim(result[[2]][[2]]), c(1,2,10,10,2))
+  result <- cw_first$get_result("data.frame")
+  expect_true(is.data.frame(result))
+  expect_equal(nrow(result), 5 + 2*10*10 + 2*5 + 2*10*10*2)
+
   # Test plot function with channels first
   p <- plot(cw_first)
   expect_s4_class(p, "innsight_ggplot2")
@@ -348,6 +391,17 @@ test_that("ConnectionWeights (local): Dense-Net", {
   result <- cw_last$result[[1]][[1]]
   expect_equal(result$shape, c(10,4,3))
   expect_true(result$dtype == torch_double())
+
+  # get_result method
+  result <- cw_first$get_result()
+  expect_equal(dim(result), c(10,4,3))
+  expect_equal(dimnames(result),
+               c(list(NULL), converter$input_names[[1]], converter$output_names[[1]]))
+  result <- cw_first$get_result("torch.tensor")
+  expect_equal(dim(result), c(10,4,3))
+  result <- cw_first$get_result("data.frame")
+  expect_true(is.data.frame(result))
+  expect_equal(nrow(result), 10*4*3)
 
   # Test plot function with channels first
   p <- plot(cw_first)
@@ -424,6 +478,17 @@ test_that("ConnectionWeights (local): Conv1D-Net", {
   result <- cw_last$result[[1]][[1]]
   expect_equal(result$shape, c(10,64,3,4))
   expect_true(result$dtype == torch_double())
+
+  # get_result method
+  result <- cw_first$get_result()
+  expect_equal(dim(result), c(10,3,64,4))
+  expect_equal(dimnames(result),
+               c(list(NULL), converter$input_names[[1]], converter$output_names[[1]]))
+  result <- cw_first$get_result("torch.tensor")
+  expect_equal(dim(result), c(10,3,64,4))
+  result <- cw_first$get_result("data.frame")
+  expect_true(is.data.frame(result))
+  expect_equal(nrow(result), 10*3*64*4)
 
   # Test plot function with channels first
   p <- plot(cw_first)
@@ -507,6 +572,17 @@ test_that("ConnectionWeights (local): Conv2D-Net", {
   expect_equal(result$shape, c(10,32,32,3,5))
   expect_true(result$dtype == torch_double())
 
+  # get_result method
+  result <- cw_first$get_result()
+  expect_equal(dim(result), c(10,3,32,32,5))
+  expect_equal(dimnames(result),
+               c(list(NULL), converter$input_names[[1]], converter$output_names[[1]]))
+  result <- cw_first$get_result("torch.tensor")
+  expect_equal(dim(result), c(10,3,32,32,5))
+  result <- cw_first$get_result("data.frame")
+  expect_true(is.data.frame(result))
+  expect_equal(nrow(result), 10*3*32*32*5)
+
   # Test plot function with channels first
   p <- plot(cw_first)
   expect_s4_class(p, "innsight_ggplot2")
@@ -587,6 +663,16 @@ test_that("ConnectionWeights (global): Keras model with two inputs + two outputs
   expect_equal(length(result[[2]]), 2)
   expect_equal(dim(result[[2]][[1]]), c(10,5,2))
   expect_equal(dim(result[[2]][[2]]), c(10,10,10,2,2))
+
+  # get_result method
+  result <- cw_first$get_result("torch.tensor")
+  expect_equal(dim(result[[1]][[1]]), c(10,5,1))
+  expect_equal(dim(result[[1]][[2]]), c(10,2,10,10,1))
+  expect_equal(dim(result[[2]][[1]]), c(10,5,2))
+  expect_equal(dim(result[[2]][[2]]), c(10,2,10,10,2))
+  result <- cw_first$get_result("data.frame")
+  expect_true(is.data.frame(result))
+  expect_equal(nrow(result), 10*5 + 10*2*10*10 + 10*2*5 + 10*2*10*10*2)
 
   # Test plot function with channels first
   p <- plot(cw_first)

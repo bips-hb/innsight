@@ -5,14 +5,21 @@
 \title{Connection Weights Method}
 \description{
 This class implements the \emph{Connection Weights} method investigated by
-Olden et al. (2004) which results in a feature relevance score for each input
-variable. The basic idea is to multiply up all path weights for each
+Olden et al. (2004), which results in a feature relevance score for each input
+variable. The basic idea is to multiply all path weights for each
 possible connection between an input feature and the output node and then
-calculate the sum over them. Besides, it is a global interpretation method
-and independent of the input data. For a neural network with \eqn{3} hidden
-layers with weight matrices \eqn{W_1}, \eqn{W_2} and \eqn{W_3} this method
-results in a simple matrix multiplication
-\deqn{W_1 * W_2 * W_3. }
+calculate the sum over them. Besides, it is originally a global
+interpretation method and independent of the input data. For a neural
+network with \eqn{3} hidden layers with weight matrices \eqn{W_1},
+\eqn{W_2} and \eqn{W_3}, this method results in a simple matrix multiplication
+independent of the activation functions in between:
+\deqn{W_1 * W_2 * W_3.}
+
+In this package, we extended this method to a local method inspired by the
+method \emph{Gradient x Input} (see \link{Gradient}). Hence, the local variant is simply
+the pointwise product of the global \emph{Connection Weights} method and the
+input data. You can use this variant by setting the \code{times_input} argument
+to \code{TRUE} and providing input data.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -132,25 +139,17 @@ quantifying variable importance in artificial neural networks using
 simulated data.} Ecological Modelling 178, p. 389–397
 }
 }
+\section{Super class}{
+\code{\link[innsight:InterpretingMethod]{innsight::InterpretingMethod}} -> \code{ConnectionWeights}
+}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{converter}}{The converter of class \link{Converter} with the stored and
-torch-converted model.}
-
-\item{\code{channels_first}}{The data format of the result, i.e. channels on
-last dimension (\code{FALSE}) or on the first dimension (\code{TRUE}). If the
-data has no channels, use the default value \code{TRUE}.}
-
-\item{\code{dtype}}{The type of the data and parameters (either \code{'float'}
-for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for \link[torch:torch_dtype]{torch::torch_double}).}
-
-\item{\code{result}}{The methods result as a torch tensor of size
-\emph{(dim_in, dim_out)} and with data type \code{dtype}.}
-
-\item{\code{output_idx}}{This vector determines for which outputs the method
-will be applied. By default (\code{NULL}), all outputs (but limited to the
-first 10) are considered.}
+\item{\code{times_input}}{This logical value indicates whether the results from the
+\emph{Connection Weights} method are multiplied by the provided input data or not.
+Thus, this value specifies whether the original global variant of the
+method or the new local one was applied. If the value is \code{TRUE}, then
+data is provided in the field \code{data}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -158,10 +157,17 @@ first 10) are considered.}
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{ConnectionWeights$new()}}
-\item \href{#method-get_result}{\code{ConnectionWeights$get_result()}}
 \item \href{#method-plot}{\code{ConnectionWeights$plot()}}
+\item \href{#method-boxplot}{\code{ConnectionWeights$boxplot()}}
 \item \href{#method-clone}{\code{ConnectionWeights$clone()}}
 }
+}
+\if{html}{
+\out{<details open ><summary>Inherited methods</summary>}
+\itemize{
+\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result">}\href{../../innsight/html/InterpretingMethod.html#method-get_result}{\code{innsight::InterpretingMethod$get_result()}}\out{</span>}
+}
+\out{</details>}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
@@ -170,8 +176,10 @@ first 10) are considered.}
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ConnectionWeights$new(
   converter,
+  data = NULL,
   output_idx = NULL,
   channels_first = TRUE,
+  times_input = FALSE,
   dtype = "float"
 )}\if{html}{\out{</div>}}
 }
@@ -182,6 +190,13 @@ first 10) are considered.}
 \item{\code{converter}}{The converter of class \link{Converter} with the stored and
 torch-converted model.}
 
+\item{\code{data}}{The data for which the contribution scores are to be
+calculated. It has to be an array or array-like format of size
+\emph{(batch_size, dim_in)}. This argument is only relevant if
+\code{times_input} is \code{TRUE}, otherwise it will be ignored because it is a
+locale (i.e. explanation for each data point individually) method only
+in this case.}
+
 \item{\code{output_idx}}{This vector determines for which output indices the
 method will be applied. By default (\code{NULL}), all outputs (but limited
 to the first 10) are considered.}
@@ -190,37 +205,15 @@ to the first 10) are considered.}
 last dimension (\code{FALSE}) or on the first dimension (\code{TRUE}). If the
 data has no channels, use the default value \code{TRUE}.}
 
+\item{\code{times_input}}{Multiplies the results with the input features.
+This variant tuns the global Connection Weights method into a local one.
+Default: \code{FALSE}.}
+
 \item{\code{dtype}}{The data type for the calculations. Use
 either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
 \link[torch:torch_dtype]{torch::torch_double}.}
 }
 \if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_result"></a>}}
-\if{latex}{\out{\hypertarget{method-get_result}{}}}
-\subsection{Method \code{get_result()}}{
-This function returns the result of the \emph{Connection Weights} method
-either as an array (\code{'array'}), a torch tensor (\code{'torch.tensor'} or
-\code{'torch_tensor'}) of size (dim_in, dim_out) or as a data.frame
-(\code{'data.frame'}).
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ConnectionWeights$get_result(type = "array")}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{type}}{The data type of the result. Use one of \code{'array'},
-\code{'torch.tensor'}, \code{'torch_tensor'} or \code{'data.frame'}
-(default: \code{'array'}).}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-The result of this method for the given data in the chosen
-type.
 }
 }
 \if{html}{\out{<hr>}}
@@ -235,8 +228,9 @@ You can also use the \code{as_plotly} argument to generate an interactive
 plot based on the plot function \link[plotly:plot_ly]{plotly::plot_ly}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ConnectionWeights$plot(
-  output_idx = NULL,
+  data_idx = 1,
   aggr_channels = "sum",
+  output_idx = NULL,
   preprocess_FUN = identity,
   as_plotly = FALSE
 )}\if{html}{\out{</div>}}
@@ -245,12 +239,7 @@ plot based on the plot function \link[plotly:plot_ly]{plotly::plot_ly}.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{output_idx}}{An integer vector containing the numbers of the
-output indices whose result is to be plotted, e.g. \code{c(1,4)} for the
-first and fourth model output. But this vector must be included in the
-vector \code{output_idx} from the initialization, otherwise, no results were
-calculated for this output node and can not be plotted. By default
-(\code{NULL}), the smallest index of all calculated output nodes is used.}
+\item{\code{data_idx}}{to do!}
 
 \item{\code{aggr_channels}}{Pass one of \code{'norm'}, \code{'sum'}, \code{'mean'} or a
 custom function to aggregate the channels, e.g. the maximum
@@ -258,6 +247,13 @@ custom function to aggregate the channels, e.g. the maximum
 individual channels with \code{function(x) x[1]}. By default (\code{'sum'}),
 the sum of all channels is used.\cr
 \strong{Note:} This argument is used only for 2D and 3D inputs.}
+
+\item{\code{output_idx}}{An integer vector containing the numbers of the
+output indices whose result is to be plotted, e.g. \code{c(1,4)} for the
+first and fourth model output. But this vector must be included in the
+vector \code{output_idx} from the initialization, otherwise, no results were
+calculated for this output node and can not be plotted. By default
+(\code{NULL}), the smallest index of all calculated output nodes is used.}
 
 \item{\code{preprocess_FUN}}{This function is applied to the method's result
 before generating the plot. By default, the identity function
@@ -278,6 +274,97 @@ plotly plot.}
 \subsection{Returns}{
 Returns either a \link[ggplot2:ggplot]{ggplot2::ggplot} (\code{as_plotly = FALSE}) or a
 \link[plotly:plot_ly]{plotly::plot_ly} object (\code{as_plotly = TRUE}) with the plotted results.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-boxplot"></a>}}
+\if{latex}{\out{\hypertarget{method-boxplot}{}}}
+\subsection{Method \code{boxplot()}}{
+This function visualizes the results of this method in a boxplot, where
+the type of visualization depends on the input dimension of the data.
+By default a \link[ggplot2:ggplot]{ggplot2::ggplot} is returned, but with the argument
+\code{as_plotly} an interactive \link[plotly:plot_ly]{plotly::plot_ly} plot can be created,
+which however requires a successful installation of the package
+\code{plotly}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ConnectionWeights$boxplot(
+  output_idx = NULL,
+  data_idx = "all",
+  ref_data_idx = NULL,
+  aggr_channels = "norm",
+  preprocess_FUN = abs,
+  as_plotly = FALSE,
+  individual_data_idx = NULL,
+  individual_max = 20
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{output_idx}}{An integer vector containing the numbers of the
+output indices whose result is to be plotted, e.g. \code{c(1,4)} for the
+first and fourth model output. But this vector must be included in the
+vector \code{output_idx} from the initialization, otherwise, no results were
+calculated for this output node and can not be plotted. By default
+(\code{NULL}), the smallest index of all calculated output nodes is used.}
+
+\item{\code{data_idx}}{By default ("all"), all available data is used to
+calculate the boxplot information. However, this parameter can be used
+to select a subset of them by passing the indices. E.g. with
+\code{data_idx = c(1:10, 25, 26)} only the first \code{10} data points and
+the 25th and 26th are used to calculate the boxplots.}
+
+\item{\code{ref_data_idx}}{This integer number determines the index for the
+reference data point. In addition to the boxplots, it is displayed in
+red color and is used to compare an individual result with the summary
+statistics provided by the boxplot. With the default value (\code{NULL})
+no individual data point is plotted. This index can be chosen with
+respect to all available data, even if only a subset is selected with
+argument \code{data_idx}.\cr
+\strong{Note:} Because of the complexity of 3D inputs, this argument is used
+only for 1D and 2D inputs and disregarded for 3D inputs.}
+
+\item{\code{aggr_channels}}{Pass one of \code{'norm'}, \code{'sum'}, \code{'mean'} or a
+custom function to aggregate the channels, e.g. the maximum
+(\link[base:Extremes]{base::max}) or minimum (\link[base:Extremes]{base::min}) over the channels or only
+individual channels with \code{function(x) x[1]}. By default (\code{'norm'}),
+the Euclidean norm of all channels is used.\cr
+\strong{Note:} This argument is used only for 2D and 3D inputs.}
+
+\item{\code{preprocess_FUN}}{This function is applied to the method's result
+before calculating the boxplots. Since positive and negative values
+often cancel each other out, the absolute value (\code{abs}) is used by
+default. But you can also use the raw data (\code{identity}) to see the
+results' orientation, the squared data (\code{function(x) x^2}) to weight
+the outliers higher or any other function.}
+
+\item{\code{as_plotly}}{This boolean value (default: \code{FALSE}) can be used to
+create an interactive plot based on the library \code{plotly} instead of
+\code{ggplot2}. Make sure that the suggested package \code{plotly} is installed
+in your R session.}
+
+\item{\code{individual_data_idx}}{Only relevant for a \code{plotly} plot with input
+dimension \code{1} or \code{2}! This integer vector of data indices determines
+the available data points in a dropdown menu, which are drawn in
+individually analogous to \code{ref_data_idx} only for more data points.
+With the default value \code{NULL} the first \code{individual_max} data points
+are used.\cr
+\strong{Note:} If \code{ref_data_idx} is specified, this data point will be
+added to those from \code{individual_data_idx} in the dropdown menu.}
+
+\item{\code{individual_max}}{Only relevant for a \code{plotly} plot with input
+dimension \code{1} or \code{2}! This integer determines the maximum number of
+individual data points in the dropdown menu without counting
+\code{ref_data_idx}. This means that if \code{individual_data_idx} has more
+than \code{individual_max} indices, only the first \code{individual_max} will
+be used. A too high number can significantly increase the runtime.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Returns either a \link[ggplot2:ggplot]{ggplot2::ggplot} (\code{as_plotly = FALSE}) or a
+\link[plotly:plot_ly]{plotly::plot_ly} (\code{as_plotly = TRUE}) with the boxplots.
 }
 }
 \if{html}{\out{<hr>}}

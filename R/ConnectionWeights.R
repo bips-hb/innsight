@@ -2,28 +2,27 @@
 #'
 #' @description
 #' This class implements the \emph{Connection Weights} method investigated by
-#' Olden et al. (2004) which results in a feature relevance score for each input
-#' variable. The basic idea is to multiply up all path weights for each
+#' Olden et al. (2004), which results in a feature relevance score for each input
+#' variable. The basic idea is to multiply all path weights for each
 #' possible connection between an input feature and the output node and then
-#' calculate the sum over them. Besides, it is a global interpretation method
-#' and independent of the input data. For a neural network with \eqn{3} hidden
-#' layers with weight matrices \eqn{W_1}, \eqn{W_2} and \eqn{W_3} this method
-#' results in a simple matrix multiplication
-#' \deqn{W_1 * W_2 * W_3. }
+#' calculate the sum over them. Besides, it is originally a global
+#' interpretation method and independent of the input data. For a neural
+#' network with \eqn{3} hidden layers with weight matrices \eqn{W_1},
+#' \eqn{W_2} and \eqn{W_3}, this method results in a simple matrix multiplication
+#' independent of the activation functions in between:
+#' \deqn{W_1 * W_2 * W_3.}
 #'
+#' In this package, we extended this method to a local method inspired by the
+#' method *Gradient x Input* (see [Gradient]). Hence, the local variant is simply
+#' the pointwise product of the global *Connection Weights* method and the
+#' input data. You can use this variant by setting the `times_input` argument
+#' to `TRUE` and providing input data.
 #'
-#' @field converter The converter of class [Converter] with the stored and
-#' torch-converted model.
-#' @field channels_first The data format of the result, i.e. channels on
-#' last dimension (`FALSE`) or on the first dimension (`TRUE`). If the
-#' data has no channels, use the default value `TRUE`.
-#' @field dtype The type of the data and parameters (either `'float'`
-#' for [torch::torch_float] or `'double'` for [torch::torch_double]).
-#' @field result The methods result as a torch tensor of size
-#' *(dim_in, dim_out)* and with data type `dtype`.
-#' @field output_idx This vector determines for which outputs the method
-#' will be applied. By default (`NULL`), all outputs (but limited to the
-#' first 10) are considered.
+#' @field times_input This logical value indicates whether the results from the
+#' *Connection Weights* method were multiplied by the provided input data or not.
+#' Thus, this value specifies whether the original global variant of the
+#' method or the local one was applied. If the value is `TRUE`, then
+#' data is provided in the field `data`.
 #'
 #' @examplesIf torch::torch_is_installed()
 #' #----------------------- Example 1: Torch ----------------------------------
@@ -145,16 +144,24 @@ ConnectionWeights <- R6Class(
   inherit = InterpretingMethod,
   public = list(
     times_input = NULL,
-    global = NULL,
 
     #' @param converter The converter of class [Converter] with the stored and
     #' torch-converted model.
+    #' @param data The data for which the contribution scores are to be
+    #' calculated. It has to be an array or array-like format of size
+    #' *(batch_size, dim_in)*. This argument is only relevant if
+    #' `times_input` is `TRUE`, otherwise it will be ignored because it is a
+    #' locale (i.e. explanation for each data point individually) method only
+    #' in this case.
     #' @param output_idx This vector determines for which output indices the
     #' method will be applied. By default (`NULL`), all outputs (but limited
     #' to the first 10) are considered.
     #' @param channels_first The data format of the result, i.e. channels on
     #' last dimension (`FALSE`) or on the first dimension (`TRUE`). If the
     #' data has no channels, use the default value `TRUE`.
+    #' @param times_input Multiplies the results with the input features.
+    #' This variant tuns the global Connection Weights method into a local one.
+    #' Default: `FALSE`.
     #' @param dtype The data type for the calculations. Use
     #' either `'float'` for [torch::torch_float] or `'double'` for
     #' [torch::torch_double].
@@ -187,14 +194,14 @@ ConnectionWeights <- R6Class(
              "'times_input' argument, you must also specify 'data'!")
       } else if (times_input) {
         self$data <- private$test_data(data)
-        self$global <- FALSE
       } else {
         if (!is.null(data)) {
           message("If 'times_input' = FALSE, then the method Connection-Weights ",
                   "is a global method and independent of the data. ",
                   "Therefore, the argument 'data' will be ignored.")
         }
-        self$global <- TRUE
+        # Set only a single data index
+        self$data <- list(torch_tensor(1))
       }
 
       self$ignore_last_act <- FALSE
@@ -217,6 +224,7 @@ ConnectionWeights <- R6Class(
     #' You can also use the `as_plotly` argument to generate an interactive
     #' plot based on the plot function [plotly::plot_ly].
     #'
+    #' @param data_idx to do!
     #' @param output_idx An integer vector containing the numbers of the
     #' output indices whose result is to be plotted, e.g. `c(1,4)` for the
     #' first and fourth model output. But this vector must be included in the
@@ -272,6 +280,72 @@ ConnectionWeights <- R6Class(
                    as_plotly, "Relative Importance", no_data)
     },
 
+
+    #' @description
+    #' This function visualizes the results of this method in a boxplot, where
+    #' the type of visualization depends on the input dimension of the data.
+    #' By default a [ggplot2::ggplot] is returned, but with the argument
+    #' `as_plotly` an interactive [plotly::plot_ly] plot can be created,
+    #' which however requires a successful installation of the package
+    #' `plotly`.
+    #'
+    #'
+    #' @param preprocess_FUN This function is applied to the method's result
+    #' before calculating the boxplots. Since positive and negative values
+    #' often cancel each other out, the absolute value (`abs`) is used by
+    #' default. But you can also use the raw data (`identity`) to see the
+    #' results' orientation, the squared data (`function(x) x^2`) to weight
+    #' the outliers higher or any other function.
+    #' @param data_idx By default ("all"), all available data is used to
+    #' calculate the boxplot information. However, this parameter can be used
+    #' to select a subset of them by passing the indices. E.g. with
+    #' `data_idx = c(1:10, 25, 26)` only the first `10` data points and
+    #' the 25th and 26th are used to calculate the boxplots.
+    #' @param output_idx An integer vector containing the numbers of the
+    #' output indices whose result is to be plotted, e.g. `c(1,4)` for the
+    #' first and fourth model output. But this vector must be included in the
+    #' vector `output_idx` from the initialization, otherwise, no results were
+    #' calculated for this output node and can not be plotted. By default
+    #' (`NULL`), the smallest index of all calculated output nodes is used.
+    #' @param ref_data_idx This integer number determines the index for the
+    #' reference data point. In addition to the boxplots, it is displayed in
+    #' red color and is used to compare an individual result with the summary
+    #' statistics provided by the boxplot. With the default value (`NULL`)
+    #' no individual data point is plotted. This index can be chosen with
+    #' respect to all available data, even if only a subset is selected with
+    #' argument `data_idx`.\cr
+    #' **Note:** Because of the complexity of 3D inputs, this argument is used
+    #' only for 1D and 2D inputs and disregarded for 3D inputs.
+    #' @param aggr_channels Pass one of `'norm'`, `'sum'`, `'mean'` or a
+    #' custom function to aggregate the channels, e.g. the maximum
+    #' ([base::max]) or minimum ([base::min]) over the channels or only
+    #' individual channels with `function(x) x[1]`. By default (`'norm'`),
+    #' the Euclidean norm of all channels is used.\cr
+    #' **Note:** This argument is used only for 2D and 3D inputs.
+    #' @param as_plotly This boolean value (default: `FALSE`) can be used to
+    #' create an interactive plot based on the library `plotly` instead of
+    #' `ggplot2`. Make sure that the suggested package `plotly` is installed
+    #' in your R session.
+    #' @param individual_data_idx Only relevant for a `plotly` plot with input
+    #' dimension `1` or `2`! This integer vector of data indices determines
+    #' the available data points in a dropdown menu, which are drawn in
+    #' individually analogous to `ref_data_idx` only for more data points.
+    #' With the default value `NULL` the first `individual_max` data points
+    #' are used.\cr
+    #' **Note:** If `ref_data_idx` is specified, this data point will be
+    #' added to those from `individual_data_idx` in the dropdown menu.
+    #' @param individual_max Only relevant for a `plotly` plot with input
+    #' dimension `1` or `2`! This integer determines the maximum number of
+    #' individual data points in the dropdown menu without counting
+    #' `ref_data_idx`. This means that if `individual_data_idx` has more
+    #' than `individual_max` indices, only the first `individual_max` will
+    #' be used. A too high number can significantly increase the runtime.
+    #'
+    #' @return
+    #' Returns either a [ggplot2::ggplot] (`as_plotly = FALSE`) or a
+    #' [plotly::plot_ly] (`as_plotly = TRUE`) with the boxplots.
+    #'
+    #'
     boxplot = function(output_idx = NULL,
                        data_idx = "all",
                        ref_data_idx = NULL,
@@ -281,7 +355,7 @@ ConnectionWeights <- R6Class(
                        individual_data_idx = NULL,
                        individual_max = 20) {
 
-      if (self$global) {
+      if (!self$times_input) {
         stop("\n[innsight] ERROR in boxplot for 'ConnectionWeights':\n",
              "Only if the result of the Connection-Weights method is ",
              "multiplied by the data ('times_input' = TRUE), it is a local ",
