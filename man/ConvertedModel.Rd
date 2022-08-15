@@ -2,13 +2,42 @@
 % Please edit documentation in R/ConvertedModel.R
 \name{ConvertedModel}
 \alias{ConvertedModel}
-\title{Converted torch-based model}
+\title{Converted torch-based Model}
 \usage{
-ConvertedModel(modules_list, dtype = "float")
+ConvertedModel(modules_list, graph, input_nodes, output_nodes, dtype = "float")
 }
 \arguments{
 \item{modules_list}{A list of all accepted layers created by the 'Converter'
 class during initialization.}
+
+\item{graph}{The \code{graph} argument gives a way to pass an input through
+the model, which is especially relevant for non-sequential architectures.
+It can be seen as a list of steps in which order the layers from
+\code{modules_list} must be applied. The list contains the following elements:
+\itemize{
+\item \verb{$current_nodes}\cr
+This list describes the current position and the number
+of the respective intermediate values when passing through the model.
+For example, \code{list(1,3,3)} means that in this step one output from the
+first layer and two from the third layer (the numbers correspond to the
+list indices from the \code{modules_list} argument) are available for
+the calculation of the current layer with index \code{used_node}.
+\item \verb{$used_node}\cr
+The index of the layer from the \code{modules_list} argument
+which will be applied in this step.
+\item \verb{$used_idx}\cr
+The indices of the outputs from \code{current_nodes}, which are
+used as inputs of the current layer (\code{used_node}).
+\item \verb{$times}\cr
+The frequency of the output value, i.e. is the output used
+more than once as an input for subsequent layers?
+}}
+
+\item{input_nodes}{A vector of layer indices describing the input layers,
+i.e. they are used as the starting point for the calculations.}
+
+\item{output_nodes}{A vector of layer indices describing the indices
+of the output layers.}
 
 \item{dtype}{The data type for all the calculations and defined tensors. Use
 either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
@@ -22,44 +51,44 @@ explaining the entire model. This model is part of the class \link{Converter}
 and is the core for all the necessary calculations in the methods provided
 in this package.
 }
-\section{Public fields}{
-
-\describe{
-\item{\code{modules_list}}{A list of all accepted layers created by the
-'Converter' class during initialization.}
-\item{\code{dtype}}{The datatype for all the calculations and defined
-tensors. Either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
-\link[torch:torch_dtype]{torch::torch_double}}.
-}
-}
-
 \section{Method \code{forward()}}{
 
 
 The forward method of the whole model, i.e. it calculates the output
 \eqn{y=f(x)} of a given input \eqn{x}. In doing so, all intermediate
 values are stored in the individual torch modules from \code{modules_list}.
-\subsection{Usage}{
-
-\code{self(x, channels_first = TRUE)}
+\subsection{Usage}{\preformatted{self(x, channels_first = TRUE,
+        save_input = FALSE,
+        save_preactivation = FALSE,
+        save_output = FAlSE,
+        save_last_layer = FALSE)
+}
 }
 
 \subsection{Arguments}{
 
 \describe{
-\item{\code{x}}{The input torch tensor of dimensions
-\emph{(batch_size, dim_in)}.}
+\item{\code{x}}{The input torch tensor for this model.}
 \item{\code{channels_first}}{If the input tensor \code{x} is given in the format
 'channels first' use \code{TRUE}. Otherwise, if the channels are last,
 use \code{FALSE} and the input will be transformed into the format 'channels
 first'. Default: \code{TRUE}.}
+\item{\code{save_input}}{Logical value whether the inputs from each layer
+are to be saved or not. Default: \code{FALSE}.}
+\item{\code{save_preactivation}}{Logical value whether the preactivations
+from each layer are to be saved or not. Default: \code{FALSE}.}
+\item{\code{save_output}}{Logical value whether the outputs from each layer
+are to be saved or not. Default: \code{FALSE}.}
+\item{\code{save_last_layer}}{Logical value whether the inputs,
+preactivations and outputs from the last layer are to be saved or not.
+Default: \code{FALSE}.}
 }
 }
 
 \subsection{Return}{
 
-Returns the output of the model with respect to the given inputs with
-dimensions \emph{(batch_size, dim_out)}.
+Returns a list of the output values of the model with respect to the
+given inputs.
 }
 }
 
@@ -68,27 +97,39 @@ dimensions \emph{(batch_size, dim_out)}.
 
 This method updates the stored intermediate values in each module from the
 list \code{modules_list} when the reference input \code{x_ref} has changed.
-\subsection{Usage}{
-
-\code{self$update_ref(x_ref, channels_first = TRUE)}
+\subsection{Usage}{\preformatted{self$update_ref(x_ref,
+                channels_first = TRUE,
+                save_input = FALSE,
+                save_preactivation = FALSE,
+                save_output = FAlSE,
+                save_last_layer = FALSE)
+}
 }
 
 \subsection{Arguments}{
 
 \describe{
-\item{\code{x_ref}}{Reference input of the model of dimensions
-\emph{(1, dim_in)}.}
-\item{\code{channels_first}}{If the reference input tensor \code{x} is given in
-the format 'channels first' use \code{TRUE}. Otherwise, if the channels are
-last, use \code{FALSE} and the input will be transformed into the format
-'channels first'. Default: \code{TRUE}.}
+\item{\code{x_ref}}{Reference input of the model.}
+\item{\code{channels_first}}{If the tensor \code{x_ref} is given in the format
+'channels first' use \code{TRUE}. Otherwise, if the channels are last,
+use \code{FALSE} and the input will be transformed into the format 'channels
+first'. Default: \code{TRUE}.}
+\item{\code{save_input}}{Logical value whether the inputs from each layer
+are to be saved or not. Default: \code{FALSE}.}
+\item{\code{save_preactivation}}{Logical value whether the preactivations
+from each layer are to be saved or not. Default: \code{FALSE}.}
+\item{\code{save_output}}{Logical value whether the outputs from each layer
+are to be saved or not. Default: \code{FALSE}.}
+\item{\code{save_last_layer}}{Logical value whether the inputs,
+preactivations and outputs from the last layer are to be saved or not.
+Default: \code{FALSE}.}
 }
 }
 
 \subsection{Return}{
 
-Returns the output of the reference input with dimension
-\emph{(1, dim_out)} after passing through the model.
+Returns a list of the output values of the model with respect to the
+given reference input.
 }
 }
 

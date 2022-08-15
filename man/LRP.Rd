@@ -2,7 +2,7 @@
 % Please edit documentation in R/LRP.R
 \name{LRP}
 \alias{LRP}
-\title{Layer-wise Relevance Propagation (LRP) Method}
+\title{Layer-wise Relevance Propagation (LRP)}
 \description{
 This is an implementation of the \emph{Layer-wise Relevance Propagation
 (LRP)} algorithm introduced by Bach et al. (2015). It's a local method for
@@ -182,6 +182,14 @@ S. Bach et al. (2015) \emph{On pixel-wise explanations for non-linear
 classifier decisions by layer-wise relevance propagation.} PLoS ONE 10,
 p. 1-46
 }
+\seealso{
+Other methods: 
+\code{\link{ConnectionWeights}},
+\code{\link{DeepLift}},
+\code{\link{Gradient}},
+\code{\link{SmoothGrad}}
+}
+\concept{methods}
 \section{Super class}{
 \code{\link[innsight:InterpretingMethod]{innsight::InterpretingMethod}} -> \code{LRP}
 }
@@ -216,7 +224,9 @@ are calculated. Implemented are \code{"simple"}, \code{"epsilon"},
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
-Create a new instance of the LRP-Method.
+Create a new instance of the \emph{LRP} method. When initialized,
+the method is applied to the given data and the results are stored in
+the field \code{result}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LRP$new(
   converter,
@@ -233,23 +243,54 @@ Create a new instance of the LRP-Method.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{converter}}{An instance of the R6 class \code{\link{Converter}}.}
+\item{\code{converter}}{An instance of the \code{Converter} class that includes the
+torch-converted model and some other model-specific attributes. See
+\code{\link{Converter}} for details.}
 
-\item{\code{data}}{The data for which the relevance scores are to be
-calculated. It has to be an array or array-like format of size
-\emph{(batch_size, dim_in)}.}
+\item{\code{data}}{The data to which the method is to be applied. These must
+have the same format as the input data of the passed model to the
+converter object. This means either
+\itemize{
+\item an \code{array}, \code{data.frame}, \code{torch_tensor} or array-like format of
+size \emph{(batch_size, dim_in)}, if e.g.the model has only one input layer, or
+\item a \code{list} with the corresponding input data (according to the
+upper point) for each of the input layers.
+}}
 
-\item{\code{channels_first}}{The format of the given date, i.e. channels on
-last dimension (\code{FALSE}) or after the batch dimension (\code{TRUE}). If the
-data has no channels, use the default value \code{TRUE}.}
+\item{\code{channels_first}}{The channel position of the given data (argument
+\code{data}). If \code{TRUE}, the channel axis is placed at the second position
+between the batch size and the rest of the input axes, e.g.
+\code{c(10,3,32,32)} for a batch of ten images with three channels and a
+height and width of 32 pixels. Otherwise (\code{FALSE}), the channel axis
+is at the last position, i.e. \code{c(10,32,32,3)}. If the data
+has no channel axis, use the default value \code{TRUE}.}
 
-\item{\code{output_idx}}{This vector determines for which outputs the method
-will be applied. By default (\code{NULL}), all outputs (but limited to the
-first 10) are considered.}
+\item{\code{output_idx}}{These indices specify the output nodes for which
+the method is to be applied. In order to allow models with multiple
+output layers, there are the following possibilities to select
+the indices of the output nodes in the individual output layers:
+\itemize{
+\item A \code{vector} of indices: If the model has only one output layer,
+the values correspond to the indices of the output nodes, e.g.
+\code{c(1,3,4)} for the first, third and fourth output node. If there are
+multiple output layers, the indices of the output nodes from the first
+output layer are considered.
+\item A \code{list} of \code{vectors} of indices: If the method is to be
+applied to output nodes from different layers, a list can be passed
+that specifies the desired indices of the output nodes for each
+output layer. Unwanted output layers have the entry \code{NULL} instead of
+a vector of indices, e.g. \code{list(NULL, c(1,3))} for the first and
+third output node in the second output layer.
+\item \code{NULL} (default): The method is applied to all output nodes in
+the first output layer but is limited to the first ten as the
+calculations become more computationally expensive for more output
+nodes.
+}}
 
-\item{\code{ignore_last_act}}{Set this boolean value to include the last
-activation, or not (default: \code{TRUE}). In some cases, the last activation
-leads to a saturation problem.}
+\item{\code{ignore_last_act}}{Set this logical value to include the last
+activation functions for each output layer, or not (default: \code{TRUE}).
+In practice, the last activation (especially for softmax activation) is
+often omitted.}
 
 \item{\code{rule_name}}{The name of the rule, with which the relevance scores
 are calculated. Implemented are \code{"simple"}, \code{"epsilon"},
@@ -274,14 +315,26 @@ A new instance of the R6 class \code{'LRP'}.
 \if{html}{\out{<a id="method-plot"></a>}}
 \if{latex}{\out{\hypertarget{method-plot}{}}}
 \subsection{Method \code{plot()}}{
-This method visualizes the result of the selected method in a
-\link[ggplot2:ggplot]{ggplot2::ggplot}. You can use the argument \code{data_idx} to select
-the data points in the given data for the plot. In addition, the
-individual output nodes for the plot can be selected with the argument
-\code{output_idx}. The different results for the selected data points and
-outputs are visualized using the method \link[ggplot2:facet_grid]{ggplot2::facet_grid}.
-You can also use the \code{as_plotly} argument to generate an interactive
-plot based on the plot function \link[plotly:plot_ly]{plotly::plot_ly}.
+This method visualizes the result of individual data points of the
+selected method and enables a visual in-depth investigation with the help
+of the S4 classes \code{\link{innsight_ggplot2}} and \code{\link{innsight_plotly}}.\cr
+You can use the argument \code{data_idx} to select the data points in the given
+data for the plot. In addition, the individual output nodes for the plot
+can be selected with the argument \code{output_idx}. The different results for
+the selected data points and outputs are visualized using the ggplot2-based
+S4 class \code{innsight_ggplot2}. You can also use the \code{as_plotly} argument to
+generate an interactive plot with \code{innsight_plotly} based on the
+plot function \link[plotly:plot_ly]{plotly::plot_ly}. For more information and the whole bunch
+of possibilities, see \code{\link{innsight_ggplot2}} and \code{\link{innsight_plotly}}.\cr
+\cr
+\strong{Note:}
+\enumerate{
+\item For the interactive plotly-based plots, the suggested package \code{plotly}
+is required.
+\item The ggplot2-based plots for models with multiple input layers are a bit
+more complex, therefore the suggested packages \code{'grid'}, \code{'gridExtra'}
+and \code{'gtable'} must be installed in your R session.
+}
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LRP$plot(
   data_idx = 1,
@@ -296,55 +349,69 @@ plot based on the plot function \link[plotly:plot_ly]{plotly::plot_ly}.
 \describe{
 \item{\code{data_idx}}{An integer vector containing the numbers of the data
 points whose result is to be plotted, e.g. \code{c(1,3)} for the first
-and third data point in the given data. Default: \code{c(1)}.}
+and third data point in the given data. Default: \code{1}.}
 
-\item{\code{output_idx}}{An integer vector containing the numbers of the
-output indices whose result is to be plotted, e.g. \code{c(1,4)} for the
-first and fourth model output. But this vector must be included in the
-vector \code{output_idx} from the initialization, otherwise, no results were
-calculated for this output node and can not be plotted. By default
-(\code{NULL}), the smallest index of all calculated output nodes is used.}
+\item{\code{output_idx}}{The indices of the output nodes for which the results is
+to be plotted. This can be either a \code{vector} of indices or a \code{list} of
+vectors of indices but must be a subset of the indices for which the
+results were calculated, i.e. a subset of \code{output_idx} from the
+initialization \code{new()} (see argument \code{output_idx} in method \code{new()} of this
+R6 class for details). By default (\code{NULL}), the smallest index of all
+calculated output nodes and output layers is used.}
 
 \item{\code{aggr_channels}}{Pass one of \code{'norm'}, \code{'sum'}, \code{'mean'} or a
 custom function to aggregate the channels, e.g. the maximum
 (\link[base:Extremes]{base::max}) or minimum (\link[base:Extremes]{base::min}) over the channels or only
 individual channels with \code{function(x) x[1]}. By default (\code{'sum'}),
 the sum of all channels is used.\cr
-\strong{Note:} This argument is used only for 2D and 3D inputs.}
+\emph{Note:} This argument is used only for 2D and 3D input data.}
 
-\item{\code{as_plotly}}{This boolean value (default: \code{FALSE}) can be used to
-create an interactive plot based on the library \code{plotly}. This function
-takes use of \link[plotly:ggplotly]{plotly::ggplotly}, hence make sure that the suggested
-package \code{plotly} is installed in your R session.\cr
-\strong{Advanced:} You can first
-output the results as a ggplot (\code{as_plotly = FALSE}) and then make
-custom changes to the plot, e.g. other theme or other fill color. Then
-you can manually call the function \code{ggplotly} to get an interactive
-plotly plot.}
+\item{\code{as_plotly}}{This logical value (default: \code{FALSE}) can be used to
+create an interactive plot based on the library \code{plotly}
+(see \code{\link{innsight_plotly}} for details).\cr
+\emph{Note:} Make sure that the suggested package \code{plotly} is installed
+in your R session.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-Returns either a \link[ggplot2:ggplot]{ggplot2::ggplot} (\code{as_plotly = FALSE}) or a
-\link[plotly:plot_ly]{plotly::plot_ly} (\code{as_plotly = TRUE}) with the plotted results.
+Returns either an \code{\link{innsight_ggplot2}} (\code{as_plotly = FALSE}) or an
+\code{\link{innsight_plotly}} (\code{as_plotly = TRUE}) object with the plotted
+individual results.
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-boxplot"></a>}}
 \if{latex}{\out{\hypertarget{method-boxplot}{}}}
 \subsection{Method \code{boxplot()}}{
-This function visualizes the results of this method in a boxplot, where
-the type of visualization depends on the input dimension of the data.
-By default a \link[ggplot2:ggplot]{ggplot2::ggplot} is returned, but with the argument
-\code{as_plotly} an interactive \link[plotly:plot_ly]{plotly::plot_ly} plot can be created,
-which however requires a successful installation of the package
-\code{plotly}.
+This method visualizes the results of the selected method summarized as
+boxplots and enables a visual in-depth investigation of the global
+behavior with the help of the S4 classes \code{\link{innsight_ggplot2}} and
+\code{\link{innsight_plotly}}.\cr
+You can use the argument \code{output_idx} to select the individual output
+nodes for the plot. For tabular and 1D data, boxplots are created in
+which a reference value can be selected from the data using the
+\code{ref_data_idx} argument. For images, only the pixel-wise median is
+visualized due to the complexity. The plot is generated using the
+ggplot2-based S4 class \code{innsight_ggplot2}. You can also use the
+\code{as_plotly} argument to generate an interactive plot with
+\code{innsight_plotly} based on the plot function \link[plotly:plot_ly]{plotly::plot_ly}. For
+more information and the whole bunch of possibilities, see
+\code{\link{innsight_ggplot2}} and \code{\link{innsight_plotly}}.\cr \cr
+\strong{Note:}
+\enumerate{
+\item For the interactive plotly-based plots, the suggested package \code{plotly}
+is required.
+\item The ggplot2-based plots for models with multiple input layers are a bit
+more complex, therefore the suggested packages \code{'grid'}, \code{'gridExtra'}
+and \code{'gtable'} must be installed in your R session.
+}
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LRP$boxplot(
   output_idx = NULL,
   data_idx = "all",
   ref_data_idx = NULL,
-  aggr_channels = "norm",
+  aggr_channels = "sum",
   preprocess_FUN = abs,
   as_plotly = FALSE,
   individual_data_idx = NULL,
@@ -355,17 +422,18 @@ which however requires a successful installation of the package
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{output_idx}}{An integer vector containing the numbers of the
-output indices whose result is to be plotted, e.g. \code{c(1,4)} for the
-first and fourth model output. But this vector must be included in the
-vector \code{output_idx} from the initialization, otherwise, no results were
-calculated for this output node and can not be plotted. By default
-(\code{NULL}), the smallest index of all calculated output nodes is used.}
+\item{\code{output_idx}}{The indices of the output nodes for which the results is
+to be plotted. This can be either a \code{vector} of indices or a \code{list} of
+vectors of indices but must be a subset of the indices for which the
+results were calculated, i.e. a subset of \code{output_idx} from the
+initialization \code{new()} (see argument \code{output_idx} in method \code{new()} of this
+R6 class for details). By default (\code{NULL}), the smallest index of all
+calculated output nodes and output layers is used.}
 
-\item{\code{data_idx}}{By default ("all"), all available data is used to
+\item{\code{data_idx}}{By default ("all"), all available data points are used to
 calculate the boxplot information. However, this parameter can be used
 to select a subset of them by passing the indices. E.g. with
-\code{data_idx = c(1:10, 25, 26)} only the first \code{10} data points and
+\code{c(1:10, 25, 26)} only the first 10 data points and
 the 25th and 26th are used to calculate the boxplots.}
 
 \item{\code{ref_data_idx}}{This integer number determines the index for the
@@ -375,39 +443,40 @@ statistics provided by the boxplot. With the default value (\code{NULL})
 no individual data point is plotted. This index can be chosen with
 respect to all available data, even if only a subset is selected with
 argument \code{data_idx}.\cr
-\strong{Note:} Because of the complexity of 3D inputs, this argument is used
-only for 1D and 2D inputs and disregarded for 3D inputs.}
+\emph{Note:} Because of the complexity of 2D inputs, this argument is used
+only for tabular and 1D inputs and disregarded for 2D inputs.}
 
 \item{\code{aggr_channels}}{Pass one of \code{'norm'}, \code{'sum'}, \code{'mean'} or a
 custom function to aggregate the channels, e.g. the maximum
 (\link[base:Extremes]{base::max}) or minimum (\link[base:Extremes]{base::min}) over the channels or only
-individual channels with \code{function(x) x[1]}. By default (\code{'norm'}),
-the Euclidean norm of all channels is used.\cr
-\strong{Note:} This argument is used only for 2D and 3D inputs.}
+individual channels with \code{function(x) x[1]}. By default (\code{'sum'}),
+the sum of all channels is used.\cr
+\emph{Note:} This argument is used only for 2D and 3D input data.}
 
 \item{\code{preprocess_FUN}}{This function is applied to the method's result
-before calculating the boxplots. Since positive and negative values
+before calculating the boxplots or medians. Since positive and negative values
 often cancel each other out, the absolute value (\code{abs}) is used by
-default. But you can also use the raw data (\code{identity}) to see the
+default. But you can also use the raw results (\code{identity}) to see the
 results' orientation, the squared data (\code{function(x) x^2}) to weight
 the outliers higher or any other function.}
 
-\item{\code{as_plotly}}{This boolean value (default: \code{FALSE}) can be used to
-create an interactive plot based on the library \code{plotly} instead of
-\code{ggplot2}. Make sure that the suggested package \code{plotly} is installed
+\item{\code{as_plotly}}{This logical value (default: \code{FALSE}) can be used to
+create an interactive plot based on the library \code{plotly}
+(see \code{\link{innsight_plotly}} for details).\cr
+\emph{Note:} Make sure that the suggested package \code{plotly} is installed
 in your R session.}
 
-\item{\code{individual_data_idx}}{Only relevant for a \code{plotly} plot with input
-dimension \code{1} or \code{2}! This integer vector of data indices determines
+\item{\code{individual_data_idx}}{Only relevant for a \code{plotly} plot with tabular
+or 1D inputs! This integer vector of data indices determines
 the available data points in a dropdown menu, which are drawn in
 individually analogous to \code{ref_data_idx} only for more data points.
 With the default value \code{NULL} the first \code{individual_max} data points
 are used.\cr
-\strong{Note:} If \code{ref_data_idx} is specified, this data point will be
+\emph{Note:} If \code{ref_data_idx} is specified, this data point will be
 added to those from \code{individual_data_idx} in the dropdown menu.}
 
-\item{\code{individual_max}}{Only relevant for a \code{plotly} plot with input
-dimension \code{1} or \code{2}! This integer determines the maximum number of
+\item{\code{individual_max}}{Only relevant for a \code{plotly} plot with tabular or
+1D inputs! This integer determines the maximum number of
 individual data points in the dropdown menu without counting
 \code{ref_data_idx}. This means that if \code{individual_data_idx} has more
 than \code{individual_max} indices, only the first \code{individual_max} will
@@ -416,8 +485,9 @@ be used. A too high number can significantly increase the runtime.}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-Returns either a \link[ggplot2:ggplot]{ggplot2::ggplot} (\code{as_plotly = FALSE}) or a
-\link[plotly:plot_ly]{plotly::plot_ly} (\code{as_plotly = TRUE}) with the boxplots.
+Returns either an \code{\link{innsight_ggplot2}} (\code{as_plotly = FALSE}) or an
+\code{\link{innsight_plotly}} (\code{as_plotly = TRUE}) object with the plotted
+summarized results.
 }
 }
 \if{html}{\out{<hr>}}

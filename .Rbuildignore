@@ -9,3 +9,4 @@
 ^images$
 ^man/images$
 ^cran-comments\.md$
+^man-roxygen*$

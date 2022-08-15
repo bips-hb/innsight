@@ -2,7 +2,7 @@
 % Please edit documentation in R/GradienBased.R
 \name{Gradient}
 \alias{Gradient}
-\title{Vanilla Gradient Method}
+\title{Vanilla Gradient and Gradient x Input}
 \description{
 This method computes the gradients (also known as 'Vanilla Gradients') of
 the outputs with respect to the input variables, i.e. for all input
@@ -150,6 +150,14 @@ p <- plot(gradient, output_idx = 1, data_idx = 1:2) +
 plotly::ggplotly(p, tooltip = "text")
 \dontshow{\}) # examplesIf}
 }
+\seealso{
+Other methods: 
+\code{\link{ConnectionWeights}},
+\code{\link{DeepLift}},
+\code{\link{LRP}},
+\code{\link{SmoothGrad}}
+}
+\concept{methods}
 \section{Super classes}{
 \code{\link[innsight:InterpretingMethod]{innsight::InterpretingMethod}} -> \code{\link[innsight:GradientBased]{innsight::GradientBased}} -> \code{Gradient}
 }
@@ -173,7 +181,9 @@ plotly::ggplotly(p, tooltip = "text")
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
-Create a new instance of the Vanilla Gradient method.
+Create a new instance of the Vanilla Gradient method. When initialized,
+the method is applied to the given data and the results are stored in
+the field \code{result}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Gradient$new(
   converter,
@@ -189,26 +199,57 @@ Create a new instance of the Vanilla Gradient method.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{converter}}{An instance of the R6 class \code{\link{Converter}}.}
+\item{\code{converter}}{An instance of the \code{Converter} class that includes the
+torch-converted model and some other model-specific attributes. See
+\code{\link{Converter}} for details.}
 
-\item{\code{data}}{The data for which the gradients are to be
-calculated. It has to be an array or array-like format of size
-\emph{(batch_size, dim_in)}.}
+\item{\code{data}}{The data to which the method is to be applied. These must
+have the same format as the input data of the passed model to the
+converter object. This means either
+\itemize{
+\item an \code{array}, \code{data.frame}, \code{torch_tensor} or array-like format of
+size \emph{(batch_size, dim_in)}, if e.g.the model has only one input layer, or
+\item a \code{list} with the corresponding input data (according to the
+upper point) for each of the input layers.
+}}
 
-\item{\code{channels_first}}{The format of the given data, i.e. channels on
-last dimension (\code{FALSE}) or after the batch dimension (\code{TRUE}). If the
-data has no channels, use the default value \code{TRUE}.}
+\item{\code{channels_first}}{The channel position of the given data (argument
+\code{data}). If \code{TRUE}, the channel axis is placed at the second position
+between the batch size and the rest of the input axes, e.g.
+\code{c(10,3,32,32)} for a batch of ten images with three channels and a
+height and width of 32 pixels. Otherwise (\code{FALSE}), the channel axis
+is at the last position, i.e. \code{c(10,32,32,3)}. If the data
+has no channel axis, use the default value \code{TRUE}.}
 
-\item{\code{output_idx}}{This vector determines for which outputs the method
-will be applied. By default (\code{NULL}), all outputs (but limited to the
-first 10) are considered.}
+\item{\code{output_idx}}{These indices specify the output nodes for which
+the method is to be applied. In order to allow models with multiple
+output layers, there are the following possibilities to select
+the indices of the output nodes in the individual output layers:
+\itemize{
+\item A \code{vector} of indices: If the model has only one output layer,
+the values correspond to the indices of the output nodes, e.g.
+\code{c(1,3,4)} for the first, third and fourth output node. If there are
+multiple output layers, the indices of the output nodes from the first
+output layer are considered.
+\item A \code{list} of \code{vectors} of indices: If the method is to be
+applied to output nodes from different layers, a list can be passed
+that specifies the desired indices of the output nodes for each
+output layer. Unwanted output layers have the entry \code{NULL} instead of
+a vector of indices, e.g. \code{list(NULL, c(1,3))} for the first and
+third output node in the second output layer.
+\item \code{NULL} (default): The method is applied to all output nodes in
+the first output layer but is limited to the first ten as the
+calculations become more computationally expensive for more output
+nodes.
+}}
 
-\item{\code{ignore_last_act}}{A boolean value to include the last
-activation into all the calculations, or not (default: \code{TRUE}). In
-some cases, the last activation leads to a saturation problem.}
+\item{\code{ignore_last_act}}{Set this logical value to include the last
+activation functions for each output layer, or not (default: \code{TRUE}).
+In practice, the last activation (especially for softmax activation) is
+often omitted.}
 
 \item{\code{times_input}}{Multiplies the gradients with the input features.
-This method is called 'Gradient x Input'. Default: \code{FALSE}.}
+This method is called 'Gradient x Input'.}
 
 \item{\code{dtype}}{The data type for the calculations. Use
 either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for

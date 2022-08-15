@@ -2,7 +2,7 @@
 % Please edit documentation in R/Converter.R
 \name{Converter}
 \alias{Converter}
-\title{Converter of an artificial Neural Network}
+\title{Converter of an Artificial Neural Network}
 \description{
 This class analyzes a passed neural network and stores its internal
 structure and the individual layers by converting the entire network into an
@@ -27,10 +27,10 @@ which are not stored in an ordinary forward pass, are often required. For
 this reason, a given neural network is converted into a torch-based neural
 network, which provides all the necessary information for an interpretation.
 The converted torch model is stored in the field \code{model} and is an instance
-of \code{\link[innsight:ConvertedModel]{innsight::ConvertedModel}}.
+of \code{\link[innsight:ConvertedModel]{ConvertedModel}}.
 However, before the torch model is created, all relevant details of the
 passed model are extracted into a named list. This list can be saved
-in complete form in the \code{model_dict} field with the argument
+in complete form in the \code{model_as_list} field with the argument
 \code{save_model_as_list}, but this may consume a lot of memory for large
 networks and is not done by default. Also, this named list can again be
 used as a passed model for the class \code{Converter}, which will be described
@@ -283,8 +283,22 @@ CoRR, abs/1706.03825
 \item{\code{model}}{The converted neural network based on the torch module
 \link{ConvertedModel}.}
 
-\item{\code{model_dict}}{The model stored in a named list (see details for more
-information). By default, the entry \code{model_dict$layers} is deleted
+\item{\code{input_dim}}{A list of the input dimensions of each input layer. Since
+internally the channels-first format is used for all calculations, the
+input shapes are already in this format. In addition, the batch
+dimension isn't included, e.g. for an input layer of shape \verb{c(*,32,32,3)}
+with channels in the last axis you get \code{list(c(3,32,32))}.}
+
+\item{\code{input_names}}{A list with the names for each input
+dimension of the shape as stored in the field \code{input_dim}.}
+
+\item{\code{output_dim}}{A list of the output dimensions of each output layer.}
+
+\item{\code{output_names}}{A list with the names for each output dimension of
+shape as stored in the field \code{output_dim}.}
+
+\item{\code{model_as_list}}{The model stored in a named list (see details for more
+information). By default, the entry \code{model_as_list$layers} is deleted
 because it may require a lot of memory for large networks. However, with
 the argument \code{save_model_as_list} this can be saved anyway.}
 }
@@ -301,7 +315,10 @@ the argument \code{save_model_as_list} this can be saved anyway.}
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
-Create a new Converter for a given neural network.
+Create a new Converter for a given neural network. When initialized,
+the model is inspected, converted as a list and then the a
+torch-converted model (\link{ConvertedModel}) is created and stored in
+the field \code{model}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Converter$new(
   model,
@@ -323,27 +340,29 @@ packages are allowed: \code{\link[torch]{nn_sequential}},
 \code{\link[keras]{keras_model_sequential}},
 \code{\link[neuralnet]{neuralnet}} or a named list (see details).}
 
-\item{\code{input_dim}}{An integer vector with the model input dimension
-excluding the batch dimension, e.g. for a dense layer with \code{5} input
-features use \code{c(5)} or for a 1D convolutional layer with signal
-length \code{50} and \code{4} channels use \code{c(4, 50)}. \cr
-\strong{Note:} This argument is only necessary for \code{torch::nn_sequential},
-for all others it is automatically extracted from the passed model.
-In addition, the input dimension \code{input_dim} has to be in the format
-channels first.}
+\item{\code{input_dim}}{The model input dimension excluding the batch
+dimension. If there is only one input layer it can be specified as
+a vector, otherwise use a list of the shapes of the
+individual input layers.\cr
+\emph{Note:} This argument is only necessary for \code{torch::nn_sequential},
+for all others it is automatically extracted from the passed model
+and used for internal checks. In addition, the input dimension
+\code{input_dim} has to be in the format channels first.}
 
 \item{\code{input_names}}{(Optional) A list with the names for each input
-dimension, e.g. for a dense layer with \code{3} input features use
-\code{list(c("X1", "X2", "X3"))} or for a 1D convolutional layer with
-signal length \code{5} and \code{2} channels use
+dimension excluding the batch dimension, e.g. for a dense layer
+with \code{3} input features use \code{list(c("X1", "X2", "X3"))} or for a
+1D convolutional layer with signal length \code{5} and \code{2} channels use
 \code{list(c("C1", "C2"), c("L1","L2","L3","L4","L5"))}.\cr
-\strong{Note:} This argument is optional and otherwise the names are
+\emph{Note:} This argument is optional and otherwise the names are
 generated automatically. But if this argument is set, all found
 input names in the passed model will be disregarded.}
 
-\item{\code{output_names}}{(Optional) A list with the names for the output,
-e.g. for a model with \code{3} outputs use \code{list(c("Y1", "Y2", "Y3"))}.\cr
-\strong{Note:} This argument is optional and otherwise the names are
+\item{\code{output_names}}{(Optional) A list with the names for the output
+dimensions exluding the batch dimension,
+e.g. for a model with \code{3} output nodes use
+\code{list(c("Y1", "Y2", "Y3"))}.\cr
+\emph{Note:} This argument is optional and otherwise the names are
 generated automatically. But if this argument is set, all found
 output names in the passed model will be disregarded.}
 
@@ -352,8 +371,7 @@ either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{
 \link[torch:torch_dtype]{torch::torch_double}.}
 
 \item{\code{save_model_as_list}}{This logical value specifies whether the
-passed model should be stored as a list (as it is described in the
-details also as an alternative input for a model). This list can take
+passed model should be stored as a list. This list can take
 a lot of memory for large networks, so by default the model is not
 stored as a list (\code{FALSE}).}
 }

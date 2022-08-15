@@ -2,10 +2,10 @@
 % Please edit documentation in R/InterpretingMethod.R
 \name{InterpretingMethod}
 \alias{InterpretingMethod}
-\title{Super class for Interpreting Methods}
+\title{Super Class for Interpreting Methods}
 \description{
-This is a super class for all data-based interpreting methods.
-Implemented are the following methods:
+This is a super class for all interpreting methods in the
+\code{innsight} package. Implemented are the following methods:
 \itemize{
 \item Deep Learning Important Features (\link{DeepLift})
 \item Layer-wise Relevance Propagation (\link{LRP})
@@ -14,34 +14,63 @@ Implemented are the following methods:
 \item Vanilla gradients including 'Gradients x Input' (\link{Gradient})
 \item Smoothed gradients including 'SmoothGrad x Input' (\link{SmoothGrad})
 }
+\item Connection Weights (global and local) (\link{ConnectionWeights})
 }
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{data}}{The passed data as a torch tensor in the given data type
-(\code{dtype}) to be interpreted with the selected method.}
+\item{\code{data}}{The passed data as a \code{list} of \code{torch_tensors} in the selected
+data format (field \code{dtype}) matching the corresponding shapes of the
+individual input layers. Besides, the channel axis is moved to the
+second position after the batch size because internally only the
+format \verb{channels first} is used.}
 
-\item{\code{converter}}{An instance of the R6 class \code{\link{Converter}}.}
+\item{\code{converter}}{An instance of the \code{Converter} class that includes the
+torch-converted model and some other model-specific attributes. See
+\code{\link{Converter}} for details.}
 
-\item{\code{dtype}}{The data type for the calculations. Either \code{'float'}
-for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for \link[torch:torch_dtype]{torch::torch_double}.}
+\item{\code{channels_first}}{The channel position of the given data. If \code{TRUE}, the
+channel axis is placed at the second position between the batch size and
+the rest of the input axes, e.g. \code{c(10,3,32,32)} for a batch of ten images
+with three channels and a height and width of 32 pixels. Otherwise (\code{FALSE}),
+the channel axis is at the last position, i.e. \code{c(10,32,32,3)}. This is
+especially important for layers like flatten, where the order is crucial
+and therefore the channels have to be moved from the internal
+format 'channels_first' back to the original format before the layer
+is calculated.}
 
-\item{\code{channels_first}}{The format of the given date, i.e. channels on
-last dimension (\code{FALSE}) or after the batch dimension (\code{TRUE}). If the
-data has no channels, the default value \code{TRUE} is used.}
+\item{\code{dtype}}{The data type for the calculations. Either \code{'float'} for
+\link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for \link[torch:torch_dtype]{torch::torch_double}.}
 
-\item{\code{ignore_last_act}}{A boolean value to include the last
-activation into all the calculations, or not (default: \code{TRUE}). In some
-cases, the last activation leads to a saturation problem.}
+\item{\code{ignore_last_act}}{A logical value to include the last activation
+functions into all the calculations, or not.}
 
-\item{\code{result}}{The methods result of the given data as a
-torch tensor of size \emph{(batch_size, dim_in, dim_out)} in the given data type
-(\code{dtype}).}
+\item{\code{result}}{The results of the method on the passed data. A unified
+list structure is used regardless of the complexity of the model: The outer
+list contains the individual output layers and the inner list the input
+layers. The results for the respective output and input layer are then
+stored there as torch tensors in the given data format (field \code{dtype}).
+In addition, the channel axis is moved to its original place and the last
+axis contains the selected output nodes for the individual output layers
+(see \code{output_idx}).\cr
+For example, the structure of the result for two output
+layers (output node 1 for the first and 2 and 4 for the second) and two
+input layers with \code{channels_first = FALSE} looks like this:\preformatted{List of 2 # both output layers
+  $ :List of 2 # both input layers
+    ..$ : torch_tensor [batch_size, dim_in_1, channel_axis, 1]
+    ..$ : torch_tensor [batch_size, dim_in_2, channel_axis, 1]
+ $ :List of 2 # both input layers
+    ..$ : torch_tensor [batch_size, dim_in_1, channel_axis, 2]
+    ..$ : torch_tensor [batch_size, dim_in_2, channel_axis, 2]
+}}
 
-\item{\code{output_idx}}{This vector determines for which outputs the method
-will be applied. By default (\code{NULL}), all outputs (but limited to the
-first 10) are considered.}
+\item{\code{output_idx}}{This list of indices specifies the output nodes to which
+the method is to be applied. In the order of the output layers, the list
+contains the respective output nodes indices and unwanted output layers
+have the entry \code{NULL} instead of a vector of indices,
+e.g. \code{list(NULL, c(1,3))} for the first and third output node in the
+second output layer.}
 }
 \if{html}{\out{</div>}}
 }
@@ -72,24 +101,55 @@ Create a new instance of this super class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{converter}}{An instance of the R6 class \code{\link{Converter}}.}
+\item{\code{converter}}{An instance of the \code{Converter} class that includes the
+torch-converted model and some other model-specific attributes. See
+\code{\link{Converter}} for details.}
 
-\item{\code{data}}{The data for which this method is to be applied. It has
-to be an array or array-like format of size \emph{(batch_size, dim_in)}.}
+\item{\code{data}}{The data to which the method is to be applied. These must
+have the same format as the input data of the passed model to the
+converter object. This means either
+\itemize{
+\item an \code{array}, \code{data.frame}, \code{torch_tensor} or array-like format of
+size \emph{(batch_size, dim_in)}, if e.g.the model has only one input layer, or
+\item a \code{list} with the corresponding input data (according to the
+upper point) for each of the input layers.
+}}
 
-\item{\code{channels_first}}{The format of the given data, i.e. channels on
-last dimension (\code{FALSE}) or after the batch dimension (\code{TRUE}). If the
-data has no channels, use the default value \code{TRUE}.}
+\item{\code{channels_first}}{The channel position of the given data (argument
+\code{data}). If \code{TRUE}, the channel axis is placed at the second position
+between the batch size and the rest of the input axes, e.g.
+\code{c(10,3,32,32)} for a batch of ten images with three channels and a
+height and width of 32 pixels. Otherwise (\code{FALSE}), the channel axis
+is at the last position, i.e. \code{c(10,32,32,3)}. If the data
+has no channel axis, use the default value \code{TRUE}.}
 
-\item{\code{output_idx}}{This vector determines for which output indices the
-method will be applied. By default (\code{NULL}), all outputs (but limited to
-the first 10) are considered.}
+\item{\code{output_idx}}{These indices specify the output nodes for which the method is to be
+applied. In order to allow models with multiple output layers, there are
+the following possibilities to select the indices of the output
+nodes in the individual output layers:
+\itemize{
+\item A \code{vector} of indices: If the model has only one output layer, the
+values correspond to the indices of the output nodes, e.g. \code{c(1,3,4)}
+for the first, third and fourth output node. If there are
+multiple output layers, the indices of the output nodes from the first
+output layer are considered.
+\item A \code{list} of \code{vectors} of indices: If the method is to be applied to
+output nodes from different layers, a list can be passed that specifies
+the desired indices of the output nodes for each output layer.
+Unwanted output layers have the entry \code{NULL} instead of a vector of indices,
+e.g. \code{list(NULL, c(1,3))} for the first and third output node in the
+second output layer.
+\item \code{NULL} (default): The method is applied to all output nodes in the
+first output layer but is limited to the first ten as the calculations
+become more computationally expensive for more output nodes.
+}}
 
-\item{\code{ignore_last_act}}{A boolean value to include the last
-activation into all the calculations, or not (default: \code{TRUE}). In
-some cases, the last activation leads to a saturation problem.}
+\item{\code{ignore_last_act}}{Set this logical value to include the last
+activation functions for each output layer, or not (default: \code{TRUE}).
+In practice, the last activation (especially for softmax activation) is
+often omitted.}
 
-\item{\code{dtype}}{dtype The data type for the calculations. Use
+\item{\code{dtype}}{The data type for the calculations. Use
 either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
 \link[torch:torch_dtype]{torch::torch_double}.}
 }

@@ -8,7 +8,7 @@
 #' thus difficult to access or use for the R community. In this sense,
 #' the package `innsight` provides a common interface for various methods
 #' for the interpretability of neural networks and can therefore be considered
-#' as an R analogue to 'iNNvestigate' for Python.
+#' as an R analogue to 'iNNvestigate' or 'Captum' for Python.
 #'
 #' This package implements several model-specific interpretability
 #' (Feature Attribution) methods based on neural networks in R, e.g.,
@@ -26,7 +26,7 @@
 #'
 #' The package `innsight` aims to be as flexible as possible and independent of a
 #' specific deep learning package in which the passed network has been learned.
-#' Basically, a Neural Network of the libraries [torch::nn_sequential],
+#' Basically, a neural network of the libraries [torch::nn_sequential],
 #' [keras::keras_model_sequential], [keras::keras_model] and
 #' [neuralnet::neuralnet] can be passed to the main building block [Converter],
 #' which converts and stores the passed model as a torch model

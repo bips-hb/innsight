@@ -3,36 +3,29 @@
 #                         Interpreting Method
 ###############################################################################
 
-#' @title Super class for Interpreting Methods
-#' @description This is a super class for all data-based interpreting methods.
-#' Implemented are the following methods:
+#' @title Super Class for Interpreting Methods
+#' @description This is a super class for all interpreting methods in the
+#' `innsight` package. Implemented are the following methods:
 #'
 #' - Deep Learning Important Features ([DeepLift])
 #' - Layer-wise Relevance Propagation ([LRP])
 #' - Gradient-based methods:
 #'    - Vanilla gradients including 'Gradients x Input' ([Gradient])
 #'    - Smoothed gradients including 'SmoothGrad x Input' ([SmoothGrad])
+#' - Connection Weights (global and local) ([ConnectionWeights])
 #'
-#'
-#' @field data The passed data as a torch tensor in the given data type
-#' (`dtype`) to be interpreted with the selected method.
-#' @field converter An instance of the R6 class \code{\link{Converter}}.
-#' @field dtype The data type for the calculations. Either `'float'`
-#' for [torch::torch_float] or `'double'` for [torch::torch_double].
-#' @field channels_first The format of the given date, i.e. channels on
-#' last dimension (`FALSE`) or after the batch dimension (`TRUE`). If the
-#' data has no channels, the default value `TRUE` is used.
-#' @field ignore_last_act A boolean value to include the last
-#' activation into all the calculations, or not (default: `TRUE`). In some
-#' cases, the last activation leads to a saturation problem.
-#' @field result The methods result of the given data as a
-#' torch tensor of size *(batch_size, dim_in, dim_out)* in the given data type
-#' (`dtype`).
-#' @field output_idx This vector determines for which outputs the method
-#' will be applied. By default (`NULL`), all outputs (but limited to the
-#' first 10) are considered.
-#'
-#' @import ggplot2
+#' @template param-converter
+#' @template param-data
+#' @template param-channels_first
+#' @template param-ignore_last_act
+#' @template param-dtype
+#' @template field-data
+#' @template field-converter
+#' @template field-channels_first
+#' @template field-dtype
+#' @template field-ignore_last_act
+#' @template field-result
+#' @template field-output_idx
 #'
 InterpretingMethod <- R6Class(
   classname = "InterpretingMethod",
@@ -48,22 +41,27 @@ InterpretingMethod <- R6Class(
     #' @description
     #' Create a new instance of this super class.
     #'
-    #' @param converter An instance of the R6 class \code{\link{Converter}}.
-    #' @param data The data for which this method is to be applied. It has
-    #' to be an array or array-like format of size *(batch_size, dim_in)*.
-    #' @param channels_first The format of the given data, i.e. channels on
-    #' last dimension (`FALSE`) or after the batch dimension (`TRUE`). If the
-    #' data has no channels, use the default value `TRUE`.
-    #' @param dtype dtype The data type for the calculations. Use
-    #' either `'float'` for [torch::torch_float] or `'double'` for
-    #' [torch::torch_double].
-    #' @param ignore_last_act A boolean value to include the last
-    #' activation into all the calculations, or not (default: `TRUE`). In
-    #' some cases, the last activation leads to a saturation problem.
-    #' @param output_idx This vector determines for which output indices the
-    #' method will be applied. By default (`NULL`), all outputs (but limited to
-    #' the first 10) are considered.
-
+    #' @param output_idx
+    #' These indices specify the output nodes for which the method is to be
+    #' applied. In order to allow models with multiple output layers, there are
+    #' the following possibilities to select the indices of the output
+    #' nodes in the individual output layers:
+    #' \itemize{
+    #'   \item A `vector` of indices: If the model has only one output layer, the
+    #'   values correspond to the indices of the output nodes, e.g. `c(1,3,4)`
+    #'   for the first, third and fourth output node. If there are
+    #'   multiple output layers, the indices of the output nodes from the first
+    #'   output layer are considered.
+    #'   \item A `list` of `vectors` of indices: If the method is to be applied to
+    #'   output nodes from different layers, a list can be passed that specifies
+    #'   the desired indices of the output nodes for each output layer.
+    #'   Unwanted output layers have the entry `NULL` instead of a vector of indices,
+    #'   e.g. `list(NULL, c(1,3))` for the first and third output node in the
+    #'   second output layer.
+    #'   \item `NULL` (default): The method is applied to all output nodes in the
+    #'   first output layer but is limited to the first ten as the calculations
+    #'   become more computationally expensive for more output nodes.
+    #' }
     initialize = function(converter, data,
                           channels_first = TRUE,
                           output_idx = NULL,
@@ -88,7 +86,6 @@ InterpretingMethod <- R6Class(
       self$data <- private$test_data(data)
     },
 
-    #'
     #' @description
     #' This function returns the result of this method for the given data
     #' either as an array (`'array'`), a torch tensor (`'torch.tensor'`,
@@ -101,8 +98,6 @@ InterpretingMethod <- R6Class(
     #'
     #' @return The result of this method for the given data in the chosen
     #' type.
-    #'
-
     get_result = function(type = "array") {
       assertChoice(type, c("array", "data.frame", "torch.tensor",
                            "torch_tensor"))

@@ -14,7 +14,7 @@ are implemented or available in R. Most of these so-called
 thus difficult to access or use for the R community. In this sense,
 the package \code{innsight} provides a common interface for various methods
 for the interpretability of neural networks and can therefore be considered
-as an R analogue to 'iNNvestigate' for Python.
+as an R analogue to 'iNNvestigate' or 'Captum' for Python.
 }
 \details{
 This package implements several model-specific interpretability
@@ -40,7 +40,7 @@ reveal-cancel rule
 
 The package \code{innsight} aims to be as flexible as possible and independent of a
 specific deep learning package in which the passed network has been learned.
-Basically, a Neural Network of the libraries \link[torch:nn_sequential]{torch::nn_sequential},
+Basically, a neural network of the libraries \link[torch:nn_sequential]{torch::nn_sequential},
 \link[keras:keras_model_sequential]{keras::keras_model_sequential}, \link[keras:keras_model]{keras::keras_model} and
 \link[neuralnet:neuralnet]{neuralnet::neuralnet} can be passed to the main building block \link{Converter},
 which converts and stores the passed model as a torch model
