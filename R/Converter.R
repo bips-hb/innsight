@@ -164,6 +164,7 @@ Converter <- R6Class("Converter",
       # Necessary entries in the list:
       #   'layers', 'input_dim', 'input_nodes', 'output_nodes'
       assertSubset("layers", names(model_as_list))
+      assertList(model_as_list$layers, min.len = 1)
       # Make sure that 'input_dim' is a list
       if (!is.list(model_as_list$input_dim)) {
         model_as_list$input_dim <- list(model_as_list$input_dim)
@@ -174,13 +175,26 @@ Converter <- R6Class("Converter",
 
       # Check whether input and output nodes are given
       assertNumeric(model_as_list$input_nodes,
-        lower = 1,
+        lower = 1, null.ok = TRUE,
         upper = length(model_as_list$layers)
       )
       assertNumeric(model_as_list$output_nodes,
-        lower = 1,
+        lower = 1, null.ok = TRUE,
         upper = length(model_as_list$layers)
       )
+
+      if (is.null(model_as_list$input_nodes)) {
+        warning("Argument 'input_nodes' is unspecified! In the following, ",
+                "it is assumed that the first entry in '$layers' is the ",
+                "only input layer.", call. = FALSE)
+        model_as_list$input_nodes <- 1L
+      }
+      if (is.null(model_as_list$output_nodes)) {
+        warning("Argument 'output_nodes' is unspecified! In the following, ",
+                "it is assumed that the last entry in '$layers' is the ",
+                "only output layer.", call. = FALSE)
+        model_as_list$output_nodes <- length(model_as_list$layers)
+      }
 
       # Optional arguments
       # Make sure that 'output_dim' is a list or NULL
@@ -228,12 +242,29 @@ Converter <- R6Class("Converter",
         # Check for correct format of the layer indices
         assert(
           checkList(in_layers, types = "integerish"),
-          checkIntegerish(in_layers, any.missing = FALSE)
+          checkIntegerish(in_layers, any.missing = FALSE, null.ok = TRUE)
         )
         assert(
           checkList(out_layers, types = "integerish"),
-          checkIntegerish(out_layers, any.missing = FALSE)
+          checkIntegerish(out_layers, any.missing = FALSE, null.ok = TRUE)
         )
+        # Set default for 'out_layers' and 'in_layers'
+        if (is.null(in_layers)) {
+          warning("Argument '$layers[[", i, "]]$in_layers' is not specified!",
+                  "In the following, it is assumed that the ",
+                  "layer of index '", max(i - 1, 0), "' is the input ",
+                  "layer of the current one.", call. = FALSE)
+          in_layers <- max(i - 1, 0)
+        }
+        if (is.null(out_layers)) {
+          num_layers <- length(model_as_list$layers)
+          out_layers <- ifelse(i == num_layers, -1, i + 1)
+          warning("Argument '$layers[[", i, "]]$out_layers' is not specified!",
+                  " In the following, it is assumed that the ",
+                  "layer of index '", out_layers, "' is the subsequent ",
+                  "layer of the current one.", call. = FALSE)
+        }
+
         # Store the layer indices in the corresponding lists
         input_layers[[i]] <- in_layers
         output_layers[[i]] <- out_layers
@@ -276,10 +307,10 @@ Converter <- R6Class("Converter",
                               dtype = dtype
       )
 
-      #---------------- Check if the converted model is correct ----------------
+      #---------------- Check if the converted model is correct ---------------
       # Check output dimensions
-      if (!is.null(model_as_list$output_dim) &
-        !identical(model_as_list$output_dim, tmp$calc_output_shapes)) {
+      if (!is.null(model_as_list$output_dim) &&
+        !all_equal(model_as_list$output_dim, tmp$calc_output_shapes)) {
         calc <- shape_to_char(tmp$calc_output_shapes)
         given <- shape_to_char(model_as_list$output_dim)
         stop(
@@ -309,7 +340,9 @@ Converter <- R6Class("Converter",
         input_names_lenght <- lapply(input_names,
                                      function(x) unlist(lapply(x, length)))
 
-        if (!identical(input_names_lenght, model_as_list$input_dim)) {
+        print(input_names_lenght)
+        print(model_as_list$input_dim)
+        if (!all_equal(input_names_lenght, model_as_list$input_dim)) {
           given <- shape_to_char(input_names_lenght)
           calc <- shape_to_char(model_as_list$input_dim)
           stop(
@@ -330,7 +363,7 @@ Converter <- R6Class("Converter",
         output_names_length <- lapply(output_names,
                                       function(x) unlist(lapply(x, length)))
 
-        if (!identical(output_names_length, model_as_list$output_dim)) {
+        if (!all_equal(output_names_length, model_as_list$output_dim)) {
           given <- shape_to_char(output_names_length)
           calc <- shape_to_char(model_as_list$output_dim)
           stop(
@@ -752,7 +785,7 @@ check_and_register_shapes <- function(modules_list, graph, model_as_list,
     # Check input shape
     given_input_shape <- model_as_list$layers[[step$used_node]]$dim_in
     if (!is.null(given_input_shape) &&
-      !identical(calculated_input_shape, given_input_shape)) {
+      !all(calculated_input_shape == given_input_shape)) {
       given <- shape_to_char(given_input_shape)
       calc <- shape_to_char(calculated_input_shape)
 
@@ -799,7 +832,7 @@ check_and_register_shapes <- function(modules_list, graph, model_as_list,
     calculated_output_shape <- out$shape[-1]
     given_output_shape <- model_as_list$layers[[step$used_node]]$dim_out
     if (!is.null(given_output_shape) &&
-      !identical(calculated_output_shape, given_output_shape)) {
+      !all(calculated_output_shape == given_output_shape)) {
       given <- paste0("(*,", paste(given_output_shape, collapse = ","), ")")
       calc <- paste0("(*,", paste(calculated_output_shape, collapse = ","), ")")
 
@@ -950,4 +983,14 @@ convert_torch <- function(model, input_dim) {
   }
 
   model_as_list
+}
+
+all_equal <- function(x,y) {
+  if (identical(length(x), length(y))) {
+    error <- all(unlist(lapply(seq_along(x), function(i) x[[i]] == y[[i]])))
+  } else {
+    error <- FALSE
+  }
+
+  error
 }
