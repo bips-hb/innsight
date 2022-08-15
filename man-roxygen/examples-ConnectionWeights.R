@@ -77,32 +77,3 @@
 #'   # Plot the result for all classes
 #'   plot(cw, output_idx = 1:2)
 #' }
-#'
-#' # ------------------------- Advanced: Plotly -------------------------------
-#' # If you want to create an interactive plot of your results with custom
-#' # changes, you can take use of the method plotly::ggplotly
-#' library(ggplot2)
-#' library(plotly)
-#' library(neuralnet)
-#' data(iris)
-#'
-#' nn <- neuralnet(Species ~ .,
-#'   iris,
-#'   linear.output = FALSE,
-#'   hidden = c(10, 8), act.fct = "tanh", rep = 1, threshold = 0.5
-#' )
-#' # create an converter for this model
-#' converter <- Converter$new(nn)
-#'
-#' # create new instance of 'LRP'
-#' cw <- ConnectionWeights$new(converter)
-#'
-#' library(plotly)
-#'
-#' # Get the ggplot and add your changes
-#' p <- plot(cw, output_idx = 1) +
-#'   theme_bw() +
-#'   scale_fill_gradient2(low = "green", mid = "black", high = "blue")
-#'
-#' # Now apply the method plotly::ggplotly with argument tooltip = "text"
-#' plotly::ggplotly(p, tooltip = "text")

@@ -174,7 +174,7 @@ converter <- Converter$new(model, input_dim = c(5))
 converted_model <- converter$model
 
 # Test it with the original model
-mean(abs(converted_model(data) - model(data)))
+mean(abs(converted_model(data)[[1]] - model(data)))
 
 
 #----------------------- Example 2: Neuralnet ------------------------------
