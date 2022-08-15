@@ -51,7 +51,8 @@ ConvertedModel <- nn_module(
   output_nodes = NULL,
   output_order = NULL,
   dtype = NULL,
-  initialize = function(modules_list, graph, input_nodes, output_nodes, dtype = "float") {
+  initialize = function(modules_list, graph, input_nodes, output_nodes,
+                        dtype = "float") {
     self$modules_list <- modules_list
     self$graph <- graph
     self$input_nodes <- input_nodes
@@ -115,7 +116,8 @@ ConvertedModel <- nn_module(
     # If the channels are last, we have to move the channel axis to the first
     # position after the batch dimension
     if (channels_first == FALSE) {
-      x <- lapply(x, function(x_i) torch_movedim(x_i, source = -1, destination = 2))
+      x <- lapply(x,
+                  function(z) torch_movedim(z, source = -1, destination = 2))
     }
 
     # This is the main part of the forward pass.
@@ -139,9 +141,8 @@ ConvertedModel <- nn_module(
           save_input = save_input,
           save_preactivation = TRUE,
           save_output = TRUE)
-      }
-      # Otherwise we use the normal forward pass
-      else {
+      } else {
+        # Otherwise we use the normal forward pass
         out <- self$modules_list[[step$used_node]](
           input,
           channels_first = channels_first,
@@ -155,7 +156,8 @@ ConvertedModel <- nn_module(
       # Add the layer output to the input x, hence we can proceed propagation
       # in the next step
       x <- append(x, rep(list(out), step$times),
-                  after = min(step$used_idx) - 1)
+        after = min(step$used_idx) - 1
+      )
     }
 
     # Make sure that we have the correct order of the output
@@ -209,7 +211,9 @@ ConvertedModel <- nn_module(
     # If the channels are last, we have to move the channel axis to the first
     # position after the batch dimension
     if (channels_first == FALSE) {
-      x_ref <- lapply(x_ref, function(x_i) torch_movedim(x_i, source = -1, destination = 2))
+      x_ref <- lapply(x_ref,
+                      function(z) torch_movedim(z, source = -1,
+                                                destination = 2))
     }
 
     # This is the main part of the forward pass.
@@ -232,16 +236,17 @@ ConvertedModel <- nn_module(
           channels_first = channels_first,
           save_input = save_input,
           save_preactivation = TRUE,
-          save_output = TRUE)
-      }
-      # Otherwise we use the normal forward pass
-      else {
+          save_output = TRUE
+        )
+      } else {
+        # Otherwise we use the normal forward pass
         out <- self$modules_list[[step$used_node]]$update_ref(
           input,
           channels_first = channels_first,
           save_input = save_input,
           save_preactivation = save_preactivation,
-          save_output = save_output)
+          save_output = save_output
+        )
       }
 
       # Remove the used inputs from our original input
@@ -249,7 +254,8 @@ ConvertedModel <- nn_module(
       # Add the layer output to the input x, hence we can proceed propagation
       # in the next step
       x_ref <- append(x_ref, rep(list(out), step$times),
-                      after = min(step$used_idx) - 1)
+        after = min(step$used_idx) - 1
+      )
     }
 
     # Make sure that we have the correct order of the output
@@ -277,7 +283,6 @@ ConvertedModel <- nn_module(
     }
     self$dtype <- dtype
   },
-
   reset = function() {
     for (module in self$modules_list) {
       module$reset()

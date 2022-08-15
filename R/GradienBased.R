@@ -78,34 +78,36 @@ GradientBased <- R6Class(
 
     #' @description
     #' This method visualizes the result of individual data points of the
-    #' selected method and enables a visual in-depth investigation with the help
-    #' of the S4 classes [`innsight_ggplot2`] and [`innsight_plotly`].\cr
-    #' You can use the argument `data_idx` to select the data points in the given
-    #' data for the plot. In addition, the individual output nodes for the plot
-    #' can be selected with the argument `output_idx`. The different results for
-    #' the selected data points and outputs are visualized using the ggplot2-based
-    #' S4 class `innsight_ggplot2`. You can also use the `as_plotly` argument to
-    #' generate an interactive plot with `innsight_plotly` based on the
-    #' plot function [plotly::plot_ly]. For more information and the whole bunch
-    #' of possibilities, see [`innsight_ggplot2`] and [`innsight_plotly`].\cr
+    #' selected method and enables a visual in-depth investigation with the
+    #' help of the S4 classes [`innsight_ggplot2`] and [`innsight_plotly`].\cr
+    #' You can use the argument `data_idx` to select the data points in the
+    #' given data for the plot. In addition, the individual output nodes for
+    #' the plot can be selected with the argument `output_idx`. The different
+    #' results for the selected data points and outputs are visualized using
+    #' the ggplot2-based S4 class `innsight_ggplot2`. You can also use the
+    #' `as_plotly` argument to generate an interactive plot with
+    #' `innsight_plotly` based on the plot function [plotly::plot_ly].
+    #' For more information and the whole bunch of possibilities,
+    #' see [`innsight_ggplot2`] and [`innsight_plotly`].\cr
     #' \cr
     #' **Note:**
-    #' 1. For the interactive plotly-based plots, the suggested package `plotly`
-    #' is required.
-    #' 2. The ggplot2-based plots for models with multiple input layers are a bit
-    #' more complex, therefore the suggested packages `'grid'`, `'gridExtra'`
-    #' and `'gtable'` must be installed in your R session.
+    #' 1. For the interactive plotly-based plots, the suggested package
+    #' `plotly` is required.
+    #' 2. The ggplot2-based plots for models with multiple input layers are
+    #' a bit more complex, therefore the suggested packages `'grid'`,
+    #' `'gridExtra'` and `'gtable'` must be installed in your R session.
     #'
     #' @param data_idx An integer vector containing the numbers of the data
     #' points whose result is to be plotted, e.g. `c(1,3)` for the first
     #' and third data point in the given data. Default: `1`.
-    #' @param output_idx The indices of the output nodes for which the results is
-    #' to be plotted. This can be either a `vector` of indices or a `list` of
-    #' vectors of indices but must be a subset of the indices for which the
-    #' results were calculated, i.e. a subset of `output_idx` from the
-    #' initialization `new()` (see argument `output_idx` in method `new()` of this
-    #' R6 class for details). By default (`NULL`), the smallest index of all
-    #' calculated output nodes and output layers is used.
+    #' @param output_idx The indices of the output nodes for which the
+    #' results is to be plotted. This can be either a `vector` of indices
+    #' or a `list` of vectors of indices but must be a subset of the indices
+    #' for which the results were calculated, i.e. a subset of `output_idx`
+    #' from the initialization `new()` (see argument `output_idx` in
+    #' method `new()` of this R6 class for details). By default (`NULL`),
+    #' the smallest index of all calculated output nodes and output
+    #' layers is used.
     #'
     #' @return
     #' Returns either an [`innsight_ggplot2`] (`as_plotly = FALSE`) or an
@@ -113,7 +115,7 @@ GradientBased <- R6Class(
     #' individual results.
     plot = function(data_idx = 1,
                     output_idx = NULL,
-                    aggr_channels = 'sum',
+                    aggr_channels = "sum",
                     as_plotly = FALSE) {
 
       private$plot(data_idx, output_idx, aggr_channels,
@@ -136,22 +138,22 @@ GradientBased <- R6Class(
     #' more information and the whole bunch of possibilities, see
     #' [`innsight_ggplot2`] and [`innsight_plotly`].\cr \cr
     #' **Note:**
-    #' 1. For the interactive plotly-based plots, the suggested package `plotly`
-    #' is required.
-    #' 2. The ggplot2-based plots for models with multiple input layers are a bit
-    #' more complex, therefore the suggested packages `'grid'`, `'gridExtra'`
-    #' and `'gtable'` must be installed in your R session.
+    #' 1. For the interactive plotly-based plots, the suggested package
+    #' `plotly` is required.
+    #' 2. The ggplot2-based plots for models with multiple input layers are
+    #' a bit more complex, therefore the suggested packages `'grid'`,
+    #' `'gridExtra'` and `'gtable'` must be installed in your R session.
     #'
-    #' @param output_idx The indices of the output nodes for which the results is
-    #' to be plotted. This can be either a `vector` of indices or a `list` of
-    #' vectors of indices but must be a subset of the indices for which the
-    #' results were calculated, i.e. a subset of `output_idx` from the
-    #' initialization `new()` (see argument `output_idx` in method `new()` of this
-    #' R6 class for details). By default (`NULL`), the smallest index of all
-    #' calculated output nodes and output layers is used.
-    #' @param data_idx By default ("all"), all available data points are used to
-    #' calculate the boxplot information. However, this parameter can be used
-    #' to select a subset of them by passing the indices. E.g. with
+    #' @param output_idx The indices of the output nodes for which the
+    #' results is to be plotted. This can be either a `vector` of indices or
+    #' a `list` of vectors of indices but must be a subset of the indices
+    #' for which the results were calculated, i.e. a subset of `output_idx`
+    #' from the initialization `new()` (see argument `output_idx` in method
+    #' `new()` of this R6 class for details). By default (`NULL`), the
+    #' smallest index of all calculated output nodes and output layers is used.
+    #' @param data_idx By default ("all"), all available data points are used
+    #' to calculate the boxplot information. However, this parameter can be
+    #' used to select a subset of them by passing the indices. E.g. with
     #' `c(1:10, 25, 26)` only the first 10 data points and
     #' the 25th and 26th are used to calculate the boxplots.
     #'
@@ -162,7 +164,7 @@ GradientBased <- R6Class(
     boxplot = function(output_idx = NULL,
                        data_idx = "all",
                        ref_data_idx = NULL,
-                       aggr_channels = 'norm',
+                       aggr_channels = "norm",
                        preprocess_FUN = abs,
                        as_plotly = FALSE,
                        individual_data_idx = NULL,
@@ -195,7 +197,8 @@ GradientBased <- R6Class(
       out_sum <- lapply(out, torch_sum, dim = 1)
 
       # Define Progressbar
-      pb <- txtProgressBar(min = 0, max = length(unlist(self$output_idx)), style = 3)
+      pb <- txtProgressBar(min = 0, max = length(unlist(self$output_idx)),
+                           style = 3)
       n <- 1
 
       # Definition of some temporary functions --------------------------------
@@ -229,7 +232,8 @@ GradientBased <- R6Class(
       # Define function for calculating gradients for multiple outputs
       calc_gradient_for_list_idx <- function(list_idx) {
         # Loop over every entry for the model output of index 'list_idx'
-        res <- lapply(self$output_idx[[list_idx]], calc_gradient_for_one_output,
+        res <- lapply(self$output_idx[[list_idx]],
+                      calc_gradient_for_one_output,
                       list_idx = list_idx)
 
         lapply(seq_along(res[[1]]), stack_outputs, results = res)
@@ -440,12 +444,13 @@ SmoothGrad <- R6Class(
   ),
   private = list(
     run = function() {
-      data <- lapply(self$data, function(input)
+      tmp_fun <- function(input) {
         torch_repeat_interleave(
           input,
           repeats = torch_tensor(self$n, dtype = torch_long()),
-          dim = 1
-        ))
+          dim = 1)
+        }
+      data <- lapply(self$data, tmp_fun)
 
       data <- lapply(data, function(input) {
         noise_scale <- self$noise_level * (max(input) - min(input))
@@ -461,19 +466,24 @@ SmoothGrad <- R6Class(
         gradients <- calc_times_input(gradients, data)
       }
 
-      smoothgrads <- lapply(gradients, function(grad_output)
-        lapply(grad_output, function(grad_input) {
-          if (is.null(grad_input)) {
-            res <- NULL
-          } else {
-            res <- torch_stack(
-              lapply(grad_input$chunk(dim(self$data[[1]])[1]),
-                     FUN = torch_mean, dim = 1
-              ),
-              dim = 1
-            )
-          }
-        }))
+      smoothgrads <- lapply(
+        gradients,
+        function(grad_output) {
+          lapply(
+            grad_output,
+            function(grad_input) {
+              if (is.null(grad_input)) {
+                res <- NULL
+              } else {
+                res <- torch_stack(
+                  lapply(grad_input$chunk(dim(self$data[[1]])[1]),
+                         FUN = torch_mean, dim = 1
+                  ),
+                  dim = 1
+                )
+              }
+            })
+        })
 
       smoothgrads
     }
@@ -499,4 +509,3 @@ calc_times_input <- function(gradients, input) {
 
   gradients
 }
-

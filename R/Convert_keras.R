@@ -21,7 +21,7 @@ convert_keras_model <- function(model) {
     # If the model is a sequential model, the first layer is the only input
     # layer and the last layer is the only output layer
     graph <- lapply(seq_along(model$layers), function(i) {
-      list(input_layers = i-1, output_layers = i + 1)
+      list(input_layers = i - 1, output_layers = i + 1)
     })
     graph[[length(graph)]]$output_layers <- -1
   } else {
@@ -43,54 +43,54 @@ convert_keras_model <- function(model) {
     # convolutional layers!
     layer_list <-
       switch(type,
-             InputLayer = convert_keras_skipping(type),
-             Dropout = convert_keras_skipping(type),
-             Dense = convert_keras_dense(layer),
-             Conv1D = {
-               # check for consistent data format
-               data_format <- check_consistent_data_format(
-                 data_format, layer$data_format
-               )
-               convert_keras_convolution(layer, type)
-             },
-             Conv2D = {
-               # check for consistent data format
-               data_format <- check_consistent_data_format(
-                 data_format, layer$data_format
-               )
-               convert_keras_convolution(layer, type)
-             },
-             Flatten = convert_keras_flatten(layer),
-             MaxPooling1D = {
-               # check for consistent data format
-               data_format <- check_consistent_data_format(
-                 data_format, layer$data_format
-               )
-               convert_keras_pooling(layer, type)
-             },
-             MaxPooling2D = {
-               # check for consistent data format
-               data_format <- check_consistent_data_format(
-                 data_format, layer$data_format
-               )
-               convert_keras_pooling(layer, type)
-             },
-             AveragePooling1D = {
-               # check for consistent data format
-               data_format <- check_consistent_data_format(
-                 data_format, layer$data_format
-               )
-               convert_keras_pooling(layer, type)
-             },
-             AveragePooling2D = {
-               # check for consistent data format
-               data_format <- check_consistent_data_format(
-                 data_format, layer$data_format
-               )
-               convert_keras_pooling(layer, type)
-             },
-             Concatenate = convert_keras_concatenate(layer),
-             Add = convert_keras_add(layer)
+        InputLayer = convert_keras_skipping(type),
+        Dropout = convert_keras_skipping(type),
+        Dense = convert_keras_dense(layer),
+        Conv1D = {
+          # check for consistent data format
+          data_format <- check_consistent_data_format(
+            data_format, layer$data_format
+          )
+          convert_keras_convolution(layer, type)
+        },
+        Conv2D = {
+          # check for consistent data format
+          data_format <- check_consistent_data_format(
+            data_format, layer$data_format
+          )
+          convert_keras_convolution(layer, type)
+        },
+        Flatten = convert_keras_flatten(layer),
+        MaxPooling1D = {
+          # check for consistent data format
+          data_format <- check_consistent_data_format(
+            data_format, layer$data_format
+          )
+          convert_keras_pooling(layer, type)
+        },
+        MaxPooling2D = {
+          # check for consistent data format
+          data_format <- check_consistent_data_format(
+            data_format, layer$data_format
+          )
+          convert_keras_pooling(layer, type)
+        },
+        AveragePooling1D = {
+          # check for consistent data format
+          data_format <- check_consistent_data_format(
+            data_format, layer$data_format
+          )
+          convert_keras_pooling(layer, type)
+        },
+        AveragePooling2D = {
+          # check for consistent data format
+          data_format <- check_consistent_data_format(
+            data_format, layer$data_format
+          )
+          convert_keras_pooling(layer, type)
+        },
+        Concatenate = convert_keras_concatenate(layer),
+        Add = convert_keras_add(layer)
       )
 
     # Define the incoming and outgoing layers of this layer
@@ -123,14 +123,14 @@ convert_keras_model <- function(model) {
   for (i in seq_along(input_dim)) {
     in_dim <- input_dim[[i]]
     if (length(in_dim) > 1 && is.character(data_format) &&
-        data_format == "channels_last") {
+      data_format == "channels_last") {
       input_dim[[i]] <- c(rev(in_dim)[1], in_dim[-length(in_dim)])
     }
   }
   for (i in seq_along(output_dim)) {
     out_dim <- output_dim[[i]]
     if (length(out_dim) > 1 && is.character(data_format) &&
-        data_format == "channels_last") {
+      data_format == "channels_last") {
       output_dim[[i]] <- c(rev(out_dim)[1], out_dim[-length(out_dim)])
     }
   }
@@ -145,11 +145,13 @@ convert_keras_model <- function(model) {
   output_nodes <- match(model$output_names, names)
 
   # Return the list-converted model with in- and output shapes and nodes
-  list(input_dim = input_dim,
-       input_nodes = input_nodes,
-       output_dim = output_dim,
-       output_nodes = output_nodes,
-       layers = model_as_list)
+  list(
+    input_dim = input_dim,
+    input_nodes = input_nodes,
+    output_dim = output_dim,
+    output_nodes = output_nodes,
+    layers = model_as_list
+  )
 }
 
 ###############################################################################
@@ -196,7 +198,7 @@ convert_keras_convolution <- function(layer, type) {
   # in this package only 'channels_first'
   if (layer$data_format == "channels_last") {
     input_dim <- move_channels_first(input_dim)
-    output_dim <-move_channels_first(output_dim)
+    output_dim <- move_channels_first(output_dim)
   }
 
   # padding differs in keras and torch
@@ -251,8 +253,10 @@ convert_keras_pooling <- function(layer, type) {
   strides <- unlist(layer$strides)
 
   if (layer$padding != "valid") {
-    stop(sprintf("Padding mode '%s' is not implemented yet!",
-                 layer$padding))
+    stop(sprintf(
+      "Padding mode '%s' is not implemented yet!",
+      layer$padding
+    ))
   }
 
   # in this package only 'channels_first'
@@ -261,11 +265,13 @@ convert_keras_pooling <- function(layer, type) {
     output_dim <- move_channels_first(output_dim)
   }
 
-  list(type = type,
-       dim_in = input_dim,
-       dim_out = output_dim,
-       kernel_size = kernel_size,
-       strides = strides)
+  list(
+    type = type,
+    dim_in = input_dim,
+    dim_out = output_dim,
+    kernel_size = kernel_size,
+    strides = strides
+  )
 }
 
 # Flatten Layer ---------------------------------------------------------------
@@ -279,33 +285,41 @@ convert_keras_flatten <- function(layer) {
     input_dim <- move_channels_first(input_dim)
   }
 
-  list(type = "Flatten",
-       start_dim = 2,
-       end_dim = -1,
-       dim_in = input_dim,
-       dim_out = output_dim)
+  list(
+    type = "Flatten",
+    start_dim = 2,
+    end_dim = -1,
+    dim_in = input_dim,
+    dim_out = output_dim
+  )
 }
 
 # Concatenate Layer -----------------------------------------------------------
 
 convert_keras_concatenate <- function(layer) {
-  if (any(unlist(lapply(layer$input_shape, function(x) length(unlist(x)))) > 1)) {
-    warning("I assume that the concatenations axis points to the channel axis.",
-            " Otherwise, an error can be thrown in the further process.")
+  num_input_dims <- lapply(layer$input_shape, function(x) length(unlist(x)))
+  if (any(unlist(num_input_dims) > 1)) {
+    warning(
+      "I assume that the concatenations axis points to the channel axis.",
+      " Otherwise, an error can be thrown in the further process."
+    )
   }
-  list(type = "Concatenate",
-       axis = layer$axis,
-       dim_in = lapply(layer$input_shape, unlist),
-       dim_out = unlist(layer$output_shape))
+  list(
+    type = "Concatenate",
+    axis = layer$axis,
+    dim_in = lapply(layer$input_shape, unlist),
+    dim_out = unlist(layer$output_shape)
+  )
 }
 
 # Add Layer -------------------------------------------------------------------
 
 convert_keras_add <- function(layer) {
-
-  list(type = "Add",
-       dim_in = lapply(layer$input_shape, unlist),
-       dim_out = unlist(layer$output_shape))
+  list(
+    type = "Add",
+    dim_in = lapply(layer$input_shape, unlist),
+    dim_out = unlist(layer$output_shape)
+  )
 }
 
 # Skipping Layers -------------------------------------------------------------
@@ -364,15 +378,18 @@ get_same_padding <- function(input_dim, kernel_size, dilation, stride) {
 
 
 keras_reconstruct_graph <- function(layers, config) {
-
-  graph <- lapply(seq_along(config$layers), function(a)
-    list(input_layers = NULL, output_layers = NULL))
+  graph <- lapply(
+    seq_along(config$layers),
+    function(a) list(input_layers = NULL, output_layers = NULL)
+  )
 
   names <- unlist(lapply(config$layers, function(x) x$name))
   i <- 1
   for (layer in config$layers) {
     if (length(layer$inbound_nodes) > 0) {
-      in_layer_names <- unlist(lapply(layer$inbound_nodes[[1]], function(x) x[[1]]))
+      in_layer_names <- unlist(
+        lapply(layer$inbound_nodes[[1]], function(x) x[[1]])
+      )
 
       graph[[i]]$input_layers <- match(in_layer_names, names)
 
@@ -408,18 +425,18 @@ check_consistent_data_format <- function(current_format, given_format) {
   # Everything is fine if the data format is unset
   if (is.null(current_format)) {
     data_format <- given_format
-  }
-  # or if the data format doesn't change
-  else if (current_format == given_format) {
+  } else if (current_format == given_format) {
+    # or if the data format doesn't change
     data_format <- current_format
-  }
-  # The package can not handle different data formats
-  else {
-    stop(paste0("The package innsight can not handle unconsistent data formats. ",
-                "I found the format '", given_format, "', but the data format ",
-                "of a previous layer was '", current_format, "'! \n",
-                "Choose either only the format 'channels_first' or only ",
-                "'channels_last' for all layers."))
+  } else {
+    # The package can not handle different data formats
+    stop(paste0(
+      "The package innsight can not handle unconsistent data formats. ",
+      "I found the format '", given_format, "', but the data format ",
+      "of a previous layer was '", current_format, "'! \n",
+      "Choose either only the format 'channels_first' or only ",
+      "'channels_last' for all layers."
+    ))
   }
 
   data_format
@@ -428,5 +445,3 @@ check_consistent_data_format <- function(current_format, given_format) {
 move_channels_first <- function(shape) {
   as.integer(c(rev(shape)[1], shape[-length(shape)]))
 }
-
-

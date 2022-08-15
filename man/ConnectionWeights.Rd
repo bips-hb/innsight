@@ -16,10 +16,10 @@ multiplication independent of the activation functions in between:
 \deqn{W_1 * W_2 * W_3.}
 
 In this package, we extended this method to a local method inspired by the
-method \emph{Gradient x Input} (see \link{Gradient}). Hence, the local variant is simply
-the pointwise product of the global \emph{Connection Weights} method and the
-input data. You can use this variant by setting the \code{times_input} argument
-to \code{TRUE} and providing input data.
+method \emph{Gradient x Input} (see \link{Gradient}). Hence, the local variant is
+simply the pointwise product of the global \emph{Connection Weights} method and
+the input data. You can use this variant by setting the \code{times_input}
+argument to \code{TRUE} and providing input data.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -153,11 +153,11 @@ Other methods:
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{times_input}}{This logical value indicates whether the results from the
-\emph{Connection Weights} method were multiplied by the provided input data or not.
-Thus, this value specifies whether the original global variant of the
-method or the local one was applied. If the value is \code{TRUE}, then
-data is provided in the field \code{data}.}
+\item{\code{times_input}}{This logical value indicates whether the results from
+the \emph{Connection Weights} method were multiplied by the provided input
+data or not. Thus, this value specifies whether the original global
+variant of the method or the local one was applied. If the value is
+\code{TRUE}, then data is provided in the field \code{data}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -181,9 +181,9 @@ data is provided in the field \code{data}.}
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
-Create a new instance of the \emph{Connection Weights} method. When initialized,
-the method is applied to the given data and the results are stored in
-the field \code{result}.
+Create a new instance of the \emph{Connection Weights} method. When
+initialized, the method is applied to the given data and the results
+are stored in the field \code{result}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ConnectionWeights$new(
   converter,
@@ -247,8 +247,8 @@ is at the last position, i.e. \code{c(10,32,32,3)}. If the data
 has no channel axis, use the default value \code{TRUE}.}
 
 \item{\code{times_input}}{Multiplies the results with the input features.
-This variant tuns the global \emph{Connection Weights} method into a local one.
-Default: \code{FALSE}.}
+This variant tuns the global \emph{Connection Weights} method into a local
+one. Default: \code{FALSE}.}
 
 \item{\code{dtype}}{The data type for the calculations. Use
 either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
@@ -267,20 +267,21 @@ of the S4 classes \code{\link{innsight_ggplot2}} and \code{\link{innsight_plotly
 If the local \emph{Connection Weights} method was applied, you can use the
 argument \code{data_idx} to select the data points in the given
 data for the plot. In addition, the individual output nodes for the plot
-can be selected with the argument \code{output_idx}. The different results for
-the selected data points and outputs are visualized using the ggplot2-based
-S4 class \code{innsight_ggplot2}. You can also use the \code{as_plotly} argument to
-generate an interactive plot with \code{innsight_plotly} based on the
-plot function \link[plotly:plot_ly]{plotly::plot_ly}. For more information and the whole bunch
-of possibilities, see \code{\link{innsight_ggplot2}} and \code{\link{innsight_plotly}}.\cr
+can be selected with the argument \code{output_idx}. The different results
+for the selected data points and outputs are visualized using the
+ggplot2-based S4 class \code{innsight_ggplot2}. You can also use the
+\code{as_plotly} argument to generate an interactive plot with
+\code{innsight_plotly} based on the plot function \link[plotly:plot_ly]{plotly::plot_ly}. For
+more information and the whole bunch of possibilities,
+see \code{\link{innsight_ggplot2}} and \code{\link{innsight_plotly}}.\cr
 \cr
 \strong{Note:}
 \enumerate{
-\item For the interactive plotly-based plots, the suggested package \code{plotly}
-is required.
-\item The ggplot2-based plots for models with multiple input layers are a bit
-more complex, therefore the suggested packages \code{'grid'}, \code{'gridExtra'}
-and \code{'gtable'} must be installed in your R session.
+\item For the interactive plotly-based plots, the suggested package
+\code{plotly} is required.
+\item The ggplot2-based plots for models with multiple input layers are
+a bit more complex, therefore the suggested packages \code{'grid'},
+\code{'gridExtra'} and \code{'gtable'} must be installed in your R session.
 }
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ConnectionWeights$plot(
@@ -308,13 +309,13 @@ individual channels with \code{function(x) x[1]}. By default (\code{'sum'}),
 the sum of all channels is used.\cr
 \emph{Note:} This argument is used only for 2D and 3D input data.}
 
-\item{\code{output_idx}}{The indices of the output nodes for which the results is
-to be plotted. This can be either a \code{vector} of indices or a \code{list} of
-vectors of indices but must be a subset of the indices for which the
+\item{\code{output_idx}}{The indices of the output nodes for which the results
+is to be plotted. This can be either a \code{vector} of indices or a \code{list}
+of vectors of indices but must be a subset of the indices for which the
 results were calculated, i.e. a subset of \code{output_idx} from the
-initialization \code{new()} (see argument \code{output_idx} in method \code{new()} of this
-R6 class for details). By default (\code{NULL}), the smallest index of all
-calculated output nodes and output layers is used.}
+initialization \code{new()} (see argument \code{output_idx} in method \code{new()} of
+this R6 class for details). By default (\code{NULL}), the smallest index
+of all calculated output nodes and output layers is used.}
 
 \item{\code{preprocess_FUN}}{This function is applied to the method's result
 before calculating the boxplots or medians. Since positive and negative values
@@ -360,11 +361,11 @@ more information and the whole bunch of possibilities, see
 \enumerate{
 \item This method can only be used for the local \emph{Connection Weights}
 method, i.e. if \code{times_input} is \code{TRUE} and \code{data} is provided.
-\item For the interactive plotly-based plots, the suggested package \code{plotly}
-is required.
-\item The ggplot2-based plots for models with multiple input layers are a bit
-more complex, therefore the suggested packages \code{'grid'}, \code{'gridExtra'}
-and \code{'gtable'} must be installed in your R session.
+\item For the interactive plotly-based plots, the suggested package
+\code{plotly} is required.
+\item The ggplot2-based plots for models with multiple input layers are
+a bit more complex, therefore the suggested packages \code{'grid'},
+\code{'gridExtra'} and \code{'gtable'} must be installed in your R session.
 }
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ConnectionWeights$boxplot(
@@ -382,17 +383,17 @@ and \code{'gtable'} must be installed in your R session.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{output_idx}}{The indices of the output nodes for which the results is
-to be plotted. This can be either a \code{vector} of indices or a \code{list} of
-vectors of indices but must be a subset of the indices for which the
-results were calculated, i.e. a subset of \code{output_idx} from the
-initialization \code{new()} (see argument \code{output_idx} in method \code{new()} of this
-R6 class for details). By default (\code{NULL}), the smallest index of all
-calculated output nodes and output layers is used.}
+\item{\code{output_idx}}{The indices of the output nodes for which the
+results is to be plotted. This can be either a \code{vector} of indices or
+a \code{list} of vectors of indices but must be a subset of the indices for
+which the results were calculated, i.e. a subset of \code{output_idx} from
+the initialization \code{new()} (see argument \code{output_idx} in method \code{new()}
+of this R6 class for details). By default (\code{NULL}), the smallest index
+of all calculated output nodes and output layers is used.}
 
-\item{\code{data_idx}}{By default ("all"), all available data points are used to
-calculate the boxplot information. However, this parameter can be used
-to select a subset of them by passing the indices. E.g. with
+\item{\code{data_idx}}{By default ("all"), all available data points are used
+to calculate the boxplot information. However, this parameter can be
+used to select a subset of them by passing the indices. E.g. with
 \code{c(1:10, 25, 26)} only the first 10 data points and
 the 25th and 26th are used to calculate the boxplots.}
 

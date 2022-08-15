@@ -3,8 +3,8 @@
 #'
 #' The S4 class `innsight_plotly` visualizes the results of the methods
 #' provided from the package `innsight` using [plotly](https://plotly.com/r/).
-#' In addition, it allows easier analysis of the results and modification of the
-#' visualization by basic generic functions. The individual slots are for
+#' In addition, it allows easier analysis of the results and modification of
+#' the visualization by basic generic functions. The individual slots are for
 #' internal use only and should not be modified.
 #'
 #' @slot plots The individual plotly objects arranged as a matrix (see
@@ -15,16 +15,17 @@
 #' a matrix of the same size as `plots` and each entry contains the shapes
 #' of the corresponding plot.
 #' @slot annotations A list of two lists with the names `annotations_strips`
-#' and `annotations_other`. The list `annotations_strips` contains the annotations
-#' for the strips and may not be manipulated. The other list `annotations_other`
-#' contains a matrix of the same size as `plots` and each entry contains the
-#' annotations of the corresponding plot.
+#' and `annotations_other`. The list `annotations_strips` contains the
+#' annotations for the strips and may not be manipulated. The other list
+#' `annotations_other` contains a matrix of the same size as `plots` and
+#' each entry contains the annotations of the corresponding plot.
 #' @slot multiplot A logical value indicating whether there are multiple
 #' input layers and therefore correspondingly individual ggplot2 objects
 #' instead of one single object.
 #' @slot layout This list contains all global layout options, e.g. update
 #' buttons, sliders, margins etc. (see [plotly::layout] for more details).
-#' @slot col_dims A list to assign a label to the columns for the output strips.
+#' @slot col_dims A list to assign a label to the columns for the output
+#' strips.
 #'
 #' @details
 #' This S4 class is a simple extension of a plotly object that enables
@@ -62,7 +63,8 @@
 #' generic functions are listed below:
 #'
 #' - \code{\link[=plot.innsight_plotly]{plot}},
-#' \code{\link[=print.innsight_plotly]{print}} and \code{\link[=show.innsight_plotly]{show}}
+#' \code{\link[=print.innsight_plotly]{print}} and
+#' \code{\link[=show.innsight_plotly]{show}}
 #' (all behave the same)
 #' - \code{\link[=[.innsight_plotly]{[}}
 #' - \code{\link[=[[.innsight_plotly]{[[}}
@@ -70,8 +72,10 @@
 #' @name innsight_plotly
 #' @rdname innsight_plotly-class
 setClass("innsight_plotly", slots = list(
-  plots = "matrix", shapes = "list", annotations = "list", multiplot = "logical",
-  layout = "list", col_dims = "list"))
+  plots = "matrix", shapes = "list", annotations = "list",
+  multiplot = "logical",
+  layout = "list", col_dims = "list"
+))
 
 #' Generic print, plot and show for `innsight_plotly`
 #'
@@ -98,22 +102,25 @@ setMethod(
     plots <- x@plots
     for (i in seq_len(nrow(plots))) {
       for (j in seq_len(ncol(plots))) {
-        plots[[i,j]] <- plots[[i,j]] %>%
+        plots[[i, j]] <- plots[[i, j]] %>%
           plotly::layout(
             shapes = c(
-              x@shapes$shapes_strips[[i,j]],
-              x@shapes$shapes_other[[i,j]]
+              x@shapes$shapes_strips[[i, j]],
+              x@shapes$shapes_other[[i, j]]
             ),
             annotations = c(
-              x@annotations$annotations_strips[[i,j]],
-              x@annotations$annotation_other[[i,j]])
+              x@annotations$annotations_strips[[i, j]],
+              x@annotations$annotation_other[[i, j]]
+            )
           )
       }
     }
 
     # Create plot
-    fig <- plotly::subplot(t(plots), nrows = nrow(plots),
-                           shareX = shareX, ...)
+    fig <- plotly::subplot(t(plots),
+      nrows = nrow(plots),
+      shareX = shareX, ...
+    )
 
     # Add global layout
     args <- x@layout
@@ -184,11 +191,11 @@ setMethod(
     i <- sort(i)
     j <- sort(j)
 
-    plots <- x@plots[i,j, drop = FALSE]
+    plots <- x@plots[i, j, drop = FALSE]
 
-    #----- Adjust shapes and annotations ---------------------------------------
-    shapes_strips <- x@shapes$shapes_strips[i,j, drop = FALSE]
-    annot_strips <- x@annotations$annotations_strips[i,j, drop = FALSE]
+    #----- Adjust shapes and annotations --------------------------------------
+    shapes_strips <- x@shapes$shapes_strips[i, j, drop = FALSE]
+    annot_strips <- x@annotations$annotations_strips[i, j, drop = FALSE]
 
     # Set shapes and annotations top
     if (!(1 %in% i)) {
@@ -218,11 +225,15 @@ setMethod(
       }
     }
 
-    shapes <- list(shapes_strips = shapes_strips,
-                   shapes_other = x@shapes$shapes_other[i,j, drop = FALSE])
-    annot <- list(annotations_strips = annot_strips,
-                  annotations_other =
-                    x@annotations$annotations_other[i,j, drop = FALSE])
+    shapes <- list(
+      shapes_strips = shapes_strips,
+      shapes_other = x@shapes$shapes_other[i, j, drop = FALSE]
+    )
+    annot <- list(
+      annotations_strips = annot_strips,
+      annotations_other =
+        x@annotations$annotations_other[i, j, drop = FALSE]
+    )
 
 
 
@@ -258,20 +269,24 @@ setMethod(
 
       if (name == "button_heatmap_contour") {
         res <- update_button(layout, idx,
-                             trace_idx = which(trace_types == "heatmap"),
-                             annot_name = "annot_heatmap_contour")
+          trace_idx = which(trace_types == "heatmap"),
+          annot_name = "annot_heatmap_contour"
+        )
       } else if (name == "button_box_violin") {
         res <- update_button(layout, idx,
-                             trace_idx =  which(trace_types == "box"),
-                             annot_name = "annot_box_violin")
+          trace_idx = which(trace_types == "box"),
+          annot_name = "annot_box_violin"
+        )
       } else if (name == "button_datapoints") {
         res <- update_button(layout, idx,
-                             trace_idx =  which(startsWith(trace_names, "selected_points")),
-                             annot_name = "annot_datapoint")
+          trace_idx = which(startsWith(trace_names, "selected_points")),
+          annot_name = "annot_datapoint"
+        )
       } else if (name == "button_colorscale") {
         res <- update_button(layout, idx,
-                             trace_idx =  which(trace_types %in% c("heatmap", "bar")),
-                             annot_name = "annot_colorscale")
+          trace_idx = which(trace_types %in% c("heatmap", "bar")),
+          annot_name = "annot_colorscale"
+        )
       }
 
       layout <- res$layout
@@ -290,9 +305,11 @@ setMethod(
     col_dims <- list(col_idx = idx, col_label = labels)
 
 
-    new("innsight_plotly", plots = plots, shapes = shapes,
-        annotations = annot, multiplot = x@multiplot,
-        layout = layout, col_dims = col_dims)
+    new("innsight_plotly",
+      plots = plots, shapes = shapes,
+      annotations = annot, multiplot = x@multiplot,
+      layout = layout, col_dims = col_dims
+    )
   }
 )
 
@@ -305,10 +322,6 @@ setMethod(
     assertInt(i, lower = 1, upper = nrow(x@plots))
     assertInt(j, lower = 1, upper = ncol(x@plots))
 
-    print(x[i,j])
+    print(x[i, j])
   }
 )
-
-
-
-

@@ -7,8 +7,8 @@
 \description{
 The S4 class \code{innsight_plotly} visualizes the results of the methods
 provided from the package \code{innsight} using \href{https://plotly.com/r/}{plotly}.
-In addition, it allows easier analysis of the results and modification of the
-visualization by basic generic functions. The individual slots are for
+In addition, it allows easier analysis of the results and modification of
+the visualization by basic generic functions. The individual slots are for
 internal use only and should not be modified.
 }
 \details{
@@ -46,7 +46,8 @@ aspects of the overall plot or to examine them in more detail. All available
 generic functions are listed below:
 \itemize{
 \item \code{\link[=plot.innsight_plotly]{plot}},
-\code{\link[=print.innsight_plotly]{print}} and \code{\link[=show.innsight_plotly]{show}}
+\code{\link[=print.innsight_plotly]{print}} and
+\code{\link[=show.innsight_plotly]{show}}
 (all behave the same)
 \item \code{\link[=[.innsight_plotly]{[}}
 \item \code{\link[=[[.innsight_plotly]{[[}}
@@ -65,10 +66,10 @@ a matrix of the same size as \code{plots} and each entry contains the shapes
 of the corresponding plot.}
 
 \item{\code{annotations}}{A list of two lists with the names \code{annotations_strips}
-and \code{annotations_other}. The list \code{annotations_strips} contains the annotations
-for the strips and may not be manipulated. The other list \code{annotations_other}
-contains a matrix of the same size as \code{plots} and each entry contains the
-annotations of the corresponding plot.}
+and \code{annotations_other}. The list \code{annotations_strips} contains the
+annotations for the strips and may not be manipulated. The other list
+\code{annotations_other} contains a matrix of the same size as \code{plots} and
+each entry contains the annotations of the corresponding plot.}
 
 \item{\code{multiplot}}{A logical value indicating whether there are multiple
 input layers and therefore correspondingly individual ggplot2 objects
@@ -77,6 +78,7 @@ instead of one single object.}
 \item{\code{layout}}{This list contains all global layout options, e.g. update
 buttons, sliders, margins etc. (see \link[plotly:layout]{plotly::layout} for more details).}
 
-\item{\code{col_dims}}{A list to assign a label to the columns for the output strips.}
+\item{\code{col_dims}}{A list to assign a label to the columns for the output
+strips.}
 }}
 

@@ -293,7 +293,7 @@ setMethod(
       col_dims <- res$col_dims
       output_strips <- res$output_strips
     } else {
-      #----- Single plot ---------------------------------------------------------´
+      #----- Single plot ------------------------------------------------------
       # Get the saved facet vars in the ggplot2 object
       facet_rows <- x@grobs[[1, 1]]$facet$params$rows
       facet_cols <- x@grobs[[1, 1]]$facet$params$cols
@@ -468,19 +468,19 @@ set_theme <- function(grobs, theme, i = NULL, j = NULL, orig_grobs = NULL,
 
       # The theme should not effect all entries, only those laying in the
       # left column and bottom row
-      if (col == 1 & row < nrow(grobs)) {
+      if (col == 1 && row < nrow(grobs)) {
         idx <- keys[startsWith(keys, "axis.text.x") |
           startsWith(keys, "axis.ticks.x")]
         if (labels) {
           ylabel <- orig_grobs[[i[row], 1]]$labels$y
         }
-      } else if (col > 1 & row == nrow(grobs)) {
+      } else if (col > 1 && row == nrow(grobs)) {
         idx <- keys[startsWith(keys, "axis.text.y") |
           startsWith(keys, "axis.ticks.y")]
         if (labels) {
           xlabel <- orig_grobs[[nrow(orig_grobs), j[col]]]$labels$x
         }
-      } else if (col > 1 & row < nrow(grobs)) {
+      } else if (col > 1 && row < nrow(grobs)) {
         idx <- keys[startsWith(keys, "axis.text.x") |
           startsWith(keys, "axis.ticks.x") |
           startsWith(keys, "axis.text.y") |

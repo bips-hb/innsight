@@ -12,7 +12,7 @@ create_ggplot <- function(result_df, value_name = "Relevance",
   num_outputs <- length(unique(result_df$model_output))
 
   # regular plots for neural networks with one input and one output layer
-  if (num_inputs == 1 & num_outputs == 1) {
+  if (num_inputs == 1 && num_outputs == 1) {
     facet_rows <- if (include_data) "data" else NULL
 
     if (all(result_df$input_dimension == 3)) {
@@ -34,9 +34,8 @@ create_ggplot <- function(result_df, value_name = "Relevance",
              col_dims = list(),
              boxplot = boxplot,
              multiplot = FALSE)
-  }
-  # This is for models with multiple input and/or output layers
-  else {
+  } else {
+    # This is for models with multiple input and/or output layers
     p <- plot_extended(result_df, value_name, include_data, boxplot, data_idx)
   }
 
@@ -54,21 +53,18 @@ plot_bar <- function(result_df, value_name = "value", facet_rows = NULL,
 
   # normalize result for all data points, if FALSE then 'result_df' needs
   # the column 'fill'
-  if (calc_fill & !boxplot) {
+  if (calc_fill && !boxplot) {
     result_df$fill <- result_df$value /
       ave(result_df$value, as.character(result_df$data),
           as.character(result_df$output_node),
           FUN = function(x) max(abs(x)))
   }
 
-  # Include the data facet?
-  include_data <- if(is.null(facet_rows)) FALSE else TRUE
-
   # Depending on the input dimension, create labels, hovertext and x_scale
   if (all(result_df$input_dimension == 2)) {
     x_label <- "Signal Length"
     result_df$feature <- as.numeric(result_df$feature)
-    x_scale <- scale_x_continuous(expand = c(0,0))
+    x_scale <- scale_x_continuous(expand = c(0, 0))
   } else {
     x_label <- "Feature"
     x_scale <- scale_x_discrete(guide = guide_axis(check.overlap = TRUE))
@@ -81,22 +77,23 @@ plot_bar <- function(result_df, value_name = "value", facet_rows = NULL,
 
   # Create plot/boxplot
   if (boxplot) {
-    ref_data <- result_df[result_df$individual_data,]
+    ref_data <- result_df[result_df$individual_data, ]
     ref_line <- geom_segment(data = ref_data,
       aes(x = as.numeric(.data$feature) - 0.35,
           xend = as.numeric(.data$feature) + 0.35,
           y = .data$value, yend = .data$value, group = .data$feature),
       col = "red", size = 1)
 
-    result_df <- result_df[result_df$boxplot_data,]
+    result_df <- result_df[result_df$boxplot_data, ]
     geom <- geom_boxplot(aes(group = .data$feature), fill = "gray", alpha = 0.8,
                          show.legend = FALSE, width = 0.7, outlier.size = 1)
     scale_fill <- NULL
   } else {
     geom <- geom_bar(aes(fill = .data$fill), stat = "identity",
                      show.legend = FALSE)
-    scale_fill <- scale_fill_gradient2(low = "blue", mid = "white", high = "red",
-                                       midpoint = 0, limits = c(-1,1))
+    scale_fill <- scale_fill_gradient2(low = "blue", mid = "white",
+                                       high = "red",
+                                       midpoint = 0, limits = c(-1, 1))
   }
   p <- ggplot(result_df, aes(x = .data$feature, y = .data$value)) +
     geom +
@@ -108,7 +105,7 @@ plot_bar <- function(result_df, value_name = "value", facet_rows = NULL,
     scale_y_continuous(labels = get_format)
 
   # Add reference datapoint
-  if (boxplot & !is.null(data_idx)) {
+  if (boxplot && !is.null(data_idx)) {
     p <- p + ref_line
   }
   if (!is.null(scale_fill)) p <- p + scale_fill
@@ -156,9 +153,6 @@ plot_image <- function(result_df, value_name = "value", facet_rows = NULL,
     }
   }
 
-  # Include the data facet?
-  include_data <- if(is.null(facet_rows)) FALSE else TRUE
-
   # Define facets
   facet_rows <- if (is.null(facet_rows)) NULL else vars(.data[[facet_rows]])
   facet_cols <- if (is.null(facet_cols)) NULL else vars(.data[[facet_cols]])
@@ -167,8 +161,8 @@ plot_image <- function(result_df, value_name = "value", facet_rows = NULL,
   # Make axis continuous
   result_df$feature <- as.numeric(factor(result_df$feature,
                                          levels = unique(result_df$feature)))
-  result_df$feature_2 <- as.numeric(factor(result_df$feature_2,
-                                           levels = unique(result_df$feature_2)))
+  result_df$feature_2 <- as.numeric(
+    factor(result_df$feature_2, levels = unique(result_df$feature_2)))
 
   # Get legend limits
   if (is.null(legend_labels)) {
@@ -193,7 +187,8 @@ plot_image <- function(result_df, value_name = "value", facet_rows = NULL,
   }
   p <- ggplot(result_df, aes(x = .data$feature_2, y = .data$feature)) +
     geom_raster(aes(fill = .data$fill)) +
-    scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0,
+    scale_fill_gradient2(low = "blue", mid = "white", high = "red",
+                         midpoint = 0,
                          breaks = breaks,
                          limits = limits,
                          labels = legend_labels) +
@@ -226,7 +221,7 @@ plot_extended <- function(result_df, value_name, include_data, boxplot,
   for (pkg in c("grid", "gtable", "gridExtra")) {
     if (!requireNamespace(pkg, quietly = FALSE)) {
       stop(
-        "Please install the '",pkg, "' package if you want to create an ",
+        "Please install the '", pkg, "' package if you want to create an ",
         "plot for multiple input layers."
       )
     }
@@ -277,10 +272,12 @@ plot_extended <- function(result_df, value_name, include_data, boxplot,
         # Get the data
         data <- temp_df[temp_df$model_input == level_inputs[k], ]
         # Get facet vars
-        facets <- get_facets(i,j,k, length(level_outnodes), length(level_data),
+        facets <- get_facets(i, j, k, length(level_outnodes),
+                             length(level_data),
                              length(level_inputs), include_data)
         # Get labels
-        labels <- get_labels(i,j,k, length(level_outnodes), length(level_data),
+        labels <- get_labels(i, j, k, length(level_outnodes),
+                             length(level_data),
                              length(level_inputs))
 
         # Create the plot
@@ -305,7 +302,7 @@ plot_extended <- function(result_df, value_name, include_data, boxplot,
                         data_idx = data_idx)
         }
 
-        grobs[j,k,i] <- list(p)
+        grobs[j, k, i] <- list(p)
       }
     }
   }
@@ -331,39 +328,6 @@ plot_extended <- function(result_df, value_name, include_data, boxplot,
 ###############################################################################
 #                             Utility functions
 ###############################################################################
-get_hovertext <- function(result_df, value_name, num_dims,
-                          include_data = TRUE) {
-
-  if (include_data) {
-    hover_data <- paste0("</br> Datapoint: ", result_df$data)
-  } else {
-    hover_data <- ""
-  }
-  if (num_dims == 1) {
-    hovertext <- paste0(
-      "<b></br>", value_name, ":", signif(result_df$value), "</b>\n",
-      hover_data,
-      "</br> Output:      ", result_df$output_node,
-      "</br> Feature:    ", result_df$feature
-    )
-  } else if (num_dims == 2) {
-    hovertext <- paste0(
-      "<b></br>", value_name, ":", signif(result_df$value), "</b>\n",
-      hover_data,
-      "</br> Output:      ", result_df$output_node,
-      "</br> Length:      ", result_df$feature
-    )
-  } else {
-    text <- paste0(
-      "<b></br>", value_name, ":", signif(result_df$value), "</b>\n",
-      hover_data,
-      "</br> Output:      ", result_df$output_node,
-      "</br> Height:      ", result_df$feature_2,
-      "</br> Width:       ", result_df$feature
-    )
-  }
-}
-
 get_format <- function(x) {
   x_labels <- as.character(x)
   x_labels[is.na(x)] <- ""
@@ -399,18 +363,16 @@ get_facets <- function(i, j, k, i_total, j_total, k_total, include_data) {
 
   # first datapoint, last output node and last input layer
   # grob top right
-  if (j == 1 & i == i_total & k == k_total) {
+  if (j == 1 && i == i_total && k == k_total) {
     facet_cols <- "model_input"
     facet_rows <- "data"
-  }
-  # first datapoint and all input and all output nodes
-  # other grobs in the top row
-  else if (j == 1) {
+  } else if (j == 1) {
+    # first datapoint and all input and all output nodes
+    # other grobs in the top row
     facet_cols <- "model_input"
-  }
-  # last output node, all datapoints and last input
-  # other grobs in the last column
-  else if (i == i_total & k == k_total) {
+  } else if (i == i_total && k == k_total) {
+    # last output node, all datapoints and last input
+    # other grobs in the last column
    facet_rows <- "data"
   }
 
@@ -430,7 +392,7 @@ get_labels <- function(i, j, k, i_total, j_total, k_total) {
     xticks <- FALSE
   }
   # not first input and not first output layer, remove y ticks and labels
-  if (i != 1 | k != 1) {
+  if (i != 1 || k != 1) {
     yticks <- FALSE
   }
 

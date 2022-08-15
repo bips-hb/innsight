@@ -91,8 +91,10 @@ convert_torch_sequential <- function(model) {
         activation_error("tanh", num, model_as_list$layers)
       }
     } else {
-      stop(sprintf("Unknown module of classes: '%s'!",
-                   paste(classes, collapse = "', '")))
+      stop(sprintf(
+        "Unknown module of classes: '%s'!",
+        paste(classes, collapse = "', '")
+      ))
     }
   }
   model_as_list$layers[[num - 1]]$output_layers <- -1
@@ -100,7 +102,6 @@ convert_torch_sequential <- function(model) {
   model_as_list$output_nodes <- c(num - 1)
 
   model_as_list
-
 }
 
 
@@ -131,8 +132,10 @@ convert_torch_linear <- function(modul, num) {
 # Convert nn_conv1d -----------------------------------------------------------
 convert_torch_conv1d <- function(modul, num) {
   if (modul$padding_mode != "zeros") {
-    stop(sprintf("Padding mode '%s' is not allowed! Use 'zeros' instead.",
-                 modul$padding_mode))
+    stop(sprintf(
+      "Padding mode '%s' is not allowed! Use 'zeros' instead.",
+      modul$padding_mode
+    ))
   }
   if (is.null(modul$bias)) {
     bias <- rep(0, times = dim(modul$weight)[1])
@@ -158,8 +161,10 @@ convert_torch_conv1d <- function(modul, num) {
 # Convert nn_conv2d -----------------------------------------------------------
 convert_torch_conv2d <- function(modul, num) {
   if (modul$padding_mode != "zeros") {
-    stop(sprintf("Padding mode '%s' is not allowed! Use 'zeros' instead.",
-                 modul$padding_mode))
+    stop(sprintf(
+      "Padding mode '%s' is not allowed! Use 'zeros' instead.",
+      modul$padding_mode
+    ))
   }
   if (is.null(modul$bias)) {
     bias <- rep(0, times = dim(modul$weight)[1])
@@ -271,9 +276,10 @@ convert_torch_flatten <- function(num) {
 convert_torch_skipping <- function(type, num) {
   message(sprintf("Skipping %s ...", type))
 
-  list(type = "Skipping",
-       input_layers = num - 1,
-       output_layers = num + 1
+  list(
+    type = "Skipping",
+    input_layers = num - 1,
+    output_layers = num + 1
   )
 }
 
@@ -284,14 +290,20 @@ convert_torch_skipping <- function(type, num) {
 
 activation_error <- function(type, num, layers) {
   if (num == 1) {
-    stop("In this package, it is not allowed to start with an activation",
-         " function. Your activation function: '", type, "'")
+    stop(
+      "In this package, it is not allowed to start with an activation",
+      " function. Your activation function: '", type, "'"
+    )
   } else if (layers[[num - 1]]$type %in% c("Skipping", "Flatten")) {
-    stop("In this package, it is not allowed to use an activation function",
-         " ('", type, "') after a dropout or flatten layer.")
+    stop(
+      "In this package, it is not allowed to use an activation function",
+      " ('", type, "') after a dropout or flatten layer."
+    )
   } else {
-    stop("In this package, it is not allowed to apply several activation",
-         " functions in a row (..., '", layers[[num -1 ]]$activation_name,
-         "' ,'", type, "').")
+    stop(
+      "In this package, it is not allowed to apply several activation",
+      " functions in a row (..., '", layers[[num - 1]]$activation_name,
+      "' ,'", type, "')."
+    )
   }
 }

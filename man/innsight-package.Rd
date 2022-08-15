@@ -38,11 +38,12 @@ reveal-cancel rule
 \item \link{ConnectionWeights}
 }
 
-The package \code{innsight} aims to be as flexible as possible and independent of a
-specific deep learning package in which the passed network has been learned.
-Basically, a neural network of the libraries \link[torch:nn_sequential]{torch::nn_sequential},
-\link[keras:keras_model_sequential]{keras::keras_model_sequential}, \link[keras:keras_model]{keras::keras_model} and
-\link[neuralnet:neuralnet]{neuralnet::neuralnet} can be passed to the main building block \link{Converter},
+The package \code{innsight} aims to be as flexible as possible and independent
+of a specific deep learning package in which the passed network has been
+learned. Basically, a neural network of the libraries
+\link[torch:nn_sequential]{torch::nn_sequential}, \link[keras:keras_model_sequential]{keras::keras_model_sequential},
+\link[keras:keras_model]{keras::keras_model} and \link[neuralnet:neuralnet]{neuralnet::neuralnet} can be passed to the
+main building block \link{Converter},
 which converts and stores the passed model as a torch model
 (\link{ConvertedModel}) with special insights needed for interpretation.
 It is also possible to pass an arbitrary net in form of a named list

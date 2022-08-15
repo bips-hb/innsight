@@ -47,20 +47,21 @@ InterpretingMethod <- R6Class(
     #' the following possibilities to select the indices of the output
     #' nodes in the individual output layers:
     #' \itemize{
-    #'   \item A `vector` of indices: If the model has only one output layer, the
-    #'   values correspond to the indices of the output nodes, e.g. `c(1,3,4)`
-    #'   for the first, third and fourth output node. If there are
+    #'   \item A `vector` of indices: If the model has only one output layer,
+    #'   the values correspond to the indices of the output nodes, e.g.
+    #'   `c(1,3,4)` for the first, third and fourth output node. If there are
     #'   multiple output layers, the indices of the output nodes from the first
     #'   output layer are considered.
-    #'   \item A `list` of `vectors` of indices: If the method is to be applied to
-    #'   output nodes from different layers, a list can be passed that specifies
-    #'   the desired indices of the output nodes for each output layer.
-    #'   Unwanted output layers have the entry `NULL` instead of a vector of indices,
-    #'   e.g. `list(NULL, c(1,3))` for the first and third output node in the
-    #'   second output layer.
-    #'   \item `NULL` (default): The method is applied to all output nodes in the
-    #'   first output layer but is limited to the first ten as the calculations
-    #'   become more computationally expensive for more output nodes.
+    #'   \item A `list` of `vectors` of indices: If the method is to be
+    #'   applied to output nodes from different layers, a list can be passed
+    #'   that specifies the desired indices of the output nodes for each
+    #'   output layer. Unwanted output layers have the entry `NULL` instead
+    #'   of a vector of indices, e.g. `list(NULL, c(1,3))` for the first and
+    #'   third output node in the second output layer.
+    #'   \item `NULL` (default): The method is applied to all output nodes
+    #'   in the first output layer but is limited to the first ten as the
+    #'   calculations become more computationally expensive for more
+    #'   output nodes.
     #' }
     initialize = function(converter, data,
                           channels_first = TRUE,
@@ -111,14 +112,15 @@ InterpretingMethod <- R6Class(
         }
         # Convert the torch_tensor result into a named array
         result <- tensor_list_to_named_array(
-          self$result, input_names, self$converter$output_names, self$output_idx)
-      }
-      # Get the result as a data.frame
-      else if (type == "data.frame") {
+          self$result, input_names, self$converter$output_names,
+          self$output_idx)
+      } else if (type == "data.frame") {
+        # Get the result as a data.frame
         # Convert the torch_tensor result into a data.frame
         result <- create_dataframe_from_result(
-          seq_len(dim(self$data[[1]])[1]), self$result, self$converter$input_names,
-          self$converter$output_names, self$output_idx)
+          seq_len(dim(self$data[[1]])[1]), self$result,
+          self$converter$input_names, self$converter$output_names,
+          self$output_idx)
         # Remove unnecessary columns
         if (all(result$input_dimension <= 2)) {
           result$feature_2 <- NULL
@@ -126,12 +128,12 @@ InterpretingMethod <- R6Class(
         if (all(result$input_dimension <= 1)) {
           result$channel <- NULL
         }
-      }
-      # Get the result as a torch_tensor and remove unnecessary axis
-      else {
+      } else {
+        # Get the result as a torch_tensor and remove unnecessary axis
         num_inputs <- length(self$converter$input_names)
         out_null_idx <- unlist(lapply(self$output_idx, is.null))
-        out_nonnull_idx <- seq_along(self$converter$output_names)[!out_null_idx]
+        out_nonnull_idx <-
+          seq_along(self$converter$output_names)[!out_null_idx]
         result <- self$result
         # Name the inner list or remove the inner list
         for (out_idx in seq_along(result)) {
@@ -186,10 +188,10 @@ InterpretingMethod <- R6Class(
           # relevances for this output
           if (is.null(self$output_idx[[idx]])) {
             rel <- NULL
-          }
-          # Otherwise ...
-          else {
-            # get the corresponding output depending on the argument 'ignore_last_act'
+          } else {
+            # Otherwise ...
+            # get the corresponding output depending on the argument
+            # 'ignore_last_act'
             if (self$ignore_last_act) {
               out <- layer$preactivation
             } else {
@@ -218,8 +220,7 @@ InterpretingMethod <- R6Class(
                   torch_ones(c(1, layer$output_dim), dtype = torch_double()))
               }
 
-            }
-            else {
+            } else {
               rel <- torch_diag_embed(out)
             }
 
@@ -227,20 +228,20 @@ InterpretingMethod <- R6Class(
             #
             # We flatten the list of outputs and put the corresponding outputs
             # into the last axis of the relevance tensor, e.g. we have
-            # output_idx = list(c(1), c(2,4,5)) and the current layer (of shape (10,4))
-            # corresponds to the first entry (c(1)), then we concatenate the
-            # output of this layer (shape (10,1)) and three times the same
-            # tensor with zeros (shape (10,3) )
+            # output_idx = list(c(1), c(2,4,5)) and the current layer
+            # (of shape (10,4)) corresponds to the first entry (c(1)), then
+            # we concatenate the output of this layer (shape (10,1)) and
+            # three times the same tensor with zeros (shape (10,3) )
             tensor_list <- list()
             for (i in seq_along(self$output_idx)) {
               out_idx <- self$output_idx[[i]]
               # if current layer, use the true output/preactivation and only
               # relevant output nodes
               if (i == idx) {
-                tensor_list <- append(tensor_list, list(rel[,,out_idx, drop = FALSE]))
-              }
-              # otherwise, create for each output node a tensor of zeros
-              else if (!is.null(out_idx)) {
+                tensor_list <-
+                  append(tensor_list, list(rel[, , out_idx, drop = FALSE]))
+              } else if (!is.null(out_idx)) {
+                # otherwise, create for each output node a tensor of zeros
                 dims <- c(rel$shape[-length(rel$shape)], length(out_idx))
                 tensor_list <- append(tensor_list, list(torch_zeros(dims)))
               }
@@ -248,9 +249,8 @@ InterpretingMethod <- R6Class(
             # concatenate all together
             rel <- torch_cat(tensor_list, dim = -1)
           }
-        }
-        # ... or a normal layer
-        else {
+        } else {
+          # ... or a normal layer
           # Get relevant entries from 'rel_list' for the current layer
           rel <- rel_list[seq_len(step$times) + min(step$used_idx) - 1]
           if (step$times == 1) {
@@ -296,7 +296,8 @@ InterpretingMethod <- R6Class(
         ordered_idx <- step$used_idx[order]
         rel_ordered <- rel[order]
         for (i in seq_along(step$used_idx)) {
-          rel_list <- append(rel_list, rel_ordered[i], after = ordered_idx[i] - 1)
+          rel_list <-
+            append(rel_list, rel_ordered[i], after = ordered_idx[i] - 1)
         }
 
         # Update progress bar
@@ -307,7 +308,9 @@ InterpretingMethod <- R6Class(
 
       # If necessary, move channels last
       if (self$channels_first == FALSE) {
-        rel_list <- lapply(rel_list, function(x) torch_movedim(x, source = 2, destination = -2))
+        rel_list <- lapply(
+          rel_list,
+          function(x) torch_movedim(x, source = 2, destination = -2))
       }
 
       # As mentioned above, the results of the individual output nodes are
@@ -318,8 +321,9 @@ InterpretingMethod <- R6Class(
       sum_nodes <- 0
       for (i in seq_along(self$output_idx)) {
         if (!is.null(self$output_idx[[i]])) {
+          index <- seq_len(length(self$output_idx[[i]])) + sum_nodes
           res_output_i <- lapply(rel_list, torch_index_select, dim = -1,
-                                 index = as.integer(seq_len(length(self$output_idx[[i]])) + sum_nodes))
+                                 index = as.integer(index))
           result <- append(result, list(res_output_i))
 
           sum_nodes <- sum_nodes + length(self$output_idx[[i]])
@@ -362,7 +366,8 @@ InterpretingMethod <- R6Class(
           as.array(input_data)
         },
         error = function(e) {
-          stop("Failed to convert the argument '", name, "[[", i, "]]' to an array ",
+          stop("Failed to convert the argument '", name,
+               "[[", i, "]]' to an array ",
                "using the function 'base::as.array'. The class of your ",
                "argument '", name, "[[", i, "]]': '",
                paste(class(input_data), collapse = "', '"), "'")
@@ -401,7 +406,7 @@ InterpretingMethod <- R6Class(
 
     plot = function(data_idx = 1,
                     output_idx = c(),
-                    aggr_channels = 'sum',
+                    aggr_channels = "sum",
                     as_plotly = FALSE,
                     value_name = "value",
                     include_data = TRUE) {
@@ -422,8 +427,9 @@ InterpretingMethod <- R6Class(
       # This is done by matching the given output indices ('output_idx') with
       # the calculated output indices ('self$output_idx'). Afterwards,
       # all non-relevant output indices are removed
-      idx_matches <- lapply(seq_along(output_idx), function(i)
-        match(output_idx[[i]], self$output_idx[[i]]))[!null_idx]
+      idx_matches <- lapply(
+        seq_along(output_idx),
+        function(i) match(output_idx[[i]], self$output_idx[[i]]))[!null_idx]
 
       result <- apply_results(result, aggregate_channels, idx_matches, data_idx,
                               self$channels_first, aggr_channels)
@@ -478,8 +484,8 @@ InterpretingMethod <- R6Class(
       # as_plotly
       assertLogical(as_plotly)
       # individual_data_idx
-      assertIntegerish(individual_data_idx, lower = 1, upper = num_data, null.ok = TRUE,
-                       any.missing = FALSE)
+      assertIntegerish(individual_data_idx, lower = 1, upper = num_data,
+                       null.ok = TRUE, any.missing = FALSE)
       if (is.null(individual_data_idx)) individual_data_idx <- seq_len(num_data)
       # individual_max
       assertInt(individual_max, lower = 1)
@@ -503,8 +509,9 @@ InterpretingMethod <- R6Class(
       # This is done by matching the given output indices ('output_idx') with
       # the calculated output indices ('self$output_idx'). Afterwards,
       # all non-relevant output indices are removed
-      idx_matches <- lapply(seq_along(output_idx), function(i)
-        match(output_idx[[i]], self$output_idx[[i]]))[!null_idx]
+      idx_matches <- lapply(
+        seq_along(output_idx),
+        function(i) match(output_idx[[i]], self$output_idx[[i]]))[!null_idx]
 
       # apply preprocess function
       preprocess <- function(result, out_idx, in_idx, idx_matches) {
@@ -561,28 +568,26 @@ check_output_idx <- function(output_idx, output_dim) {
   # (maybe less) output nodes
   if (is.null(output_idx)) {
     output_idx <- list(1:min(10, output_dim[[1]]))
-  }
-  # or only a number (assumes the first output)
-  else if (testIntegerish(output_idx,
+  } else if (testIntegerish(output_idx,
                           lower = 1,
                           upper = output_dim[[1]])) {
+    # or only a number (assumes the first output)
     output_idx <- list(output_idx)
-  }
-  # the argument output_idx is a list of output_nodes for each output
-  else if (testList(output_idx, max.len = length(output_dim))) {
+  } else if (testList(output_idx, max.len = length(output_dim))) {
+    # the argument output_idx is a list of output_nodes for each output
     n <- 1
     for (output in output_idx) {
       limit <- output_dim[[n]]
       assertInt(limit)
       if (!testIntegerish(output, lower = 1, upper = limit, null.ok = TRUE)) {
         stop("Assertion on 'output_idx[[", n, "]]' failed: Values ",
-             paste(output, collapse = ",")," is not <= ", limit, ".")
+             paste(output, collapse = ","), " is not <= ", limit, ".")
       }
       n <- n + 1
     }
   } else {
-    stop("The argument 'output_idx' has to be either a vector with maximum value of '",
-         output_dim[[1]], "' or a list of length '",
+    stop("The argument 'output_idx' has to be either a vector with maximum ",
+         "value of '", output_dim[[1]], "' or a list of length '",
          length(output_dim), "' with maximal values of '",
          paste(unlist(output_dim), collapse = ","), "'.")
   }
@@ -626,9 +631,8 @@ tensor_list_to_named_array <- function(torch_result, input_names, output_names,
           # the value NaN
           if (is.null(result_ij)) {
             result_ij <- NaN
-          }
-          # otherwise convert the result to an array and set dimnames
-          else {
+          } else {
+            # otherwise convert the result to an array and set dimnames
             result_ij <- as_array(result_ij)
             in_name <- input_names[[in_idx]]
             out_name <-
@@ -711,15 +715,15 @@ create_grid <- function(data_idx, input_names, output_names) {
   dimension <- length(input_names)
 
   if (dimension == 1) {
-    feature = input_names[[1]]
+    feature <- input_names[[1]]
     feature_2 <- NaN
     channel <- NaN
   } else if (dimension == 2) {
-    feature = input_names[[2]]
+    feature <- input_names[[2]]
     feature_2 <- NaN
     channel <- input_names[[1]]
   } else {
-    feature = input_names[[2]]
+    feature <- input_names[[2]]
     feature_2 <- input_names[[3]]
     channel <- input_names[[1]]
   }
@@ -770,9 +774,9 @@ check_output_idx_for_plot <- function(output_idx, true_output_idx) {
 move_channels_last <- function(names) {
   for (idx in seq_along(names)) {
     if (length(names[[idx]]) == 2) { # 1d input
-      names[[idx]] <- names[[idx]][c(2,1)]
+      names[[idx]] <- names[[idx]][c(2, 1)]
     } else if (length(names[[idx]]) == 3) { # 2d input
-      names[[idx]] <- names[[idx]][c(2,3,1)]
+      names[[idx]] <- names[[idx]][c(2, 3, 1)]
     }
   }
 
@@ -840,4 +844,3 @@ aggregate_channels <- function(result, out_idx, in_idx, idx_matches, data_idx,
 
   res
 }
-

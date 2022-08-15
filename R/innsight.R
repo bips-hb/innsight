@@ -24,11 +24,12 @@
 #'   * Smoothed gradients ([SmoothGrad]), including 'SmoothGrad x Input'
 #' * [ConnectionWeights]
 #'
-#' The package `innsight` aims to be as flexible as possible and independent of a
-#' specific deep learning package in which the passed network has been learned.
-#' Basically, a neural network of the libraries [torch::nn_sequential],
-#' [keras::keras_model_sequential], [keras::keras_model] and
-#' [neuralnet::neuralnet] can be passed to the main building block [Converter],
+#' The package `innsight` aims to be as flexible as possible and independent
+#' of a specific deep learning package in which the passed network has been
+#' learned. Basically, a neural network of the libraries
+#' [torch::nn_sequential], [keras::keras_model_sequential],
+#' [keras::keras_model] and [neuralnet::neuralnet] can be passed to the
+#' main building block [Converter],
 #' which converts and stores the passed model as a torch model
 #' ([ConvertedModel]) with special insights needed for interpretation.
 #' It is also possible to pass an arbitrary net in form of a named list

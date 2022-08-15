@@ -128,20 +128,21 @@ applied. In order to allow models with multiple output layers, there are
 the following possibilities to select the indices of the output
 nodes in the individual output layers:
 \itemize{
-\item A \code{vector} of indices: If the model has only one output layer, the
-values correspond to the indices of the output nodes, e.g. \code{c(1,3,4)}
-for the first, third and fourth output node. If there are
+\item A \code{vector} of indices: If the model has only one output layer,
+the values correspond to the indices of the output nodes, e.g.
+\code{c(1,3,4)} for the first, third and fourth output node. If there are
 multiple output layers, the indices of the output nodes from the first
 output layer are considered.
-\item A \code{list} of \code{vectors} of indices: If the method is to be applied to
-output nodes from different layers, a list can be passed that specifies
-the desired indices of the output nodes for each output layer.
-Unwanted output layers have the entry \code{NULL} instead of a vector of indices,
-e.g. \code{list(NULL, c(1,3))} for the first and third output node in the
-second output layer.
-\item \code{NULL} (default): The method is applied to all output nodes in the
-first output layer but is limited to the first ten as the calculations
-become more computationally expensive for more output nodes.
+\item A \code{list} of \code{vectors} of indices: If the method is to be
+applied to output nodes from different layers, a list can be passed
+that specifies the desired indices of the output nodes for each
+output layer. Unwanted output layers have the entry \code{NULL} instead
+of a vector of indices, e.g. \code{list(NULL, c(1,3))} for the first and
+third output node in the second output layer.
+\item \code{NULL} (default): The method is applied to all output nodes
+in the first output layer but is limited to the first ten as the
+calculations become more computationally expensive for more
+output nodes.
 }}
 
 \item{\code{ignore_last_act}}{Set this logical value to include the last

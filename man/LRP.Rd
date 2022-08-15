@@ -316,24 +316,25 @@ A new instance of the R6 class \code{'LRP'}.
 \if{latex}{\out{\hypertarget{method-plot}{}}}
 \subsection{Method \code{plot()}}{
 This method visualizes the result of individual data points of the
-selected method and enables a visual in-depth investigation with the help
-of the S4 classes \code{\link{innsight_ggplot2}} and \code{\link{innsight_plotly}}.\cr
-You can use the argument \code{data_idx} to select the data points in the given
-data for the plot. In addition, the individual output nodes for the plot
-can be selected with the argument \code{output_idx}. The different results for
-the selected data points and outputs are visualized using the ggplot2-based
-S4 class \code{innsight_ggplot2}. You can also use the \code{as_plotly} argument to
-generate an interactive plot with \code{innsight_plotly} based on the
-plot function \link[plotly:plot_ly]{plotly::plot_ly}. For more information and the whole bunch
-of possibilities, see \code{\link{innsight_ggplot2}} and \code{\link{innsight_plotly}}.\cr
+selected method and enables a visual in-depth investigation with the
+help of the S4 classes \code{\link{innsight_ggplot2}} and \code{\link{innsight_plotly}}.\cr
+You can use the argument \code{data_idx} to select the data points in the
+given data for the plot. In addition, the individual output nodes for
+the plot can be selected with the argument \code{output_idx}. The different
+results for the selected data points and outputs are visualized using
+the ggplot2-based S4 class \code{innsight_ggplot2}. You can also use the
+\code{as_plotly} argument to generate an interactive plot with
+\code{innsight_plotly} based on the plot function \link[plotly:plot_ly]{plotly::plot_ly}. For
+more information and the whole bunch of possibilities, see
+\code{\link{innsight_ggplot2}} and \code{\link{innsight_plotly}}.\cr
 \cr
 \strong{Note:}
 \enumerate{
-\item For the interactive plotly-based plots, the suggested package \code{plotly}
-is required.
-\item The ggplot2-based plots for models with multiple input layers are a bit
-more complex, therefore the suggested packages \code{'grid'}, \code{'gridExtra'}
-and \code{'gtable'} must be installed in your R session.
+\item For the interactive plotly-based plots, the suggested package
+\code{plotly} is required.
+\item The ggplot2-based plots for models with multiple input layers are
+a bit more complex, therefore the suggested packages \code{'grid'},
+\code{'gridExtra'} and \code{'gtable'} must be installed in your R session.
 }
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LRP$plot(
@@ -351,13 +352,13 @@ and \code{'gtable'} must be installed in your R session.
 points whose result is to be plotted, e.g. \code{c(1,3)} for the first
 and third data point in the given data. Default: \code{1}.}
 
-\item{\code{output_idx}}{The indices of the output nodes for which the results is
-to be plotted. This can be either a \code{vector} of indices or a \code{list} of
-vectors of indices but must be a subset of the indices for which the
-results were calculated, i.e. a subset of \code{output_idx} from the
-initialization \code{new()} (see argument \code{output_idx} in method \code{new()} of this
-R6 class for details). By default (\code{NULL}), the smallest index of all
-calculated output nodes and output layers is used.}
+\item{\code{output_idx}}{The indices of the output nodes for which the
+results is to be plotted. This can be either a \code{vector} of indices or
+a \code{list} of vectors of indices but must be a subset of the indices
+for which the results were calculated, i.e. a subset of \code{output_idx}
+from the initialization \code{new()} (see argument \code{output_idx} in method
+\code{new()} of this R6 class for details). By default (\code{NULL}), the
+smallest index of all calculated output nodes and output layers is used.}
 
 \item{\code{aggr_channels}}{Pass one of \code{'norm'}, \code{'sum'}, \code{'mean'} or a
 custom function to aggregate the channels, e.g. the maximum
@@ -400,11 +401,11 @@ more information and the whole bunch of possibilities, see
 \code{\link{innsight_ggplot2}} and \code{\link{innsight_plotly}}.\cr \cr
 \strong{Note:}
 \enumerate{
-\item For the interactive plotly-based plots, the suggested package \code{plotly}
-is required.
-\item The ggplot2-based plots for models with multiple input layers are a bit
-more complex, therefore the suggested packages \code{'grid'}, \code{'gridExtra'}
-and \code{'gtable'} must be installed in your R session.
+\item For the interactive plotly-based plots, the suggested package
+\code{plotly} is required.
+\item The ggplot2-based plots for models with multiple input layers are
+a bit more complex, therefore the suggested packages \code{'grid'},
+\code{'gridExtra'} and \code{'gtable'} must be installed in your R session.
 }
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LRP$boxplot(
@@ -422,17 +423,17 @@ and \code{'gtable'} must be installed in your R session.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{output_idx}}{The indices of the output nodes for which the results is
-to be plotted. This can be either a \code{vector} of indices or a \code{list} of
-vectors of indices but must be a subset of the indices for which the
-results were calculated, i.e. a subset of \code{output_idx} from the
-initialization \code{new()} (see argument \code{output_idx} in method \code{new()} of this
-R6 class for details). By default (\code{NULL}), the smallest index of all
-calculated output nodes and output layers is used.}
+\item{\code{output_idx}}{The indices of the output nodes for which the
+results is to be plotted. This can be either a \code{vector} of indices
+or a \code{list} of vectors of indices but must be a subset of the indices
+for which the results were calculated, i.e. a subset of \code{output_idx}
+from the initialization \code{new()} (see argument \code{output_idx} in method
+\code{new()} of this R6 class for details). By default (\code{NULL}), the
+smallest index of all calculated output nodes and output layers is used.}
 
-\item{\code{data_idx}}{By default ("all"), all available data points are used to
-calculate the boxplot information. However, this parameter can be used
-to select a subset of them by passing the indices. E.g. with
+\item{\code{data_idx}}{By default ("all"), all available data points are used
+to calculate the boxplot information. However, this parameter can be
+used to select a subset of them by passing the indices. E.g. with
 \code{c(1:10, 25, 26)} only the first 10 data points and
 the 25th and 26th are used to calculate the boxplots.}
 

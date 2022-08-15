@@ -7,7 +7,8 @@ NULL
 ###############################################################################
 
 create_plotly <- function(result_df, value_name = "Relevance",
-                          include_data = TRUE, boxplot = FALSE, data_idx = NULL) {
+                          include_data = TRUE, boxplot = FALSE,
+                          data_idx = NULL) {
   if (!requireNamespace("plotly", quietly = FALSE)) {
     stop(
       "Please install the 'plotly' package if you want to create an ",
@@ -27,7 +28,7 @@ create_plotly <- function(result_df, value_name = "Relevance",
     )
   }
 
-  safe_div <- function(x,y) {
+  safe_div <- function(x, y) {
     if (y == 0)  x * 0 else x / y
   }
 
@@ -86,7 +87,7 @@ create_plotly <- function(result_df, value_name = "Relevance",
   } else {
     data_names <- NULL
   }
-  layouts <- create_layout(plot_df, data_idx, data_names,boxplot, value_name)
+  layouts <- create_layout(plot_df, data_idx, data_names, boxplot, value_name)
 
   # Create column dims and labels
   col_dims <- list(
@@ -211,7 +212,8 @@ create_layout <- function(plot_df, data_idx, data_levels, boxplot, value_name) {
     yshift <- 60
 
     # Create button for individual data points
-    button_and_annot <- button_datapoints(trace_names, data_levels, data_idx, 1, 60)
+    button_and_annot <-
+      button_datapoints(trace_names, data_levels, data_idx, 1, 60)
     buttons <- append(buttons, list(button_and_annot$button))
     annots <- append(annots, list(button_and_annot$annotation))
   }
@@ -227,8 +229,6 @@ create_layout <- function(plot_df, data_idx, data_levels, boxplot, value_name) {
     buttons <- append(buttons, list(button_and_annot$button))
     annots <- append(annots, list(button_and_annot$annotation))
   }
-
-  colaxis <- get_default_colorbar(value_name)
 
   list(
     margin = list(t = 50, r = 50),
@@ -326,7 +326,8 @@ button_box_violin <- function(trace_types, y = 0.5) {
 
 #----- Individual datapoints --------------------------------------------------
 # only relevant for boxplots
-button_datapoints <- function(trace_names, data_levels, data_idx, y = 0.7, yshift = 0) {
+button_datapoints <- function(trace_names, data_levels, data_idx, y = 0.7,
+                              yshift = 0) {
   create_button <- function(idx, trace_names, data_levels) {
     trace_idx <- which(startsWith(trace_names, "selected_points"))
     arg_visible <- rep(FALSE, length(trace_idx))
@@ -421,7 +422,8 @@ button_heatmap_contour <- function(trace_types, y = 0.4, yshift = 0) {
 
   list(
     button = button,
-    annotation = get_button_annot("2D Plot Type", y, "annot_heatmap_contour", yshift)
+    annotation = get_button_annot("2D Plot Type", y, "annot_heatmap_contour",
+                                  yshift)
   )
 }
 
@@ -551,7 +553,7 @@ plotly_boxplot <- function(data, scale_title, data_idx) {
   i <- 1
   data_idx <- if (is.null(data_idx)) 0 else data_idx
   for (data_name in unique(ref_data$data)) {
-    visible <- if (data_name == paste0("data_",data_idx)) TRUE else FALSE
+    visible <- if (data_name == paste0("data_", data_idx)) TRUE else FALSE
     single_data <- ref_data[ref_data$data == data_name, ]
     hovertext <- get_hovertext(single_data, scale_title, title_br = FALSE)
     p <- p %>%
@@ -582,7 +584,8 @@ plotly_boxplot <- function(data, scale_title, data_idx) {
   p
 }
 
-plotly_boxplot_image <- function(data, scale_title = "Relevance", showscale = FALSE) {
+plotly_boxplot_image <- function(data, scale_title = "Relevance",
+                                 showscale = FALSE) {
 
   height <- length(unique(data$feature))
   width <- length(unique(data$feature_2))
@@ -602,12 +605,13 @@ plotly_boxplot_image <- function(data, scale_title = "Relevance", showscale = FA
     FUN = function(x) quantile(x, seq(0, 1, 0.125))
   )
 
-  dats <- lapply(1:9, function(i)
-    data.frame(value_stats[,1:2], model_input = data$model_input[1],
+  dats <- lapply(1:9, function(i) {
+    data.frame(value_stats[, 1:2], model_input = data$model_input[1],
                output_node = data$output_node[1],
                model_output = data$model_output[1],
                input_dimension = data$input_dimension[1],
-               value = value_stats$x[, i], fill = fill_stats$x[, i]))
+               value = value_stats$x[, i], fill = fill_stats$x[, i])
+    })
 
   labels <- paste0("Percentile (", colnames(fill_stats$x), ")")
   labels[c(1, 5, 9)] <- c("Minimum", "Median", "Maximum")

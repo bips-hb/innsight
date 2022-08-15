@@ -115,23 +115,21 @@ Converter <- R6Class("Converter",
       # Package: Neuralnet ----------------------------------------------------
       if (inherits(model, "nn")) {
         model_as_list <- convert_neuralnet_model(model)
-      }
-      # Package: Keras --------------------------------------------------------
-      else if (is_keras_model(model)) {
+      } else if (is_keras_model(model)) {
+        # Package: Keras ------------------------------------------------------
         model_as_list <- convert_keras_model(model)
-      }
-      # Model from list -------------------------------------------------------
-      else if (is.list(model)) {
+      } else if (is.list(model)) {
+        # Model from list -----------------------------------------------------
         model_as_list <- model
-      }
-      # Package: Torch --------------------------------------------------------
-      else if (inherits(model, "nn_module") && is_nn_module(model)) {
+      } else if (inherits(model, "nn_module") && is_nn_module(model)) {
+        # Package: Torch ------------------------------------------------------
         model_as_list <- convert_torch(model, input_dim)
-      }
-      # Unknown model class ---------------------------------------------------
-      else {
-        stop(sprintf("Unknown module of classes: '%s'!",
-                     paste(class(model), collapse = "', '")))
+      } else {
+        # Unknown model class -------------------------------------------------
+        stop(sprintf(
+          "Unknown module of classes: '%s'!",
+          paste(class(model), collapse = "', '")
+        ))
       }
 
       # Set input and output names
@@ -163,17 +161,23 @@ Converter <- R6Class("Converter",
       model_as_list$input_dim <- lapply(model_as_list$input_dim, as.integer)
 
       # Check whether input and output nodes are given
-      assertNumeric(model_as_list$input_nodes, lower = 1,
-                    upper = length(model_as_list$layers))
-      assertNumeric(model_as_list$output_nodes, lower = 1,
-                    upper = length(model_as_list$layers))
+      assertNumeric(model_as_list$input_nodes,
+        lower = 1,
+        upper = length(model_as_list$layers)
+      )
+      assertNumeric(model_as_list$output_nodes,
+        lower = 1,
+        upper = length(model_as_list$layers)
+      )
 
       # Optional arguments
       # Make sure that 'output_dim' is a list or NULL
-      if (!is.null(model_as_list$output_dim) & !is.list(model_as_list$output_dim)) {
-        model_as_list$output_dim <- list(model_as_list$output_dim)
+      out_dim <- model_as_list$output_dim
+      if (!is.null(out_dim) & !is.list(out_dim)) {
+        model_as_list$output_dim <- list(out_dim)
       }
-      assertList(model_as_list$output_dim, types = "integerish", null.ok = TRUE)
+      assertList(model_as_list$output_dim, types = "integerish",
+                 null.ok = TRUE)
 
       # In- and output names are stored as a list of lists. The outer list
       # represents the different in- or output layers of the model and the
@@ -182,7 +186,8 @@ Converter <- R6Class("Converter",
         model_as_list$input_names <- set_name_format(model_as_list$input_names)
       }
       if (!is.null(model_as_list$output_names)) {
-        model_as_list$output_names <- set_name_format(model_as_list$output_names)
+        model_as_list$output_names <-
+          set_name_format(model_as_list$output_names)
       }
 
       #--------------------- Create torch modules -----------------------------
@@ -199,11 +204,13 @@ Converter <- R6Class("Converter",
         layer_as_list <- model_as_list$layers[[i]]
         type <- layer_as_list$type
         assertString(type)
-        assertChoice(type, c("Flatten", "Skipping", "Dense", "Conv1D", "Conv2D",
-                                "MaxPooling1D", "MaxPooling2D", "AveragePooling1D",
-                                "AveragePooling2D", "Concatenate", "Add"))
+        assertChoice(type, c(
+          "Flatten", "Skipping", "Dense", "Conv1D", "Conv2D",
+          "MaxPooling1D", "MaxPooling2D", "AveragePooling1D",
+          "AveragePooling2D", "Concatenate", "Add"
+        ))
 
-        # Get the incoming and outgoing layers (as indices) of the current layer
+        # Get incoming and outgoing layers (as indices) of the current layer
         in_layers <- layer_as_list$input_layers
         out_layers <- layer_as_list$output_layers
         # Check for correct format of the layer indices
@@ -220,8 +227,7 @@ Converter <- R6Class("Converter",
         output_layers[[i]] <- out_layers
 
         # Create the torch module for the current layer
-        layer <- switch(
-          type,
+        layer <- switch(type,
           Flatten = create_flatten_layer(layer_as_list),
           Skipping = create_skipping_layer(layer_as_list),
           Dense = create_dense_layer(layer_as_list, dtype),
@@ -241,8 +247,10 @@ Converter <- R6Class("Converter",
 
       #-------- Create computational graph and ConvertedModel ------------------
       # Create graph
-      graph <- create_structered_graph(input_layers, output_layers,
-                                       model_as_list)
+      graph <- create_structered_graph(
+        input_layers, output_layers,
+        model_as_list
+      )
 
       # Check modules and graph and register input and output shapes for each
       # layer
@@ -250,18 +258,23 @@ Converter <- R6Class("Converter",
         check_and_register_shapes(modules_list, graph, model_as_list, dtype)
 
       # Create torch model of class 'ConvertedModel'
-      model <- ConvertedModel(tmp$modules_list, graph, model_as_list$input_nodes,
-                              model_as_list$output_nodes, dtype = dtype)
+      model <- ConvertedModel(tmp$modules_list, graph,
+                              model_as_list$input_nodes,
+                              model_as_list$output_nodes,
+                              dtype = dtype
+      )
 
       #---------------- Check if the converted model is correct ----------------
       # Check output dimensions
       if (!is.null(model_as_list$output_dim) &
-          !identical(model_as_list$output_dim, tmp$calc_output_shapes)) {
+        !identical(model_as_list$output_dim, tmp$calc_output_shapes)) {
         calc <- shape_to_char(tmp$calc_output_shapes)
         given <- shape_to_char(model_as_list$output_dim)
-        stop("Missmatch between the calculated and given model output shapes:\n",
-             "Calculated: ", calc, "\n",
-             "Given:      ", given)
+        stop(
+          "Missmatch between the calculated and given model output shapes:\n",
+          "Calculated: ", calc, "\n",
+          "Given:      ", given
+        )
       }
       model_as_list$output_dim <- tmp$calc_output_shapes
 
@@ -272,7 +285,8 @@ Converter <- R6Class("Converter",
           "This package only allows models with classification or regression ",
           "output, i.e. the model output dimension has to be one. ",
           "But your model has an output dimension of '",
-          max(output_dims), "'!")
+          max(output_dims), "'!"
+        )
       }
 
       # Check input names
@@ -280,34 +294,43 @@ Converter <- R6Class("Converter",
         model_as_list$input_names <- get_input_names(model_as_list$input_dim)
       } else {
         input_names <- model_as_list$input_names
-        input_names_lenght <- lapply(input_names, function(x) unlist(lapply(x, length)))
+        input_names_lenght <- lapply(input_names,
+                                     function(x) unlist(lapply(x, length)))
 
         if (!identical(input_names_lenght, model_as_list$input_dim)) {
           given <- shape_to_char(input_names_lenght)
           calc <- shape_to_char(model_as_list$input_dim)
-          stop("Missmatch between the calculated shape of input names and given input names:\n",
-               "Calculated: ", calc, "\n",
-               "Given:      ", given)
+          stop(
+            "Missmatch between the calculated shape of input names and ",
+            "given input names:\n",
+            "Calculated: ", calc, "\n",
+            "Given:      ", given
+          )
         }
       }
 
       # Check output names
       if (is.null(model_as_list$output_names)) {
-        model_as_list$output_names <- get_output_names(model_as_list$output_dim)
+        model_as_list$output_names <-
+          get_output_names(model_as_list$output_dim)
       } else {
         output_names <- model_as_list$output_names
-        output_names_length <- lapply(output_names, function(x) unlist(lapply(x, length)))
+        output_names_length <- lapply(output_names,
+                                      function(x) unlist(lapply(x, length)))
 
         if (!identical(output_names_length, model_as_list$output_dim)) {
           given <- shape_to_char(output_names_length)
           calc <- shape_to_char(model_as_list$output_dim)
-          stop("Missmatch between the calculated shape of output names and given output names:\n",
-               "Calculated: ", calc, "\n",
-               "Given:      ", given)
+          stop(
+            "Missmatch between the calculated shape of output names and ",
+            "given output names:\n",
+            "Calculated: ", calc, "\n",
+            "Given:      ", given
+          )
         }
       }
 
-      #------------------------- Saving and clean up ---------------------------
+      #------------------------- Saving and clean up --------------------------
 
       self$model <- model
       self$model$reset()
@@ -353,7 +376,8 @@ create_dense_layer <- function(layer_as_list, dtype) {
   assertString(activation_name)
 
   dense_layer(weight, bias, activation_name, dim_in, dim_out,
-              dtype = dtype)
+    dtype = dtype
+  )
 }
 
 # Conv1D Layer ----------------------------------------------------------------
@@ -393,15 +417,17 @@ create_conv1d_layer <- function(layer_as_list, dtype, i) {
     padding <- rep(padding, 2)
   } else if (length(padding) != 2) {
     stop(paste0(
-      "Expected a padding vector in 'model_as_list$layers[[",i,"]] ",
+      "Expected a padding vector in 'model_as_list$layers[[", i, "]] ",
       "of length:\n", "   - 1: same padding for each side\n",
       "   - 2: first value: padding for left side; second value: ",
-      "padding for right side\n But your length: ", length(padding))
-    )
+      "padding for right side\n But your length: ", length(padding)
+    ))
   }
 
   conv1d_layer(weight, bias, dim_in, dim_out, stride, padding, dilation,
-               activation_name, dtype = dtype)
+    activation_name,
+    dtype = dtype
+  )
 }
 
 # Conv2D Layer ----------------------------------------------------------------
@@ -442,36 +468,38 @@ create_conv2d_layer <- function(layer_as_list, dtype, i) {
     padding <- rep(padding, each = 2)
   } else if (length(padding) != 4) {
     stop(paste0(
-      "Expected a padding vector in 'model_as_list$layers[[",i,"]] ",
+      "Expected a padding vector in 'model_as_list$layers[[", i, "]] ",
       "of length:\n", "   - 1: same padding on each side\n",
-      "   - 2: first value: pad_left and pad_right; second value: pad_top and pad_bottom\n",
+      "   - 2: first value: pad_left and pad_right; second value: pad_top ",
+      "and pad_bottom\n",
       "   - 4: (pad_left, pad_right, pad_top, pad_bottom)\n",
-      "But your length: ", length(padding))
-    )
+      "But your length: ", length(padding)
+    ))
   }
   if (length(stride) == 1) {
     stride <- rep(stride, 2)
   } else if (length(stride) != 2) {
     stop(paste0(
-      "Expected a stride vector in 'model_as_list$layers[[",i,"]] ",
+      "Expected a stride vector in 'model_as_list$layers[[", i, "]] ",
       "of length:\n", "   - 1: same stride for image heigth and width\n",
-      "   - 2: first value: strides for height; second value: strides for width\n",
-      "But your length: ", length(stride))
-    )
+      "   - 2: first value: strides for height; second value: strides ",
+      "for width\n", "But your length: ", length(stride)
+    ))
   }
   if (length(dilation) == 1) {
     dilation <- rep(dilation, 2)
   } else if (length(dilation) != 2) {
     stop(paste0(
-      "Expected a dilation vector in 'model_as_list$layers[[",i,"]] ",
+      "Expected a dilation vector in 'model_as_list$layers[[", i, "]] ",
       "of length:\n", "   - 1: same dilation for image heigth and width\n",
-      "   - 2: first value: dilation for height; second value: dilation for width\n",
-      "But your length: ", length(dilation))
-    )
+      "   - 2: first value: dilation for height; second value: dilation ",
+      "for width\n", "But your length: ", length(dilation)
+    ))
   }
 
   conv2d_layer(weight, bias, dim_in, dim_out, stride, padding, dilation,
-               activation_name, dtype = dtype
+    activation_name,
+    dtype = dtype
   )
 }
 
@@ -585,14 +613,20 @@ create_skipping_layer <- function(layer_as_list) {
 #                                 Utils
 ###############################################################################
 
-create_structered_graph <- function(input_layers, output_layers, model_as_list) {
-
+create_structered_graph <- function(input_layers, output_layers,
+                                    model_as_list) {
   current_nodes <- as.list(model_as_list$input_nodes)
-  upper_nodes <- unique(unlist(lapply(unlist(current_nodes),
-                                      function(x) output_layers[[x]])))
-  idx <- rep(seq_along(current_nodes),
-             unlist(lapply(current_nodes,
-                           function(x) length(output_layers[[x]]))))
+  upper_nodes <- unique(unlist(lapply(
+    unlist(current_nodes),
+    function(x) output_layers[[x]]
+  )))
+  idx <- rep(
+    seq_along(current_nodes),
+    unlist(lapply(
+      current_nodes,
+      function(x) length(output_layers[[x]])
+    ))
+  )
   all_used_nodes <- NULL
 
   graph <- list()
@@ -601,13 +635,15 @@ create_structered_graph <- function(input_layers, output_layers, model_as_list) 
   freq <- unlist(lapply(current_nodes, function(x) length(output_layers[[x]])))
   tmp_nodes <- rep(list(0), length(current_nodes))
   for (node in current_nodes) {
-    graph[[n]] <- list(current_nodes = tmp_nodes, used_idx = n + added,
-                       used_node = node,
-                       times = length(output_layers[[node]]))
+    graph[[n]] <- list(
+      current_nodes = tmp_nodes, used_idx = n + added,
+      used_node = node,
+      times = length(output_layers[[node]])
+    )
     tmp_nodes[[n + added]] <- node
     all_used_nodes <- c(all_used_nodes, node)
     times <- freq[[n]] - 1
-    tmp_nodes <- append(tmp_nodes, rep(list(node), times), n + added )
+    tmp_nodes <- append(tmp_nodes, rep(list(node), times), n + added)
     added <- added + times
     n <- n + 1
   }
@@ -635,12 +671,12 @@ create_structered_graph <- function(input_layers, output_layers, model_as_list) 
     next_node <- FALSE
 
     for (upper_node in upper_nodes) {
-      if (next_node == FALSE & upper_node != -1) {
+      if (next_node == FALSE && upper_node != -1) {
         if (is_contained(input_layers[[upper_node]], unlist(current_nodes))) {
           used_idx <- input_layers[[upper_node]]
           tmp_list <- current_nodes
           idx_list <- c()
-          for(used in used_idx) {
+          for (used in used_idx) {
             id <- which(used == tmp_list)[[1]]
             tmp_list[[id]] <- -1
             idx_list <- c(idx_list, id)
@@ -655,14 +691,20 @@ create_structered_graph <- function(input_layers, output_layers, model_as_list) 
     }
     num_replicates <- length(output_layers[[used_node]])
     all_used_nodes <- c(all_used_nodes, used_node)
-    graph[[n]] <- list(current_nodes = current_nodes, used_idx = used_idx,
-                       used_node = used_node, times = num_replicates)
+    graph[[n]] <- list(
+      current_nodes = current_nodes, used_idx = used_idx,
+      used_node = used_node, times = num_replicates
+    )
     current_nodes <- current_nodes[-used_idx]
-    current_nodes <- append(current_nodes, rep(list(used_node), num_replicates),
-                            after = min(used_idx) - 1)
+    current_nodes <- append(current_nodes, rep(list(used_node),
+                                               num_replicates),
+      after = min(used_idx) - 1
+    )
     upper_nodes <-
-      unique(unlist(lapply(unlist(current_nodes),
-                           function(x) output_layers[[x]])))
+      unique(unlist(lapply(
+        unlist(current_nodes),
+        function(x) output_layers[[x]]
+      )))
     upper_nodes <- setdiff(upper_nodes, all_used_nodes)
     n <- n + 1
   }
@@ -672,13 +714,16 @@ create_structered_graph <- function(input_layers, output_layers, model_as_list) 
 
 
 
-check_and_register_shapes <- function(modules_list, graph, model_as_list, dtype) {
-
+check_and_register_shapes <- function(modules_list, graph, model_as_list,
+                                      dtype) {
   if (dtype == "float") {
-    x <- lapply(model_as_list$input_dim, function(shape) torch_randn(c(1, shape)))
-  } else {
     x <- lapply(model_as_list$input_dim,
-                function(shape) torch_randn(c(1, shape), dtype = torch_double()))
+                function(shape) torch_randn(c(1, shape)))
+  } else {
+    x <- lapply(
+      model_as_list$input_dim,
+      function(shape) torch_randn(c(1, shape), dtype = torch_double())
+    )
   }
 
 
@@ -688,21 +733,23 @@ check_and_register_shapes <- function(modules_list, graph, model_as_list, dtype)
       input <- input[[1]]
       calculated_input_shape <- input$shape[-1]
     } else {
-      calculated_input_shape <- lapply(input, function(tensor) tensor$shape[-1])
+      calculated_input_shape <- lapply(input,
+                                       function(tensor) tensor$shape[-1])
     }
 
     # Check input shape
     given_input_shape <- model_as_list$layers[[step$used_node]]$dim_in
-    if (!is.null(given_input_shape) &
-        !identical(calculated_input_shape, given_input_shape)) {
-
+    if (!is.null(given_input_shape) &&
+      !identical(calculated_input_shape, given_input_shape)) {
       given <- shape_to_char(given_input_shape)
       calc <- shape_to_char(calculated_input_shape)
 
-      stop("Missmatch between the calculated and given input shape for layer index '",
-           step$used_node, "':\n",
-           "Calculated: ", calc, "\n",
-           "Given:      ", given)
+      stop(
+        "Missmatch between the calculated and given input shape for layer ",
+        "index '", step$used_node, "':\n",
+        "Calculated: ", calc, "\n",
+        "Given:      ", given
+      )
     }
 
     # Register input shape for this layer
@@ -714,17 +761,24 @@ check_and_register_shapes <- function(modules_list, graph, model_as_list, dtype)
       error = function(e) {
         layer_as_list <- model_as_list$layers[[step$used_node]]
         e$message <-
-          paste0("Could not create layer of index '", step$used_node, "' of type '", layer_as_list$type,
-                 "'. Maybe you used incorrect parameters or a wrong dimension order of your weight matrix.",
-                 " The weight matrix for a dense layer has to be stored as an array of shape (dim_in, dim_out), ",
-                 "for a 1D-convolutional as an array of (out_channels, in_channels, kernel_length) and for ",
-                 " 2D-convolutional (out_channels, in_channels, kernel_height, kernel_width).\n\n",
-                 "Your weight dimension: ",
-                 ifelse(is.null(layer_as_list$weight), "(no weights available)",
-                        paste0("(", paste(dim(layer_as_list$weight), collapse = ","), ")")),
-                 "\n", "Your layer input shape: ",
-                 paste0("(", paste("*", input$shape[-1], collapse = ","), ")"),
-                 "\n\n\n Original message:\n", e)
+          paste0(
+            "Could not create layer of index '", step$used_node, "' of type '",
+            layer_as_list$type, "'. Maybe you used incorrect parameters or a ",
+            "wrong dimension order of your weight matrix. The weight matrix ",
+            "for a dense layer has to be stored as an array of shape ",
+            "(dim_in, dim_out), for a 1D-convolutional as an array of ",
+            "(out_channels, in_channels, kernel_length) and for ",
+            "2D-convolutional (out_channels, in_channels, kernel_height, ",
+            "kernel_width).\n\n",
+            "Your weight dimension: ",
+            ifelse(is.null(layer_as_list$weight), "(no weights available)",
+              paste0("(", paste(dim(layer_as_list$weight), collapse = ","),
+                     ")")
+            ),
+            "\n", "Your layer input shape: ",
+            paste0("(", paste("*", input$shape[-1], collapse = ","), ")"),
+            "\n\n\n Original message:\n", e
+          )
         stop(e)
       }
     )
@@ -732,15 +786,17 @@ check_and_register_shapes <- function(modules_list, graph, model_as_list, dtype)
     # Check output shape
     calculated_output_shape <- out$shape[-1]
     given_output_shape <- model_as_list$layers[[step$used_node]]$dim_out
-    if (!is.null(given_output_shape) &
-        !identical(calculated_output_shape, given_output_shape)) {
+    if (!is.null(given_output_shape) &&
+      !identical(calculated_output_shape, given_output_shape)) {
       given <- paste0("(*,", paste(given_output_shape, collapse = ","), ")")
       calc <- paste0("(*,", paste(calculated_output_shape, collapse = ","), ")")
 
-      stop("Missmatch between the calculated and given output shape for layer index '",
-           step$used_node, "':\n",
-           "Calculated: ", calc, "\n",
-           "Given:      ", given)
+      stop(
+        "Missmatch between the calculated and given output shape for ",
+        "layer index '", step$used_node, "':\n",
+        "Calculated: ", calc, "\n",
+        "Given:      ", given
+      )
     }
 
     # Register output shape for this layer
@@ -749,7 +805,8 @@ check_and_register_shapes <- function(modules_list, graph, model_as_list, dtype)
 
     x <- x[-step$used_idx]
     x <- append(x, rep(list(out), step$times),
-                after = min(step$used_idx) - 1)
+      after = min(step$used_idx) - 1
+    )
   }
 
   # Order outputs
@@ -761,7 +818,8 @@ check_and_register_shapes <- function(modules_list, graph, model_as_list, dtype)
   # Get output shapes
   calculated_output_shapes <- lapply(x, function(tensor) tensor$shape[-1])
 
-  list(modules_list = modules_list, calc_output_shapes = calculated_output_shapes)
+  list(modules_list = modules_list,
+       calc_output_shapes = calculated_output_shapes)
 }
 
 
@@ -774,17 +832,26 @@ shape_to_char <- function(shape, use_batch = TRUE) {
     }
   } else {
     if (use_batch) {
-      shape_as_char <- lapply(shape,
-                              function(x)
-                                paste0("(*,", paste(x, collapse = ","), ")"))
+      shape_as_char <- lapply(
+        shape,
+        function(x) {
+          paste0("(*,", paste(x, collapse = ","), ")")
+        }
+      )
     } else {
-      shape_as_char <- lapply(shape,
-                              function(x)
-                                paste0("(", paste(x, collapse = ","), ")"))
+      shape_as_char <- lapply(
+        shape,
+        function(x) {
+          paste0("(", paste(x, collapse = ","), ")")
+        }
+      )
     }
-    shape_as_char <- lapply(seq_along(shape_as_char),
-                            function(i)
-                              paste0("[[", i, "]] ", shape_as_char[[i]]))
+    shape_as_char <- lapply(
+      seq_along(shape_as_char),
+      function(i) {
+        paste0("[[", i, "]] ", shape_as_char[[i]])
+      }
+    )
     shape_as_char <- paste(unlist(shape_as_char))
   }
 
@@ -792,8 +859,7 @@ shape_to_char <- function(shape, use_batch = TRUE) {
 }
 
 
-get_input_names = function(input_dims) {
-
+get_input_names <- function(input_dims) {
   lapply(input_dims, function(input_dim) {
     if (length(input_dim) == 1) {
       short_names <- c("X")
@@ -802,36 +868,39 @@ get_input_names = function(input_dims) {
     } else if (length(input_dim) == 3) {
       short_names <- c("C", "H", "W")
     } else {
-      stop("Too many input dimensions. This package only allows model ",
-           "inputs with '1', '2' or '3' dimensions and not '",
-           length(input_dim), "'!")
+      stop(
+        "Too many input dimensions. This package only allows model ",
+        "inputs with '1', '2' or '3' dimensions and not '",
+        length(input_dim), "'!"
+      )
     }
 
     mapply(function(x, y) paste0(rep(y, times = x), 1:x),
-           input_dim,
-           short_names,
-           SIMPLIFY = FALSE
+      input_dim,
+      short_names,
+      SIMPLIFY = FALSE
     )
   })
 }
 
-get_output_names = function(output_dims) {
-
+get_output_names <- function(output_dims) {
   lapply(output_dims, function(output_dim) {
-    lapply(output_dim,
-           function(x) paste0(rep("Y", times = x), 1:x)
+    lapply(
+      output_dim,
+      function(x) paste0(rep("Y", times = x), 1:x)
     )
   })
 }
 
-is_keras_model = function(model) {
+is_keras_model <- function(model) {
   inherits(model, c(
     "keras.engine.sequential.Sequential",
     "keras.engine.functional.Functional",
-    "keras.engine.training.Model"))
+    "keras.engine.training.Model"
+  ))
 }
 
-set_name_format = function(in_or_out_names) {
+set_name_format <- function(in_or_out_names) {
   if (is.list(in_or_out_names)) {
     if (!is.list(in_or_out_names[[1]])) {
       in_or_out_names <- list(in_or_out_names)
@@ -849,11 +918,13 @@ set_name_format = function(in_or_out_names) {
   in_or_out_names
 }
 
-convert_torch = function(model, input_dim) {
+convert_torch <- function(model, input_dim) {
   if (inherits(model, "nn_sequential")) {
     if (!testNumeric(input_dim, lower = 1)) {
-      stop("For a 'torch' model, you have to specify the argument ",
-           "'input_dim'!")
+      stop(
+        "For a 'torch' model, you have to specify the argument ",
+        "'input_dim'!"
+      )
     }
     model_as_list <- convert_torch_sequential(model)
     model_as_list$input_dim <- input_dim
@@ -863,4 +934,3 @@ convert_torch = function(model, input_dim) {
 
   model_as_list
 }
-

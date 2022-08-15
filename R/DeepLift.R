@@ -91,7 +91,7 @@ DeepLift <- R6Class(
 
       if (is.null(x_ref)) {
           x_ref <- lapply(lapply(self$data, dim),
-                          function(x) array(0, dim = c(1,x[-1])))
+                          function(x) array(0, dim = c(1, x[-1])))
       }
       self$x_ref <- private$test_data(x_ref, name = "x_ref")
 
@@ -116,32 +116,34 @@ DeepLift <- R6Class(
     #' This method visualizes the result of individual data points of the
     #' selected method and enables a visual in-depth investigation with the help
     #' of the S4 classes [`innsight_ggplot2`] and [`innsight_plotly`].\cr
-    #' You can use the argument `data_idx` to select the data points in the given
-    #' data for the plot. In addition, the individual output nodes for the plot
-    #' can be selected with the argument `output_idx`. The different results for
-    #' the selected data points and outputs are visualized using the ggplot2-based
-    #' S4 class `innsight_ggplot2`. You can also use the `as_plotly` argument to
-    #' generate an interactive plot with `innsight_plotly` based on the
-    #' plot function [plotly::plot_ly]. For more information and the whole bunch
-    #' of possibilities, see [`innsight_ggplot2`] and [`innsight_plotly`].\cr
+    #' You can use the argument `data_idx` to select the data points in the
+    #' given data for the plot. In addition, the individual output nodes for
+    #' the plot can be selected with the argument `output_idx`. The different
+    #' results for the selected data points and outputs are visualized using
+    #' the ggplot2-based S4 class `innsight_ggplot2`. You can also use the
+    #' `as_plotly` argument to generate an interactive plot with
+    #' `innsight_plotly` based on the plot function [plotly::plot_ly]. For
+    #' more information and the whole bunch of possibilities, see
+    #' [`innsight_ggplot2`] and [`innsight_plotly`].\cr
     #' \cr
     #' **Note:**
-    #' 1. For the interactive plotly-based plots, the suggested package `plotly`
-    #' is required.
-    #' 2. The ggplot2-based plots for models with multiple input layers are a bit
-    #' more complex, therefore the suggested packages `'grid'`, `'gridExtra'`
-    #' and `'gtable'` must be installed in your R session.
+    #' 1. For the interactive plotly-based plots, the suggested package
+    #' `plotly` is required.
+    #' 2. The ggplot2-based plots for models with multiple input layers are
+    #' a bit more complex, therefore the suggested packages `'grid'`,
+    #' `'gridExtra'` and `'gtable'` must be installed in your R session.
     #'
     #' @param data_idx An integer vector containing the numbers of the data
     #' points whose result is to be plotted, e.g. `c(1,3)` for the first
     #' and third data point in the given data. Default: `1`.
-    #' @param output_idx The indices of the output nodes for which the results is
-    #' to be plotted. This can be either a `vector` of indices or a `list` of
-    #' vectors of indices but must be a subset of the indices for which the
-    #' results were calculated, i.e. a subset of `output_idx` from the
-    #' initialization `new()` (see argument `output_idx` in method `new()` of this
-    #' R6 class for details). By default (`NULL`), the smallest index of all
-    #' calculated output nodes and output layers is used.
+    #' @param output_idx The indices of the output nodes for which the results
+    #' is to be plotted. This can be either a `vector` of indices or a
+    #' `list` of vectors of indices but must be a subset of the indices
+    #' for which the results were calculated, i.e. a subset of `output_idx`
+    #' from the initialization `new()` (see argument `output_idx` in
+    #' method `new()` of this R6 class for details). By default (`NULL`),
+    #' the smallest index of all calculated output nodes and output layers
+    #' is used.
     #'
     #' @return
     #' Returns either an [`innsight_ggplot2`] (`as_plotly = FALSE`) or an
@@ -149,7 +151,7 @@ DeepLift <- R6Class(
     #' individual results.
     plot = function(data_idx = 1,
                     output_idx = NULL,
-                    aggr_channels = 'sum',
+                    aggr_channels = "sum",
                     as_plotly = FALSE) {
 
       private$plot(data_idx, output_idx, aggr_channels,
@@ -172,22 +174,22 @@ DeepLift <- R6Class(
     #' more information and the whole bunch of possibilities, see
     #' [`innsight_ggplot2`] and [`innsight_plotly`].\cr \cr
     #' **Note:**
-    #' 1. For the interactive plotly-based plots, the suggested package `plotly`
-    #' is required.
-    #' 2. The ggplot2-based plots for models with multiple input layers are a bit
-    #' more complex, therefore the suggested packages `'grid'`, `'gridExtra'`
-    #' and `'gtable'` must be installed in your R session.
+    #' 1. For the interactive plotly-based plots, the suggested package
+    #' `plotly` is required.
+    #' 2. The ggplot2-based plots for models with multiple input layers are
+    #' a bit more complex, therefore the suggested packages `'grid'`,
+    #' `'gridExtra'` and `'gtable'` must be installed in your R session.
     #'
-    #' @param output_idx The indices of the output nodes for which the results is
-    #' to be plotted. This can be either a `vector` of indices or a `list` of
-    #' vectors of indices but must be a subset of the indices for which the
-    #' results were calculated, i.e. a subset of `output_idx` from the
-    #' initialization `new()` (see argument `output_idx` in method `new()` of this
-    #' R6 class for details). By default (`NULL`), the smallest index of all
-    #' calculated output nodes and output layers is used.
-    #' @param data_idx By default ("all"), all available data points are used to
-    #' calculate the boxplot information. However, this parameter can be used
-    #' to select a subset of them by passing the indices. E.g. with
+    #' @param output_idx The indices of the output nodes for which the
+    #' results is to be plotted. This can be either a `vector` of indices or
+    #' a `list` of vectors of indices but must be a subset of the indices
+    #' for which the results were calculated, i.e. a subset of `output_idx`
+    #' from the initialization `new()` (see argument `output_idx` in method
+    #' `new()` of this R6 class for details). By default (`NULL`), the
+    #' smallest index of all calculated output nodes and output layers is used.
+    #' @param data_idx By default ("all"), all available data points are used
+    #' to calculate the boxplot information. However, this parameter can be
+    #' used to select a subset of them by passing the indices. E.g. with
     #' `c(1:10, 25, 26)` only the first 10 data points and
     #' the 25th and 26th are used to calculate the boxplots.
     #'
@@ -198,7 +200,7 @@ DeepLift <- R6Class(
     boxplot = function(output_idx = NULL,
                        data_idx = "all",
                        ref_data_idx = NULL,
-                       aggr_channels = 'sum',
+                       aggr_channels = "sum",
                        preprocess_FUN = abs,
                        as_plotly = FALSE,
                        individual_data_idx = NULL,
