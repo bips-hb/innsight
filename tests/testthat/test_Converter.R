@@ -174,6 +174,10 @@ test_that("Test package Neuralnet", {
                   hidden = c(3, 2), act.fct = "tanh", rep = 1
   )
   converter <- Converter$new(nn)
+  # Converter with input dim as vector
+  converter <- Converter$new(nn, input_dim = c(2))
+  # Converter with input dim as list
+  converter <- Converter$new(nn, input_dim = list(2))
 
   # Test if converting was successful
 
@@ -214,7 +218,10 @@ test_that("Test torch sequential model: Dense", {
 
   expect_error(Converter$new(model))
 
+  # input dim as numeric
   converter <- Converter$new(model, input_dim = c(5))
+  # input dim as list
+  converter <- Converter$new(model, input_dim = list(5))
   y_true <- as_array(model(input))
   y <- as_array(converter$model(list(input))[[1]])
 
@@ -237,8 +244,6 @@ test_that("Test torch sequential model: Dense with dropout", {
     nn_sigmoid()
   )
   model$eval()
-
-  Converter$new(model, input_dim = c(5))
   input <- torch_randn(10, 5)
 
   expect_error(Converter$new(model))
@@ -262,19 +267,6 @@ test_that("Test torch sequential model: Unknwon layer type", {
 
 test_that("Test torch sequential model: 1D Conv", {
   library(torch)
-
-  # # See issue #716 (https://github.com/mlverse/torch/issues/716)
-  # nn_flatten <- nn_module(
-  #   classname = "nn_flatten",
-  #   initialize = function(start_dim = 2, end_dim = -1) {
-  #     self$start_dim <- start_dim
-  #     self$end_dim <- end_dim
-  #   },
-  #   forward = function(x) {
-  #     torch_flatten(x, start_dim = self$start_dim, end_dim = self$end_dim)
-  #   }
-  # )
-
   input <- torch_randn(10, 3, 100)
 
   model <- nn_sequential(
@@ -298,7 +290,12 @@ test_that("Test torch sequential model: 1D Conv", {
 
   expect_error(Converter$new(model))
 
+  # input dim as vector
   converter <- Converter$new(model, input_dim = c(3, 100))
+  # input dim as list
+  converter <- Converter$new(model, input_dim = list(c(3, 100)))
+  # input dim not channels first
+  expect_error(Converter$new(model, input_dim = c(100, 3)))
   y_true <- as_array(model(input))
   y <- as_array(converter$model(list(input))[[1]])
 
@@ -368,7 +365,12 @@ test_that("Test torch sequential model: 2D Conv", {
 
   expect_error(Converter$new(model))
 
+  # input dim as vector
   converter <- Converter$new(model, input_dim = c(3, 30, 30))
+  # input dim as list
+  converter <- Converter$new(model, input_dim = list(c(3, 30, 30)))
+  # input dim not channels first
+  expect_error(Converter$new(model, input_dim = c(30, 30, 3)))
   y_true <- as_array(model(input))
   y <- as_array(converter$model(list(input))[[1]])
 
@@ -476,6 +478,10 @@ test_that("Test keras sequential: Dense", {
     layer_dense(units = 3, activation = "softmax")
 
   converter <- Converter$new(model)
+  # input dim as vector
+  converter <- Converter$new(model, input_dim = c(4))
+  # input dim as list
+  converter <- Converter$new(model, input_dim = list(4))
 
   # forward method
   y_true <- as.array(model(data))
@@ -529,6 +535,12 @@ test_that("Test keras sequential: Conv1D with 'valid' padding", {
 
   # test non-fitted model
   converter <- Converter$new(model)
+  # input dim as vector
+  converter <- Converter$new(model, input_dim = c(4, 128))
+  # input dim as list
+  converter <- Converter$new(model, input_dim = list(c(4, 128)))
+  # not channels first
+  expect_error(Converter$new(model, input_dim = list(c(128, 4))))
 
   # forward method
   y_true <- as.array(model(data))
@@ -824,6 +836,10 @@ test_that("Test keras model: Two inputs + one output", {
   )
 
   conv <- Converter$new(model)
+  # input dim as list
+  conv <- Converter$new(model, input_dim = list(c(2,10,10), c(5)))
+  # not channels first
+  expect_error(Converter$new(model, input_dim = list(c(10,10,2), c(5))))
   data <- lapply(list(c(10,10,2), c(5)), function(x) array(rnorm(10 * prod(x)), dim = c(10, x)))
   data_torch <- lapply(data, torch_tensor)
 

@@ -132,6 +132,18 @@ Converter <- R6Class("Converter",
         ))
       }
 
+      # Check input dimension (if specified)
+      if (!is.null(input_dim)) {
+        if (!is.list(input_dim)) {
+          input_dim <- list(input_dim)
+        }
+        assertTRUE(length(input_dim) == length(model_as_list$input_dim))
+        for (i in seq_along(input_dim)) {
+          assertSetEqual(input_dim[[i]], model_as_list$input_dim[[i]],
+                         ordered = TRUE)
+        }
+      }
+
       # Set input and output names
       if (!is.null(input_names)) {
         model_as_list$input_names <- input_names
@@ -920,11 +932,16 @@ set_name_format <- function(in_or_out_names) {
 
 convert_torch <- function(model, input_dim) {
   if (inherits(model, "nn_sequential")) {
-    if (!testNumeric(input_dim, lower = 1)) {
-      stop(
-        "For a 'torch' model, you have to specify the argument ",
-        "'input_dim'!"
-      )
+    if (!is.list(input_dim)) {
+      input_dim <- list(input_dim)
+    }
+    for (i in seq_along(input_dim)) {
+      if (!testNumeric(input_dim[[i]], lower = 1)) {
+        stop(
+          "For a 'torch' model, you have to specify the argument ",
+          "'input_dim'!"
+        )
+      }
     }
     model_as_list <- convert_torch_sequential(model)
     model_as_list$input_dim <- input_dim
