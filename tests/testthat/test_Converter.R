@@ -11,48 +11,62 @@ test_that("Test general errors", {
   expect_error(Converter$new(NULL)) # not torch, keras or neuralnet
   expect_error(Converter$new(c(3))) # not torch, keras or neuralnet
 
+  layers <- list(list(type = "Dense", weight = matrix(c(2), 1,2), bias = 1,
+                      activation_name = "relu"))
+
   # No entry 'layers'
   model <- list(NULL)
   expect_error(Converter$new(model))
   # No entry 'input_dim'
-  model <- list(layers = list())
+  model <- list(layers = layers)
   expect_error(Converter$new(model))
   # 'input_dim' not as numeric
-  model <- list(layers = list(), input_dim = c("as"))
+  model <- list(layers = layers, input_dim = c("as"))
   expect_error(Converter$new(model))
+  # 'input_layers' missing
+  tmp_layers <- layers
+  tmp_layers[[1]]$output_layers <- -1
+  model <- list(layers = tmp_layers, input_dim = list(c(2)), input_nodes = 1,
+                output_nodes = 1)
+  expect_warning(Converter$new(model))
+  # 'output_layers' missing
+  tmp_layers <- layers
+  tmp_layers[[1]]$input_layers <- 0
+  model <- list(layers = tmp_layers, input_dim = list(c(2)), input_nodes = 1,
+                output_nodes = 1)
+  expect_warning(Converter$new(model))
   # 'input_nodes' missing
-  model <- list(layers = list(), input_dim = list(c(2)))
-  expect_error(Converter$new(model))
+  tmp_layers[[1]]$output_layers <- -1
+  model <- list(layers = tmp_layers, input_dim = list(c(2)), output_nodes = 1)
+  expect_warning(Converter$new(model))
+  # 'output_nodes' missing
+  model <- list(layers = tmp_layers, input_dim = list(c(2)), input_nodes = 1)
+  expect_warning(Converter$new(model))
   # 'input_nodes' out of range
-  model <- list(layers = list("Dense"), input_dim = list(c(2)),
-                input_nodes = c(3))
+  model <- list(layers = tmp_layers, input_dim = list(c(2)), input_nodes = 2)
   expect_error(Converter$new(model))
   # 'input_nodes' wrong
-  model <- list(layers = list("Dense"), input_dim = list(c(2)),
+  model <- list(layers = tmp_layers, input_dim = list(c(2)),
                 input_nodes = "asdf")
   expect_error(Converter$new(model))
-  # 'output_nodes' missing
-  model <- list(layers = list("Dense"), input_dim = list(c(2)),
-                input_nodes = c(1))
-  expect_error(Converter$new(model))
   # 'output_nodes' out of range
-  model <- list(layers = list("Dense"), input_dim = list(c(2)),
+  model <- list(layers = tmp_layers, input_dim = list(c(2)),
                 input_nodes = c(1), output_nodes = c(3))
   expect_error(Converter$new(model))
   # 'output_nodes' wrong
-  model <- list(layers = list("Dense"), input_dim = list(c(2)),
+  model <- list(layers = tmp_layers, input_dim = list(c(2)),
                 input_nodes = c(1), output_nodes = list(c("a")))
   expect_error(Converter$new(model))
   # 'output_dim' not numeric
-  model <- list(layers = list("Dense"), input_dim = list(c(2)),
+  model <- list(layers = tmp_layers, input_dim = list(c(2)),
                 input_nodes = c(1), output_nodes = c(1), output_dim = "adf")
   expect_error(Converter$new(model))
   # 'input_names' not characters
-  model <- list(layers = list("Dense"), input_dim = list(c(2)),
+  model <- list(layers = tmp_layers, input_dim = list(c(2)),
                 input_nodes = c(1), output_nodes = c(1), input_names = c(1,2,3))
   expect_error(Converter$new(model))
   # 'output_names' not characters
-  model <- list(layers = list("Dense"), input_dim = list(c(2)),
+  model <- list(layers = tmp_layers, input_dim = list(c(2)),
                 input_nodes = c(1), output_nodes = c(1), output_names = c(1,2,3))
   expect_error(Converter$new(model))
 
@@ -80,11 +94,11 @@ test_that("Test general errors", {
   # 'type' wrong
   expect_error(Converter$new(create_model("asd")))
   # 'input_layers' missing
-  expect_error(Converter$new(create_model("Dense")))
+  expect_warning(Converter$new(create_model("Dense")))
   # 'input_layers' wrong
   expect_error(Converter$new(create_model("Dense", "sadf")))
   # 'output_layers' missing
-  expect_error(Converter$new(create_model("Dense", c(0))))
+  expect_warning(Converter$new(create_model("Dense", c(0))))
   # 'output_layers' wrong
   expect_error(Converter$new(create_model("Dense", c(0), NA)))
   # 'output_dim' wrong

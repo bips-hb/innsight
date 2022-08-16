@@ -785,7 +785,7 @@ check_and_register_shapes <- function(modules_list, graph, model_as_list,
     # Check input shape
     given_input_shape <- model_as_list$layers[[step$used_node]]$dim_in
     if (!is.null(given_input_shape) &&
-      !all(calculated_input_shape == given_input_shape)) {
+      !all_equal(calculated_input_shape, given_input_shape)) {
       given <- shape_to_char(given_input_shape)
       calc <- shape_to_char(calculated_input_shape)
 
