@@ -169,6 +169,57 @@ add_layer <- nn_module(
 )
 
 ###############################################################################
+#                           Padding Layer
+###############################################################################
+padding_layer <- nn_module(
+  classname = "Padding_Layer",
+  inherit = OtherLayer,
+
+  initialize = function(pad, dim_in, dim_out, mode = "constant", value = 0) {
+    self$input_dim <- dim_in
+    self$output_dim <- dim_out
+    self$pad <- pad
+    self$mode <- mode
+    self$value <- value
+
+    num_dims <- length(dim_in)
+    rev_dim_in <- rev(dim_in)
+    if (num_dims == 1) {
+      indices <- list(seq.int(from = pad[1] + 1, to = pad[1] + rev_dim_in[1]))
+    } else if (num_dims == 2) {
+      indices <- list(
+        seq_len(rev_dim_in[2]),
+        seq.int(from = pad[1] + 1, to = pad[1] + rev_dim_in[1])
+      )
+    } else {
+      indices <- list(
+        seq_len(rev_dim_in[3]),
+        seq.int(from = pad[3] + 1, to = pad[3] + rev_dim_in[2]),
+        seq.int(from = pad[1] + 1, to = pad[1] + rev_dim_in[1])
+      )
+    }
+    self$rev_pad_idx <- indices
+  },
+
+  forward = function(x, ...) {
+    nnf_pad(x, pad = self$pad, mode = self$mode, value = self$value)
+  },
+
+  update_ref = function(x_ref, ...) {
+    nnf_pad(x_ref, pad = self$pad, mode = self$mode, value = self$value)
+  },
+
+  reshape_to_input = function(rel_output, ...) {
+    dim <- rel_output$shape
+    indices <- append(self$rev_pad_idx, list(seq_len(dim[1])), 0)
+    indices <- append(indices, list(seq_len(rev(dim)[1])))
+    args <- append(indices, list(x = rel_output), 0)
+    args$drop <- FALSE
+
+    do.call('[', args)
+  }
+)
+###############################################################################
 #                           Skipping Layer
 ###############################################################################
 skipping_layer <- nn_module(
