@@ -1,7 +1,7 @@
 implemented_layers_keras <- c(
   "Dense", "Dropout", "InputLayer", "Conv1D", "Conv2D", "Flatten",
   "MaxPooling1D", "MaxPooling2D", "AveragePooling1D", "AveragePooling2D",
-  "Concatenate", "Add"
+  "Concatenate", "Add", "ZeroPadding1D", "ZeroPadding2D"
 )
 
 
@@ -90,7 +90,10 @@ convert_keras_model <- function(model) {
           convert_keras_pooling(layer, type)
         },
         Concatenate = convert_keras_concatenate(layer),
-        Add = convert_keras_add(layer)
+        Add = convert_keras_add(layer),
+        ZeroPadding1D = convert_keras_padding(layer, 0),
+        ZeroPadding2D = convert_keras_padding(layer, 0, "constant",
+                                              layer$data_format),
       )
 
     # Define the incoming and outgoing layers of this layer
@@ -309,6 +312,28 @@ convert_keras_concatenate <- function(layer) {
     axis = layer$axis,
     dim_in = lapply(layer$input_shape, unlist),
     dim_out = unlist(layer$output_shape)
+  )
+}
+
+# Padding Layer ---------------------------------------------------------------
+
+convert_keras_padding <- function(layer, value, mode = "constant",
+                                  data_format = "channels_last") {
+  input_dim <- as.integer(unlist(layer$input_shape))
+  output_dim <- as.integer(unlist(layer$output_shape))
+
+  if (data_format == "channels_last") {
+    input_dim <- move_channels_first(input_dim)
+    output_dim <- move_channels_first(output_dim)
+  }
+
+  list(
+    type = "Padding",
+    pad = unlist(rev(layer$padding)),
+    mode = mode,
+    value = value,
+    dim_in = input_dim,
+    dim_out = output_dim
   )
 }
 

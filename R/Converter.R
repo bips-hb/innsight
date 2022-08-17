@@ -233,7 +233,7 @@ Converter <- R6Class("Converter",
         assertChoice(type, c(
           "Flatten", "Skipping", "Dense", "Conv1D", "Conv2D",
           "MaxPooling1D", "MaxPooling2D", "AveragePooling1D",
-          "AveragePooling2D", "Concatenate", "Add"
+          "AveragePooling2D", "Concatenate", "Add", "Padding"
         ))
 
         # Get incoming and outgoing layers (as indices) of the current layer
@@ -281,7 +281,8 @@ Converter <- R6Class("Converter",
           AveragePooling1D = create_pooling_layer(layer_as_list, type),
           AveragePooling2D = create_pooling_layer(layer_as_list, type),
           Concatenate = create_concatenate_layer(layer_as_list),
-          Add = create_add_layer(layer_as_list)
+          Add = create_add_layer(layer_as_list),
+          Padding = create_padding_layer(layer_as_list)
         )
 
         # Set a name for the layer
@@ -625,6 +626,34 @@ create_concatenate_layer <- function(layer_as_list) {
   assertInt(dim)
 
   concatenate_layer(dim, dim_in, dim_out)
+}
+
+# Padding Layer ---------------------------------------------------------------
+create_padding_layer <- function(layer_as_list) {
+  # Get arguments
+  dim_in <- layer_as_list$dim_in
+  dim_out <- layer_as_list$dim_out
+  pad <- layer_as_list$pad
+  mode <- layer_as_list$mode
+  value <- layer_as_list$value
+
+  # Check arguments
+  assertIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE)
+  assertIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE)
+  if (length(dim_in) == 1 || length(dim_in) == 2) {
+    assertIntegerish(padding, lower = 0, len = 2)
+  } else if (length(dim_in) == 3) {
+    assertIntegerish(padding, lower = 0, len = 2)
+  } else {
+    stop("The padding vector in your padding layer has to be of length ",
+         "2 (pad_left, pad_right) or 4 (pad_left, pad_right, pad_top, ",
+         "pad_bottom).\n", "Your padding value: 'c",
+         shape_to_char(c(2,2), use_batch = FALSE), "'")
+  }
+  assertChoice(mode, c("constant", "reflect", "replicate", "circular"))
+  assertNumeric(value)
+
+  padding_layer(pad, dim_in, dim_out, mode, value)
 }
 
 # Add Layer -------------------------------------------------------------------
