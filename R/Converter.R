@@ -233,7 +233,7 @@ Converter <- R6Class("Converter",
         assertChoice(type, c(
           "Flatten", "Skipping", "Dense", "Conv1D", "Conv2D",
           "MaxPooling1D", "MaxPooling2D", "AveragePooling1D",
-          "AveragePooling2D", "Concatenate", "Add", "Padding"
+          "AveragePooling2D", "Concatenate", "Add", "Padding", "BatchNorm"
         ))
 
         # Get incoming and outgoing layers (as indices) of the current layer
@@ -282,7 +282,8 @@ Converter <- R6Class("Converter",
           AveragePooling2D = create_pooling_layer(layer_as_list, type),
           Concatenate = create_concatenate_layer(layer_as_list),
           Add = create_add_layer(layer_as_list),
-          Padding = create_padding_layer(layer_as_list)
+          Padding = create_padding_layer(layer_as_list),
+          BatchNorm = create_batchnorm_layer(layer_as_list)
         )
 
         # Set a name for the layer
@@ -611,6 +612,32 @@ create_flatten_layer <- function(layer_as_list) {
   if (is.null(end_dim)) end_dim <- -1L
 
   flatten_layer(dim_in, dim_out, start_dim, end_dim)
+}
+
+# Batch Normalization Layer ---------------------------------------------------
+
+create_batchnorm_layer <- function(layer_as_list) {
+  # Get arguments
+  dim_in <- layer_as_list$dim_in
+  dim_out <- layer_as_list$dim_out
+  running_mean <- layer_as_list$running_mean
+  running_var <- layer_as_list$running_var
+  weight <- layer_as_list$weight
+  bias <- layer_as_list$bias
+  eps <- layer_as_list$eps
+
+  # Check arguments
+  num_channels <- dim_in[1]
+  assertIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE)
+  assertIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE)
+  assertNumeric(running_mean, len = num_channels)
+  assertNumeric(running_var, len = num_channels)
+  assertNumeric(weight, len = num_channels, null.ok = TRUE)
+  assertNumeric(bias, len = num_channels, null.ok = TRUE)
+  assertNumber(eps, lower = 0)
+
+  batchnorm_layer(running_mean, running_var, weight, bias, eps,
+                  dim_in, dim_out)
 }
 
 # Concatenate Layer -----------------------------------------------------------

@@ -1,7 +1,7 @@
 implemented_layers_keras <- c(
   "Dense", "Dropout", "InputLayer", "Conv1D", "Conv2D", "Flatten",
   "MaxPooling1D", "MaxPooling2D", "AveragePooling1D", "AveragePooling2D",
-  "Concatenate", "Add", "ZeroPadding1D", "ZeroPadding2D"
+  "Concatenate", "Add", "ZeroPadding1D", "ZeroPadding2D", "BatchNormalization"
 )
 
 
@@ -94,6 +94,7 @@ convert_keras_model <- function(model) {
         ZeroPadding1D = convert_keras_padding(layer, 0),
         ZeroPadding2D = convert_keras_padding(layer, 0, "constant",
                                               layer$data_format),
+        BatchNormalization = convert_keras_batchnorm(layer, data_format)
       )
 
     # Define the incoming and outgoing layers of this layer
@@ -312,6 +313,34 @@ convert_keras_concatenate <- function(layer) {
     axis = layer$axis,
     dim_in = lapply(layer$input_shape, unlist),
     dim_out = unlist(layer$output_shape)
+  )
+}
+
+# Batch Normalization Layer ---------------------------------------------------
+
+convert_keras_batchnorm <- function(layer, data_format = "channels_first") {
+  input_dim <- as.integer(unlist(layer$input_shape))
+  output_dim <- as.integer(unlist(layer$output_shape))
+  running_mean <- as.numeric(layer$moving_mean)
+  running_var <- as.numeric(layer$moving_variance)
+  weight <- if (layer$scale) as.numeric(layer$gamma) else NULL
+  bias <- if (layer$center) as.numeric(layer$beta) else NULL
+  eps <- layer$epsilon
+
+  if (data_format == "channels_last") {
+    input_dim <- move_channels_first(input_dim)
+    output_dim <- move_channels_first(output_dim)
+  }
+
+  list(
+    type = "BatchNorm",
+    dim_in = input_dim,
+    dim_out = output_dim,
+    running_mean = running_mean,
+    running_var = running_var,
+    weight = weight,
+    bias = bias,
+    eps = eps
   )
 }
 
