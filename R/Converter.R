@@ -281,7 +281,9 @@ Converter <- R6Class("Converter",
           AveragePooling1D = create_pooling_layer(layer_as_list, type),
           AveragePooling2D = create_pooling_layer(layer_as_list, type),
           Concatenate = create_concatenate_layer(layer_as_list),
-          Add = create_add_layer(layer_as_list)
+          Add = create_add_layer(layer_as_list),
+          Padding = create_padding_layer(layer_as_list),
+          Activation = create_activation_layer(layer_as_list)
         )
 
         # Set a name for the layer
@@ -340,8 +342,6 @@ Converter <- R6Class("Converter",
         input_names_lenght <- lapply(input_names,
                                      function(x) unlist(lapply(x, length)))
 
-        print(input_names_lenght)
-        print(model_as_list$input_dim)
         if (!all_equal(input_names_lenght, model_as_list$input_dim)) {
           given <- shape_to_char(input_names_lenght)
           calc <- shape_to_char(model_as_list$input_dim)
@@ -535,6 +535,33 @@ create_pooling_layer <- function(layer_as_list, type) {
   }
 
   layer
+}
+
+# Padding Layer ---------------------------------------------------------------
+create_padding_layer <- function(layer_as_list) {
+  # Check for required keys
+  assertSubset(c("pad"), names(layer_as_list))
+
+
+  dim_in <- layer_as_list$dim_in
+  dim_out <- layer_as_list$dim_out
+  pad <- layer_as_list$pad
+  mode <- layer_as_list$mode
+  fill <- layer_as_list$fill
+
+  assertIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE)
+  assertIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE)
+  assertIntegerish(pad)
+  assertChoice(mode, c("constant", "reflect", "replicate", "circular"))
+  assertNumber(fill)
+
+  padding_layer(pad, dim_in, dim_out, mode, fill)
+}
+
+# Activation Layer ------------------------------------------------------------
+create_activation_layer <- function(layer_as_list) {
+
+  activation_layer(layer_as_list$act_name)
 }
 
 # Flatten Layer ---------------------------------------------------------------
