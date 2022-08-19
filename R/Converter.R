@@ -233,7 +233,7 @@ Converter <- R6Class("Converter",
         assertChoice(type, c(
           "Flatten", "Skipping", "Dense", "Conv1D", "Conv2D",
           "MaxPooling1D", "MaxPooling2D", "AveragePooling1D",
-          "AveragePooling2D", "Concatenate", "Add"
+          "AveragePooling2D", "Concatenate", "Add", "Activation", "Padding"
         ))
 
         # Get incoming and outgoing layers (as indices) of the current layer
@@ -401,28 +401,21 @@ Converter <- R6Class("Converter",
 # Dense Layer -----------------------------------------------------------------
 create_dense_layer <- function(layer_as_list, dtype) {
   # Check for required keys
-  assertSubset(
-    c("weight", "bias", "activation_name"),
-    names(layer_as_list)
-  )
+  assertSubset(c("weight", "bias"), names(layer_as_list))
 
   # Get arguments
   dim_in <- layer_as_list$dim_in
   dim_out <- layer_as_list$dim_out
   weight <- layer_as_list$weight
   bias <- layer_as_list$bias
-  activation_name <- layer_as_list$activation_name
 
   # Check arguments
   assertIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE)
   assertIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE)
   assertArray(weight, mode = "numeric", d = 2)
   assertVector(bias, len = dim_out)
-  assertString(activation_name)
 
-  dense_layer(weight, bias, activation_name, dim_in, dim_out,
-    dtype = dtype
-  )
+  dense_layer(weight, bias, dim_in, dim_out, dtype = dtype)
 }
 
 # Conv1D Layer ----------------------------------------------------------------
