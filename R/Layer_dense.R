@@ -11,7 +11,7 @@ dense_layer <- nn_module(
   # weight: [out_features, in_features]
   # bias  : [out_features]
   #
-  initialize = function(weight, bias, activation_name,
+  initialize = function(weight, bias,
                         dim_in = NULL,
                         dim_out = NULL,
                         dtype = "float") {
@@ -25,7 +25,6 @@ dense_layer <- nn_module(
     } else {
       self$output_dim <- dim_out
     }
-    self$get_activation(activation_name)
 
     # Check if weight is already a tensor
     if (!inherits(weight, "torch_tensor")) {
@@ -46,16 +45,11 @@ dense_layer <- nn_module(
   # x       : [batch_size, in_features]
   #
   # output  : [batch_size, out_features]
-  forward = function(x, save_input = TRUE, save_preactivation = TRUE,
-                     save_output = TRUE, ...) {
+  forward = function(x, save_input = TRUE, save_output = TRUE, ...) {
     if (save_input) {
       self$input <- x
     }
-    preactivation <- nnf_linear(x, self$W, self$b)
-    if (save_preactivation) {
-      self$preactivation <- preactivation
-    }
-    output <- self$activation_f(preactivation)
+    output <- nnf_linear(x, self$W, self$b)
     if (save_output) {
       self$output <- output
     }
@@ -66,16 +60,11 @@ dense_layer <- nn_module(
   # x_ref   : [1, in_features]
   #
   # output  : [1, out_features]
-  update_ref = function(x_ref, save_input = TRUE, save_preactivation = TRUE,
-                        save_output = TRUE, ...) {
+  update_ref = function(x_ref, save_input = TRUE, save_output = TRUE, ...) {
     if (save_input) {
       self$input_ref <- x_ref
     }
-    preactivation_ref <- nnf_linear(x_ref, self$W, self$b)
-    if (save_preactivation) {
-      self$preactivation_ref <- preactivation_ref
-    }
-    output_ref <- self$activation_f(preactivation_ref)
+    output_ref <- nnf_linear(x_ref, self$W, self$b)
     if (save_output) {
       self$output_ref <- output_ref
     }

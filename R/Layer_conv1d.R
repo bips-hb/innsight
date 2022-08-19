@@ -17,9 +17,7 @@ conv1d_layer <- nn_module(
                         dim_in,
                         dim_out,
                         stride = 1,
-                        padding = c(0, 0),
                         dilation = 1,
-                        activation_name = "linear",
                         dtype = "float") {
 
     self$input_dim <- dim_in
@@ -28,10 +26,7 @@ conv1d_layer <- nn_module(
     self$out_channels <- dim(weight)[1]
     self$kernel_length <- dim(weight)[-c(1, 2)]
     self$stride <- stride
-    self$padding <- padding
     self$dilation <- dilation
-
-    self$get_activation(activation_name)
 
     if (!inherits(weight, "torch_tensor")) {
       self$W <- torch_tensor(weight)
@@ -49,25 +44,18 @@ conv1d_layer <- nn_module(
   # x       : [batch_size, in_channels, in_length]
   #
   # output  : [batch_size, out_channels, out_length]
-  forward = function(x, save_input = TRUE, save_preactivation = TRUE,
-                     save_output = TRUE, ...) {
+  forward = function(x, save_input = TRUE, save_output = TRUE, ...) {
     if (save_input) {
       self$input <- x
     }
-    # Pad the input
-    x <- nnf_pad(x, pad = self$padding)
     # Apply conv1d
-    preactivation <- nnf_conv1d(x, self$W,
+    output <- nnf_conv1d(x, self$W,
       bias = self$b,
       stride = self$stride,
       padding = 0,
       dilation = self$dilation
     )
-    if (save_preactivation) {
-      self$preactivation <- preactivation
-    }
 
-    output <- self$activation_f(preactivation)
     if (save_output) {
       self$output <- output
     }
@@ -78,25 +66,18 @@ conv1d_layer <- nn_module(
   # x_ref   : [1, in_channels, in_length]
   #
   # output  : [1, out_channels, out_length]
-  update_ref = function(x_ref, save_input = TRUE, save_preactivation = TRUE,
-                        save_output = TRUE, ...) {
+  update_ref = function(x_ref, save_input = TRUE, save_output = TRUE, ...) {
     if (save_input) {
       self$input_ref <- x_ref
     }
-    # Apply padding
-    x_ref <- nnf_pad(x_ref, pad = self$padding)
     # Apply conv1d
-    preactivation_ref <- nnf_conv1d(x_ref, self$W,
+    output_ref <- nnf_conv1d(x_ref, self$W,
       bias = self$b,
       stride = self$stride,
       padding = 0,
       dilation = self$dilation
     )
-    if (save_preactivation) {
-      self$preactivation_ref <- preactivation_ref
-    }
 
-    output_ref <- self$activation_f(preactivation_ref)
     if (save_output) {
       self$output_ref <- output_ref
     }

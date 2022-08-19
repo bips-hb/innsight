@@ -19,9 +19,7 @@ conv2d_layer <- nn_module(
                         dim_in,
                         dim_out,
                         stride = 1,
-                        padding = c(0, 0, 0, 0),
                         dilation = 1,
-                        activation_name = "linear",
                         dtype = "float") {
 
     self$input_dim <- dim_in
@@ -30,10 +28,7 @@ conv2d_layer <- nn_module(
     self$out_channels <- dim(weight)[1]
     self$kernel_size <- dim(weight)[-c(1, 2)]
     self$stride <- stride
-    self$padding <- padding
     self$dilation <- dilation
-
-    self$get_activation(activation_name)
 
     # Check if weight is already a tensor
     if (!inherits(weight, "torch_tensor")) {
@@ -54,26 +49,19 @@ conv2d_layer <- nn_module(
   # x       : [batch_size, in_channels, in_height, in_width]
   #
   # output  : [batch_size, out_channels, out_height, out_width]
-  forward = function(x, save_input = TRUE, save_preactivation = TRUE,
-                     save_output = TRUE, ...) {
+  forward = function(x, save_input = TRUE, save_output = TRUE, ...) {
     if (save_input) {
       self$input <- x
     }
 
-    # Apply padding
-    x <- nnf_pad(x, pad = self$padding)
     # Apply convolution (2D)
-    preactivation <- nnf_conv2d(x, self$W,
+    output <- nnf_conv2d(x, self$W,
       bias = self$b,
       stride = self$stride,
       padding = 0,
       dilation = self$dilation
     )
-    if (save_preactivation) {
-      self$preactivation <- preactivation
-    }
-    # Apply non-linearity
-    output <- self$activation_f(preactivation)
+
     if (save_output) {
       self$output <- output
     }
@@ -84,25 +72,19 @@ conv2d_layer <- nn_module(
   # x_ref   : Tensor of size [1, in_channels, in_height, in_width]
   #
   # output  : [1, out_channels, out_height, out_width]
-  update_ref = function(x_ref, save_input = TRUE, save_preactivation = TRUE,
-                        save_output = TRUE, ...) {
+  update_ref = function(x_ref, save_input = TRUE, save_output = TRUE, ...) {
     if (save_input) {
       self$input_ref <- x_ref
     }
-    # Apply padding
-    x_ref <- nnf_pad(x_ref, pad = self$padding)
+
     # Apply convolution (2D)
-    preactivation_ref <- nnf_conv2d(x_ref, self$W,
+    output_ref <- nnf_conv2d(x_ref, self$W,
       bias = self$b,
       stride = self$stride,
       padding = 0,
       dilation = self$dilation
     )
-    if (save_preactivation) {
-      self$preactivation_ref <- preactivation_ref
-    }
-    # Apply non-linearity
-    output_ref <- self$activation_f(preactivation_ref)
+
     if (save_output) {
       self$output_ref <- output_ref
     }
