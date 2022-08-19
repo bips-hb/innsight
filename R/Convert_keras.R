@@ -17,9 +17,10 @@ convert_keras_model <- function(model) {
   add_n <- 0
 
   # Get layer names and reconstruct graph
-  names <- unlist(lapply(model$layers, FUN = function(x) x$name))
   sequential <- inherits(model, "keras.engine.sequential.Sequential")
-  graph <- keras_reconstruct_graph(model$get_config(), sequential)
+  layer_names <- unlist(lapply(model$layers, function(x) x$name))
+  graph <- keras_reconstruct_graph(model$get_config(), layer_names, sequential)
+  names <- unlist(lapply(graph, FUN = function(x) x$name))
 
   # Declare list for the list-converted layers
   model_as_list <- list()
@@ -86,21 +87,12 @@ convert_keras_model <- function(model) {
 
     # Define the incoming and outgoing layers of this layer
     # Thereby means '0' Input-Node and '-1' Output-Node
-    if (length(layer_list) == 1) {
-      layer_list$input_layers <- graph[[n]]$input_layers
-      layer_list$output_layers <- graph[[n]]$output_layers
-    } else {
-      in_layer <- graph[[n]]$input_layers
-      out_layer <-
-      for (i in seq_along(layer_list)) {
-
-      }
+    for (i in seq_along(layer_list)) {
+      layer_list[[i]]$input_layers <- graph[[n]]$input_layers
+      layer_list[[i]]$output_layers <- graph[[n]]$output_layers
+      model_as_list[[n]] <- layer_list[[i]]
+      n <- n + 1
     }
-
-    # Set name of this layer and save it
-    model_as_list[[n]] <- layer_list
-
-    n <- n + 1
   }
 
   # Get in- and output shape of the model
@@ -141,7 +133,7 @@ convert_keras_model <- function(model) {
   }
   input_nodes <- match(input_names, names)
   input_nodes <- input_nodes[!is.na(input_nodes)]
-  output_nodes <- match(model$output_names, names)
+  output_nodes <- length(names) + 1 - match(model$output_names, rev(names))
 
   # Return the list-converted model with in- and output shapes and nodes
   list(
@@ -419,33 +411,39 @@ get_same_padding <- function(input_dim, kernel_size, dilation, stride) {
 }
 
 
-keras_reconstruct_graph <- function(config, sequential = TRUE) {
+keras_reconstruct_graph <- function(config, layer_names, sequential = TRUE) {
+  idx <- unlist(lapply(config$layers,
+                function(l) l$config$name %in% layer_names))
+  layers <- config$layers[idx]
+
   # Create list with layer names
   names <- NULL
-  for (layer in config$layers)  {
+  for (layer in layers)  {
     times <- sum(
       has_padding(layer),
       if (sequential) TRUE else length(layer$inbound_nodes) > 0,
       has_activation(layer)
     )
     times <- max(times, 1)
-    names <- c(names, rep(layer$name, times))
+    names <- c(names, rep(layer$config$name, times))
   }
 
   if (sequential) {
     graph <- lapply(
       seq_along(names),
-      function(i) list(input_layers = i - 1, output_layers = i + 1)
+      function(i) list(input_layers = i - 1, output_layers = i + 1,
+                       name = names[i])
     )
     graph[[length(names)]]$output_layers <- -1
   } else {
     # Create empty graph
     graph <- lapply(
       seq_along(names),
-      function(a) list(input_layers = NULL, output_layers = NULL)
+      function(i) list(input_layers = NULL, output_layers = NULL,
+                       name = names[i])
     )
 
-    for (layer in config$layers) {
+    for (layer in layers) {
       if (length(layer$inbound_nodes) > 0) {
         in_layer_names <- unlist(
           lapply(layer$inbound_nodes[[1]], function(x) x[[1]])
