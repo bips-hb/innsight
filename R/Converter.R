@@ -421,51 +421,29 @@ create_dense_layer <- function(layer_as_list, dtype) {
 # Conv1D Layer ----------------------------------------------------------------
 create_conv1d_layer <- function(layer_as_list, dtype, i) {
   # Check for required keys
-  assertSubset(
-    c("weight", "bias", "activation_name"),
-    names(layer_as_list)
-  )
+  assertSubset(c("weight", "bias"), names(layer_as_list))
 
   # Get arguments
   dim_in <- layer_as_list$dim_in
   dim_out <- layer_as_list$dim_out
   weight <- layer_as_list$weight
   bias <- layer_as_list$bias
-  activation_name <- layer_as_list$activation_name
   stride <- layer_as_list$stride
   dilation <- layer_as_list$dilation
-  padding <- layer_as_list$padding
 
   # Check arguments
   assertIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE)
   assertIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE)
   assertArray(weight, mode = "numeric", d = 3)
   assertVector(bias, len = dim_out[1])
-  assertString(activation_name)
   assertInt(stride, null.ok = TRUE)
   assertInt(dilation, null.ok = TRUE)
-  assertNumeric(padding, null.ok = TRUE, lower = 0)
 
   # Set default arguments
   if (is.null(stride)) stride <- 1
   if (is.null(dilation)) dilation <- 1
-  if (is.null(padding)) padding <- c(0, 0)
 
-  if (length(padding) == 1) {
-    padding <- rep(padding, 2)
-  } else if (length(padding) != 2) {
-    stop(paste0(
-      "Expected a padding vector in 'model_as_list$layers[[", i, "]] ",
-      "of length:\n", "   - 1: same padding for each side\n",
-      "   - 2: first value: padding for left side; second value: ",
-      "padding for right side\n But your length: ", length(padding)
-    ))
-  }
-
-  conv1d_layer(weight, bias, dim_in, dim_out, stride, padding, dilation,
-    activation_name,
-    dtype = dtype
-  )
+  conv1d_layer(weight, bias, dim_in, dim_out, stride, dilation, dtype = dtype)
 }
 
 # Conv2D Layer ----------------------------------------------------------------
