@@ -22,34 +22,47 @@ convert_neuralnet_model <- function(model) {
   }
 
   model_as_list <- list()
+  n <- 1
   for (i in seq_along(weights)) {
-    name <- sprintf("Dense_%s", i)
-
     # the first row is the bias vector and the rest the weight matrix
-    b <- as.vector(weights[[i]][1, ])
-    w <- t(matrix(weights[[i]][-1, ], ncol = length(b)))
+    b <- as.vector(weights[[1]][1, ])
+    w <- t(matrix(weights[[1]][-1, ], ncol = length(b)))
 
     # consider the activation of the last layer
     if (i == length(weights) && model$linear.output == TRUE) {
       act_name <- "linear"
     }
+    dim_out <- dim(w)[1]
 
     # convert the layer as a list with all important parameters
     # The argument 'input_layers' saves all the previous layers of the current
     # layer. '0' means that the current layer is an input layer. Similarly,
     # the argument 'output_layers' saves all indices of the succeeding layers,
     # whereby '-1' means that the current layer is an output layer
-    model_as_list$layers[[name]] <-
+    model_as_list$layers[[n]] <-
       list(
         type = "Dense",
         weight = w,
         bias = b,
-        activation_name = act_name,
         dim_in = dim(w)[2],
-        dim_out = dim(w)[1],
-        input_layers = i - 1,
-        output_layers = ifelse(i == length(weights), -1, i + 1)
+        dim_out = dim_out,
+        input_layers = n - 1,
+        output_layers =
+          ifelse(i == length(weights) && act_name == "linear", -1, n + 1)
       )
+    n <- n + 1
+
+    if (act_name != "linear") {
+      model_as_list$layers[[n]] <-
+        list(
+          type = "Activation",
+          act_name = act_name,
+          dim_in = dim_out,
+          dim_out = dim_out,
+          input_layers = n - 1,
+          output_layers = ifelse(i == length(weights), -1, n + 1))
+      n <- n + 1
+    }
   }
 
   # Save other attributes of the model
@@ -60,7 +73,7 @@ convert_neuralnet_model <- function(model) {
   # Neuralnet implements only sequential models, hence the input node is the
   # first and the output node the last layer
   model_as_list$input_nodes <- c(1)
-  model_as_list$output_nodes <- c(i)
+  model_as_list$output_nodes <- c(n - 1)
 
   model_as_list
 }
