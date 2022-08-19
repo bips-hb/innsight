@@ -20,7 +20,7 @@ activation_layer <- nn_module(
     self$act_FUN <- act$act_func
   },
 
-  forward = function(x, save_input = FALSE, save_output = FALSE) {
+  forward = function(x, save_input = FALSE, save_output = FALSE, ...) {
     if (save_input) {
       self$input <- x
     }
@@ -32,7 +32,7 @@ activation_layer <- nn_module(
     out
   },
 
-  update_ref = function(x_ref, save_input = FALSE, save_output = FALSE) {
+  update_ref = function(x_ref, save_input = FALSE, save_output = FALSE, ...) {
     if (save_input) {
       self$input_ref <- x_ref
     }

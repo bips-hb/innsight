@@ -25,8 +25,8 @@ convert_neuralnet_model <- function(model) {
   n <- 1
   for (i in seq_along(weights)) {
     # the first row is the bias vector and the rest the weight matrix
-    b <- as.vector(weights[[1]][1, ])
-    w <- t(matrix(weights[[1]][-1, ], ncol = length(b)))
+    b <- as.vector(weights[[i]][1, ])
+    w <- t(matrix(weights[[i]][-1, ], ncol = length(b)))
 
     # consider the activation of the last layer
     if (i == length(weights) && model$linear.output == TRUE) {
