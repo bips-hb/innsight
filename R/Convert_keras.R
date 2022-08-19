@@ -14,24 +14,15 @@ convert_keras_model <- function(model) {
   # Define parameters for the data format and the layer index
   data_format <- NULL
   n <- 1
+  add_n <- 0
 
   # Get layer names and reconstruct graph
   names <- unlist(lapply(model$layers, FUN = function(x) x$name))
-  if (inherits(model, "keras.engine.sequential.Sequential")) {
-    # If the model is a sequential model, the first layer is the only input
-    # layer and the last layer is the only output layer
-    graph <- lapply(seq_along(model$layers), function(i) {
-      list(input_layers = i - 1, output_layers = i + 1)
-    })
-    graph[[length(graph)]]$output_layers <- -1
-  } else {
-    # Otherwise, we have to reconstruct the computational graph from the
-    # model config
-    graph <- keras_reconstruct_graph(model$layers, model$get_config())
-  }
+  sequential <- inherits(model, "keras.engine.sequential.Sequential")
+  graph <- keras_reconstruct_graph(model$get_config(), sequential)
 
   # Declare list for the list-converted layers
-  model_as_list <- vector("list", length = length(names))
+  model_as_list <- list()
 
   for (layer in model$layers) {
     # Get the layer type and check whether it is implemented
@@ -95,8 +86,16 @@ convert_keras_model <- function(model) {
 
     # Define the incoming and outgoing layers of this layer
     # Thereby means '0' Input-Node and '-1' Output-Node
-    layer_list$input_layers <- graph[[n]]$input_layers
-    layer_list$output_layers <- graph[[n]]$output_layers
+    if (length(layer_list) == 1) {
+      layer_list$input_layers <- graph[[n]]$input_layers
+      layer_list$output_layers <- graph[[n]]$output_layers
+    } else {
+      in_layer <- graph[[n]]$input_layers
+      out_layer <-
+      for (i in seq_along(layer_list)) {
+
+      }
+    }
 
     # Set name of this layer and save it
     model_as_list[[n]] <- layer_list
@@ -377,47 +376,93 @@ get_same_padding <- function(input_dim, kernel_size, dilation, stride) {
 }
 
 
-keras_reconstruct_graph <- function(layers, config) {
-  graph <- lapply(
-    seq_along(config$layers),
-    function(a) list(input_layers = NULL, output_layers = NULL)
-  )
+keras_reconstruct_graph <- function(config, sequential = TRUE) {
+  # Create list with layer names
+  names <- NULL
+  for (layer in config$layers)  {
+    times <- sum(
+      has_padding(layer),
+      if (sequential) TRUE else length(layer$inbound_nodes) > 0,
+      has_activation(layer)
+    )
+    times <- max(times, 1)
+    names <- c(names, rep(layer$name, times))
+  }
 
-  names <- unlist(lapply(config$layers, function(x) x$name))
-  i <- 1
-  for (layer in config$layers) {
-    if (length(layer$inbound_nodes) > 0) {
-      in_layer_names <- unlist(
-        lapply(layer$inbound_nodes[[1]], function(x) x[[1]])
-      )
+  if (sequential) {
+    graph <- lapply(
+      seq_along(names),
+      function(i) list(input_layers = i - 1, output_layers = i + 1)
+    )
+    graph[[length(names)]]$output_layers <- -1
+  } else {
+    # Create empty graph
+    graph <- lapply(
+      seq_along(names),
+      function(a) list(input_layers = NULL, output_layers = NULL)
+    )
 
-      graph[[i]]$input_layers <- match(in_layer_names, names)
+    for (layer in config$layers) {
+      if (length(layer$inbound_nodes) > 0) {
+        in_layer_names <- unlist(
+          lapply(layer$inbound_nodes[[1]], function(x) x[[1]])
+        )
+        in_idx <- length(names) + 1 - match(in_layer_names, rev(names))
 
-      # Register output nodes
-      for (node in in_layer_names) {
-        idx <- which(node == names)
-        graph[[idx]]$output_layers <-
-          c(graph[[idx]]$output_layers, which(layer$name == names))
+        # Register output layers for all input layers of this layer
+        first_idx <- match(layer$name, names)
+        for (idx in in_idx) {
+          graph[[idx]]$output_layers <-
+            c(graph[[idx]]$output_layers, first_idx)
+        }
+      } else {
+        in_idx <- 0
+      }
+      # Register input layers and output layers for the current layer
+      last_element <- rev(which(names == layer$name))[1]
+      for (idx in which(names == layer$name)) {
+        graph[[idx]]$input_layers <- in_idx
+        if (idx != last_element) {
+          graph[[idx]]$output_layers <-
+            c(graph[[idx]]$output_layers, idx + 1)
+        }
+        in_idx <- idx
       }
     }
 
-    i <- i + 1
-  }
-
-  # Register Input and Output nodes
-  input_nodes <- unlist(lapply(config$input_layers, function(x) x[[1]]))
-  for (node in input_nodes) {
-    idx <- which(node == names)
-    graph[[idx]]$input_layers <- 0L
-  }
-
-  output_nodes <- unlist(lapply(config$output_layers, function(x) x[[1]]))
-  for (node in output_nodes) {
-    idx <- which(node == names)
-    graph[[idx]]$output_layers <- -1L
+    output_nodes <- unlist(lapply(config$output_layers, function(x) x[[1]]))
+    for (node in output_nodes) {
+      idx <- rev(which(node == names))[1]
+      graph[[idx]]$output_layers <- -1L
+    }
   }
 
   graph
+}
+
+has_padding <- function(layer) {
+  res <- FALSE
+  type <- layer$class_name
+  if (type %in% c("Conv1D", "Conv2D", "MaxPooling1D", "MaxPooling2D",
+                  "AveragePooling1D", "AveragePooling2D")) {
+    if (layer$config$padding != "valid") {
+      res <- TRUE
+    }
+  }
+
+  res
+}
+
+has_activation <- function(layer) {
+  res <- FALSE
+  type <- layer$class_name
+  if (type %in% c("Conv1D", "Conv2D", "Dense")) {
+    if (layer$config$activation != "linear") {
+      res <- TRUE
+    }
+  }
+
+  res
 }
 
 
@@ -445,3 +490,4 @@ check_consistent_data_format <- function(current_format, given_format) {
 move_channels_first <- function(shape) {
   as.integer(c(rev(shape)[1], shape[-length(shape)]))
 }
+
