@@ -180,8 +180,7 @@ convert_keras_dense <- function(layer) {
   )
 
   if (act_name != "linear") {
-    layer_list <- append(layer_list,
-                         list(list(type = "Activation", act_name = act_name)))
+    layer_list <- append_activation(layer_list, act_name)
   }
 
   layer_list
@@ -290,13 +289,13 @@ convert_keras_pooling <- function(layer, type) {
     output_dim <- move_channels_first(output_dim)
   }
 
-  list(
+  list(list(
     type = type,
     dim_in = input_dim,
     dim_out = output_dim,
     kernel_size = kernel_size,
     strides = strides
-  )
+  ))
 }
 
 # Flatten Layer ---------------------------------------------------------------
@@ -310,13 +309,13 @@ convert_keras_flatten <- function(layer) {
     input_dim <- move_channels_first(input_dim)
   }
 
-  list(
+  list(list(
     type = "Flatten",
     start_dim = 2,
     end_dim = -1,
     dim_in = input_dim,
     dim_out = output_dim
-  )
+  ))
 }
 
 # Concatenate Layer -----------------------------------------------------------
@@ -329,22 +328,22 @@ convert_keras_concatenate <- function(layer) {
       " Otherwise, an error can be thrown in the further process."
     )
   }
-  list(
+  list(list(
     type = "Concatenate",
     axis = layer$axis,
     dim_in = lapply(layer$input_shape, unlist),
     dim_out = unlist(layer$output_shape)
-  )
+  ))
 }
 
 # Add Layer -------------------------------------------------------------------
 
 convert_keras_add <- function(layer) {
-  list(
+  list(list(
     type = "Add",
     dim_in = lapply(layer$input_shape, unlist),
     dim_out = unlist(layer$output_shape)
-  )
+  ))
 }
 
 # Skipping Layers -------------------------------------------------------------
@@ -352,7 +351,7 @@ convert_keras_add <- function(layer) {
 convert_keras_skipping <- function(type) {
   message(sprintf("Skipping %s ...", type))
 
-  list(type = "Skipping")
+  list(list(type = "Skipping"))
 }
 
 # utils -----------------------------------------------------------------------
