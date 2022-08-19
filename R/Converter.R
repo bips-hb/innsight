@@ -448,50 +448,28 @@ create_conv1d_layer <- function(layer_as_list, dtype, i) {
 
 # Conv2D Layer ----------------------------------------------------------------
 create_conv2d_layer <- function(layer_as_list, dtype, i) {
-  assertSubset(
-    c("weight", "bias", "activation_name"),
-    names(layer_as_list)
-  )
+  assertSubset(c("weight", "bias"), names(layer_as_list))
 
   # Get arguments
   dim_in <- layer_as_list$dim_in
   dim_out <- layer_as_list$dim_out
   weight <- layer_as_list$weight
   bias <- layer_as_list$bias
-  activation_name <- layer_as_list$activation_name
   stride <- layer_as_list$stride
   dilation <- layer_as_list$dilation
-  padding <- layer_as_list$padding
 
   # Check arguments
   assertIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE)
   assertIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE)
   assertArray(weight, mode = "numeric", d = 4)
   assertVector(bias, len = dim_out[1])
-  assertString(activation_name)
   assertNumeric(stride, null.ok = TRUE, lower = 1)
   assertNumeric(dilation, null.ok = TRUE, lower = 1)
-  assertNumeric(padding, null.ok = TRUE, lower = 0)
 
   # Set default arguments
   if (is.null(stride)) stride <- c(1, 1)
   if (is.null(dilation)) dilation <- c(1, 1)
-  if (is.null(padding)) padding <- c(0, 0, 0, 0)
 
-  if (length(padding) == 1) {
-    padding <- rep(padding, 4)
-  } else if (length(padding) == 2) {
-    padding <- rep(padding, each = 2)
-  } else if (length(padding) != 4) {
-    stop(paste0(
-      "Expected a padding vector in 'model_as_list$layers[[", i, "]] ",
-      "of length:\n", "   - 1: same padding on each side\n",
-      "   - 2: first value: pad_left and pad_right; second value: pad_top ",
-      "and pad_bottom\n",
-      "   - 4: (pad_left, pad_right, pad_top, pad_bottom)\n",
-      "But your length: ", length(padding)
-    ))
-  }
   if (length(stride) == 1) {
     stride <- rep(stride, 2)
   } else if (length(stride) != 2) {
@@ -513,10 +491,7 @@ create_conv2d_layer <- function(layer_as_list, dtype, i) {
     ))
   }
 
-  conv2d_layer(weight, bias, dim_in, dim_out, stride, padding, dilation,
-    activation_name,
-    dtype = dtype
-  )
+  conv2d_layer(weight, bias, dim_in, dim_out, stride, dilation, dtype = dtype)
 }
 
 # Pooling Layers -------------------------------------------------------------
