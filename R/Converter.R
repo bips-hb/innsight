@@ -560,8 +560,13 @@ create_padding_layer <- function(layer_as_list) {
 
 # Activation Layer ------------------------------------------------------------
 create_activation_layer <- function(layer_as_list) {
+  dim_in <- layer_as_list$dim_in
+  dim_out <- layer_as_list$dim_out
 
-  activation_layer(layer_as_list$act_name)
+  assertIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE)
+  assertIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE)
+
+  activation_layer(layer_as_list$act_name, dim_in, dim_out)
 }
 
 # Flatten Layer ---------------------------------------------------------------

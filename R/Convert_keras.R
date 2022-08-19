@@ -172,7 +172,7 @@ convert_keras_dense <- function(layer) {
   )
 
   if (act_name != "linear") {
-    layer_list <- append_activation(layer_list, act_name)
+    layer_list <- append_activation(layer_list, act_name, dim(weights)[1])
   }
 
   layer_list
@@ -254,7 +254,7 @@ convert_keras_convolution <- function(layer, type) {
   )
 
   if (act_name != "linear") {
-    layer_list <- append_activation(layer_list, act_name)
+    layer_list <- append_activation(layer_list, act_name, output_dim)
   }
 
   layer_list
@@ -363,8 +363,9 @@ append_padding <- function(layer_list, in_dim, pad_dim, pad, mode = "constant",
   )
 }
 
-append_activation <- function(layer_list, act_name) {
-  append(layer_list, list(list(type = "Activation", act_name = act_name)))
+append_activation <- function(layer_list, act_name, dim_in) {
+  append(layer_list, list(list(type = "Activation", act_name = act_name,
+                               dim_in = dim_in, dim_out = dim_in)))
 }
 
 get_same_padding <- function(input_dim, kernel_size, dilation, stride) {

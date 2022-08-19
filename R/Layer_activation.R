@@ -11,11 +11,13 @@ activation_layer <- nn_module(
   act_name = NULL,
   act_FUN = NULL,
 
-  initialize = function(act_name) {
-    act <- get_activation(act_name)
+  initialize = function(act_name, dim_in, dim_out) {
+    self$input_dim <- dim_in
+    self$output_dim <- dim_out
 
+    act <- get_activation(act_name)
     self$act_name <- act$act_name
-    self$act_FUN <- act$act
+    self$act_FUN <- act$act_func
   },
 
   forward = function(x, save_input = FALSE, save_output = FALSE) {
@@ -62,17 +64,17 @@ get_activation <- function(act_name) {
   result <- NULL
 
   if (act_name == "relu") {
-    act <- nn_relu()
+    act <- nnf_relu
   } else if (act_name == "leaky_relu") {
-    act <- nn_leaky_relu()
+    act <- nnf_leaky_relu
   } else if (act_name == "softplus") {
-    act <- nn_softplus()
+    act <- nnf_softplus
   } else if (act_name %in% c("sigmoid", "logistic")) {
-    act <- nn_sigmoid()
+    act <- nnf_sigmoid
   } else if (act_name == "softmax") {
-    act <- nn_softmax(dim = -1)
+    act <- function(x) nnf_softmax(x, dim = -1)
   } else if (act_name == "tanh") {
-    act <- nn_tanh()
+    act <- torch_tanh
   } else if (act_name == "linear") {
     act <- function(x) x
   } else {
