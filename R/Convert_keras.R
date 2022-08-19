@@ -169,14 +169,22 @@ convert_keras_dense <- function(layer) {
     bias <- rep(0, times = dim(weights)[1])
   }
 
-  list(
-    type = "Dense",
-    weight = weights,
-    bias = bias,
-    activation_name = act_name,
-    dim_in = dim(weights)[2],
-    dim_out = dim(weights)[1]
+  layer_list <- list(
+    list(
+      type = "Dense",
+      weight = weights,
+      bias = bias,
+      dim_in = dim(weights)[2],
+      dim_out = dim(weights)[1]
+    )
   )
+
+  if (act_name != "linear") {
+    layer_list <- append(layer_list,
+                         list(list(type = "Activation", act_name = act_name)))
+  }
+
+  layer_list
 }
 
 # Convolution Layer -----------------------------------------------------------
