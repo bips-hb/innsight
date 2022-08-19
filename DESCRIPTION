@@ -67,6 +67,7 @@ Collate:
     'Layer_conv2d.R'
     'Layer_dense.R'
     'Layer_other.R'
+    'Layer_activation.R'
     'Layer_pooling.R'
     'innsight.R'
     'utils_ggplot.R'
