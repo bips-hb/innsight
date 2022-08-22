@@ -14,7 +14,6 @@ convert_keras_model <- function(model) {
   # Define parameters for the data format and the layer index
   data_format <- NULL
   n <- 1
-  add_n <- 0
 
   # Get layer names and reconstruct graph
   sequential <- inherits(model, "keras.engine.sequential.Sequential")
@@ -225,33 +224,20 @@ convert_keras_convolution <- function(layer, type) {
   #   [out_channels, in_channels, kernel_height, kernel_width]
   if (length(dim(weight)) == 3) {
     weight <- aperm(weight, c(3, 2, 1))
-    padding_dim <- input_dim +  c(0, sum(padding[1:2]))
   } else {
     weight <- aperm(weight, c(4, 3, 1, 2))
-    padding_dim <- input_dim +  c(0, sum(padding[3:4]), sum(padding[1:2]))
   }
 
-  layer_list <- NULL
-
-  if (all(padding != 0)) {
-    layer_list <- append_padding(layer_list, input_dim, padding_dim, padding)
-  } else {
-    padding_dim <- input_dim
-  }
-
-  layer_list <- append(
-    layer_list,
-    list(list(
+  layer_list <- list(list(
       type = type,
       weight = weight,
       bias = bias,
       dim_in = padding_dim,
       dim_out = output_dim,
       stride = stride,
-      padding = padding * 0,
+      padding = padding,
       dilation = dilation
     ))
-  )
 
   if (act_name != "linear") {
     layer_list <- append_activation(layer_list, act_name, output_dim)
