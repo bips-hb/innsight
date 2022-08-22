@@ -147,6 +147,12 @@ convert_keras_model <- function(model) {
   input_nodes <- match(input_names, names)
   input_nodes <- input_nodes[!is.na(input_nodes)]
   output_nodes <- match(model$output_names, names)
+  if (layer_list$type == "Activation") {
+    if ((n - 1) %in% output_nodes) {
+      idx <- layer_list$input_layers
+      output_nodes[output_nodes == n - 1] <- idx
+    }
+  }
 
   # Return the list-converted model with in- and output shapes and nodes
   list(
@@ -454,7 +460,6 @@ check_consistent_data_format <- function(current_format, given_format) {
 
 
 combine_activations <- function(model_as_list) {
-  removed_idx <- c()
   for (i in seq_along(model_as_list)) {
     if (model_as_list[[i]]$type == "Activation") {
       for (in_layer in model_as_list[[i]]$input_layers) {
@@ -475,9 +480,19 @@ combine_activations <- function(model_as_list) {
         }
       }
 
-      # Convert to 'Skipping Layer'
-      model_as_list[[i]]$type <- "Skipping"
-      model_as_list[[i]]$act_name <- NULL
+      if (i == length(model_as_list) &&
+          all(model_as_list[[i]]$output_layers == -1) &&
+          length(model_as_list[[i]]$input_layers == 1)) {
+        in_layer <- model_as_list[[i]]$input_layers
+        out_layers <- model_as_list[[in_layer]]$output_layers
+        model_as_list[[in_layer]]$output_layers <-
+            ifelse(out_layers == i, -1, out_layers)
+        model_as_list[[i]] <- NULL
+      } else {
+        # Convert to 'Skipping Layer'
+        model_as_list[[i]]$type <- "Skipping"
+        model_as_list[[i]]$act_name <- NULL
+      }
     }
   }
 
