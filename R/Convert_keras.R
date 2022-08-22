@@ -1,7 +1,7 @@
 implemented_layers_keras <- c(
   "Dense", "Dropout", "InputLayer", "Conv1D", "Conv2D", "Flatten",
   "MaxPooling1D", "MaxPooling2D", "AveragePooling1D", "AveragePooling2D",
-  "Concatenate", "Add"
+  "Concatenate", "Add", "Activation"
 )
 
 
@@ -90,7 +90,8 @@ convert_keras_model <- function(model) {
           convert_keras_pooling(layer, type)
         },
         Concatenate = convert_keras_concatenate(layer),
-        Add = convert_keras_add(layer)
+        Add = convert_keras_add(layer),
+        Activation = convert_keras_activation(layer$get_config()$activation)
       )
 
     # Define the incoming and outgoing layers of this layer
@@ -103,6 +104,9 @@ convert_keras_model <- function(model) {
 
     n <- n + 1
   }
+
+  # Combine activation functions with convolution or dense layers
+  model_as_list <- combine_activations(model_as_list)
 
   # Get in- and output shape of the model
   input_dim <- model$input_shape
@@ -322,6 +326,12 @@ convert_keras_add <- function(layer) {
   )
 }
 
+# Activation Layer ------------------------------------------------------------
+
+convert_keras_activation <- function(name) {
+  list(type = "Activation", act_name = name)
+}
+
 # Skipping Layers -------------------------------------------------------------
 
 convert_keras_skipping <- function(type) {
@@ -440,6 +450,38 @@ check_consistent_data_format <- function(current_format, given_format) {
   }
 
   data_format
+}
+
+
+combine_activations <- function(model_as_list) {
+  removed_idx <- c()
+  for (i in seq_along(model_as_list)) {
+    if (model_as_list[[i]]$type == "Activation") {
+      for (in_layer in model_as_list[[i]]$input_layers) {
+        act_name <- model_as_list[[in_layer]]$activation_name
+        if (identical(act_name, "linear")) {
+          model_as_list[[in_layer]]$activation_name <-
+            model_as_list[[i]]$act_name
+        } else if (is.character(act_name)) {
+          stop("It is not allowed to use several activation functions in ",
+               "consecutive order! You used a '", model_as_list[[i]]$act_name,
+               "' activation directly after a '",
+               model_as_list[[in_layer]]$activation_name, "' activation.",
+               call. = FALSE)
+        } else {
+          stop("You can add activation functions only after convolution and ",
+               "dense layers and not after a layer of type '",
+               model_as_list[[in_layer]]$type, "'.", call. = FALSE)
+        }
+      }
+
+      # Convert to 'Skipping Layer'
+      model_as_list[[i]]$type <- "Skipping"
+      model_as_list[[i]]$act_name <- NULL
+    }
+  }
+
+  model_as_list
 }
 
 move_channels_first <- function(shape) {
