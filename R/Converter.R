@@ -430,6 +430,7 @@ create_conv1d_layer <- function(layer_as_list, dtype, i) {
   bias <- layer_as_list$bias
   stride <- layer_as_list$stride
   dilation <- layer_as_list$dilation
+  padding <- layer_as_list$padding
 
   # Check arguments
   assertIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE)
@@ -438,12 +439,26 @@ create_conv1d_layer <- function(layer_as_list, dtype, i) {
   assertVector(bias, len = dim_out[1])
   assertInt(stride, null.ok = TRUE)
   assertInt(dilation, null.ok = TRUE)
+  assertNumeric(padding, null.ok = TRUE, lower = 0)
 
   # Set default arguments
   if (is.null(stride)) stride <- 1
   if (is.null(dilation)) dilation <- 1
+  if (is.null(padding)) padding <- c(0, 0)
 
-  conv1d_layer(weight, bias, dim_in, dim_out, stride, dilation, dtype = dtype)
+  if (length(padding) == 1) {
+    padding <- rep(padding, 2)
+  } else if (length(padding) != 2) {
+    stop(paste0(
+      "Expected a padding vector in 'model_as_list$layers[[", i, "]] ",
+      "of length:\n", "   - 1: same padding for each side\n",
+      "   - 2: first value: padding for left side; second value: ",
+      "padding for right side\n But your length: ", length(padding)
+    ))
+  }
+
+  conv1d_layer(weight, bias, dim_in, dim_out, stride, padding, dilation,
+               dtype = dtype)
 }
 
 # Conv2D Layer ----------------------------------------------------------------
@@ -457,6 +472,7 @@ create_conv2d_layer <- function(layer_as_list, dtype, i) {
   bias <- layer_as_list$bias
   stride <- layer_as_list$stride
   dilation <- layer_as_list$dilation
+  padding <- layer_as_list$padding
 
   # Check arguments
   assertIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE)
@@ -465,11 +481,27 @@ create_conv2d_layer <- function(layer_as_list, dtype, i) {
   assertVector(bias, len = dim_out[1])
   assertNumeric(stride, null.ok = TRUE, lower = 1)
   assertNumeric(dilation, null.ok = TRUE, lower = 1)
+  assertNumeric(padding, null.ok = TRUE, lower = 0)
 
   # Set default arguments
   if (is.null(stride)) stride <- c(1, 1)
   if (is.null(dilation)) dilation <- c(1, 1)
+  if (is.null(padding)) padding <- c(0, 0, 0, 0)
 
+  if (length(padding) == 1) {
+    padding <- rep(padding, 4)
+  } else if (length(padding) == 2) {
+    padding <- rep(padding, each = 2)
+  } else if (length(padding) != 4) {
+    stop(paste0(
+      "Expected a padding vector in 'model_as_list$layers[[", i, "]] ",
+      "of length:\n", "   - 1: same padding on each side\n",
+      "   - 2: first value: pad_left and pad_right; second value: pad_top ",
+      "and pad_bottom\n",
+      "   - 4: (pad_left, pad_right, pad_top, pad_bottom)\n",
+      "But your length: ", length(padding)
+    ))
+  }
   if (length(stride) == 1) {
     stride <- rep(stride, 2)
   } else if (length(stride) != 2) {
@@ -491,7 +523,8 @@ create_conv2d_layer <- function(layer_as_list, dtype, i) {
     ))
   }
 
-  conv2d_layer(weight, bias, dim_in, dim_out, stride, dilation, dtype = dtype)
+  conv2d_layer(weight, bias, dim_in, dim_out, stride, padding, dilation,
+               dtype = dtype)
 }
 
 # Pooling Layers -------------------------------------------------------------

@@ -19,6 +19,7 @@ conv2d_layer <- nn_module(
                         dim_in,
                         dim_out,
                         stride = 1,
+                        padding = c(0, 0, 0, 0),
                         dilation = 1,
                         dtype = "float") {
 
@@ -28,6 +29,7 @@ conv2d_layer <- nn_module(
     self$out_channels <- dim(weight)[1]
     self$kernel_size <- dim(weight)[-c(1, 2)]
     self$stride <- stride
+    self$padding <- padding
     self$dilation <- dilation
 
     # Check if weight is already a tensor
@@ -53,7 +55,8 @@ conv2d_layer <- nn_module(
     if (save_input) {
       self$input <- x
     }
-
+    # Apply padding
+    x <- nnf_pad(x, pad = self$padding)
     # Apply convolution (2D)
     output <- nnf_conv2d(x, self$W,
       bias = self$b,
@@ -76,7 +79,8 @@ conv2d_layer <- nn_module(
     if (save_input) {
       self$input_ref <- x_ref
     }
-
+    # Apply padding
+    x_ref <- nnf_pad(x_ref, pad = self$padding)
     # Apply convolution (2D)
     output_ref <- nnf_conv2d(x_ref, self$W,
       bias = self$b,

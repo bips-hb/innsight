@@ -17,6 +17,7 @@ conv1d_layer <- nn_module(
                         dim_in,
                         dim_out,
                         stride = 1,
+                        padding = c(0,0),
                         dilation = 1,
                         dtype = "float") {
 
@@ -26,6 +27,7 @@ conv1d_layer <- nn_module(
     self$out_channels <- dim(weight)[1]
     self$kernel_length <- dim(weight)[-c(1, 2)]
     self$stride <- stride
+    self$padding <- padding
     self$dilation <- dilation
 
     if (!inherits(weight, "torch_tensor")) {
@@ -48,6 +50,8 @@ conv1d_layer <- nn_module(
     if (save_input) {
       self$input <- x
     }
+    # Pad the input
+    x <- nnf_pad(x, pad = self$padding)
     # Apply conv1d
     output <- nnf_conv1d(x, self$W,
       bias = self$b,
@@ -70,6 +74,8 @@ conv1d_layer <- nn_module(
     if (save_input) {
       self$input_ref <- x_ref
     }
+    # Pad the input
+    x_ref <- nnf_pad(x_ref, pad = self$padding)
     # Apply conv1d
     output_ref <- nnf_conv1d(x_ref, self$W,
       bias = self$b,
