@@ -232,7 +232,7 @@ convert_keras_convolution <- function(layer, type) {
       type = type,
       weight = weight,
       bias = bias,
-      dim_in = padding_dim,
+      dim_in = input_dim,
       dim_out = output_dim,
       stride = stride,
       padding = padding,
@@ -334,21 +334,6 @@ convert_keras_skipping <- function(type) {
 
 # utils -----------------------------------------------------------------------
 
-append_padding <- function(layer_list, in_dim, pad_dim, pad, mode = "constant",
-                           fill = 0) {
-  append(
-    layer_list,
-    list(list(
-      type = "Padding",
-      dim_in = in_dim,
-      dim_out = pad_dim,
-      pad = pad,
-      mode = mode,
-      fill = fill
-    ))
-  )
-}
-
 append_activation <- function(layer_list, act_name, dim_in) {
   append(layer_list, list(list(type = "Activation", act_name = act_name,
                                dim_in = dim_in, dim_out = dim_in)))
@@ -407,7 +392,6 @@ keras_reconstruct_graph <- function(config, layer_names, sequential = TRUE) {
   names <- NULL
   for (layer in layers)  {
     times <- sum(
-      has_padding(layer),
       if (sequential) TRUE else length(layer$inbound_nodes) > 0,
       has_activation(layer)
     )
@@ -466,19 +450,6 @@ keras_reconstruct_graph <- function(config, layer_names, sequential = TRUE) {
   }
 
   graph
-}
-
-has_padding <- function(layer) {
-  res <- FALSE
-  type <- layer$class_name
-  if (type %in% c("Conv1D", "Conv2D", "MaxPooling1D", "MaxPooling2D",
-                  "AveragePooling1D", "AveragePooling2D")) {
-    if (layer$config$padding != "valid") {
-      res <- TRUE
-    }
-  }
-
-  res
 }
 
 has_activation <- function(layer) {
