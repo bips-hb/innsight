@@ -339,9 +339,6 @@ Converter <- R6Class("Converter",
         input_names <- model_as_list$input_names
         input_names_lenght <- lapply(input_names,
                                      function(x) unlist(lapply(x, length)))
-
-        print(input_names_lenght)
-        print(model_as_list$input_dim)
         if (!all_equal(input_names_lenght, model_as_list$input_dim)) {
           given <- shape_to_char(input_names_lenght)
           calc <- shape_to_char(model_as_list$input_dim)
