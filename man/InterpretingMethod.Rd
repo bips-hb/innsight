@@ -48,14 +48,14 @@ first 10) are considered.}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{InterpretingMethod$new()}}
-\item \href{#method-get_result}{\code{InterpretingMethod$get_result()}}
-\item \href{#method-clone}{\code{InterpretingMethod$clone()}}
+\item \href{#method-InterpretingMethod-new}{\code{InterpretingMethod$new()}}
+\item \href{#method-InterpretingMethod-get_result}{\code{InterpretingMethod$get_result()}}
+\item \href{#method-InterpretingMethod-clone}{\code{InterpretingMethod$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-InterpretingMethod-new"></a>}}
+\if{latex}{\out{\hypertarget{method-InterpretingMethod-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new instance of this super class.
 \subsection{Usage}{
@@ -97,8 +97,8 @@ either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_result"></a>}}
-\if{latex}{\out{\hypertarget{method-get_result}{}}}
+\if{html}{\out{<a id="method-InterpretingMethod-get_result"></a>}}
+\if{latex}{\out{\hypertarget{method-InterpretingMethod-get_result}{}}}
 \subsection{Method \code{get_result()}}{
 This function returns the result of this method for the given data
 either as an array (\code{'array'}), a torch tensor (\code{'torch.tensor'},
@@ -123,8 +123,8 @@ type.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-InterpretingMethod-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-InterpretingMethod-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

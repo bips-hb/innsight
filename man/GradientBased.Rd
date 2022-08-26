@@ -27,22 +27,22 @@ This method is called 'Gradient x Input'.}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{GradientBased$new()}}
-\item \href{#method-plot}{\code{GradientBased$plot()}}
-\item \href{#method-boxplot}{\code{GradientBased$boxplot()}}
-\item \href{#method-clone}{\code{GradientBased$clone()}}
+\item \href{#method-GradientBased-new}{\code{GradientBased$new()}}
+\item \href{#method-GradientBased-plot}{\code{GradientBased$plot()}}
+\item \href{#method-GradientBased-boxplot}{\code{GradientBased$boxplot()}}
+\item \href{#method-GradientBased-clone}{\code{GradientBased$clone()}}
 }
 }
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result">}\href{../../innsight/html/InterpretingMethod.html#method-get_result}{\code{innsight::InterpretingMethod$get_result()}}\out{</span>}
-}
-\out{</details>}
-}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-get_result'><code>innsight::InterpretingMethod$get_result()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-GradientBased-new"></a>}}
+\if{latex}{\out{\hypertarget{method-GradientBased-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new instance of this class.
 \subsection{Usage}{
@@ -89,8 +89,8 @@ either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-plot"></a>}}
-\if{latex}{\out{\hypertarget{method-plot}{}}}
+\if{html}{\out{<a id="method-GradientBased-plot"></a>}}
+\if{latex}{\out{\hypertarget{method-GradientBased-plot}{}}}
 \subsection{Method \code{plot()}}{
 This method visualizes the result of the selected method in a
 \link[ggplot2:ggplot]{ggplot2::ggplot}. You can use the argument \code{data_idx} to select
@@ -148,8 +148,8 @@ Returns either a \link[ggplot2:ggplot]{ggplot2::ggplot} (\code{as_plotly = FALSE
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-boxplot"></a>}}
-\if{latex}{\out{\hypertarget{method-boxplot}{}}}
+\if{html}{\out{<a id="method-GradientBased-boxplot"></a>}}
+\if{latex}{\out{\hypertarget{method-GradientBased-boxplot}{}}}
 \subsection{Method \code{boxplot()}}{
 This function visualizes the results of this method in a boxplot, where
 the type of visualization depends on the input dimension of the data.
@@ -239,8 +239,8 @@ Returns either a \link[ggplot2:ggplot]{ggplot2::ggplot} (\code{as_plotly = FALSE
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-GradientBased-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-GradientBased-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

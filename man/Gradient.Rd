@@ -156,22 +156,22 @@ plotly::ggplotly(p, tooltip = "text")
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{Gradient$new()}}
-\item \href{#method-clone}{\code{Gradient$clone()}}
+\item \href{#method-Gradient-new}{\code{Gradient$new()}}
+\item \href{#method-Gradient-clone}{\code{Gradient$clone()}}
 }
 }
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result">}\href{../../innsight/html/InterpretingMethod.html#method-get_result}{\code{innsight::InterpretingMethod$get_result()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="GradientBased" data-id="boxplot">}\href{../../innsight/html/GradientBased.html#method-boxplot}{\code{innsight::GradientBased$boxplot()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="GradientBased" data-id="plot">}\href{../../innsight/html/GradientBased.html#method-plot}{\code{innsight::GradientBased$plot()}}\out{</span>}
-}
-\out{</details>}
-}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-get_result'><code>innsight::InterpretingMethod$get_result()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="GradientBased" data-id="boxplot"><a href='../../innsight/html/GradientBased.html#method-GradientBased-boxplot'><code>innsight::GradientBased$boxplot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="GradientBased" data-id="plot"><a href='../../innsight/html/GradientBased.html#method-GradientBased-plot'><code>innsight::GradientBased$plot()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-Gradient-new"></a>}}
+\if{latex}{\out{\hypertarget{method-Gradient-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new instance of the Vanilla Gradient method.
 \subsection{Usage}{
@@ -218,8 +218,8 @@ either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-Gradient-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-Gradient-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

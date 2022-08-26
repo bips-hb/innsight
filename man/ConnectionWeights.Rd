@@ -157,15 +157,15 @@ first 10) are considered.}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{ConnectionWeights$new()}}
-\item \href{#method-get_result}{\code{ConnectionWeights$get_result()}}
-\item \href{#method-plot}{\code{ConnectionWeights$plot()}}
-\item \href{#method-clone}{\code{ConnectionWeights$clone()}}
+\item \href{#method-ConnectionWeights-new}{\code{ConnectionWeights$new()}}
+\item \href{#method-ConnectionWeights-get_result}{\code{ConnectionWeights$get_result()}}
+\item \href{#method-ConnectionWeights-plot}{\code{ConnectionWeights$plot()}}
+\item \href{#method-ConnectionWeights-clone}{\code{ConnectionWeights$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-ConnectionWeights-new"></a>}}
+\if{latex}{\out{\hypertarget{method-ConnectionWeights-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ConnectionWeights$new(
@@ -198,8 +198,8 @@ either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_result"></a>}}
-\if{latex}{\out{\hypertarget{method-get_result}{}}}
+\if{html}{\out{<a id="method-ConnectionWeights-get_result"></a>}}
+\if{latex}{\out{\hypertarget{method-ConnectionWeights-get_result}{}}}
 \subsection{Method \code{get_result()}}{
 This function returns the result of the \emph{Connection Weights} method
 either as an array (\code{'array'}), a torch tensor (\code{'torch.tensor'} or
@@ -224,8 +224,8 @@ type.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-plot"></a>}}
-\if{latex}{\out{\hypertarget{method-plot}{}}}
+\if{html}{\out{<a id="method-ConnectionWeights-plot"></a>}}
+\if{latex}{\out{\hypertarget{method-ConnectionWeights-plot}{}}}
 \subsection{Method \code{plot()}}{
 This method visualizes the result of the \emph{ConnectionWeights} method in a
 \link[ggplot2:ggplot]{ggplot2::ggplot}. You can use the argument \code{output_idx} to select
@@ -281,8 +281,8 @@ Returns either a \link[ggplot2:ggplot]{ggplot2::ggplot} (\code{as_plotly = FALSE
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-ConnectionWeights-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-ConnectionWeights-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{
