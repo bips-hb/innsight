@@ -174,22 +174,22 @@ for the non-linear part of a neural network layer. Either
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{DeepLift$new()}}
-\item \href{#method-plot}{\code{DeepLift$plot()}}
-\item \href{#method-boxplot}{\code{DeepLift$boxplot()}}
-\item \href{#method-clone}{\code{DeepLift$clone()}}
+\item \href{#method-DeepLift-new}{\code{DeepLift$new()}}
+\item \href{#method-DeepLift-plot}{\code{DeepLift$plot()}}
+\item \href{#method-DeepLift-boxplot}{\code{DeepLift$boxplot()}}
+\item \href{#method-DeepLift-clone}{\code{DeepLift$clone()}}
 }
 }
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result">}\href{../../innsight/html/InterpretingMethod.html#method-get_result}{\code{innsight::InterpretingMethod$get_result()}}\out{</span>}
-}
-\out{</details>}
-}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-get_result'><code>innsight::InterpretingMethod$get_result()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-DeepLift-new"></a>}}
+\if{latex}{\out{\hypertarget{method-DeepLift-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new instance of the DeepLift method.
 \subsection{Usage}{
@@ -241,8 +241,8 @@ either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-plot"></a>}}
-\if{latex}{\out{\hypertarget{method-plot}{}}}
+\if{html}{\out{<a id="method-DeepLift-plot"></a>}}
+\if{latex}{\out{\hypertarget{method-DeepLift-plot}{}}}
 \subsection{Method \code{plot()}}{
 This method visualizes the result of the selected method in a
 \link[ggplot2:ggplot]{ggplot2::ggplot}. You can use the argument \code{data_idx} to select
@@ -300,8 +300,8 @@ Returns either a \link[ggplot2:ggplot]{ggplot2::ggplot} (\code{as_plotly = FALSE
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-boxplot"></a>}}
-\if{latex}{\out{\hypertarget{method-boxplot}{}}}
+\if{html}{\out{<a id="method-DeepLift-boxplot"></a>}}
+\if{latex}{\out{\hypertarget{method-DeepLift-boxplot}{}}}
 \subsection{Method \code{boxplot()}}{
 This function visualizes the results of this method in a boxplot, where
 the type of visualization depends on the input dimension of the data.
@@ -391,8 +391,8 @@ Returns either a \link[ggplot2:ggplot]{ggplot2::ggplot} (\code{as_plotly = FALSE
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-DeepLift-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-DeepLift-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

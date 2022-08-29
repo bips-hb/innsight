@@ -1,7 +1,7 @@
 Type: Package
 Package: innsight
 Title: Get the Insights of your Neural Network
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: 
     c(person(given = "Niklas",
              family = "Koenen",
@@ -34,6 +34,7 @@ Imports:
     R6,
     torch
 Suggests:
+    covr,
     keras,
     knitr,
     neuralnet,
@@ -46,7 +47,7 @@ VignetteBuilder:
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, r6 = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
 Collate: 
     'ConnectionWeights.R'
     'Convert_keras.R'

@@ -391,18 +391,21 @@ test_that("LRP: Correctness", {
   # test non-fitted model
   converter <- Converter$new(model)
 
-  lrp <- LRP$new(converter, data, channels_first = FALSE)
-  converter$model(data, channels_first = FALSE, save_last_layer = TRUE)
+  lrp <- LRP$new(converter, data, channels_first = FALSE, dtype = "double")
+  converter$model(torch_tensor(data, dtype = torch_double()),
+                  channels_first = FALSE, save_last_layer = TRUE)
   out <- converter$model$modules_list[[7]]$preactivation
   lrp_result_sum <-
     lrp$get_result(type = "torch.tensor")$sum(dim = c(2, 3, 4))
-  expect_lt(as.array(mean(abs(lrp_result_sum - out)^2)), 1e-5)
+  expect_lt(as.array(mean(abs(lrp_result_sum - out)^2)), 1e-12)
 
   lrp <-
-    LRP$new(converter, data, channels_first = FALSE, ignore_last_act = FALSE)
-  converter$model(data, channels_first = FALSE, save_last_layer = TRUE)
+    LRP$new(converter, data, channels_first = FALSE, ignore_last_act = FALSE,
+            dtype = "double")
+  converter$model(torch_tensor(data, dtype = torch_double()),
+                  channels_first = FALSE, save_last_layer = TRUE)
   out <- converter$model$modules_list[[7]]$output - 0.5
   lrp_result_no_last_act_sum <-
     lrp$get_result(type = "torch.tensor")$sum(dim = c(2, 3, 4))
-  expect_lt(as.array(mean(abs(lrp_result_no_last_act_sum - out)^2)), 1e-5)
+  expect_lt(as.array(mean(abs(lrp_result_no_last_act_sum - out)^2)), 1e-12)
 })

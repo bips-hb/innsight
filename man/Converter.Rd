@@ -293,13 +293,13 @@ the argument \code{save_model_as_list} this can be saved anyway.}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{Converter$new()}}
-\item \href{#method-clone}{\code{Converter$clone()}}
+\item \href{#method-Converter-new}{\code{Converter$new()}}
+\item \href{#method-Converter-clone}{\code{Converter$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-Converter-new"></a>}}
+\if{latex}{\out{\hypertarget{method-Converter-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new Converter for a given neural network.
 \subsection{Usage}{
@@ -364,8 +364,8 @@ A new instance of the R6 class \code{'Converter'}.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-Converter-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-Converter-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{
