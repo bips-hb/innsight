@@ -40,6 +40,7 @@ jobs:
       - name: Install remotes
         if: steps.r-package-cache.outputs.cache-hit != 'true'
         run: install.packages("remotes")
+        shell: Rscript {0}
 
       - name: Install system dependencies
         shell: bash
@@ -53,15 +54,19 @@ jobs:
 
       - name: Install Package + deps
         run: remotes::install_local(dependencies = TRUE, force = TRUE)
+        shell: Rscript {0}
 
       - name: Install Miniconda
         run: reticulate::install_miniconda()
+        shell: Rscript {0}
 
       - name: Install Tensorflow + Keras deps
         run: keras::install_keras(tensorflow = 'default-cpu')
+        shell: Rscript {0}
 
       - name: Install LibTorch
         run: torch::install_torch()
+        shell: Rscript {0}
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
