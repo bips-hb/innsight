@@ -5,11 +5,13 @@
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/bips-hb/innsight/workflows/R-CMD-check/badge.svg)](https://github.com/bips-hb/innsight/actions)
+[![R-CMD-check](https://github.com/bips-hb/innsight/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bips-hb/innsight/actions/workflows/R-CMD-check.yaml)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/innsight)](https://CRAN.R-project.org/package=innsight)
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Codecov test
+coverage](https://codecov.io/gh/bips-hb/innsight/branch/master/graph/badge.svg)](https://app.codecov.io/gh/bips-hb/innsight?branch=master)
 <!-- badges: end -->
 
 ## Table of Contents
