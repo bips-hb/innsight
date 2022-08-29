@@ -22,7 +22,7 @@ in this package."><meta property="og:image" content="https://bips-hb.github.io/i
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">innsight</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.1</span>
       </span>
     </div>
 
@@ -34,7 +34,7 @@ in this package."><meta property="og:image" content="https://bips-hb.github.io/i
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -76,7 +76,7 @@ in this package.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">ConvertedModel</span><span class="op">(</span><span class="va">modules_list</span>, dtype <span class="op">=</span> <span class="st">"float"</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ConvertedModel</span><span class="op">(</span><span class="va">modules_list</span>, dtype <span class="op">=</span> <span class="st">"float"</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -84,10 +84,13 @@ in this package.</p>
     <dl><dt>modules_list</dt>
 <dd><p>A list of all accepted layers created by the 'Converter'
 class during initialization.</p></dd>
+
+
 <dt>dtype</dt>
 <dd><p>The data type for all the calculations and defined tensors. Use
-either <code>'float'</code> for <a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch::torch_float</a> or <code>'double'</code> for
-<a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch::torch_double</a>.</p></dd>
+either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dtype.html" class="external-link">torch::torch_float</a> or <code>'double'</code> for
+<a href="https://rdrr.io/pkg/torch/man/torch_dtype.html" class="external-link">torch::torch_double</a>.</p></dd>
+
 </dl></div>
     <div id="public-fields">
     <h2>Public fields</h2>
@@ -99,8 +102,8 @@ either <code>'float'</code> for <a href="https://torch.mlverse.org/docs/referenc
 
 <dt><code>dtype</code></dt>
 <dd><p>The datatype for all the calculations and defined
-tensors. Either <code>'float'</code> for <a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch::torch_float</a> or <code>'double'</code> for
-<a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch::torch_double</a></p></dd>
+tensors. Either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dtype.html" class="external-link">torch::torch_float</a> or <code>'double'</code> for
+<a href="https://rdrr.io/pkg/torch/man/torch_dtype.html" class="external-link">torch::torch_double</a></p></dd>
 .
 
 </dl></div>
@@ -189,8 +192,8 @@ last, use <code>FALSE</code> and the input will be transformed into the format
 
 
 <p>This method changes the data type for all the layers in <code>modules_list</code>.
-Use either <code>'float'</code> for <a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch::torch_float</a> or <code>'double'</code> for
-<a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch::torch_double</a>.</p><div class="section">
+Use either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dtype.html" class="external-link">torch::torch_float</a> or <code>'double'</code> for
+<a href="https://rdrr.io/pkg/torch/man/torch_dtype.html" class="external-link">torch::torch_double</a>.</p><div class="section">
 <h3 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h3>
 
 
@@ -222,7 +225,7 @@ tensors.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

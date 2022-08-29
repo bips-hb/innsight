@@ -24,7 +24,7 @@ gradients w.r.t. to the input for given data. Implemented are:
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">innsight</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.1</span>
       </span>
     </div>
 
@@ -36,7 +36,7 @@ gradients w.r.t. to the input for given data. Implemented are:
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -96,24 +96,24 @@ This method is called 'Gradient x Input'.</p></dd>
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
 
-<ul><li><p><a href="#method-new"><code>GradientBased$new()</code></a></p></li>
-<li><p><a href="#method-plot"><code>GradientBased$plot()</code></a></p></li>
-<li><p><a href="#method-boxplot"><code>GradientBased$boxplot()</code></a></p></li>
-<li><p><a href="#method-clone"><code>GradientBased$clone()</code></a></p></li>
-</ul></div><p><details open><summary>Inherited methods</summary><ul><li><p><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href="InterpretingMethod.html#method-get_result"><code>innsight::InterpretingMethod$get_result()</code></a></span></p></li>
-</ul></details></p><hr><a id="method-new"></a><div class="section">
+<ul><li><p><a href="#method-GradientBased-new"><code>GradientBased$new()</code></a></p></li>
+<li><p><a href="#method-GradientBased-plot"><code>GradientBased$plot()</code></a></p></li>
+<li><p><a href="#method-GradientBased-boxplot"><code>GradientBased$boxplot()</code></a></p></li>
+<li><p><a href="#method-GradientBased-clone"><code>GradientBased$clone()</code></a></p></li>
+</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href="InterpretingMethod.html#method-get_result"><code>innsight::InterpretingMethod$get_result()</code></a></span></li>
+</ul></details></p><hr><a id="method-GradientBased-new"></a><div class="section">
 <h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
 <p>Create a new instance of this class.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span class="va"><a href="../reference/GradientBased.html">GradientBased</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>
-  <span class="va">converter</span>,
-  <span class="va">data</span>,
-  channels_first <span class="op">=</span> <span class="cn">TRUE</span>,
-  output_idx <span class="op">=</span> <span class="cn">NULL</span>,
-  ignore_last_act <span class="op">=</span> <span class="cn">TRUE</span>,
-  times_input <span class="op">=</span> <span class="cn">TRUE</span>,
-  dtype <span class="op">=</span> <span class="st">"float"</span>
-<span class="op">)</span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/GradientBased.html">GradientBased</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  <span class="va">converter</span>,</span>
+<span>  <span class="va">data</span>,</span>
+<span>  channels_first <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  output_idx <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ignore_last_act <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  times_input <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  dtype <span class="op">=</span> <span class="st">"float"</span></span>
+<span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -153,14 +153,14 @@ This method is called 'Gradient x Input'.</p></dd>
 
 <dt><code>dtype</code></dt>
 <dd><p>The data type for the calculations. Use
-either <code>'float'</code> for <a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch::torch_float</a> or <code>'double'</code> for
-<a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch::torch_double</a>.</p></dd>
+either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dtype.html" class="external-link">torch::torch_float</a> or <code>'double'</code> for
+<a href="https://rdrr.io/pkg/torch/man/torch_dtype.html" class="external-link">torch::torch_double</a>.</p></dd>
 
 
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-plot"></a><div class="section">
+</div><p></p><hr><a id="method-GradientBased-plot"></a><div class="section">
 <h3 id="method-plot-">Method <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code><a class="anchor" aria-label="anchor" href="#method-plot-"></a></h3>
 <p>This method visualizes the result of the selected method in a
 <a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot2::ggplot</a>. You can use the argument <code>data_idx</code> to select
@@ -171,12 +171,12 @@ outputs are visualized using the method <a href="https://ggplot2.tidyverse.org/r
 You can also use the <code>as_plotly</code> argument to generate an interactive
 plot based on the plot function <a href="https://rdrr.io/pkg/plotly/man/plot_ly.html" class="external-link">plotly::plot_ly</a>.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span class="va">GradientBased</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>
-  data_idx <span class="op">=</span> <span class="fl">1</span>,
-  output_idx <span class="op">=</span> <span class="cn">NULL</span>,
-  aggr_channels <span class="op">=</span> <span class="st">"sum"</span>,
-  as_plotly <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">GradientBased</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span></span>
+<span>  data_idx <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  output_idx <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  aggr_channels <span class="op">=</span> <span class="st">"sum"</span>,</span>
+<span>  as_plotly <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -223,7 +223,7 @@ plotly plot.</p></dd>
 <a href="https://rdrr.io/pkg/plotly/man/plot_ly.html" class="external-link">plotly::plot_ly</a> (<code>as_plotly = TRUE</code>) with the plotted results.</p>
 </div>
 
-</div><p></p><hr><a id="method-boxplot"></a><div class="section">
+</div><p></p><hr><a id="method-GradientBased-boxplot"></a><div class="section">
 <h3 id="method-boxplot-">Method <code><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot()</a></code><a class="anchor" aria-label="anchor" href="#method-boxplot-"></a></h3>
 <p>This function visualizes the results of this method in a boxplot, where
 the type of visualization depends on the input dimension of the data.
@@ -232,16 +232,16 @@ By default a <a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class
 which however requires a successful installation of the package
 <code>plotly</code>.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span class="va">GradientBased</span><span class="op">$</span><span class="fu">boxplot</span><span class="op">(</span>
-  output_idx <span class="op">=</span> <span class="cn">NULL</span>,
-  data_idx <span class="op">=</span> <span class="st">"all"</span>,
-  ref_data_idx <span class="op">=</span> <span class="cn">NULL</span>,
-  aggr_channels <span class="op">=</span> <span class="st">"norm"</span>,
-  preprocess_FUN <span class="op">=</span> <span class="va">abs</span>,
-  as_plotly <span class="op">=</span> <span class="cn">FALSE</span>,
-  individual_data_idx <span class="op">=</span> <span class="cn">NULL</span>,
-  individual_max <span class="op">=</span> <span class="fl">20</span>
-<span class="op">)</span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">GradientBased</span><span class="op">$</span><span class="fu">boxplot</span><span class="op">(</span></span>
+<span>  output_idx <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  data_idx <span class="op">=</span> <span class="st">"all"</span>,</span>
+<span>  ref_data_idx <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  aggr_channels <span class="op">=</span> <span class="st">"norm"</span>,</span>
+<span>  preprocess_FUN <span class="op">=</span> <span class="va">abs</span>,</span>
+<span>  as_plotly <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  individual_data_idx <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  individual_max <span class="op">=</span> <span class="fl">20</span></span>
+<span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -325,11 +325,11 @@ be used. A too high number can significantly increase the runtime.</p></dd>
 <a href="https://rdrr.io/pkg/plotly/man/plot_ly.html" class="external-link">plotly::plot_ly</a> (<code>as_plotly = TRUE</code>) with the boxplots.</p>
 </div>
 
-</div><p></p><hr><a id="method-clone"></a><div class="section">
+</div><p></p><hr><a id="method-GradientBased-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span class="va">GradientBased</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">GradientBased</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -357,7 +357,7 @@ be used. A too high number can significantly increase the runtime.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

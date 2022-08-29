@@ -49,7 +49,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">innsight</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.1</span>
       </span>
     </div>
 
@@ -62,7 +62,7 @@
   <a href="reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -100,9 +100,8 @@
 <div class="page-header"><h1 id="innsight---get-the-insights-of-your-neural-network">
 <code>innsight</code> - Get the Insights of your Neural Network<a class="anchor" aria-label="anchor" href="#innsight---get-the-insights-of-your-neural-network"></a>
 </h1></div>
-<p><a href="https://bips-hb.github.io/innsight"><img src="reference/figures/logo.png" align="right" width="200"></a></p>
+<p><a href="https://bips-hb.github.io/innsight/"><img src="reference/figures/logo.png" align="right" width="200"></a></p>
 <!-- badges: start -->
-
 <div class="section level2">
 <h2 id="table-of-contents">Table of Contents<a class="anchor" aria-label="anchor" href="#table-of-contents"></a>
 </h2>
@@ -121,18 +120,11 @@
 <p><code>innsight</code> is an R package that interprets the behavior and explains individual predictions of modern neural networks. Many methods for explaining individual predictions already exist, but hardly any of them are implemented or available in R. Most of these so-called <em>‘Feature Attribution’</em> methods are only implemented in Python and thus difficult to access or use for the R community. In this sense, the package <code>innsight</code> provides a common interface for various methods for the interpretability of neural networks and can therefore be considered as an R analogue to <a href="https://github.com/albermax/innvestigate" class="external-link">iNNvestigate</a> for Python.</p>
 <p>This package implements several model-specific interpretability (Feature Attribution) methods based on neural networks in R, e.g.,</p>
 <ul>
-<li>Layer-wise Relevance Propagation (<a href="https://doi.org/10.1371/journal.pone.0130140" class="external-link">LRP</a>)
-<ul>
-<li>Including propagation rules: <em>ε</em>-rule and <em>α</em>-<em>β</em>-rule</li>
-</ul>
+<li>Layer-wise Relevance Propagation (<a href="https://doi.org/10.1371/journal.pone.0130140" class="external-link">LRP</a>)<ul><li>Including propagation rules: <img src="https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&amp;space;%5Cbg_white&amp;space;%5Cvarepsilon" title="\varepsilon" alt="\varepsilon">-rule and <img src="https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&amp;space;%5Cbg_white&amp;space;%5Calpha" title="\alpha" alt="\alpha">-<img src="https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&amp;space;%5Cbg_white&amp;space;%5Cbeta" title="\beta" alt="\beta">-rule</li></ul>
 </li>
-<li>Deep Learning Important Features (<a href="https://arxiv.org/abs/1704.02685" class="external-link">DeepLift</a>)
-<ul>
-<li>Including propagation rules for non-linearities: rescale rule and reveal-cancel rule</li>
-</ul>
+<li>Deep Learning Important Features (<a href="https://arxiv.org/abs/1704.02685" class="external-link">DeepLift</a>)<ul><li>Including propagation rules for non-linearities: rescale rule and reveal-cancel rule</li></ul>
 </li>
-<li>Gradient-based methods:
-<ul>
+<li>Gradient-based methods:<ul>
 <li>Vanilla Gradient, including <a href="https://www.jmlr.org/papers/v11/baehrens10a.html" class="external-link">Gradient x Input</a>
 </li>
 <li>Smoothed gradients (<a href="https://arxiv.org/abs/1706.03825" class="external-link">SmoothGrad</a>), including SmoothGrad x Input</li>
@@ -141,12 +133,12 @@
 <li>Connection Weights</li>
 </ul>
 <p>Example results for these methods on ImageNet with pretrained network Vgg16: <img src="https://github.com/bips-hb/innsight/blob/master/man/images/vgg16.png?raw=true" alt="vgg16"></p>
-<p>The package <code>innsight</code> aims to be as flexible as possible and independent of a specific deep learning package in which the passed network has been learned. Basically, a neural network of the libraries <a href="https://torch.mlverse.org/" class="external-link"><code>torch</code></a>, <a href="https://keras.rstudio.com/" class="external-link"><code>keras</code></a> and <a href="https://CRAN.R-project.org/package=neuralnet" class="external-link"><code>neuralnet</code></a> can be passed, which is internally converted into a <a href="https://torch.mlverse.org/" class="external-link"><code>torch</code></a> model with special insights needed for interpretation. Currently, the following model and layer types are accepted:</p>
+<p>The package <code>innsight</code> aims to be as flexible as possible and independent of a specific deep learning package in which the passed network has been learned. Basically, a neural network of the libraries <a href="https://torch.mlverse.org/" class="external-link"><code>torch</code></a>, <a href="https://tensorflow.rstudio.com/" class="external-link"><code>keras</code></a> and <a href="https://CRAN.R-project.org/package=neuralnet" class="external-link"><code>neuralnet</code></a> can be passed, which is internally converted into a <a href="https://torch.mlverse.org/" class="external-link"><code>torch</code></a> model with special insights needed for interpretation. Currently, the following model and layer types are accepted:</p>
 <ul>
 <li>
-<code><a href="https://torch.mlverse.org/docs/reference/nn_sequential.html" class="external-link">torch::nn_sequential</a></code> with layers <code>nn_linear</code>, <code>nn_conv1d</code>, <code>nn_conv2d</code>, <code>nn_max_pool1d</code>, <code>nn_max_pool2d</code>, <code>nn_avg_pool1d</code>, <code>nn_avg_pool2d</code>, <code>nn_dropout</code>, <code>nn_flatten</code> (see <a href="https://github.com/mlverse/torch/issues/716#issuecomment-946117545" class="external-link">torch issue #716</a> and use <code>classname = "nn_flatten"</code>)</li>
+<code><a href="https://rdrr.io/pkg/torch/man/nn_sequential.html" class="external-link">torch::nn_sequential</a></code> with layers <code>nn_linear</code>, <code>nn_conv1d</code>, <code>nn_conv2d</code>, <code>nn_max_pool1d</code>, <code>nn_max_pool2d</code>, <code>nn_avg_pool1d</code>, <code>nn_avg_pool2d</code>, <code>nn_dropout</code>, <code>nn_flatten</code> (see <a href="https://github.com/mlverse/torch/issues/716#issuecomment-946117545" class="external-link">torch issue #716</a> and use <code>classname = "nn_flatten"</code>)</li>
 <li>
-<code><a href="https://keras.rstudio.com/reference/keras_model_sequential.html" class="external-link">keras::keras_model_sequential</a></code> or <code><a href="https://keras.rstudio.com/reference/keras_model.html" class="external-link">keras::keras_model</a></code> with layers <code>layer_dense</code>, <code>layer_conv_1d</code>, <code>layer_conv_2d</code>, <code>layer_max_pooling_1d</code>, <code>layer_max_pooling_2d</code>, <code>layer_average_pooling_1d</code>, <code>layer_average_pooling_2d</code>, <code>layer_dropout</code>, <code>layer_flatten</code>
+<code><a href="https://rdrr.io/pkg/keras/man/keras_model_sequential.html" class="external-link">keras::keras_model_sequential</a></code> or <code><a href="https://rdrr.io/pkg/keras/man/keras_model.html" class="external-link">keras::keras_model</a></code> with layers <code>layer_dense</code>, <code>layer_conv_1d</code>, <code>layer_conv_2d</code>, <code>layer_max_pooling_1d</code>, <code>layer_max_pooling_2d</code>, <code>layer_average_pooling_1d</code>, <code>layer_average_pooling_2d</code>, <code>layer_dropout</code>, <code>layer_flatten</code>
 </li>
 </ul>
 <p>But it is also possible to pass an arbitrary net in form of a named list (see <a href="https://bips-hb.github.io/innsight/articles/Custom_Model_Definition.html">vignette</a> for details).</p>
@@ -156,14 +148,14 @@
 </h2>
 <p>The package can be installed directly from CRAN and the development version from GitHub with the following commands (successful installation of <a href="https://www.r-project.org/nosvn/pandoc/devtools.html" class="external-link"><code>devtools</code></a> is required)</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Stable version</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"innsight"</span><span class="op">)</span>
-
-<span class="co"># Development version</span>
-<span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"bips-hb/innsight"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Stable version</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"innsight"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Development version</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"bips-hb/innsight"</span><span class="op">)</span></span></code></pre></div>
 <p>Internally, any passed model is converted to a <code>torch</code> model, thus the correct functionality of this package relies on a complete and correct installation of <code>torch</code>. For this reason, the following command must be run manually to install the missing libraries LibTorch and LibLantern:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/install_torch.html" class="external-link">install_torch</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/torch/man/install_torch.html" class="external-link">install_torch</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Note:</strong> Currently this can lead to problems under Windows if the Visual Studio runtime is not pre-installed. See the issue on GitHub <a href="https://github.com/mlverse/torch/issues/246#issuecomment-695097121" class="external-link">here</a> or for more information and other problems with installing <code>torch</code> see the official installation <a href="https://CRAN.R-project.org/package=torch/vignettes/installation.html" class="external-link">vignette</a> of <code>torch</code>.</p>
 </div>
 <div class="section level2">
@@ -171,29 +163,29 @@
 </h2>
 <p>You have a trained neural network <code>model</code> on your model input data <code>data</code>. Now you want to interpret individual datapoints or the overall behavior by using the methods from the package <code>innsight</code>, then stick to the following pseudo code:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># --------------- Train your model -----------------</span>
-<span class="co"># 'model' has to be an instance of either torch::nn_sequential, </span>
-<span class="co"># keras::keras_model_sequential, keras::keras_model or neuralnet::neuralnet</span>
-<span class="va">model</span> <span class="op">=</span> <span class="va">...</span>
-
-<span class="co"># -------------- Convert your model ----------------</span>
-<span class="co"># For keras and neuralnet</span>
-<span class="va">converter</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/Converter.html">Converter</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">model</span><span class="op">)</span>
-<span class="co"># For a torch model the argument 'input_dim' is required</span>
-<span class="va">converter</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/Converter.html">Converter</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">model</span>, input_dim <span class="op">=</span> <span class="va">model_input_dim</span><span class="op">)</span>
-
-<span class="co"># ----------------- Apply method -------------------</span>
-<span class="co"># Apply global method</span>
-<span class="va">result</span> <span class="op">&lt;-</span> <span class="va">Method</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">converter</span><span class="op">)</span> <span class="co"># no data argument is needed</span>
-<span class="co"># Plot the result</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span>
-
-<span class="co"># Apply local methods</span>
-<span class="va">result</span> <span class="op">&lt;-</span> <span class="va">Method</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">converter</span>, <span class="va">data</span><span class="op">)</span>
-<span class="co"># Plot individual results</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span>
-<span class="co"># Plot a boxplot of all given data points in argument 'data' </span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># --------------- Train your model -----------------</span></span>
+<span><span class="co"># 'model' has to be an instance of either torch::nn_sequential, </span></span>
+<span><span class="co"># keras::keras_model_sequential, keras::keras_model or neuralnet::neuralnet</span></span>
+<span><span class="va">model</span> <span class="op">=</span> <span class="va">...</span></span>
+<span></span>
+<span><span class="co"># -------------- Convert your model ----------------</span></span>
+<span><span class="co"># For keras and neuralnet</span></span>
+<span><span class="va">converter</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/Converter.html">Converter</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span>
+<span><span class="co"># For a torch model the argument 'input_dim' is required</span></span>
+<span><span class="va">converter</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/Converter.html">Converter</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">model</span>, input_dim <span class="op">=</span> <span class="va">model_input_dim</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># ----------------- Apply method -------------------</span></span>
+<span><span class="co"># Apply global method</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="va">Method</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">converter</span><span class="op">)</span> <span class="co"># no data argument is needed</span></span>
+<span><span class="co"># Plot the result</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Apply local methods</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="va">Method</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">converter</span>, <span class="va">data</span><span class="op">)</span></span>
+<span><span class="co"># Plot individual results</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
+<span><span class="co"># Plot a boxplot of all given data points in argument 'data' </span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
@@ -201,105 +193,103 @@
 <div class="section level3">
 <h3 id="1-iris-dataset">1. Iris-Dataset<a class="anchor" aria-label="anchor" href="#1-iris-dataset"></a>
 </h3>
-<details><p><summary> Train a neural network in torch on the iris-dataset </summary></p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bips-hb.github.io/innsight/">innsight</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://torch.mlverse.org/docs" class="external-link">torch</a></span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span>
-
-<span class="co"># Prepare Data</span>
-<span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span>, <span class="op">-</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
-<span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span>, <span class="fl">5</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
-
-<span class="co"># Define Model</span>
-<span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_sequential.html" class="external-link">nn_sequential</a></span><span class="op">(</span>
-  <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">15</span><span class="op">)</span>, 
-  <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_relu.html" class="external-link">nn_relu</a></span><span class="op">(</span><span class="op">)</span>,
-  <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_dropout.html" class="external-link">nn_dropout</a></span><span class="op">(</span><span class="fl">0.3</span><span class="op">)</span>, 
-  <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">15</span>, <span class="fl">10</span><span class="op">)</span>, 
-  <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_relu.html" class="external-link">nn_relu</a></span><span class="op">(</span><span class="op">)</span>,
-  <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_dropout.html" class="external-link">nn_dropout</a></span><span class="op">(</span><span class="fl">0.3</span><span class="op">)</span>, 
-  <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">5</span><span class="op">)</span>, 
-  <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_relu.html" class="external-link">nn_relu</a></span><span class="op">(</span><span class="op">)</span>,
-  <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">3</span><span class="op">)</span>, 
-  <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_softmax.html" class="external-link">nn_softmax</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span>
-<span class="op">)</span>
-
-<span class="co"># Train model</span>
-<span class="va">optimizer</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/optim_adam.html" class="external-link">optim_adam</a></span><span class="op">(</span><span class="va">model</span><span class="op">$</span><span class="va">parameters</span>, lr <span class="op">=</span> <span class="fl">0.0002</span><span class="op">)</span>
-<span class="kw">for</span> <span class="op">(</span><span class="va">t</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2500</span><span class="op">)</span> <span class="op">{</span>
-  <span class="va">y_pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_log.html" class="external-link">torch_log</a></span><span class="op">(</span><span class="fu">model</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span>
-  <span class="va">loss</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nnf_nll_loss.html" class="external-link">nnf_nll_loss</a></span><span class="op">(</span><span class="va">y_pred</span>, <span class="va">y</span><span class="op">)</span>
-  <span class="kw">if</span> <span class="op">(</span><span class="va">t</span> <span class="op"><a href="https://rdrr.io/r/base/Arithmetic.html" class="external-link">%%</a></span> <span class="fl">250</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span>
-    <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Loss: "</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">loss</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span>
-  <span class="op">}</span>
-  <span class="va">optimizer</span><span class="op">$</span><span class="fu">zero_grad</span><span class="op">(</span><span class="op">)</span>
-  <span class="va">loss</span><span class="op">$</span><span class="fu">backward</span><span class="op">(</span><span class="op">)</span>
-  <span class="va">optimizer</span><span class="op">$</span><span class="fu">step</span><span class="op">(</span><span class="op">)</span>
-<span class="op">}</span>
-<span class="co">#&gt; Loss:  1.034311 </span>
-<span class="co">#&gt; Loss:  0.8588966 </span>
-<span class="co">#&gt; Loss:  0.6706114 </span>
-<span class="co">#&gt; Loss:  0.5762339 </span>
-<span class="co">#&gt; Loss:  0.5493336 </span>
-<span class="co">#&gt; Loss:  0.5144928 </span>
-<span class="co">#&gt; Loss:  0.4707141 </span>
-<span class="co">#&gt; Loss:  0.3532465 </span>
-<span class="co">#&gt; Loss:  0.2839047 </span>
-<span class="co">#&gt; Loss:  0.2687521</span></code></pre></div>
-</details><div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># create a Converter for this model</span>
-<span class="va">converter</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/Converter.html">Converter</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">model</span>, input_dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span>,
-                           input_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span>,<span class="op">-</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>,
-                           output_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span>,<span class="fl">5</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-
-<span class="co"># Apply local method LRP with epsilon rule</span>
-<span class="va">lrp_eps</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/LRP.html">LRP</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">converter</span>, <span class="va">iris</span><span class="op">[</span>,<span class="op">-</span><span class="fl">5</span><span class="op">]</span>, rule_name <span class="op">=</span> <span class="st">"epsilon"</span><span class="op">)</span>
-
-<span class="co"># Plot the individual result for two datapoints and all classes</span>
-<span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lrp_eps</span>, data_idx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">102</span><span class="op">)</span>, output_idx <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"LRP ('epsilon')"</span><span class="op">)</span>
-
-<span class="co"># Plot the boxplot statistic for all datapoints and all classes</span>
-<span class="co"># without a preprocess function</span>
-<span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">lrp_eps</span>, output_idx <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, ref_data_idx <span class="op">=</span> <span class="fl">1</span>, preprocess_FUN <span class="op">=</span> <span class="va">identity</span><span class="op">)</span> 
-
-<span class="fu">gridExtra</span><span class="fu">::</span><span class="fu">grid.arrange</span><span class="op">(</span><span class="va">p1</span>,<span class="va">p2</span>, ncol <span class="op">=</span> <span class="fl">1</span>, layout_matrix <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<details><summary>Train a neural network in torch on the iris-dataset</summary><div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bips-hb.github.io/innsight/">innsight</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://torch.mlverse.org/docs" class="external-link">torch</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Prepare Data</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">torch_tensor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span>, <span class="op">-</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">torch_tensor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span>, <span class="fl">5</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Define Model</span></span>
+<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_sequential.html" class="external-link">nn_sequential</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">15</span><span class="op">)</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_relu.html" class="external-link">nn_relu</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_dropout.html" class="external-link">nn_dropout</a></span><span class="op">(</span><span class="fl">0.3</span><span class="op">)</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">15</span>, <span class="fl">10</span><span class="op">)</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_relu.html" class="external-link">nn_relu</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_dropout.html" class="external-link">nn_dropout</a></span><span class="op">(</span><span class="fl">0.3</span><span class="op">)</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">5</span><span class="op">)</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_relu.html" class="external-link">nn_relu</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">3</span><span class="op">)</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_softmax.html" class="external-link">nn_softmax</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Train model</span></span>
+<span><span class="va">optimizer</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/optim_adam.html" class="external-link">optim_adam</a></span><span class="op">(</span><span class="va">model</span><span class="op">$</span><span class="va">parameters</span>, lr <span class="op">=</span> <span class="fl">0.0002</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">t</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2500</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">y_pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_log.html" class="external-link">torch_log</a></span><span class="op">(</span><span class="fu">model</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">loss</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nnf_nll_loss.html" class="external-link">nnf_nll_loss</a></span><span class="op">(</span><span class="va">y_pred</span>, <span class="va">y</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">t</span> <span class="op"><a href="https://rdrr.io/r/base/Arithmetic.html" class="external-link">%%</a></span> <span class="fl">250</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Loss: "</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">loss</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span>  <span class="va">optimizer</span><span class="op">$</span><span class="fu">zero_grad</span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="va">loss</span><span class="op">$</span><span class="fu">backward</span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="va">optimizer</span><span class="op">$</span><span class="fu">step</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co">#&gt; Loss:  1.034311 </span></span>
+<span><span class="co">#&gt; Loss:  0.8588966 </span></span>
+<span><span class="co">#&gt; Loss:  0.6706114 </span></span>
+<span><span class="co">#&gt; Loss:  0.5762339 </span></span>
+<span><span class="co">#&gt; Loss:  0.5493336 </span></span>
+<span><span class="co">#&gt; Loss:  0.5144928 </span></span>
+<span><span class="co">#&gt; Loss:  0.4707141 </span></span>
+<span><span class="co">#&gt; Loss:  0.3532465 </span></span>
+<span><span class="co">#&gt; Loss:  0.2839047 </span></span>
+<span><span class="co">#&gt; Loss:  0.2687521</span></span></code></pre></div></details><div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># create a Converter for this model</span></span>
+<span><span class="va">converter</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/Converter.html">Converter</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">model</span>, input_dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span>,</span>
+<span>                           input_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span>,<span class="op">-</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                           output_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span>,<span class="fl">5</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Apply local method LRP with epsilon rule</span></span>
+<span><span class="va">lrp_eps</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/LRP.html">LRP</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">converter</span>, <span class="va">iris</span><span class="op">[</span>,<span class="op">-</span><span class="fl">5</span><span class="op">]</span>, rule_name <span class="op">=</span> <span class="st">"epsilon"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Plot the individual result for two datapoints and all classes</span></span>
+<span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lrp_eps</span>, data_idx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">102</span><span class="op">)</span>, output_idx <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"LRP ('epsilon')"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Plot the boxplot statistic for all datapoints and all classes</span></span>
+<span><span class="co"># without a preprocess function</span></span>
+<span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">lrp_eps</span>, output_idx <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, ref_data_idx <span class="op">=</span> <span class="fl">1</span>, preprocess_FUN <span class="op">=</span> <span class="va">identity</span><span class="op">)</span> </span>
+<span></span>
+<span><span class="fu">gridExtra</span><span class="fu">::</span><span class="fu">grid.arrange</span><span class="op">(</span><span class="va">p1</span>,<span class="va">p2</span>, ncol <span class="op">=</span> <span class="fl">1</span>, layout_matrix <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-Example_1-1.png" width="100%"></p>
 </div>
 <div class="section level3">
 <h3 id="2-pretrained-vgg16-on-imagenet">2. Pretrained VGG16 on ImageNet<a class="anchor" aria-label="anchor" href="#2-pretrained-vgg16-on-imagenet"></a>
 </h3>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://keras.rstudio.com" class="external-link">keras</a></span><span class="op">)</span>
-
-<span class="co"># Load image</span>
-<span class="va">image</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://keras.rstudio.com/reference/image_load.html" class="external-link">image_load</a></span><span class="op">(</span><span class="st">"man/images/imagenet_rooster.png"</span>, target_size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">224</span>,<span class="fl">224</span><span class="op">)</span><span class="op">)</span>
-<span class="va">image</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://keras.rstudio.com/reference/image_to_array.html" class="external-link">image_to_array</a></span><span class="op">(</span><span class="va">image</span><span class="op">)</span>
-<span class="va">p_image</span> <span class="op">&lt;-</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/grid.raster.html" class="external-link">rasterGrob</a></span><span class="op">(</span><span class="va">image</span> <span class="op">/</span> <span class="fl">255</span><span class="op">)</span>
-
-<span class="co"># Preprocess image</span>
-<span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rstudio.github.io/reticulate/reference/array_reshape.html" class="external-link">array_reshape</a></span><span class="op">(</span><span class="va">image</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">image</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://keras.rstudio.com/reference/imagenet_preprocess_input.html" class="external-link">imagenet_preprocess_input</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>
-
-<span class="co"># Get pretrained Vgg16</span>
-<span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://keras.rstudio.com/reference/application_vgg.html" class="external-link">application_vgg16</a></span><span class="op">(</span><span class="op">)</span>
-
-<span class="co"># Convert the model</span>
-<span class="va">converter</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/Converter.html">Converter</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">model</span><span class="op">)</span>
-
-<span class="co"># Apply LRP with rule 'alpha_beta' with alpha = 1</span>
-<span class="va">lrp_ab</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/LRP.html">LRP</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">converter</span>, <span class="va">x</span>, 
-                  output_idx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">8</span><span class="op">)</span>, <span class="co"># 8 is index for class 'cock'</span>
-                  rule_name <span class="op">=</span> <span class="st">"alpha_beta"</span>,
-                  rule_param <span class="op">=</span> <span class="fl">1</span>,
-                  channels_first <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> 
-
-<span class="co"># We have to flip the y axis before plotting</span>
-<span class="va">lrp_ab</span><span class="op">$</span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_flip.html" class="external-link">torch_flip</a></span><span class="op">(</span><span class="va">lrp_ab</span><span class="op">$</span><span class="va">result</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>
-<span class="va">p_lrp_ab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lrp_ab</span><span class="op">)</span>
-
-<span class="fu">gridExtra</span><span class="fu">::</span><span class="fu">grid.arrange</span><span class="op">(</span><span class="va">p_image</span>, <span class="va">p_lrp_ab</span>, layout_matrix <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://keras.rstudio.com" class="external-link">keras</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Load image</span></span>
+<span><span class="va">image</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/keras/man/image_load.html" class="external-link">image_load</a></span><span class="op">(</span><span class="st">"man/images/imagenet_rooster.png"</span>, target_size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">224</span>,<span class="fl">224</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">image</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/keras/man/image_to_array.html" class="external-link">image_to_array</a></span><span class="op">(</span><span class="va">image</span><span class="op">)</span></span>
+<span><span class="va">p_image</span> <span class="op">&lt;-</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/grid.raster.html" class="external-link">rasterGrob</a></span><span class="op">(</span><span class="va">image</span> <span class="op">/</span> <span class="fl">255</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Preprocess image</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rstudio.github.io/reticulate/reference/array_reshape.html" class="external-link">array_reshape</a></span><span class="op">(</span><span class="va">image</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">image</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/keras/man/imagenet_preprocess_input.html" class="external-link">imagenet_preprocess_input</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Get pretrained Vgg16</span></span>
+<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/keras/man/application_vgg.html" class="external-link">application_vgg16</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Convert the model</span></span>
+<span><span class="va">converter</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/Converter.html">Converter</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Apply LRP with rule 'alpha_beta' with alpha = 1</span></span>
+<span><span class="va">lrp_ab</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/LRP.html">LRP</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">converter</span>, <span class="va">x</span>, </span>
+<span>                  output_idx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">8</span><span class="op">)</span>, <span class="co"># 8 is index for class 'cock'</span></span>
+<span>                  rule_name <span class="op">=</span> <span class="st">"alpha_beta"</span>,</span>
+<span>                  rule_param <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>                  channels_first <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> </span>
+<span></span>
+<span><span class="co"># We have to flip the y axis before plotting</span></span>
+<span><span class="va">lrp_ab</span><span class="op">$</span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_flip.html" class="external-link">torch_flip</a></span><span class="op">(</span><span class="va">lrp_ab</span><span class="op">$</span><span class="va">result</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">p_lrp_ab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lrp_ab</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">gridExtra</span><span class="fu">::</span><span class="fu">grid.arrange</span><span class="op">(</span><span class="va">p_image</span>, <span class="va">p_lrp_ab</span>, layout_matrix <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-Example_2-1.png" width="100%"></p>
 </div>
 </div>
@@ -308,16 +298,13 @@
 </h2>
 <p>If you would like to contribute, please open an issue or submit a pull request.</p>
 <p>This package becomes even more alive and valuable if people are using it for their analyses. Therefore, don’t hesitate to write me (<a href="mailto:niklas.koenen@gmail.com" class="email">niklas.koenen@gmail.com</a>) or create a feature request if you are missing something for your analyses or have great ideas for extending this package. Currently, we are working on the following:</p>
-<ul>
+<ul class="task-list">
 <li>
-<input type="checkbox" disabled>
-Extension to non-sequential models in <code>keras</code> with multiple in- and outputs, e.g. for mixed data of tabular and image data</li>
+<input type="checkbox" disabled>Extension to non-sequential models in <code>keras</code> with multiple in- and outputs, e.g. for mixed data of tabular and image data</li>
 <li>
-<input type="checkbox" disabled>
-More methods, e.g. Grad-CAM, integrated gradients, etc.</li>
+<input type="checkbox" disabled>More methods, e.g. Grad-CAM, integrated gradients, etc.</li>
 <li>
-<input type="checkbox" disabled>
-More examples and documentation (contact me if you have a non-trivial application for me)</li>
+<input type="checkbox" disabled>More examples and documentation (contact me if you have a non-trivial application for me)</li>
 </ul>
 </div>
 <div class="section level2">
@@ -366,9 +353,10 @@ More examples and documentation (contact me if you have a non-trivial applicatio
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/bips-hb/innsight/actions" class="external-link"><img src="https://github.com/bips-hb/innsight/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://github.com/bips-hb/innsight/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/bips-hb/innsight/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
 <li><a href="https://CRAN.R-project.org/package=innsight" class="external-link"><img src="https://www.r-pkg.org/badges/version/innsight" alt="CRAN status"></a></li>
 <li><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
+<li><a href="https://app.codecov.io/gh/bips-hb/innsight?branch=master" class="external-link"><img src="https://codecov.io/gh/bips-hb/innsight/branch/master/graph/badge.svg" alt="Codecov test coverage"></a></li>
 </ul>
 </div>
 
@@ -383,7 +371,7 @@ More examples and documentation (contact me if you have a non-trivial applicatio
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer>
