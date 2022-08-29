@@ -38,7 +38,6 @@ jobs:
           key: ubuntu-latest-${{ steps.get-date.outputs.year-week }}
 
       - name: Install remotes
-        if: steps.r-package-cache.outputs.cache-hit != 'true'
         run: install.packages("remotes")
         shell: Rscript {0}
 

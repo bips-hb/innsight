@@ -500,7 +500,7 @@ test_that("SmoothGrad: Conv2D-Net", {
 })
 
 
-test_that("LRP: Correctness", {
+test_that("Correctness Gradient and SmoothGrad", {
   library(keras)
   library(torch)
 
@@ -530,7 +530,8 @@ test_that("LRP: Correctness", {
 
   grad <- Gradient$new(converter, data,
     channels_first = FALSE,
-    times_input = FALSE
+    times_input = FALSE,
+    dtype = "double"
   )
 
   smooth_grad <- SmoothGrad$new(converter, data,
