@@ -340,6 +340,7 @@ test_that("Test neuralnet model", {
   #
   nn <- neuralnet((Species == "setosa") ~ Petal.Length + Petal.Width,
                   iris,
+                  threshold = 0.8,
                   linear.output = TRUE,
                   hidden = c(3, 2), act.fct = "tanh", rep = 3
   )
@@ -347,6 +348,7 @@ test_that("Test neuralnet model", {
 
   nn <- neuralnet((Species == "setosa") ~ Petal.Length + Petal.Width,
                   iris,
+                  threshold = 0.8,
                   linear.output = FALSE,
                   hidden = c(3, 2), act.fct = "tanh", rep = 1
   )
