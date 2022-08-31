@@ -165,7 +165,9 @@
 <span>                input_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Price"</span>, <span class="st">"Weight"</span>, <span class="st">"Height"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                output_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Buy it!"</span>, <span class="st">"Don't buy it!"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co"># Show output names</span></span>
-<span><span class="va">conv_dense_with_names</span><span class="op">$</span><span class="va">model_dict</span><span class="op">$</span><span class="va">output_names</span></span></code></pre></div>
+<span><span class="va">conv_dense_with_names</span><span class="op">$</span><span class="va">model_dict</span><span class="op">$</span><span class="va">output_names</span></span>
+<span><span class="co">#&gt; [[1]]</span></span>
+<span><span class="co">#&gt; [1] "Buy it!"       "Don't buy it!"</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="example-2-cnn">Example 2: CNN<a class="anchor" aria-label="anchor" href="#example-2-cnn"></a>
@@ -287,8 +289,12 @@
 <span><span class="va">conv_dense</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/Converter.html">Converter</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span>
 <span><span class="co"># Show input names</span></span>
 <span><span class="va">conv_dense</span><span class="op">$</span><span class="va">model_dict</span><span class="op">$</span><span class="va">input_names</span></span>
+<span><span class="co">#&gt; [[1]]</span></span>
+<span><span class="co">#&gt; [1] "Petal.Length" "Petal.Width"</span></span>
 <span><span class="co"># Show output names</span></span>
-<span><span class="va">conv_dense</span><span class="op">$</span><span class="va">model_dict</span><span class="op">$</span><span class="va">output_names</span></span></code></pre></div>
+<span><span class="va">conv_dense</span><span class="op">$</span><span class="va">model_dict</span><span class="op">$</span><span class="va">output_names</span></span>
+<span><span class="co">#&gt; [[1]]</span></span>
+<span><span class="co">#&gt; [1] "setosa"     "versicolor" "virginica"</span></span></code></pre></div>
 </div>
 </div>
 </div>
