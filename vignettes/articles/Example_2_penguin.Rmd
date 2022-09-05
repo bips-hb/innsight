@@ -1,0 +1,356 @@
+---
+title: "Example 2: Penguin Dataset with `torch` and `luz`"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  fig.dpi = 300, 
+  collapse = TRUE, 
+  comment = "#>",
+  fig.align = "center",
+  out.width = "90%"
+  )
+```
+
+```{r, echo = FALSE}
+Sys.setenv(LANG="en_US.UTF-8")
+set.seed(1111)
+torch::torch_manual_seed(1111)
+```
+
+
+This example is even a little more complex than the first because we are using 
+the [Penguin dataset](https://allisonhorst.github.io/palmerpenguins/), which has 
+both numeric and categorical variables. Since our package `innsight` currently 
+only accepts numeric values as inputs, you have to keep a few points in mind 
+and use little tricks. But in the future, it should be possible to use 
+categorical variables directly with the package. In addition, we want to show 
+in this example how to use `torch` models trained with the higher level API 
+[`luz`](https://mlverse.github.io/luz/).
+
+## Explore the dataset
+
+The dataset includes measurements of penguin species Adelie ($162$), 
+Chinstrap ($68$), and Gentoo ($124$) collected near Palmer Station, Antarctica. 
+For each of the $344$ penguins, numerical values bill length/depth, flipper 
+length, body mass, and study year were measured, and additional the
+categorical characteristics sex and island were recorded. To give you a brief 
+overview of the data, let's create a pair plot of some variables using GGally:
+
+```{r, warning=FALSE, fig.width=12, fig.height=8, message=FALSE}
+library(palmerpenguins)
+library(GGally)
+
+# remove NAs
+penguin_data <- na.omit(penguins)
+# create plot
+ggpairs(penguin_data, aes(color = species, alpha = 0.75), 
+        columns = 3:7,
+        progress = FALSE)
+```
+
+Based on this graphic, we can already make some hypothesis as to which 
+characteristics might be relevant for the individual classes. For example, 
+it is visible that the Gentoo species is much heavier and has longer flippers 
+and thinner bill than the other species. On the other hand, for the 
+species Adelie the bill length could be a decisive feature for the 
+classification. In the following, we will see see if these hypothesis match 
+the results of the feature attribution methods.
+
+## Step 1: Train a model
+
+The package `luz` makes things much easier for training a torch model, e.g. 
+by doing the for-loop over the epochs for you. However, the model must be 
+defined as `nn_model` and the data as a `torch::dataset`, but currently 
+`innsight` only works with torch models of class `nn_sequential`. Therefore a 
+data preparation step and a few tricks are necessary to use sequential 
+models trained in `luz` in `innsight`. 
+
+### Data preparation
+
+As previously mentioned, `innsight` needs numeric input and `luz` needs a 
+`torch`-dataset. For this reason, we create a dataset with already encoded 
+categorical variables (for more information about `torch::dataset` see the 
+[`torch` vignette](https://torch.mlverse.org/start/custom_dataset/)).
+
+
+```{r setup, fig.width=16}
+# Load packages
+library(torch)
+library(luz)
+
+
+# Create torch penguin dataset
+penguin_dataset <- dataset(
+  name = "penguin_dataset",
+  
+  initialize = function(df) {
+    df <- na.omit(df) # remove NAs
+    
+    # Get all numeric features and transform them to torch_tensor
+    x_cont <- df[ , c("bill_length_mm", "bill_depth_mm", "flipper_length_mm", 
+                      "body_mass_g", "year")]
+    x_cont <- torch_tensor(as.matrix(scale(x_cont)))
+    
+    # Get and encode (one-hot) categorical features and transform them to torch_tensor
+    x_cat <- sapply(df[, c("island", "sex")], as.integer)
+    x_cat <- torch_tensor(x_cat, dtype = torch_int64())
+    x_cat <- torch_hstack(list(
+      nnf_one_hot(x_cat[,1]),
+      nnf_one_hot(x_cat[,2])
+      ))
+    
+    # Stack and store the all features together in the field 'x'
+    self$x <- torch_hstack(list(x_cont, x_cat))
+    
+    # Get, transform and store the target variable (the three penguin species)
+    self$y <- torch_tensor(as.integer(df$species))
+  },
+  
+  .getitem = function(i) {
+     list(x = self$x[i, ], y = self$y[i])
+    
+  },
+  
+  .length = function() {
+    self$y$size()[[1]]
+  }
+)
+```
+
+Using the above method, we can now create a `torch` dataset from any subset of 
+instances from the Penguin dataset. Consequently, we can now get a training 
+and validation dataset and build a data loader from it. Beforehand, however, 
+we normalize all numerical inputs:
+
+```{r}
+# Normalize inputs
+penguin_data[ ,c(3:6, 8)] <- scale(penguin_data[,c(3:6, 8)])
+
+train_indices <- sample(1:nrow(penguin_data), 250)
+train_ds <- penguin_dataset(penguin_data[train_indices, ])
+valid_ds <- penguin_dataset(penguin_data[setdiff(1:nrow(penguin_data), train_indices), ])
+
+train_dl <- dataloader(train_ds, batch_size = 32, shuffle = TRUE)
+valid_dl <- dataloader(valid_ds, batch_size = 32, shuffle = FALSE)
+```
+
+### Create and train the model
+
+The package `luz` requires an object of the class `nn_module`, which cannot be 
+used for `innsight`. But a sequential model can be nested in a `nn_module` and
+then extracted afterwards. For this reason, we define a model that uses only 
+the sequential network of class `nn_sequential` stored as a field:
+
+```{r}
+# Create the model
+net <- nn_module(
+  initialize = function(dim_in) {
+    # Here, we define our sequential model
+    self$seq_model <- nn_sequential(
+      nn_linear(dim_in, 64),
+      nn_relu(),
+      nn_dropout(p = 0.3),
+      nn_linear(64, 32),
+      nn_relu(),
+      nn_dropout(p = 0.3),
+      nn_linear(32, 16),
+      nn_relu(),
+      nn_dropout(p = 0.3),
+      nn_linear(16, 3),
+      nn_softmax(dim = 2)
+    )
+  },
+  
+  # the forward pass should only contain the call of the sequential model
+  forward = function(x) {
+    self$seq_model(x)
+  }
+)
+```
+
+Now we can easily train the model with `luz` and extract the sequential model
+to be used for `innsight`:
+
+```{r}
+fitted <- net %>%
+  setup(
+    loss = function(input, target) nnf_nll_loss(log(input), target),
+    optimizer = optim_adam,
+    metrics = list(
+      luz_metric_accuracy()
+    )
+  ) %>%
+  set_hparams(dim_in = 10) %>% 
+  fit(train_dl, epochs = 20, valid_data = valid_dl)
+
+# Extract the sequential model
+model <- fitted$model$seq_model
+```
+
+## Step 2: Convert the model
+
+Analogous to the first example, we can easily create the `Converter` object 
+by passing the extracted model and the input dimension to the R6 class.
+However, since the categorical variables have already been encoded, 
+there are a total of $10$ inputs ($5$ numeric features, $3$ islands and 
+$2$ genders) and the input names (optional argument) must be expanded 
+accordingly.
+
+```{r}
+library(innsight)
+
+input_names <- 
+  c("bill_length", "bill_depth", "flipper_length", "body_mass", "year", 
+         "island_Biscoe", "island_Dream", "island_Torgersen", 
+         "sex_female", "sex_male")
+output_names <- c("Adelie", "Chinstrap", "Gentoo")
+converter_1 <- Converter$new(model, 
+                             input_dim = 10, 
+                             input_names = input_names,
+                             output_names = output_names)
+```
+
+But it is also possible, with the help of a small hack, to combine the results
+of the categorical variables, for example, to get only one relevance value for 
+the feature island and not three. This will be explained in the next step and 
+we create a converter for this variant here:
+
+```{r}
+converter_2 <- Converter$new(model, input_dim = 10,
+                             output_names = output_names)
+```
+
+## Step 3: Apply methods
+
+Now we can apply the implemented methods to our trained model. Although these 
+methods are different, they are called more or less the same way in 
+`innsight`. Essential arguments are of course the converter object 
+(`converter`) and the data (`data`) to which the method is to be applied. 
+There are also other basic and model-specific arguments, but they are already 
+explained in the other vignettes (<span style="color: red;">!! TODO !! see here </span>).
+Now two possibilities are presented with the categorical variables, either 
+to consider the categorical expressions individually or summarized.
+
+### Separated categorical variables
+
+In this variant, nothing needs to be changed, because it already corresponds 
+to the default result, i.e. you can use the method of your choice as usual:
+
+```{r, results='hide', message=FALSE}
+# data to be analyzed
+data <- train_ds$x
+# apply method 'LRP' with rule alpha-beta
+lrp_ab_1 <-  LRP$new(converter_1, data, rule_name = "alpha_beta")
+
+# the result for 83 instances, 10 inputs and all 3 outputs
+dim(lrp_ab_1$get_result())
+#> [1] 83 10  3
+```
+
+### Summarized categorical variables
+
+In this case, we need to use a few tricks to make it clear to the method 
+object that instead of $10$ inputs, there are only $7$ ($5$ numeric and $2$ 
+categorical). On the one hand, the input dimension and the input names have 
+to be adjusted in the passed converter object, on the other hand, the results 
+of the categorical features have to be combined so that the field 
+`result` fits the input dimensions again:
+
+
+```{r, results='hide', message=FALSE}
+# Apply method as in the other case
+lrp_ab_2 <-  LRP$new(converter_2, data, rule_name = "alpha_beta")
+
+# Adjust input dimension and input names in the method converter object
+lrp_ab_2$converter$input_dim <- 7
+lrp_ab_2$converter$input_names[[1]][[1]] <- 
+  c("bill_length", "bill_depth", "flipper_length", "body_mass", "year", 
+         "island", "sex")
+
+# Combine (sum) the results for feature island and sex
+lrp_ab_2$result[[1]][[1]] <- torch_cat(list(
+  lrp_ab_2$result[[1]][[1]][, 1:5,],                           # results for all numeric features
+  lrp_ab_2$result[[1]][[1]][, 6:8,]$sum(2, keepdim = TRUE),    # results for feature island
+  lrp_ab_2$result[[1]][[1]][, 9:10,]$sum(2, keepdim = TRUE)),  # results for feature sex
+  dim = 2
+  )
+
+# Now we have the desired output shape with combined categorical features
+dim(lrp_ab_2$get_result())
+#> [1] 83  7  3
+```
+
+**Note:** 
+Even if the input names can be passed to the converter in other ways, 
+they will be stored internally as a list (input layer) of lists (for each 
+dimension). Since in this case we have only one input layer and only one 
+feature dimension, it is sufficient to modify only 
+`lrp_ab_2$converter$input_names[[1]][[1]]`. In the same way, regardless of 
+the architecture of the model, the result is stored as a list (output layer) 
+of lists (input layer), which is why in our case two lists are indexed by `1` 
+before the results are modified.
+
+## Step 4: Visualization
+
+The package `innsight` provides two ways to visualize the results of a method, 
+namely as `innsight_ggplot2` or `innsight_plotly` object. Both are S4 classes 
+to combine multiple plots nicely and to be able to make visual modifications 
+or adjustments to the selection of plots even after the object has been created.
+The first class is based on [`ggplot2`](https://ggplot2.tidyverse.org/) and
+behaves partly like an ordinary `ggplot2` object. Whereas the other one is 
+based on the [`plotly`](https://plotly.com/r/) package and creates an 
+interactive graph with more detailed information about each variable.
+For more information on the S4 classes `innsight_ggplot`
+and `innsight_plotly` see 
+<span style="color: red;">!! TODO !! vignette </span>.
+
+For each of these classes and thus of course also for each method, there are 
+two plot functions, `plot` shows only individual data points and 
+`boxplot` visualizes summaries of multiple data points using summary statistics.
+
+### Plot individual results
+
+The function `plot` is implemented for each of the available methods. You can 
+select your desired data points and output nodes/classes with the `data_idx` 
+and `output_idx` arguments, respectively. To switch between a `ggplot2` and 
+`plotly` based plot, you can use the logical `as_plotly` parameter, but 
+this requires a successful installation of this package.
+
+Now we plot the results for the first instance and for the classes Adelie and 
+Gentoo, but once with separated and once with merged categorical variables:
+
+```{r, fig.width=8}
+library(ggplot2)
+# separated categorical features
+plot(lrp_ab_1, output_idx = c(1,3)) +
+  scale_x_discrete(guide = guide_axis(angle = 45))
+# combined categorical features
+plot(lrp_ab_2, output_idx = c(1,3)) +
+  scale_x_discrete(guide = guide_axis(angle = 45))
+```
+
+#### Plot summarized results
+
+The function `boxplot` is implemented for each of the available local methods. 
+You can select your desired data points (default is `'all'`) and output 
+nodes/classes with the `data_idx` and `output_idx` arguments, respectively. 
+To switch between a `ggplot2` and `plotly` based plot, you can use the 
+logical `as_plotly` parameter, but this requires a successful installation of 
+this package. In addition, you can use `ref_data_idx` to select a single data 
+point that will be visualized in red as a reference value, and 
+`preprocess_FUN` to select a function that will be applied to all data 
+in advance (e.g. the absolute value).
+
+```{r, fig.width=8}
+library(ggplot2)
+
+# Result for instances of type 'Adelie'
+adelie_idx <- which(as.array(train_ds$y) == 1)
+boxplot(lrp_ab_2, output_idx = 1, data_idx = adelie_idx, preprocess_FUN = identity) +
+  scale_x_discrete(guide = guide_axis(angle = 45))
+# Result for instances of type 'Gentoo'
+gentoo_idx <- which(as.array(train_ds$y) == 3)
+boxplot(lrp_ab_2, output_idx = 3, data_idx = gentoo_idx, preprocess_FUN = identity) +
+  scale_x_discrete(guide = guide_axis(angle = 45))
+```
