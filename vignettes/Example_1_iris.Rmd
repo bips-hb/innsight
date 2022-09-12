@@ -194,10 +194,9 @@ plot(grad_no_softmax, data_idx = c(1,111), output_idx = c(1,2)) +
 
 **`plotly`-based plot**
 
-```{r, fig.height=4, fig.keep='all', fig.width=9}
+```{r, fig.height=4, fig.keep='all', fig.width=9, eval = requireNamespace("plotly")}
 # Show data point 1 for output node 1 (Setosa) and 2 (Versicolor)
-p <- plot(deeplift_mean, data_idx = 1, output_idx = c(1,2), as_plotly = TRUE)
-p
+plot(deeplift_mean, data_idx = 1, output_idx = c(1,2), as_plotly = TRUE)
 ```
 
 #### Plot summarized results
@@ -228,9 +227,8 @@ boxplot(grad_no_softmax, output_idx = c(1,2), ref_data_idx = 3, preprocess_FUN =
 
 **`plotly`-based plot**
 
-```{r, fig.height=4, fig.keep='all', fig.width=9}
+```{r, fig.height=4, fig.keep='all', fig.width=9, eval = requireNamespace("plotly")}
 # Summarized results for output node 1 (Setosa) and 2 (Versicolor) and
 # without a preprocess function
-p <- boxplot(lrp_eps, output_idx = c(1,2), as_plotly = TRUE, preprocess_FUN = identity)
-p
+boxplot(lrp_eps, output_idx = c(1,2), as_plotly = TRUE, preprocess_FUN = identity)
 ```
