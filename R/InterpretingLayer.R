@@ -54,6 +54,17 @@ InterpretingLayer <- nn_module(
     self$activation_name <- activation$act_name
   },
 
+  get_stabilizer = function() {
+    # Get stabilizer
+    if (self$dtype == "float") {
+      eps <- 1e-6 # a bit larger than torch_finfo(torch_float())$eps
+    } else {
+      eps <- 1e-15 # a bit larger than torch_finfo(torch_double())$eps
+    }
+
+    eps
+  }
+
 )
 
 

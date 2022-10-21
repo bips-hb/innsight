@@ -111,10 +111,14 @@ conv1d_layer <- nn_module(
   get_input_relevances = function(rel_output,
                                   rule_name = "simple",
                                   rule_param = NULL) {
+
+    # Get stabilizer
+    eps <- self$get_stabilizer()
+
     if (rule_name == "simple") {
       z <- self$preactivation$unsqueeze(4)
       # add a small stabilizer
-      z <- z + (z == 0) * 1e-12
+      z <- z + (z == 0) * eps
 
       rel_input <-
         self$get_gradient(rel_output / z, self$W) * self$input$unsqueeze(4)
@@ -127,7 +131,7 @@ conv1d_layer <- nn_module(
       }
 
       z <- self$preactivation$unsqueeze(4)
-      z <- z + epsilon * torch_sgn(z) + (z == 0) * 1e-12
+      z <- z + epsilon * (torch_sgn(z) + (z == 0))
 
       rel_input <-
         self$get_gradient(rel_output / z, self$W) * self$input$unsqueeze(4)
@@ -145,7 +149,7 @@ conv1d_layer <- nn_module(
 
       # Apply simple rule on the positive part
       z <- rel_output /
-        (out_part$pos + (out_part$pos == 0) * 1e-16)$unsqueeze(4)
+        (out_part$pos + (out_part$pos == 0) * eps + torch_sgn(out_part$pos) * eps)$unsqueeze(4)
 
       t1 <- self$get_gradient(z, (self$W * (self$W > 0)))
       t2 <- self$get_gradient(z, (self$W * (self$W <= 0)))
@@ -154,7 +158,7 @@ conv1d_layer <- nn_module(
 
       # Apply simple rule on the negative part
       z <- rel_output /
-        (out_part$neg + (out_part$neg == 0) * 1e-16)$unsqueeze(4)
+        (out_part$neg + torch_sgn(out_part$neg) * eps - (out_part$neg == 0) * eps)$unsqueeze(4)
 
       t1 <- self$get_gradient(z, (self$W * (self$W > 0)))
       t2 <- self$get_gradient(z, (self$W * (self$W <= 0)))
@@ -178,6 +182,9 @@ conv1d_layer <- nn_module(
     mult_pos <- mult_output
     mult_neg <- mult_output
     if (self$activation_name != "linear") {
+      # Get stabilizer
+      eps <- self$get_stabilizer()
+
       if (rule_name == "rescale") {
 
         # output       [batch_size, out_channels, out_length]
@@ -186,8 +193,16 @@ conv1d_layer <- nn_module(
         delta_preact <-
           (self$preactivation - self$preactivation_ref)$unsqueeze(4)
 
-        nonlin_mult <- delta_output /
-          (delta_preact + 1e-16 * (delta_preact == 0))
+        # Near zero needs special treatment
+        mask <- (abs(delta_preact) < eps) * (1.0)
+        x <-  mask * (self$preactivation + self$preactivation_ref)$unsqueeze(4) / 2
+        x$requires_grad <- TRUE
+
+        y <- sum(self$activation_f(x))
+        grad <- autograd_grad(y, x)[[1]]
+
+        nonlin_mult <- (1 - mask) * (delta_output / delta_preact) +
+          mask * grad
 
         # mult_output   [batch_size, out_channels, out_length, model_out]
         # nonlin_mult   [batch_size, out_channels, out_length, 1]
@@ -206,18 +221,18 @@ conv1d_layer <- nn_module(
 
         delta_output_pos <-
           ( 0.5 * (act(x_ref + delta_x_pos) - act(x_ref)) +
-            0.5 * (act(x) - act(x_ref + delta_x_neg))) * (delta_x_pos != 0)
+            0.5 * (act(x) - act(x_ref + delta_x_neg)))
 
         delta_output_neg <-
           ( 0.5 * (act(x_ref + delta_x_neg) - act(x_ref)) +
-            0.5 * (act(x) - act(x_ref + delta_x_pos))) * (delta_x_neg != 0)
+            0.5 * (act(x) - act(x_ref + delta_x_pos)))
 
         mult_pos <- mult_output *
           (delta_output_pos /
-            (delta_x_pos + (delta_x_pos == 0) * 1e-16))$unsqueeze(4)
+            (delta_x_pos + (delta_x_pos == 0) * eps))$unsqueeze(4)
         mult_neg <- mult_output *
           (delta_output_neg /
-            (delta_x_neg - (delta_x_neg == 0) * 1e-16))$unsqueeze(4)
+            (delta_x_neg - (delta_x_neg == 0) * eps))$unsqueeze(4)
       }
     }
 

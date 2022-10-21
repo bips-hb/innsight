@@ -100,13 +100,16 @@ dense_layer <- nn_module(
     input <- self$input$unsqueeze(3)
     z <- self$preactivation$unsqueeze(3)
 
+    # Get stabilizer
+    eps <- self$get_stabilizer()
+
     if (rule_name == "simple") {
-      z <- z + (z == 0) * 1e-16
+      z <- z + (z == 0) * eps
 
       rel_input <-
         self$get_gradient(rel_output / z, self$W) * input
     } else if (rule_name == "epsilon") {
-      z <- z + rule_param * torch_sgn(z) + (z == 0) * 1e-16
+      z <- z + rule_param * (torch_sgn(z) + (z == 0))
       rel_input <-
         self$get_gradient(rel_output / z, self$W) * input
     } else if (rule_name == "alpha_beta") {
@@ -115,7 +118,7 @@ dense_layer <- nn_module(
       # Apply the simple rule for each part:
       # - positive part
       z <-
-        rel_output / (out_part$pos + (out_part$pos == 0) * 1e-16)$unsqueeze(3)
+        rel_output / (out_part$pos + (out_part$pos == 0) * eps + torch_sgn(out_part$pos) * eps)$unsqueeze(3)
 
       t1 <- self$get_gradient(z, (self$W * (self$W > 0)))
       t2 <- self$get_gradient(z, (self$W * (self$W <= 0)))
@@ -124,7 +127,7 @@ dense_layer <- nn_module(
 
       # - negative part
       z <-
-        rel_output / (out_part$neg + (out_part$neg == 0) * 1e-16)$unsqueeze(3)
+        rel_output / (out_part$neg + torch_sgn(out_part$neg) * eps - (out_part$neg == 0) * eps)$unsqueeze(3)
 
       t1 <- self$get_gradient(z, (self$W * (self$W > 0)))
       t2 <- self$get_gradient(z, (self$W * (self$W <= 0)))
@@ -148,13 +151,24 @@ dense_layer <- nn_module(
     mult_pos <- mult_output
     mult_neg <- mult_output
     if (self$activation_name != "linear") {
+      # Get stabilizer
+      eps <- self$get_stabilizer()
+
       if (rule_name == "rescale") {
         delta_output <- (self$output - self$output_ref)$unsqueeze(3)
         delta_preact <-
           (self$preactivation - self$preactivation_ref)$unsqueeze(3)
 
-        nonlin_mult <-
-          delta_output / (delta_preact + 1e-16 * (delta_preact == 0))
+        # Near zero needs special treatment
+        mask <- (abs(delta_preact) < eps) * (1.0)
+        x <-  mask * (self$preactivation + self$preactivation_ref)$unsqueeze(3) / 2
+        x$requires_grad <- TRUE
+
+        y <- sum(self$activation_f(x))
+        grad <- autograd_grad(y, x)[[1]]
+
+        nonlin_mult <- (1 - mask) * (delta_output / delta_preact) +
+          mask * grad
 
         mult_pos <- mult_output * nonlin_mult
         mult_neg <- mult_output * nonlin_mult
@@ -166,16 +180,16 @@ dense_layer <- nn_module(
 
         delta_output_pos <-
           ( 0.5 * (act(x_ref + delta_x$pos) - act(x_ref)) +
-            0.5 * (act(x) - act(x_ref + delta_x$neg))) * (delta_x$pos != 0)
+            0.5 * (act(x) - act(x_ref + delta_x$neg)))
 
         delta_output_neg <-
           ( 0.5 * (act(x_ref + delta_x$neg) - act(x_ref)) +
-            0.5 * (act(x) - act(x_ref + delta_x$pos))) * (delta_x$neg != 0)
+            0.5 * (act(x) - act(x_ref + delta_x$pos)))
 
         mult_pos <-
-          mult_output * (delta_output_pos / (delta_x$pos + 1e-16))$unsqueeze(3)
+          mult_output * (delta_output_pos / (delta_x$pos + (delta_x$pos == 0) * eps))$unsqueeze(3)
         mult_neg <-
-          mult_output * (delta_output_neg / (delta_x$neg - 1e-16))$unsqueeze(3)
+          mult_output * (delta_output_neg / (delta_x$neg - (delta_x$neg == 0) * eps))$unsqueeze(3)
       }
     }
 
@@ -188,9 +202,9 @@ dense_layer <- nn_module(
     # mult_input    [batch_size, model_out, dim_in]
     mult_input <-
       self$get_gradient(mult_pos, self$W * (self$W > 0)) * (delta_input > 0) +
-      self$get_gradient(mult_pos, self$W * (self$W <= 0)) * (delta_input < 0) +
+      self$get_gradient(mult_pos, self$W * (self$W < 0)) * (delta_input < 0) +
       self$get_gradient(mult_neg, self$W * (self$W > 0)) * (delta_input < 0) +
-      self$get_gradient(mult_neg, self$W * (self$W <= 0)) * (delta_input > 0) +
+      self$get_gradient(mult_neg, self$W * (self$W < 0)) * (delta_input > 0) +
       self$get_gradient(0.5 * (mult_pos + mult_neg), self$W) *
         (delta_input == 0)
 

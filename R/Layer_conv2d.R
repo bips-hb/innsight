@@ -133,15 +133,18 @@ conv2d_layer <- nn_module(
       }
     }
 
+    # Get stabilizer
+    eps <- self$get_stabilizer()
+
     if (rule_name == "simple") {
       z <- self$preactivation$unsqueeze(5)
       # add a small stabilizer
-      z <- z + (z == 0) * 1e-16
+      z <- z + (z == 0) * eps
       rel_input <-
         self$get_gradient(rel_output / z, self$W) * self$input$unsqueeze(5)
     } else if (rule_name == "epsilon") {
       z <- self$preactivation$unsqueeze(5)
-      z <- z + rule_param * torch_sgn(z) + (z == 0) * 1e-16
+      z <- z + rule_param * (torch_sgn(z) + (z == 0))
       rel_input <-
         self$get_gradient(rel_output / z, self$W) * self$input$unsqueeze(5)
     } else if (rule_name == "alpha_beta") {
@@ -150,7 +153,7 @@ conv2d_layer <- nn_module(
 
       # Apply the simple rule for each part:
       # - positive part
-      z <- rel_output / (output$pos + (output$pos == 0) * 1e-16)$unsqueeze(5)
+      z <- rel_output / (output$pos + (output$pos == 0) * eps + torch_sgn(output$pos) * eps)$unsqueeze(5)
 
       t1 <- self$get_gradient(z, (self$W * (self$W > 0)))
       t2 <- self$get_gradient(z, (self$W * (self$W < 0)))
@@ -159,7 +162,7 @@ conv2d_layer <- nn_module(
       rel_pos <- t1 * (input * (input > 0)) + t2 * (input * (input < 0))
 
       # - negative part
-      z <- rel_output / (output$neg + (output$neg == 0) * 1e-16)$unsqueeze(5)
+      z <- rel_output / (output$neg + torch_sgn(output$neg) * eps - (output$neg == 0) * eps)$unsqueeze(5)
 
       t1 <- self$get_gradient(z, (self$W * (self$W > 0)))
       t2 <- self$get_gradient(z, (self$W * (self$W < 0)))
@@ -184,6 +187,9 @@ conv2d_layer <- nn_module(
     mult_pos <- mult_output
     mult_neg <- mult_output
     if (self$activation_name != "linear") {
+      # Get stabilizer
+      eps <- self$get_stabilizer()
+
       if (rule_name == "rescale") {
 
         # output       [batch_size, out_channels, out_height, out_width]
@@ -192,8 +198,16 @@ conv2d_layer <- nn_module(
         delta_preact <-
           (self$preactivation - self$preactivation_ref)$unsqueeze(5)
 
-        nonlin_mult <-
-          delta_output / (delta_preact + 1e-16 * (delta_preact == 0))
+        # Near zero needs special treatment
+        mask <- (abs(delta_preact) < eps) * (1.0)
+        x <-  mask * (self$preactivation + self$preactivation_ref)$unsqueeze(5) / 2
+        x$requires_grad <- TRUE
+
+        y <- sum(self$activation_f(x))
+        grad <- autograd_grad(y, x)[[1]]
+
+        nonlin_mult <- (1 - mask) * (delta_output / delta_preact) +
+          mask * grad
 
         # mult_output
         #  [batch_size, out_channels, out_height, out_width, model_out]
@@ -212,16 +226,16 @@ conv2d_layer <- nn_module(
 
         delta_output_pos <-
           ( 0.5 * (act(x_ref + delta_x_pos) - act(x_ref)) +
-            0.5 * (act(x) - act(x_ref + delta_x_neg))) * (delta_x_pos != 0)
+            0.5 * (act(x) - act(x_ref + delta_x_neg)))
 
         delta_output_neg <-
           ( 0.5 * (act(x_ref + delta_x_neg) - act(x_ref)) +
-            0.5 * (act(x) - act(x_ref + delta_x_pos))) * (delta_x_neg != 0)
+            0.5 * (act(x) - act(x_ref + delta_x_pos)))
 
         mult_pos <-
-          mult_output * (delta_output_pos / (delta_x_pos + 1e-16))$unsqueeze(5)
+          mult_output * (delta_output_pos / (delta_x_pos + (delta_x_pos == 0) * eps))$unsqueeze(5)
         mult_neg <-
-          mult_output * (delta_output_neg / (delta_x_neg - 1e-16))$unsqueeze(5)
+          mult_output * (delta_output_neg / (delta_x_neg - (delta_x_neg == 0) * eps))$unsqueeze(5)
       } else {
         stop(sprintf("Unknown DeepLift rule '%s'!", rule_name))
       }
