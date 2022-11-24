@@ -233,7 +233,7 @@ Converter <- R6Class("Converter",
         assertChoice(type, c(
           "Flatten", "Skipping", "Dense", "Conv1D", "Conv2D",
           "MaxPooling1D", "MaxPooling2D", "AveragePooling1D",
-          "AveragePooling2D", "Concatenate", "Add"
+          "AveragePooling2D", "Concatenate", "Add", "Padding"
         ))
 
         # Get incoming and outgoing layers (as indices) of the current layer
@@ -281,7 +281,8 @@ Converter <- R6Class("Converter",
           AveragePooling1D = create_pooling_layer(layer_as_list, type),
           AveragePooling2D = create_pooling_layer(layer_as_list, type),
           Concatenate = create_concatenate_layer(layer_as_list),
-          Add = create_add_layer(layer_as_list)
+          Add = create_add_layer(layer_as_list),
+          Padding = create_padding_layer(layer_as_list)
         )
 
         # Set a name for the layer
@@ -635,6 +636,25 @@ create_add_layer <- function(layer_as_list) {
   assertIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE)
 
   add_layer(dim_in, dim_out)
+}
+
+# Padding Layer ---------------------------------------------------------------
+create_padding_layer <- function(layer_as_list) {
+  # Get arguments
+  dim_in <- layer_as_list$dim_in
+  dim_out <- layer_as_list$dim_out
+  padding <- layer_as_list$padding
+  value <- layer_as_list$value
+  mode <- layer_as_list$mode
+
+  # Check arguments
+  assertIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE)
+  assertIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE)
+  assertNumeric(padding, min.len = 1, max.len = 4)
+  assertNumber(value)
+  assertChoice(mode, c("constant", "reflect", "replicate", "circular"))
+
+  padding_layer(padding, dim_in, dim_out, mode, value)
 }
 
 # Skipping Layer --------------------------------------------------------------

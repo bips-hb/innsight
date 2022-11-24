@@ -1,7 +1,7 @@
 implemented_layers_keras <- c(
   "Dense", "Dropout", "InputLayer", "Conv1D", "Conv2D", "Flatten",
   "MaxPooling1D", "MaxPooling2D", "AveragePooling1D", "AveragePooling2D",
-  "Concatenate", "Add", "Activation"
+  "Concatenate", "Add", "Activation", "ZeroPadding1D", "ZeroPadding2D"
 )
 
 
@@ -95,7 +95,9 @@ convert_keras_model <- function(model) {
         },
         Concatenate = convert_keras_concatenate(layer),
         Add = convert_keras_add(layer),
-        Activation = convert_keras_activation(layer$get_config()$activation)
+        Activation = convert_keras_activation(layer$get_config()$activation),
+        ZeroPadding1D = convert_keras_zeropadding(layer, type),
+        ZeroPadding2D = convert_keras_zeropadding(layer, type)
       )
 
     # Define the incoming and outgoing layers of this layer
@@ -285,6 +287,34 @@ convert_keras_pooling <- function(layer, type) {
     dim_out = output_dim,
     kernel_size = kernel_size,
     strides = strides
+  )
+}
+
+convert_keras_zeropadding <- function(layer, type) {
+  # padding size: either [left, right] or [top, bottom, left, right]
+  padding <- unlist(layer$padding)
+  if (length(padding) == 4) {
+    padding <- c(padding[3:4], padding[1:2]) # in torch [left, right, top, bottom]
+    data_format <- layer$data_format
+  } else {
+    data_format <- "channels_last"
+  }
+  dim_in <- unlist(layer$input_shape)
+  dim_out <- unlist(layer$output_shape)
+
+  # in this package only 'channels_first'
+  if (data_format == "channels_last") {
+    dim_in <- move_channels_first(dim_in)
+    dim_out <- move_channels_first(dim_out)
+  }
+
+  list(
+    type = "Padding",
+    dim_in = dim_in,
+    dim_out = dim_out,
+    padding = padding,
+    mode = "constant",
+    value = 0
   )
 }
 

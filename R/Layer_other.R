@@ -181,27 +181,16 @@ padding_layer <- nn_module(
     self$pad <- pad
     self$mode <- mode
     self$value <- value
+    self$rev_pad_idx <- NULL
 
-    num_dims <- length(dim_in)
-    rev_dim_in <- rev(dim_in)
-    if (num_dims == 1) {
-      indices <- list(seq.int(from = pad[1] + 1, to = pad[1] + rev_dim_in[1]))
-    } else if (num_dims == 2) {
-      indices <- list(
-        seq_len(rev_dim_in[2]),
-        seq.int(from = pad[1] + 1, to = pad[1] + rev_dim_in[1])
-      )
-    } else {
-      indices <- list(
-        seq_len(rev_dim_in[3]),
-        seq.int(from = pad[3] + 1, to = pad[3] + rev_dim_in[2]),
-        seq.int(from = pad[1] + 1, to = pad[1] + rev_dim_in[1])
-      )
+    if (!is.null(dim_in)) {
+      self$calc_rev_pad_idx(dim_in)
     }
-    self$rev_pad_idx <- indices
   },
 
   forward = function(x, ...) {
+    if (is.null(self$rev_pad_idx)) self$calc_rev_pad_idx(x$shape[-1])
+
     nnf_pad(x, pad = self$pad, mode = self$mode, value = self$value)
   },
 
@@ -217,6 +206,27 @@ padding_layer <- nn_module(
     args$drop <- FALSE
 
     do.call('[', args)
+  },
+
+  calc_rev_pad_idx = function(dim_in) {
+    num_dims <- length(dim_in)
+    rev_dim_in <- rev(dim_in)
+    pad <- self$pad
+    if (num_dims == 1) {
+      indices <- list(seq.int(from = pad[1] + 1, to = pad[1] + rev_dim_in[1]))
+    } else if (num_dims == 2) {
+      indices <- list(
+        seq_len(rev_dim_in[2]),
+        seq.int(from = pad[1] + 1, to = pad[1] + rev_dim_in[1])
+      )
+    } else {
+      indices <- list(
+        seq_len(rev_dim_in[3]),
+        seq.int(from = pad[3] + 1, to = pad[3] + rev_dim_in[2]),
+        seq.int(from = pad[1] + 1, to = pad[1] + rev_dim_in[1])
+      )
+    }
+    self$rev_pad_idx <- indices
   }
 )
 ###############################################################################

@@ -540,6 +540,7 @@ test_that("Test keras sequential: Conv1D with 'valid' padding", {
     ) %>%
     layer_max_pooling_1d() %>%
     layer_conv_1d(kernel_size = 16, filters = 4, activation = "tanh") %>%
+    layer_zero_padding_1d(padding = c(1,2)) %>%
     layer_average_pooling_1d() %>%
     layer_conv_1d(kernel_size = 16, filters = 2, activation = "relu") %>%
     layer_flatten() %>%
@@ -648,11 +649,13 @@ test_that("Test keras sequential: Conv2D with 'valid' padding", {
       activation = "softplus", padding = "valid"
     ) %>%
     layer_max_pooling_2d() %>%
+    layer_zero_padding_2d(padding = list(c(2,2), c(5,3))) %>%
     layer_conv_2d(
       kernel_size = 8, filters = 4, activation = "tanh",
       padding = "valid"
     ) %>%
     layer_average_pooling_2d(pool_size = c(1,1)) %>%
+    layer_zero_padding_2d(padding = c(3,5)) %>%
     layer_conv_2d(
       kernel_size = 4, filters = 2, activation = "relu",
       padding = "valid"
