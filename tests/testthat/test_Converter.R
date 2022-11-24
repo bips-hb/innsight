@@ -967,3 +967,153 @@ test_that("Test keras model: Two inputs + two output (second)", {
 })
 
 
+test_that("Test keras model: Sequential as submodule", {
+  library(keras)
+  library(innsight)
+  library(torch)
+
+  input <- layer_input(shape = c(10))
+  seq_model <- keras_model_sequential() %>%
+    layer_dense(units = 32) %>%
+    layer_activation('relu') %>%
+    layer_dense(units = 16) %>%
+    layer_activation('relu') %>%
+    layer_dense(units = 10) %>%
+    layer_activation('relu')
+
+  out <-  seq_model(input) %>%
+    layer_dense(32, activation = "relu") %>%
+    layer_dense(1, activation = "sigmoid")
+
+  model <- keras_model(inputs = input, outputs = out)
+  conv <- Converter$new(model)
+
+  data <- matrix(rnorm(4 * 10), nrow = 4)
+
+  # forward method
+  y_true <- as.array(model(data))
+  dim_y_true <- dim(y_true)
+  y <- as_array(conv$model(list(torch_tensor(data)))[[1]])
+  dim_y <- dim(y)
+
+  expect_equal(dim_y, dim_y_true)
+  expect_lt(mean((y_true - y)^2), 1e-12)
+
+  # update_ref
+  x_ref <- matrix(rnorm(10), nrow = 1, ncol = 10)
+  y_ref <- as_array(conv$model$update_ref(list(torch_tensor(x_ref)))[[1]])
+  dim_y_ref <- dim(y_ref)
+  y_ref_true <- as.array(model(x_ref))
+  dim_y_ref_true <- dim(y_ref_true)
+
+  expect_equal(dim_y_ref, dim_y_ref_true)
+  expect_lt(mean((y_ref_true - y_ref)^2), 1e-12)
+
+})
+
+
+
+#
+# Predefined models
+#
+
+
+# VGG16
+test_that("Test keras predefiend Model: VGG16", {
+  library(keras)
+
+  model <- application_vgg16(weights = NULL, input_shape = c(32,32,3))
+
+  conv <- Converter$new(model)
+  data <- array(rnorm(10 * 32* 32* 3), dim = c(10, 32, 32, 3))
+  data_torch <- torch_tensor(data)
+
+  # forward method
+  y_true <- as.array(model(data))
+  y <- as_array(conv$model(data_torch, channels_first = FALSE)[[1]])
+  expect_equal(dim(y), dim(y_true))
+  expect_lt(mean((y_true - y)^2), 1e-12)
+
+  # update
+  x_ref <- array(rnorm(32* 32* 3), dim = c(1, 32, 32, 3))
+  x_ref_torch <- torch_tensor(x_ref)
+  y_ref <- as_array(conv$model(x_ref_torch, channels_first = FALSE)[[1]])
+  y_ref_true <- as.array(model(x_ref))
+  expect_equal(dim(y_ref), dim(y_ref_true))
+  expect_lt(mean((y_ref_true - y_ref)^2), 1e-12)
+})
+
+# ResNet50
+test_that("Test keras predefiend Model: Resnet50", {
+  library(keras)
+
+  model <- application_resnet50(weights = NULL, input_shape = c(32,32,3))
+
+  conv <- Converter$new(model)
+  data <- array(rnorm(10 * 32* 32* 3), dim = c(10, 32, 32, 3))
+  data_torch <- torch_tensor(data)
+
+  # forward method
+  y_true <- as.array(model(data))
+  y <- as_array(conv$model(data_torch, channels_first = FALSE)[[1]])
+  expect_equal(dim(y), dim(y_true))
+  expect_lt(mean((y_true - y)^2), 1e-12)
+
+  # update
+  x_ref <- array(rnorm(32* 32* 3), dim = c(1, 32, 32, 3))
+  x_ref_torch <- torch_tensor(x_ref)
+  y_ref <- as_array(conv$model(x_ref_torch, channels_first = FALSE)[[1]])
+  y_ref_true <- as.array(model(x_ref))
+  expect_equal(dim(y_ref), dim(y_ref_true))
+  expect_lt(mean((y_ref_true - y_ref)^2), 1e-12)
+})
+
+test_that("Test keras model: Two inputs + two output with VGG16 as submodule", {
+  library(keras)
+
+  main_input <- layer_input(shape = c(32,32,3))
+  vgg16_model <- application_vgg16(include_top = FALSE, weights = NULL,
+                                   input_shape = c(32,32,3))
+  lstm_out <- main_input %>%
+    vgg16_model %>%
+    layer_flatten() %>%
+    layer_dense(units = 11)
+  auxiliary_input <- layer_input(shape = c(11), name = 'aux_input')
+  auxiliary_input_2 <- layer_input(shape = c(16), name = 'aux_input_2')
+  seq_test <- auxiliary_input_2 %>%
+    layer_dense(units = 11, activation = "relu")
+  seq_test_2 <- layer_add(c(seq_test, auxiliary_input)) %>%
+    layer_dense(units = 11, activation = "relu")
+  auxiliary_output <- layer_concatenate(c(lstm_out, seq_test, seq_test_2)) %>%
+    layer_dense(units = 2, activation = 'linear', name = 'aux_output')
+  main_output <- layer_concatenate(c(lstm_out, auxiliary_input)) %>%
+    layer_dense(units = 5, activation = 'tanh') %>%
+    layer_dense(units = 3, activation = 'softmax', name = 'main_output')
+  model <- keras_model(
+    inputs = c(auxiliary_input, main_input, auxiliary_input_2),
+    outputs = c(auxiliary_output, main_output)
+  )
+
+  conv <- Converter$new(model)
+  data <- lapply(list(c(11), c(32,32,3), c(16)),
+                 function(x) array(rnorm(10 * prod(x)), dim = c(10, x)))
+  data_torch <- lapply(data, torch_tensor)
+
+  # forward method
+  y_true <- lapply(model(data), as.array)
+  y <- lapply(conv$model(data_torch, channels_first = FALSE), as_array)
+  expect_equal(lapply(y, dim), lapply(y_true, dim))
+  expect_lt(mean(unlist(lapply(seq_along(y),
+                               function(i) mean((y_true[[i]] - y[[i]])^2)))),
+            1e-12)
+
+  # update
+  x_ref <- lapply(list(c(11), c(32,32,3), c(16)), function(x) array(rnorm(prod(x)), dim = c(1, x)))
+  x_ref_torch <- lapply(x_ref, torch_tensor)
+  y_ref <- lapply(conv$model(x_ref_torch, channels_first = FALSE), as_array)
+  y_ref_true <- lapply(model(x_ref), as.array)
+  expect_equal(lapply(y_ref, dim), lapply(y_ref_true, dim))
+  expect_lt(mean(unlist(lapply(seq_along(y_ref),
+                               function(i) mean((y_ref_true[[i]] - y_ref[[i]])^2)))),
+            1e-12)
+})

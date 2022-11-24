@@ -16,7 +16,6 @@ convert_keras_model <- function(model) {
   n <- 1
 
   # Get layer names and reconstruct graph
-  names <- unlist(lapply(model$layers, FUN = function(x) x$name))
   if (inherits(model, "keras.engine.sequential.Sequential")) {
     # If the model is a sequential model, the first layer is the only input
     # layer and the last layer is the only output layer
@@ -24,16 +23,21 @@ convert_keras_model <- function(model) {
       list(input_layers = i - 1, output_layers = i + 1)
     })
     graph[[length(graph)]]$output_layers <- -1
+    names <- unlist(lapply(model$layers, FUN = function(x) x$name))
+    layers <- model$layers
   } else {
     # Otherwise, we have to reconstruct the computational graph from the
     # model config
-    graph <- keras_reconstruct_graph(model$layers, model$get_config())
+    res <- keras_reconstruct_graph(model$layers, model$get_config())
+    graph <- res$graph
+    layers <- res$layers
+    names <- names(layers)
   }
 
   # Declare list for the list-converted layers
   model_as_list <- vector("list", length = length(names))
 
-  for (layer in model$layers) {
+  for (layer in layers) {
     # Get the layer type and check whether it is implemented
     type <- layer$`__class__`$`__name__`
     assertChoice(type, implemented_layers_keras)
@@ -346,8 +350,133 @@ convert_keras_skipping <- function(type) {
   list(type = "Skipping")
 }
 
-# utils -----------------------------------------------------------------------
+###############################################################################
+#                 Utility methods: Graph reconstruction
+###############################################################################
 
+keras_reconstruct_graph <- function(layers, config) {
+
+  res <- get_layers_graph(layers, config)
+
+  graph <- res$graph
+  layer_list <- res$layers
+  name_changes <- res$name_changes
+
+
+  # Rename sequential layers
+  for (name in name_changes) {
+    for (i in seq_along(graph)) {
+      if (!is.null(graph[[i]]$input_layers)) {
+        graph[[i]]$input_layers[graph[[i]]$input_layers == name$old] <- name$new
+      }
+    }
+  }
+
+  # Transform input layers to the layer indices and register output nodes
+  # for each layer
+  names <- names(layer_list)
+  for (i in seq_along(graph)) {
+    if (!is.null(graph[[i]]$input_layers)) {
+      input_layers <- match(graph[[i]]$input_layers, names)
+      graph[[i]]$input_layers <- input_layers
+
+      # Register output layers
+      for (node_idx in input_layers) {
+        graph[[node_idx]]$output_layers <- c(graph[[node_idx]]$output_layers, i)
+      }
+    }
+  }
+
+  # Register model input and output nodes
+  input_nodes <- unlist(lapply(config$input_layers, function(x) x[[1]]))
+  for (node in input_nodes) {
+    idx <- which(node == names)
+    graph[[idx]]$input_layers <- 0L
+  }
+  output_nodes <- unlist(lapply(config$output_layers, function(x) x[[1]]))
+  for (node in output_nodes) {
+    idx <- which(node == names)
+    graph[[idx]]$output_layers <- -1L
+  }
+
+  list(graph = graph, layers = layer_list)
+}
+
+
+get_layers_graph <- function(layers, config) {
+  config_names <- unlist(lapply(config$layers, function(x) x$name))
+
+  graph <- list()
+  layer_list <- list()
+  name_changes <-list()
+
+  for (layer in layers) {
+    # Get layer index in the config
+    config_idx <- which(layer$name == config_names)
+    layer_config <- config$layers[[config_idx]]
+
+    # Layers in a 'Sequential' model doesn't contain the config key
+    # 'inbound_nodes', hence they need a separat treatment
+    if (layer_config$class_name == "Sequential") {
+      is_first <- TRUE
+      l_names <- unlist(lapply(layer$layers, function(x) x$name))
+      for (i in seq_along(layer$layers)) {
+        if (is_first) {
+          in_names <- unlist(
+            lapply(layer_config$inbound_nodes[[1]], function(x) x[[1]])
+          )
+          is_first <- FALSE
+        } else {
+          in_names <- l_names[i - 1]
+        }
+
+        graph[[l_names[i]]] <-
+          list(input_layers = in_names, output_layers = NULL)
+        layer_list[[l_names[i]]] <- layer$layers[[i]]
+      }
+
+      # A sequential model is saved as a single layer with a default name
+      # 'sequential_*'. Therefore, the in- or output layer of the sequential
+      # model refers to this name. The list 'name_changes' stores all the
+      # relevant name changes.
+      name_changes <- append(name_changes,
+                             list(list(old = layer$name,
+                                       new = l_names[i])))
+    }  else if (layer_config$class_name == "Functional") {
+      res <- get_layers_graph(layer$layers, layer_config$config)
+      # Register input layers
+      layer_graph <- res$graph
+      layer_graph[[layer_config$config$input_layers[[1]][[1]]]]$input_layers <-
+        layer_config$inbound_nodes[[1]][[1]][[1]]
+
+      graph <- append(graph, layer_graph)
+      layer_list <- append(layer_list, res$layers)
+      name_changes <- append(name_changes, res$name_changes)
+      name_changes <- append(name_changes,
+                             list(list(old = layer$name,
+                                       new = layer_config$config$output_layers[[1]][[1]])))
+    } else {
+      if (length(layer_config$inbound_nodes) == 1) { # non InputLayer
+        in_names <- unlist(
+          lapply(layer_config$inbound_nodes[[1]], function(x) x[[1]]))
+      } else if (length(layer_config$inbound_nodes) == 0) { # InputLayer
+        in_names <- NULL
+      } else { # Weight-Sharing is not supported
+        stop("Models that share weights are not supported yet!")
+      }
+
+      graph[[layer$name]] <-
+        list(input_layers = in_names, output_layers = NULL)
+      layer_list[[layer$name]] <- layer
+    }
+  }
+
+  list(graph = graph, layers = layer_list, name_changes = name_changes)
+}
+
+###############################################################################
+#                         Other utility methods
+###############################################################################
 
 get_same_padding <- function(input_dim, kernel_size, dilation, stride) {
   if (length(kernel_size) == 1) {
@@ -391,51 +520,6 @@ get_same_padding <- function(input_dim, kernel_size, dilation, stride) {
 
   padding
 }
-
-
-keras_reconstruct_graph <- function(layers, config) {
-  graph <- lapply(
-    seq_along(config$layers),
-    function(a) list(input_layers = NULL, output_layers = NULL)
-  )
-
-  names <- unlist(lapply(config$layers, function(x) x$name))
-  i <- 1
-  for (layer in config$layers) {
-    if (length(layer$inbound_nodes) > 0) {
-      in_layer_names <- unlist(
-        lapply(layer$inbound_nodes[[1]], function(x) x[[1]])
-      )
-
-      graph[[i]]$input_layers <- match(in_layer_names, names)
-
-      # Register output nodes
-      for (node in in_layer_names) {
-        idx <- which(node == names)
-        graph[[idx]]$output_layers <-
-          c(graph[[idx]]$output_layers, which(layer$name == names))
-      }
-    }
-
-    i <- i + 1
-  }
-
-  # Register Input and Output nodes
-  input_nodes <- unlist(lapply(config$input_layers, function(x) x[[1]]))
-  for (node in input_nodes) {
-    idx <- which(node == names)
-    graph[[idx]]$input_layers <- 0L
-  }
-
-  output_nodes <- unlist(lapply(config$output_layers, function(x) x[[1]]))
-  for (node in output_nodes) {
-    idx <- which(node == names)
-    graph[[idx]]$output_layers <- -1L
-  }
-
-  graph
-}
-
 
 check_consistent_data_format <- function(current_format, given_format) {
   # Everything is fine if the data format is unset
