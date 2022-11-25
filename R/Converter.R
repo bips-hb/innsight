@@ -233,7 +233,7 @@ Converter <- R6Class("Converter",
         assertChoice(type, c(
           "Flatten", "Skipping", "Dense", "Conv1D", "Conv2D",
           "MaxPooling1D", "MaxPooling2D", "AveragePooling1D",
-          "AveragePooling2D", "Concatenate", "Add", "Padding"
+          "AveragePooling2D", "Concatenate", "Add", "Padding", "BatchNorm"
         ))
 
         # Get incoming and outgoing layers (as indices) of the current layer
@@ -282,7 +282,8 @@ Converter <- R6Class("Converter",
           AveragePooling2D = create_pooling_layer(layer_as_list, type),
           Concatenate = create_concatenate_layer(layer_as_list),
           Add = create_add_layer(layer_as_list),
-          Padding = create_padding_layer(layer_as_list)
+          Padding = create_padding_layer(layer_as_list),
+          BatchNorm = create_batchnorm_layer(layer_as_list)
         )
 
         # Set a name for the layer
@@ -655,6 +656,32 @@ create_padding_layer <- function(layer_as_list) {
   assertChoice(mode, c("constant", "reflect", "replicate", "circular"))
 
   padding_layer(padding, dim_in, dim_out, mode, value)
+}
+
+# BatchNorm Layer -------------------------------------------------------------
+create_batchnorm_layer <- function(layer_as_list) {
+  # Get arguments
+  dim_in <- layer_as_list$dim_in
+  dim_out <- layer_as_list$dim_out
+  num_features <- layer_as_list$num_features
+  gamma <- layer_as_list$gamma
+  eps <- layer_as_list$eps
+  beta <- layer_as_list$beta
+  run_mean <- layer_as_list$run_mean
+  run_var <- layer_as_list$run_var
+
+  # Check arguments
+  assertIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE)
+  assertIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE)
+  assertNumber(num_features)
+  assertNumeric(gamma, len = num_features)
+  assertNumber(eps)
+  assertNumeric(beta, len = num_features)
+  assertNumeric(run_mean, len = num_features)
+  assertNumeric(run_var, len = num_features)
+
+  batchnorm_layer(num_features, eps, gamma, beta, run_mean, run_var,
+                  dim_in, dim_out)
 }
 
 # Skipping Layer --------------------------------------------------------------

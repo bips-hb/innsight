@@ -1,7 +1,8 @@
 implemented_layers_keras <- c(
   "Dense", "Dropout", "InputLayer", "Conv1D", "Conv2D", "Flatten",
   "MaxPooling1D", "MaxPooling2D", "AveragePooling1D", "AveragePooling2D",
-  "Concatenate", "Add", "Activation", "ZeroPadding1D", "ZeroPadding2D"
+  "Concatenate", "Add", "Activation", "ZeroPadding1D", "ZeroPadding2D",
+  "BatchNormalization"
 )
 
 
@@ -97,7 +98,8 @@ convert_keras_model <- function(model) {
         Add = convert_keras_add(layer),
         Activation = convert_keras_activation(layer$get_config()$activation),
         ZeroPadding1D = convert_keras_zeropadding(layer, type),
-        ZeroPadding2D = convert_keras_zeropadding(layer, type)
+        ZeroPadding2D = convert_keras_zeropadding(layer, type),
+        BatchNormalization = convert_keras_batchnorm(layer)
       )
 
     # Define the incoming and outgoing layers of this layer
@@ -290,6 +292,8 @@ convert_keras_pooling <- function(layer, type) {
   )
 }
 
+# ZeroPadding layer -----------------------------------------------------------
+
 convert_keras_zeropadding <- function(layer, type) {
   # padding size: either [left, right] or [top, bottom, left, right]
   padding <- unlist(layer$padding)
@@ -315,6 +319,39 @@ convert_keras_zeropadding <- function(layer, type) {
     padding = padding,
     mode = "constant",
     value = 0
+  )
+}
+
+# BatchNormalization Layer ----------------------------------------------------
+
+convert_keras_batchnorm <- function(layer) {
+  input_dim <- unlist(layer$input_shape)
+  output_dim <- unlist(layer$output_shape)
+  axis <- layer$axis[[0]]
+  gamma <- as.numeric(layer$gamma$value())
+  eps <- as.numeric(layer$epsilon)
+  beta <- as.numeric(layer$beta)
+  run_mean <- as.numeric(layer$moving_mean)
+  run_var <- as.numeric(layer$moving_variance)
+
+  if (axis == length(input_dim)) { # i.e. channels last
+    input_dim <- move_channels_first(input_dim)
+    output_dim <- move_channels_first(output_dim)
+  } else if (axis != 1L) { # i.e. neither first nor last axis
+    stop("Only batchnormalzation on axis '1' or '-1' are accepted! ",
+         "Your axis: '", axis, "'")
+  }
+
+  list(
+    type = "BatchNorm",
+    dim_in = input_dim,
+    dim_out = output_dim,
+    num_features = input_dim[1],
+    gamma = gamma,
+    eps = eps,
+    beta = beta,
+    run_mean = run_mean,
+    run_var = run_var
   )
 }
 

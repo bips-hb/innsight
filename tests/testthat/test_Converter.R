@@ -94,7 +94,7 @@ test_that("Test general errors", {
   # 'type' wrong
   expect_error(Converter$new(create_model("asd")))
   # 'input_layers' missing
-  expect_warning(Converter$new(create_model("Dense")))
+  expect_warning(expect_warning(Converter$new(create_model("Dense"))))
   # 'input_layers' wrong
   expect_error(Converter$new(create_model("Dense", "sadf")))
   # 'output_layers' missing
@@ -596,6 +596,7 @@ test_that("Test keras sequential: Conv1D with 'same' padding", {
       input_shape = c(128, 4), kernel_size = 16, filters = 8,
       activation = "softplus", padding = "same"
     ) %>%
+    layer_batch_normalization() %>%
     layer_conv_1d(
       kernel_size = 16, filters = 4, activation = "tanh",
       padding = "same"
@@ -648,6 +649,7 @@ test_that("Test keras sequential: Conv2D with 'valid' padding", {
       input_shape = c(32, 32, 3), kernel_size = 8, filters = 8,
       activation = "softplus", padding = "valid"
     ) %>%
+    layer_batch_normalization() %>%
     layer_max_pooling_2d() %>%
     layer_zero_padding_2d(padding = list(c(2,2), c(5,3))) %>%
     layer_conv_2d(
@@ -655,6 +657,7 @@ test_that("Test keras sequential: Conv2D with 'valid' padding", {
       padding = "valid"
     ) %>%
     layer_average_pooling_2d(pool_size = c(1,1)) %>%
+    layer_batch_normalization() %>%
     layer_zero_padding_2d(padding = c(3,5)) %>%
     layer_conv_2d(
       kernel_size = 4, filters = 2, activation = "relu",
