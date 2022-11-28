@@ -601,6 +601,7 @@ test_that("Test keras sequential: Conv1D with 'same' padding", {
       kernel_size = 16, filters = 4, activation = "tanh",
       padding = "same"
     ) %>%
+    layer_batch_normalization() %>%
     layer_conv_1d(
       kernel_size = 16, filters = 2, activation = "relu",
       padding = "same"

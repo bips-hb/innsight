@@ -233,7 +233,8 @@ Converter <- R6Class("Converter",
         assertChoice(type, c(
           "Flatten", "Skipping", "Dense", "Conv1D", "Conv2D",
           "MaxPooling1D", "MaxPooling2D", "AveragePooling1D",
-          "AveragePooling2D", "Concatenate", "Add", "Padding", "BatchNorm"
+          "AveragePooling2D", "Concatenate", "Add", "Padding", "BatchNorm",
+          "GlobalPooling"
         ))
 
         # Get incoming and outgoing layers (as indices) of the current layer
@@ -283,7 +284,8 @@ Converter <- R6Class("Converter",
           Concatenate = create_concatenate_layer(layer_as_list),
           Add = create_add_layer(layer_as_list),
           Padding = create_padding_layer(layer_as_list),
-          BatchNorm = create_batchnorm_layer(layer_as_list)
+          BatchNorm = create_batchnorm_layer(layer_as_list),
+          GlobalPooling = create_globalpooling_layer(layer_as_list)
         )
 
         # Set a name for the layer
@@ -585,6 +587,27 @@ create_pooling_layer <- function(layer_as_list, type) {
     assertSetEqual(length(strides), 2)
 
     layer <- avg_pool2d_layer(kernel_size, dim_in, dim_out, strides)
+  }
+
+  layer
+}
+
+# GlobalPooling Layer ---------------------------------------------------------
+create_globalpooling_layer <- function(layer_as_list) {
+  # Get arguments
+  dim_in <- layer_as_list$dim_in
+  dim_out <- layer_as_list$dim_out
+  method <- layer_as_list$method
+
+  # Check arguments
+  assertIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE)
+  assertIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE)
+  assertChoice(method, c("average", "max"))
+
+  if (method == "average") {
+    layer <- global_avgpool_layer(dim_in, dim_out)
+  } else {
+    layer <- global_maxpool_layer(dim_in, dim_out)
   }
 
   layer

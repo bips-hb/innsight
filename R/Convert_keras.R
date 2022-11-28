@@ -2,7 +2,8 @@ implemented_layers_keras <- c(
   "Dense", "Dropout", "InputLayer", "Conv1D", "Conv2D", "Flatten",
   "MaxPooling1D", "MaxPooling2D", "AveragePooling1D", "AveragePooling2D",
   "Concatenate", "Add", "Activation", "ZeroPadding1D", "ZeroPadding2D",
-  "BatchNormalization"
+  "BatchNormalization", "GlobalAveragePooling1D", "GlobalAveragePooling2D",
+  "GlobalMaxPooling1D", "GlobalMaxPooling2D"
 )
 
 
@@ -99,7 +100,11 @@ convert_keras_model <- function(model) {
         Activation = convert_keras_activation(layer$get_config()$activation),
         ZeroPadding1D = convert_keras_zeropadding(layer, type),
         ZeroPadding2D = convert_keras_zeropadding(layer, type),
-        BatchNormalization = convert_keras_batchnorm(layer)
+        BatchNormalization = convert_keras_batchnorm(layer),
+        GlobalAveragePooling1D = convert_keras_globalpooling(layer, type),
+        GlobalAveragePooling2D = convert_keras_globalpooling(layer, type),
+        GlobalMaxPooling1D = convert_keras_globalpooling(layer, type),
+        GlobalMaxPooling2D = convert_keras_globalpooling(layer, type)
       )
 
     # Define the incoming and outgoing layers of this layer
@@ -289,6 +294,33 @@ convert_keras_pooling <- function(layer, type) {
     dim_out = output_dim,
     kernel_size = kernel_size,
     strides = strides
+  )
+}
+
+# GlobalPooling Layer --------------------------------------------------
+
+convert_keras_globalpooling <- function(layer, type) {
+  if (startsWith(type, "GlobalAverage")) {
+    method <- "average"
+  } else {
+    method <- "max"
+  }
+
+  dim_in <- unlist(layer$input_shape)
+  dim_out <- unlist(layer$output_shape)
+  data_format <- layer$data_format
+
+  # in this package only 'channels_first'
+  if (data_format == "channels_last") {
+    dim_in <- move_channels_first(dim_in)
+    dim_out <- move_channels_first(dim_out)
+  }
+
+  list(
+    type = "GlobalPooling",
+    dim_in = dim_in,
+    dim_out = dim_out,
+    method = method
   )
 }
 

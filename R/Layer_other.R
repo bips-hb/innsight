@@ -356,3 +356,62 @@ skipping_layer <- nn_module(
     x_ref
   }
 )
+
+
+###############################################################################
+#                       Global Average Pooling
+###############################################################################
+global_avgpool_layer <- nn_module(
+  classname = "GlobalAvgPooling",
+  inherit = OtherLayer,
+
+  initialize = function(dim_in, dim_out) {
+    self$input_dim <- dim_in
+    self$output_dim <- dim_out
+  },
+
+  forward = function(x, ...) {
+    x$mean(dim = 2, keepdim = TRUE)
+  },
+
+  update_ref = function(x_ref, ...) {
+    x_ref$mean(dim = 2, keepdim = TRUE)
+  },
+
+  reshape_to_input = function(rel_output, ...) {
+    out_shape <- rel_output$shape
+    expand_shape <- c(out_shape[1], self$input_dim, rev(out_shape)[1])
+    rel_output$expand(expand_shape) / self$input_dim[1]
+  }
+)
+
+###############################################################################
+#                       Global Max Pooling
+###############################################################################
+global_maxpool_layer <- nn_module(
+  classname = "GlobalMaxPooling",
+  inherit = OtherLayer,
+
+  initialize = function(dim_in, dim_out) {
+    self$input_dim <- dim_in
+    self$output_dim <- dim_out
+    self$mask <- NULL
+  },
+
+  forward = function(x, ...) {
+    res <- x$max(dim = 2, keepdim = TRUE)
+    self$mask <- (x == res[[1]])$unsqueeze(-1)
+
+    res[[1]]
+  },
+
+  update_ref = function(x_ref, ...) {
+    x_ref$max(dim = 2, keepdim = TRUE)[[1]]
+  },
+
+  reshape_to_input = function(rel_output, ...) {
+
+    self$mask * rel_output
+  }
+)
+
