@@ -1048,6 +1048,27 @@ test_that("Test keras predefiend Model: VGG16", {
   y_ref_true <- as.array(model(x_ref))
   expect_equal(dim(y_ref), dim(y_ref_true))
   expect_lt(mean((y_ref_true - y_ref)^2), 1e-12)
+
+  # Gradient method
+  grad <- Gradient$new(conv, x_ref, channels_first = FALSE, times_input = FALSE)
+  grad_t_input <- Gradient$new(conv, x_ref, channels_first = FALSE, times_input = TRUE)
+
+  # LRP
+  lrp_simple <- LRP$new(conv, x_ref, channels_first = FALSE, output_idx = c(1,2),
+                        rule_name = "simple")
+  lrp_eps <- LRP$new(conv, x_ref, channels_first = FALSE, output_idx = c(1,2),
+                     rule_name = "epsilon")
+  lrp_ab <- LRP$new(conv, x_ref, channels_first = FALSE, output_idx = c(1,2),
+                    rule_name = "alpha_beta")
+
+  # DeepLift
+  deeplift_rescale <- DeepLift$new(conv, data, x_ref = x_ref, channels_first = FALSE,
+                                   output_idx = c(1,2), rule_name = "rescale", ignore_last_act = FALSE)
+  deeplift_rc <- DeepLift$new(conv, x_ref, channels_first = FALSE,
+                              output_idx = c(1,2), rule_name = "reveal_cancel")
+
+  # ConnectionWeights
+  connect_weights <- ConnectionWeights$new(conv, channels_first = FALSE)
 })
 
 # ResNet50
@@ -1073,6 +1094,27 @@ test_that("Test keras predefiend Model: Resnet50", {
   y_ref_true <- as.array(model(x_ref))
   expect_equal(dim(y_ref), dim(y_ref_true))
   expect_lt(mean((y_ref_true - y_ref)^2), 1e-12)
+
+  # Gradient method
+  grad <- Gradient$new(conv, x_ref, channels_first = FALSE, times_input = FALSE)
+  grad_t_input <- Gradient$new(conv, x_ref, channels_first = FALSE, times_input = TRUE)
+
+  # LRP
+  lrp_simple <- LRP$new(conv, x_ref, channels_first = FALSE, output_idx = c(1,2),
+                        rule_name = "simple")
+  lrp_eps <- LRP$new(conv, x_ref, channels_first = FALSE, output_idx = c(1,2),
+                     rule_name = "epsilon")
+  lrp_ab <- LRP$new(conv, x_ref, channels_first = FALSE, output_idx = c(1,2),
+                        rule_name = "alpha_beta")
+
+  # DeepLift
+  deeplift_rescale <- DeepLift$new(conv, data, x_ref = x_ref, channels_first = FALSE,
+                                   output_idx = c(1,2), rule_name = "rescale", ignore_last_act = FALSE)
+  deeplift_rc <- DeepLift$new(conv, x_ref, channels_first = FALSE,
+                              output_idx = c(1,2), rule_name = "reveal_cancel")
+
+  # ConnectionWeights
+  connect_weights <- ConnectionWeights$new(conv, channels_first = FALSE)
 })
 
 test_that("Test keras model: Two inputs + two output with VGG16 as submodule", {
@@ -1123,4 +1165,6 @@ test_that("Test keras model: Two inputs + two output with VGG16 as submodule", {
   expect_lt(mean(unlist(lapply(seq_along(y_ref),
                                function(i) mean((y_ref_true[[i]] - y_ref[[i]])^2)))),
             1e-12)
+
+
 })

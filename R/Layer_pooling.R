@@ -25,11 +25,11 @@ PoolingLayer <- nn_module(
     }
   },
 
-  forward = function(x) {
+  forward = function(x, ...) {
     x
   },
 
-  get_gradient = function(x) {
+  get_gradient = function(x, ...) {
     x
   },
 
@@ -266,8 +266,14 @@ max_pool1d_layer <- nn_module(
     num_outputs <- rev(output_shape)[1]
 
     # Generate inputs for each output
-    input <- self$input$torch_repeat_interleave(
-      self$input,
+    if (is.null(self$input)) {
+      input <- torch_zeros(c(1, self$input_dim))
+    } else {
+      input <- self$input
+    }
+
+    input <- torch_repeat_interleave(
+      input,
       torch_tensor(num_outputs, dtype = torch_long()),
       dim = 1)
 
@@ -282,7 +288,7 @@ max_pool1d_layer <- nn_module(
 
     # Move output dimension again to last position
     input_grad <- torch_movedim(
-      torch_reshape(input_grad, c(output_shape[1],-1 , self$input$shape[-1])),
+      torch_reshape(input_grad, c(output_shape[1],-1 , self$input_dim)),
       2, -1)
 
     input_grad
@@ -339,10 +345,12 @@ max_pool2d_layer <- nn_module(
     num_outputs <- rev(output_shape)[1]
 
     # Generate inputs for each output
-    if (is.null(input)) {
+    if (is.null(self$input)) {
+      input <- torch_zeros(c(1, self$input_dim))
+    } else {
       input <- self$input
     }
-    input <- self$input$torch_repeat_interleave(
+    input <- torch_repeat_interleave(
       input, torch_tensor(num_outputs, dtype = torch_long()), dim = 1)
 
     # Track gradients and apply max pooling
@@ -356,7 +364,7 @@ max_pool2d_layer <- nn_module(
 
     # Move output dimension again to last position
     input_grad <- torch_movedim(
-      torch_reshape(input_grad, c(output_shape[1],-1 , self$input$shape[-1])),
+      torch_reshape(input_grad, c(output_shape[1],-1 , self$input_dim)),
       2, -1)
 
     input_grad

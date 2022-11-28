@@ -430,8 +430,8 @@ convert_keras_concatenate <- function(layer) {
 convert_keras_add <- function(layer) {
   list(
     type = "Add",
-    dim_in = lapply(layer$input_shape, unlist),
-    dim_out = unlist(layer$output_shape)
+    dim_in = NULL,#lapply(layer$input_shape, unlist),
+    dim_out = NULL #, unlist(layer$output_shape)
   )
 }
 
@@ -645,6 +645,7 @@ check_consistent_data_format <- function(current_format, given_format) {
 combine_activations <- function(model_as_list) {
   for (i in seq_along(model_as_list)) {
     if (model_as_list[[i]]$type == "Activation") {
+      keep <- FALSE
       for (in_layer in model_as_list[[i]]$input_layers) {
         act_name <- model_as_list[[in_layer]]$activation_name
         if (identical(act_name, "linear")) {
@@ -657,9 +658,7 @@ combine_activations <- function(model_as_list) {
                model_as_list[[in_layer]]$activation_name, "' activation.",
                call. = FALSE)
         } else {
-          stop("You can add activation functions only after convolution and ",
-               "dense layers and not after a layer of type '",
-               model_as_list[[in_layer]]$type, "'.", call. = FALSE)
+          keep <- TRUE
         }
       }
 
@@ -671,7 +670,7 @@ combine_activations <- function(model_as_list) {
         model_as_list[[in_layer]]$output_layers <-
             ifelse(out_layers == i, -1, out_layers)
         model_as_list[[i]] <- NULL
-      } else {
+      } else if (!keep) {
         # Convert to 'Skipping Layer'
         model_as_list[[i]]$type <- "Skipping"
         model_as_list[[i]]$act_name <- NULL

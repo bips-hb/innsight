@@ -357,6 +357,64 @@ skipping_layer <- nn_module(
   }
 )
 
+###############################################################################
+#                       Global Average Pooling
+###############################################################################
+activation_layer <- nn_module(
+  classname = "Activation",
+  inherit = OtherLayer,
+
+  initialize = function(dim_in, dim_out, act_name) {
+    self$input_dim <- dim_in
+    self$output_dim <- dim_out
+    self$act_name <- act_name
+    self$act <- switch(act_name,
+                       relu = torch_relu,
+                       leaky_relu = nnf_leaky_relu,
+                       softplus = nnf_softplus,
+                       sigmoid = nnf_sigmoid,
+                       tanh = torch_tanh)
+  },
+
+  forward = function(x, save_input = TRUE, save_output = TRUE, ...) {
+    if (save_input) {
+      self$input <- x
+    }
+
+    out <- self$act(x)
+
+    if (save_output) {
+      self$output <- out
+    }
+
+    out
+  },
+
+  update_ref = function(x_ref, save_input = TRUE, save_output = TRUE, ...) {
+    if (save_input) {
+      self$input_ref <- x_ref
+    }
+
+    out <- self$act(x_ref)
+
+    if (save_output) {
+      self$output_ref <- out
+    }
+
+    out
+  },
+
+  get_input_relevances = function(rel_output, ...) {
+    rel_output
+  },
+
+  get_input_multiplier = function(mult_output, ...) {
+    delta_input <- self$input - self$input_ref
+    delta_output <- self$output - self$output_ref
+
+    mult_output * (delta_output / delta_input)$unsqueeze(-1)
+  }
+)
 
 ###############################################################################
 #                       Global Average Pooling
@@ -368,20 +426,24 @@ global_avgpool_layer <- nn_module(
   initialize = function(dim_in, dim_out) {
     self$input_dim <- dim_in
     self$output_dim <- dim_out
+    self$mean_axis <- seq(from = 3, to = length(dim_in) + 1)
   },
 
   forward = function(x, ...) {
-    x$mean(dim = 2, keepdim = TRUE)
+    x$mean(dim = self$mean_axis)
   },
 
   update_ref = function(x_ref, ...) {
-    x_ref$mean(dim = 2, keepdim = TRUE)
+    x_ref$mean(dim = self$mean_axis)
   },
 
   reshape_to_input = function(rel_output, ...) {
+    for (ax in self$mean_axis) {
+      rel_output <- rel_output$unsqueeze(ax)
+    }
     out_shape <- rel_output$shape
     expand_shape <- c(out_shape[1], self$input_dim, rev(out_shape)[1])
-    rel_output$expand(expand_shape) / self$input_dim[1]
+    rel_output$expand(expand_shape) / prod(self$input_dim[self$mean_axis -1])
   }
 )
 
@@ -396,20 +458,36 @@ global_maxpool_layer <- nn_module(
     self$input_dim <- dim_in
     self$output_dim <- dim_out
     self$mask <- NULL
+    self$max_axis <- seq(from = 3, to = length(dim_in) + 1)
   },
 
   forward = function(x, ...) {
-    res <- x$max(dim = 2, keepdim = TRUE)
-    self$mask <- (x == res[[1]])$unsqueeze(-1)
+    res <- x
+    for (ax in self$max_axis) {
+      res <- res$max(dim = ax, keepdim = TRUE)[[1]]
+    }
+    self$mask <- (x == res)$unsqueeze(-1)
 
-    res[[1]]
+    for (ax in rev(self$max_axis)) {
+      res <- res$squeeze(ax)
+    }
+
+    res
   },
 
   update_ref = function(x_ref, ...) {
-    x_ref$max(dim = 2, keepdim = TRUE)[[1]]
+    res <- x_ref
+    for (ax in rev(self$max_axis)) {
+      res <- res$max(dim = ax)[[1]]
+    }
+
+    res
   },
 
   reshape_to_input = function(rel_output, ...) {
+    for (ax in self$max_axis) {
+      rel_output <- rel_output$unsqueeze(ax)
+    }
 
     self$mask * rel_output
   }

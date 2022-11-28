@@ -234,7 +234,7 @@ Converter <- R6Class("Converter",
           "Flatten", "Skipping", "Dense", "Conv1D", "Conv2D",
           "MaxPooling1D", "MaxPooling2D", "AveragePooling1D",
           "AveragePooling2D", "Concatenate", "Add", "Padding", "BatchNorm",
-          "GlobalPooling"
+          "GlobalPooling", "Activation"
         ))
 
         # Get incoming and outgoing layers (as indices) of the current layer
@@ -285,7 +285,8 @@ Converter <- R6Class("Converter",
           Add = create_add_layer(layer_as_list),
           Padding = create_padding_layer(layer_as_list),
           BatchNorm = create_batchnorm_layer(layer_as_list),
-          GlobalPooling = create_globalpooling_layer(layer_as_list)
+          GlobalPooling = create_globalpooling_layer(layer_as_list),
+          Activation = create_activation_layer(layer_as_list)
         )
 
         # Set a name for the layer
@@ -649,6 +650,20 @@ create_concatenate_layer <- function(layer_as_list) {
   concatenate_layer(dim, dim_in, dim_out)
 }
 
+# Activation Layer ------------------------------------------------------------
+create_activation_layer <- function(layer_as_list) {
+  # Get arguments
+  dim_in <- layer_as_list$dim_in
+  dim_out <- layer_as_list$dim_out
+  act_name <- layer_as_list$act_name
+
+  # Check arguments
+  assertList(dim_in, null.ok = TRUE, types = "integerish")
+  assertIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE)
+
+  activation_layer(dim_in, dim_out, act_name)
+}
+
 # Add Layer -------------------------------------------------------------------
 create_add_layer <- function(layer_as_list) {
   # Get arguments
@@ -898,6 +913,7 @@ check_and_register_shapes <- function(modules_list, graph, model_as_list,
     # Check output shape
     calculated_output_shape <- out$shape[-1]
     given_output_shape <- model_as_list$layers[[step$used_node]]$dim_out
+
     if (!is.null(given_output_shape) &&
       !all(calculated_output_shape == given_output_shape)) {
       given <- paste0("(*,", paste(given_output_shape, collapse = ","), ")")
