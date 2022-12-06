@@ -288,9 +288,11 @@ test_that("Test torch sequential model: 1D Conv", {
     nn_relu(),
     nn_conv1d(10,8,8, stride = 2),
     nn_softplus(),
+    nn_batch_norm1d(8),
     nn_conv1d(8,6,6, padding = 2),
     nn_softplus(),
     nn_max_pool1d(kernel_size = 1),
+    nn_batch_norm1d(6),
     nn_conv1d(6,4,4, dilation = 2),
     nn_softplus(),
     nn_avg_pool1d(kernel_size = 1),
@@ -301,6 +303,7 @@ test_that("Test torch sequential model: 1D Conv", {
     nn_tanh(),
     nn_linear(32, 2)
   )
+  model$eval()
 
   expect_error(Converter$new(model))
 
@@ -362,10 +365,12 @@ test_that("Test torch sequential model: 2D Conv", {
     nn_relu(),
     nn_conv2d(8,8,4, stride = 2),
     nn_relu(),
+    nn_batch_norm2d(8),
     nn_conv2d(8,6,3, padding = c(5,4)),
     nn_relu(),
     nn_conv2d(6,6,3, padding = 3),
     nn_relu(),
+    nn_batch_norm2d(6),
     nn_conv2d(6,4,2, dilation = 2),
     nn_relu(),
     nn_conv2d(4,4,2, dilation = c(1,2)),
@@ -376,6 +381,8 @@ test_that("Test torch sequential model: 2D Conv", {
     nn_linear(448, 64),
     nn_linear(64, 2)
   )
+
+  model$eval()
 
   expect_error(Converter$new(model))
 

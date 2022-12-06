@@ -90,6 +90,10 @@ convert_torch_sequential <- function(model) {
       } else {
         activation_error("tanh", num, model_as_list$layers)
       }
+    } else if (any(c("nn_batch_norm1d", "nn_batch_norm2d") %in% classes)) {
+      model_as_list$layers[[num]] <- convert_torch_batchnorm(modul, num)
+      activation_possible <- FALSE
+      num <- num + 1
     } else {
       stop(sprintf(
         "Unknown module of classes: '%s'!",
@@ -271,6 +275,22 @@ convert_torch_flatten <- function(num) {
   )
 }
 
+# Convert nn_batch_norm* ------------------------------------------------------
+convert_torch_batchnorm <- function(modul, num) {
+  list(
+    type = "BatchNorm",
+    dim_in = NULL,
+    dim_out = NULL,
+    num_features = modul$num_features,
+    gamma = as_array(modul$weight),
+    eps = modul$eps,
+    beta = as_array(modul$bias),
+    run_mean = as_array(modul$running_mean),
+    run_var = as_array(modul$running_var),
+    input_layers = num - 1,
+    output_layers = num + 1
+  )
+}
 
 # Convert skipping layers -----------------------------------------------------
 convert_torch_skipping <- function(type, num) {
@@ -294,10 +314,10 @@ activation_error <- function(type, num, layers) {
       "In this package, it is not allowed to start with an activation",
       " function. Your activation function: '", type, "'"
     )
-  } else if (layers[[num - 1]]$type %in% c("Skipping", "Flatten")) {
+  } else if (layers[[num - 1]]$type %in% c("Skipping", "Flatten", "BatchNorm")) {
     stop(
       "In this package, it is not allowed to use an activation function",
-      " ('", type, "') after a dropout or flatten layer."
+      " ('", type, "') after a dropout, flatten or batchnormalization layer."
     )
   } else {
     stop(
