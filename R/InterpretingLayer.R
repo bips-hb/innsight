@@ -24,6 +24,71 @@ InterpretingLayer <- nn_module(
   forward = function() {
   },
 
+  get_input_relevances = function(rel_output,
+                                  rule_name = "simple",
+                                  rule_param = NULL) {
+
+    # Set default rule parameter
+    if (is.null(rule_param)) {
+      if (rule_name == "epsilon") {
+        rule_param <- 0.001
+      } else if (rule_name == "alpha_beta") {
+        rule_param <- 0.5
+      }
+    }
+
+    # Get stabilizer
+    eps <- self$get_stabilizer()
+
+    # Apply selected LRP-rule
+    if (rule_name == "simple") {
+      z <- self$preactivation$unsqueeze(-1)
+      z <- z + (torch_sgn(z) + torch_eq(z, 0.0)) * eps
+      rel_input <-
+        self$get_gradient(rel_output / z, self$W) * self$input$unsqueeze(-1)
+    } else if (rule_name == "epsilon") {
+      z <- self$preactivation$unsqueeze(-1)
+      z <- z + torch_sgn(z) * rule_param + torch_eq(z, 0.0) * eps
+      rel_input <-
+        self$get_gradient(rel_output / z, self$W) * self$input$unsqueeze(-1)
+    } else if (rule_name == "alpha_beta") {
+      out_part <- self$get_pos_and_neg_outputs(self$input, use_bias = TRUE)
+      input_pos <- torch_clamp(self$input, min = 0)$unsqueeze(-1)
+      input_neg <- torch_clamp(self$input, max = 0)$unsqueeze(-1)
+      W_pos <- torch_clamp(self$W, min = 0)
+      W_neg <- torch_clamp(self$W, max = 0)
+
+      # Apply the simple rule for each part:
+      # - positive part
+      z <- rel_output /
+        (out_part$pos +
+           out_part$pos$eq(0.0) * eps +
+           out_part$pos$sgn() * eps)$unsqueeze(-1)
+
+      rel_pos <-
+        self$get_gradient(z, W_pos) * input_pos +
+        self$get_gradient(z, W_neg) * input_neg
+
+      # - negative part
+      z <- rel_output /
+        (out_part$neg +
+           out_part$neg$sgn() * eps -
+           out_part$neg$eq(0.0) * eps)$unsqueeze(-1)
+
+      t1 <- self$get_gradient(z, (self$W * (self$W > 0)))
+      t2 <- self$get_gradient(z, (self$W * (self$W <= 0)))
+
+      rel_neg <-
+        self$get_gradient(z, W_pos) * input_neg +
+        self$get_gradient(z, W_neg) * input_pos
+
+      # calculate over all relevance for the lower layer
+      rel_input <- rel_pos * rule_param + rel_neg * (1 - rule_param)
+    }
+
+    rel_input
+  },
+
   reset = function() {
     self$input <- NULL
     self$input_ref <- NULL
@@ -66,7 +131,6 @@ InterpretingLayer <- nn_module(
   }
 
 )
-
 
 ###############################################################################
 #                                Utils

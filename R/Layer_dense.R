@@ -83,65 +83,6 @@ dense_layer <- nn_module(
     output_ref
   },
 
-  # rel_output   [batch_size, dim_out, model_out]
-  #
-  #   output       [batch_size, dim_in, model_out]
-  get_input_relevances = function(rel_output,
-                                  rule_name = "simple",
-                                  rule_param = NULL) {
-    if (is.null(rule_param)) {
-      if (rule_name == "epsilon") {
-        rule_param <- 0.001
-      } else if (rule_name == "alpha_beta") {
-        rule_param <- 0.5
-      }
-    }
-
-    input <- self$input$unsqueeze(3)
-    z <- self$preactivation$unsqueeze(3)
-
-    # Get stabilizer
-    eps <- self$get_stabilizer()
-
-    if (rule_name == "simple") {
-      z <- z + (z == 0) * eps
-
-      rel_input <-
-        self$get_gradient(rel_output / z, self$W) * input
-    } else if (rule_name == "epsilon") {
-      z <- z + rule_param * (torch_sgn(z) + (z == 0))
-      rel_input <-
-        self$get_gradient(rel_output / z, self$W) * input
-    } else if (rule_name == "alpha_beta") {
-      out_part <- self$get_pos_and_neg_outputs(self$input, use_bias = TRUE)
-
-      # Apply the simple rule for each part:
-      # - positive part
-      z <-
-        rel_output / (out_part$pos + (out_part$pos == 0) * eps + torch_sgn(out_part$pos) * eps)$unsqueeze(3)
-
-      t1 <- self$get_gradient(z, (self$W * (self$W > 0)))
-      t2 <- self$get_gradient(z, (self$W * (self$W <= 0)))
-
-      rel_pos <- t1 * (input * (input > 0)) + t2 * (input * (input <= 0))
-
-      # - negative part
-      z <-
-        rel_output / (out_part$neg + torch_sgn(out_part$neg) * eps - (out_part$neg == 0) * eps)$unsqueeze(3)
-
-      t1 <- self$get_gradient(z, (self$W * (self$W > 0)))
-      t2 <- self$get_gradient(z, (self$W * (self$W <= 0)))
-
-      rel_neg <- t1 * (input * (input <= 0)) + t2 * (input * (input > 0))
-
-      # calculate over all relevance for the lower layer
-      rel_input <- rel_pos * rule_param + rel_neg * (1 - rule_param)
-    }
-
-
-    rel_input
-  },
-
   #   mult_output   [batch_size, dim_out, model_out]
   #
   #   output        [batch_size, dim_in, model_out]
