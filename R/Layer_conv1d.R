@@ -112,17 +112,11 @@ conv1d_layer <- nn_module(
 
     # Since we have added the model_out dimension, strides and dilation need to
     # be extended by 1.
-
-    stride <- c(self$stride, 1)
-
-    # dilation is a number or a tuple of length 2
-    dilation <- c(self$dilation, 1)
-
     out <- nnf_conv_transpose2d(input, weight$unsqueeze(4),
       bias = NULL,
-      stride = stride,
+      stride = c(self$stride, 1),
       padding = 0,
-      dilation = dilation
+      dilation = c(self$dilation, 1)
     )
 
     # If stride is > 1, it could happen that the reconstructed input after
