@@ -105,7 +105,8 @@ InterpretingLayer <- nn_module(
 
         # Near zero needs special treatment
         mask <- torch_le(abs(delta_preact), eps) * 1.0
-        x <-  mask * delta_preact / 2
+        x <-  mask *
+          (self$preactivation + self$preactivation_ref)$unsqueeze(-1) / 2
         x$requires_grad <- TRUE
 
         y <- sum(self$activation_f(x))
