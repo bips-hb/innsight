@@ -147,9 +147,9 @@ conv1d_layer <- nn_module(
   get_pos_and_neg_outputs = function(input, use_bias = FALSE) {
     output <- NULL
 
-    if (use_bias == TRUE) {
-      b_pos <- self$b * (self$b > 0) * 0.5
-      b_neg <- self$b * (self$b <= 0) * 0.5
+    if (use_bias) {
+      b_pos <- torch_clamp(self$b, min = 0)
+      b_neg <- torch_clamp(self$b, max = 0)
     } else {
       b_pos <- NULL
       b_neg <- NULL
@@ -166,15 +166,20 @@ conv1d_layer <- nn_module(
       out
     }
 
+    input_pos <- torch_clamp(input, min = 0)
+    input_neg <- torch_clamp(input, max = 0)
+    W_pos <- torch_clamp(self$W, min = 0)
+    W_neg <- torch_clamp(self$W, max = 0)
+
     # input (+) x weight (+) and input (-) x weight (-)
     output$pos <-
-      conv1d(input * (input > 0), self$W * (self$W > 0), b_pos) +
-      conv1d(input * (input < 0), self$W * (self$W < 0), b_pos)
+      conv1d(input_pos, W_pos, b_pos) +
+      conv1d(input_neg, W_neg, NULL)
 
     # input (+) x weight (-) and input (-) x weight (+)
     output$neg <-
-      conv1d(input * (input > 0), self$W * (self$W < 0), b_neg) +
-      conv1d(input * (input < 0), self$W * (self$W > 0), b_neg)
+      conv1d(input_pos, W_neg, b_neg) +
+      conv1d(input_neg, W_pos, NULL)
 
     output
   }

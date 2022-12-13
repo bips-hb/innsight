@@ -96,23 +96,26 @@ dense_layer <- nn_module(
   get_pos_and_neg_outputs = function(input, use_bias = FALSE) {
     output <- NULL
 
-    if (use_bias == TRUE) {
-      b_pos <- self$b * (self$b > 0) * 0.5
-      b_neg <- self$b * (self$b <= 0) * 0.5
+    if (use_bias) {
+      b_pos <- torch_clamp(self$b, min = 0)
+      b_neg <- torch_clamp(self$b, max = 0)
     } else {
       b_pos <- NULL
       b_neg <- NULL
     }
 
-    W <- self$W
+    input_pos <- torch_clamp(input, min = 0)
+    input_neg <- torch_clamp(input, max = 0)
+    W_pos <- torch_clamp(self$W, min = 0)
+    W_neg <- torch_clamp(self$W, max = 0)
 
     output$pos <-
-      nnf_linear(input * (input > 0), W * (W > 0), bias = b_pos) +
-      nnf_linear(input * (input <= 0), W * (W <= 0), bias = b_pos)
+      nnf_linear(input_pos, W_pos, bias = b_pos) +
+      nnf_linear(input_neg, W_neg, bias = NULL)
 
     output$neg <-
-      nnf_linear(input * (input > 0), W * (W <= 0), bias = b_neg) +
-      nnf_linear(input * (input <= 0), W * (W > 0), bias = b_neg)
+      nnf_linear(input_pos, W_neg, bias = b_neg) +
+      nnf_linear(input_neg, W_pos, bias = NULL)
 
     output
   }
