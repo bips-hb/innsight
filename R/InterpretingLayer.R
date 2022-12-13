@@ -89,6 +89,74 @@ InterpretingLayer <- nn_module(
     rel_input
   },
 
+  get_input_multiplier = function(mult_output, rule_name = "rescale") {
+
+    # --------------------- Non-linear part---------------------------
+    mult_pos <- mult_output
+    mult_neg <- mult_output
+    if (self$activation_name != "linear") {
+      # Get stabilizer
+      eps <- self$get_stabilizer()
+
+      if (rule_name == "rescale") {
+        delta_output <- (self$output - self$output_ref)$unsqueeze(-1)
+        delta_preact <-
+          (self$preactivation - self$preactivation_ref)$unsqueeze(-1)
+
+        # Near zero needs special treatment
+        mask <- torch_le(abs(delta_preact), eps) * 1.0
+        x <-  mask * delta_preact / 2
+        x$requires_grad <- TRUE
+
+        y <- sum(self$activation_f(x))
+        grad <- autograd_grad(y, x)[[1]]
+
+        nonlin_mult <-
+          (1 - mask) * (delta_output / delta_preact) + mask * grad
+
+        mult_pos <- mult_output * nonlin_mult
+        mult_neg <- mult_output * nonlin_mult
+      } else if (rule_name == "reveal_cancel") {
+        output <- self$get_pos_and_neg_outputs(self$input - self$input_ref)
+
+        delta_x_pos <- output$pos
+        delta_x_neg <- output$neg
+
+        act <- self$activation_f
+        x <- self$preactivation
+        x_ref <- self$preactivation_ref
+
+        delta_output_pos <-
+          ( 0.5 * (act(x_ref + delta_x_pos) - act(x_ref)) +
+              0.5 * (act(x) - act(x_ref + delta_x_neg)))
+
+        delta_output_neg <-
+          ( 0.5 * (act(x_ref + delta_x_neg) - act(x_ref)) +
+              0.5 * (act(x) - act(x_ref + delta_x_pos)))
+
+        mult_pos <-
+          mult_output * (delta_output_pos / (delta_x_pos + delta_x_pos$eq(0.0) * eps))$unsqueeze(-1)
+        mult_neg <-
+          mult_output * (delta_output_neg / (delta_x_neg - delta_x_neg$eq(0.0) * eps))$unsqueeze(-1)
+      }
+    }
+
+    # -------------- Linear part -----------------------
+
+    delta_input <- (self$input - self$input_ref)$unsqueeze(-1)
+    weight_pos <- torch_clamp(self$W, min = 0)
+    weight_neg <- torch_clamp(self$W, max = 0)
+
+    mult_input <-
+      self$get_gradient(mult_pos, weight_pos) * torch_greater(delta_input, 0.0) +
+      self$get_gradient(mult_pos, weight_neg) * torch_less(delta_input, 0.0) +
+      self$get_gradient(mult_neg, weight_pos) * torch_less(delta_input, 0.0) +
+      self$get_gradient(mult_neg, weight_neg) * torch_greater(delta_input, 0.0) +
+      self$get_gradient(0.5 * (mult_pos + mult_neg), self$W) * delta_input$eq(0.0)
+
+    mult_input
+  },
+
   reset = function() {
     self$input <- NULL
     self$input_ref <- NULL
