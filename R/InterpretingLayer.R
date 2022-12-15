@@ -75,9 +75,6 @@ InterpretingLayer <- nn_module(
            out_part$neg$sgn() * eps -
            out_part$neg$eq(0.0) * eps)$unsqueeze(-1)
 
-      t1 <- self$get_gradient(z, (self$W * (self$W > 0)))
-      t2 <- self$get_gradient(z, (self$W * (self$W <= 0)))
-
       rel_neg <-
         self$get_gradient(z, W_pos) * input_neg +
         self$get_gradient(z, W_neg) * input_pos
@@ -198,7 +195,6 @@ InterpretingLayer <- nn_module(
 
     eps
   }
-
 )
 
 ###############################################################################
