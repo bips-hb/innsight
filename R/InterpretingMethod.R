@@ -34,6 +34,7 @@ InterpretingMethod <- R6Class(
     converter = NULL,
     channels_first = NULL,
     dtype = NULL,
+    winner_takes_all = TRUE,
     ignore_last_act = NULL,
     result = NULL,
     output_idx = NULL,
@@ -67,6 +68,7 @@ InterpretingMethod <- R6Class(
                           channels_first = TRUE,
                           output_idx = NULL,
                           ignore_last_act = TRUE,
+                          winner_takes_all = TRUE,
                           dtype = "float") {
       assertClass(converter, "Converter")
       self$converter <- converter
@@ -76,6 +78,9 @@ InterpretingMethod <- R6Class(
 
       assert_logical(ignore_last_act)
       self$ignore_last_act <- ignore_last_act
+
+      assert_logical(winner_takes_all)
+      self$winner_takes_all <- winner_takes_all
 
       assertChoice(dtype, c("float", "double"))
       self$dtype <- dtype
@@ -276,11 +281,14 @@ InterpretingMethod <- R6Class(
         if (!is.null(rel)) {
           if (method_name == "LRP") {
             rel <- layer$get_input_relevances(rel, rule_name = self$rule_name,
-                                              rule_param = self$rule_param)
+                                              rule_param = self$rule_param,
+                                              winner_takes_all = self$winner_takes_all)
           } else if (method_name == "DeepLift") {
-            rel <- layer$get_input_multiplier(rel, rule_name = rule_name)
+            rel <- layer$get_input_multiplier(rel, rule_name = rule_name,
+                                              winner_takes_all = self$winner_takes_all)
           } else if (method_name == "Connection-Weights") {
-            rel <- layer$get_gradient(rel, layer$W)
+            rel <- layer$get_gradient(rel, weight = layer$W,
+                                      use_avgpool = !self$winner_takes_all)
           }
         }
         layer$reset()

@@ -50,7 +50,7 @@ PoolingLayer <- nn_module(
     # Apply selected LRP-rule
     if (rule_name == "simple") {
       z <- self$output$unsqueeze(-1)
-      z <- z + (torch_sgn(z) + torch_eq(z, 0.0)) * eps
+      z <- z + torch_eq(z, 0.0) * eps
       rel_input <-
         self$get_gradient(rel_output / z) * self$input$unsqueeze(-1)
     } else if (rule_name == "epsilon") {
@@ -66,17 +66,13 @@ PoolingLayer <- nn_module(
       # Apply the simple rule for each part:
       # - positive part
       z <- rel_output /
-        (out_part$pos +
-          out_part$pos$eq(0.0) * eps +
-          out_part$pos$sgn() * eps)$unsqueeze(-1)
+        (out_part$pos + out_part$pos$eq(0.0) * eps)$unsqueeze(-1)
 
       rel_pos <- self$get_gradient(z) * input_pos
 
       # - negative part
       z <- rel_output /
-        (out_part$neg +
-          out_part$neg$sgn() * eps -
-          out_part$neg$eq(0.0) * eps)$unsqueeze(-1)
+        (out_part$neg - out_part$neg$eq(0.0) * eps)$unsqueeze(-1)
 
       rel_neg <- self$get_gradient(z) * input_neg
 
@@ -173,7 +169,7 @@ avg_pool1d_layer <- nn_module(
     output_ref
   },
 
-  get_gradient = function(output) {
+  get_gradient = function(output, ...) {
     channels <- output$shape[2]
 
     if (is.null(self$weight)) {
@@ -246,7 +242,7 @@ avg_pool2d_layer <- nn_module(
     output_ref
   },
 
-  get_gradient = function(output, weight = NULL) {
+  get_gradient = function(output, ...) {
     channels <- output$shape[2]
 
     if (is.null(self$weight)) {
@@ -324,7 +320,7 @@ max_pool1d_layer <- nn_module(
   },
 
   get_input_relevances = function(rel_output, rule_name = "simple",
-                                  rule_param = NULL, winner_takes_all = TRUE) {
+                                  rule_param = NULL, winner_takes_all = TRUE, ...) {
     if (winner_takes_all) {
       rel_input <- self$get_gradient(rel_output, use_avgpool = FALSE)
     } else {
@@ -346,7 +342,7 @@ max_pool1d_layer <- nn_module(
       # Apply selected LRP-rule
       if (rule_name == "simple") {
         z <- (out_part$pos + out_part$neg)$unsqueeze(-1)
-        z <- z + (torch_sgn(z) + torch_eq(z, 0.0)) * eps
+        z <- z + torch_eq(z, 0.0) * eps
         rel_input <- self$get_gradient(rel_output / z, use_avgpool = TRUE) *
           self$input$unsqueeze(-1)
       } else if (rule_name == "epsilon") {
@@ -361,17 +357,13 @@ max_pool1d_layer <- nn_module(
         # Apply the simple rule for each part:
         # - positive part
         z <- rel_output /
-          (out_part$pos +
-            out_part$pos$eq(0.0) * eps +
-            out_part$pos$sgn() * eps)$unsqueeze(-1)
+          (out_part$pos + out_part$pos$eq(0.0) * eps)$unsqueeze(-1)
 
         rel_pos <- self$get_gradient(z, use_avgpool = TRUE) * input_pos
 
         # - negative part
         z <- rel_output /
-          (out_part$neg +
-            out_part$neg$sgn() * eps -
-            out_part$neg$eq(0.0) * eps)$unsqueeze(-1)
+          (out_part$neg - out_part$neg$eq(0.0) * eps)$unsqueeze(-1)
 
         rel_neg <- self$get_gradient(z, use_avgpool = TRUE) * input_neg
 
@@ -396,7 +388,7 @@ max_pool1d_layer <- nn_module(
     self$get_gradient(mult_output, use_avgpool = !winner_takes_all)
   },
 
-  get_gradient = function(output, use_avgpool = FALSE) {
+  get_gradient = function(output, use_avgpool = FALSE, ...) {
     if (use_avgpool) {
       channels <- output$shape[2]
 
@@ -417,7 +409,11 @@ max_pool1d_layer <- nn_module(
       }
     } else {
       num_outputs <- rev(output$shape)[1]
-      input <- self$input
+      if (is.null(self$input)) {
+        input <- torch_ones(c(1, self$input_dim))
+      } else {
+        input <- self$input
+      }
       input <- input$unsqueeze(-1)$expand(c(input$shape, num_outputs))
       input$requires_grad <- TRUE
       out <- nnf_max_pool2d(input, c(self$kernel_size, 1), c(self$strides, 1))
@@ -478,7 +474,7 @@ max_pool2d_layer <- nn_module(
   },
 
   get_input_relevances = function(rel_output, rule_name = "simple",
-                                  rule_param = NULL, winner_takes_all = TRUE) {
+                                  rule_param = NULL, winner_takes_all = TRUE, ...) {
     if (winner_takes_all) {
       rel_input <- self$get_gradient(rel_output, use_avgpool = FALSE)
     } else {
@@ -500,7 +496,7 @@ max_pool2d_layer <- nn_module(
       # Apply selected LRP-rule
       if (rule_name == "simple") {
         z <- (out_part$pos + out_part$neg)$unsqueeze(-1)
-        z <- z + (torch_sgn(z) + torch_eq(z, 0.0)) * eps
+        z <- z + torch_eq(z, 0.0) * eps
         rel_input <-
           self$get_gradient(rel_output / z, use_avgpool = TRUE) * self$input$unsqueeze(-1)
       } else if (rule_name == "epsilon") {
@@ -515,17 +511,13 @@ max_pool2d_layer <- nn_module(
         # Apply the simple rule for each part:
         # - positive part
         z <- rel_output /
-          (out_part$pos +
-            out_part$pos$eq(0.0) * eps +
-            out_part$pos$sgn() * eps)$unsqueeze(-1)
+          (out_part$pos + out_part$pos$eq(0.0) * eps)$unsqueeze(-1)
 
         rel_pos <- self$get_gradient(z, use_avgpool = TRUE) * input_pos
 
         # - negative part
         z <- rel_output /
-          (out_part$neg +
-            out_part$neg$sgn() * eps -
-            out_part$neg$eq(0.0) * eps)$unsqueeze(-1)
+          (out_part$neg - out_part$neg$eq(0.0) * eps)$unsqueeze(-1)
 
         rel_neg <- self$get_gradient(z, use_avgpool = TRUE) * input_neg
 
@@ -548,7 +540,7 @@ max_pool2d_layer <- nn_module(
     self$get_gradient(mult_output, use_avgpool = !winner_takes_all)
   },
 
-  get_gradient = function(output, use_avgpool = FALSE) {
+  get_gradient = function(output, use_avgpool = FALSE, ...) {
     if (use_avgpool) {
       channels <- output$shape[2]
 
@@ -570,7 +562,11 @@ max_pool2d_layer <- nn_module(
       }
     } else {
       num_outputs <- rev(output$shape)[1]
-      input <- self$input
+      if (is.null(self$input)) {
+        input <- torch_ones(c(1, self$input_dim))
+      } else {
+        input <- self$input
+      }
       input <- input$unsqueeze(-1)$expand(c(input$shape, num_outputs))
       input$requires_grad <- TRUE
       out <- nnf_max_pool3d(input, c(self$kernel_size, 1), c(self$strides, 1))

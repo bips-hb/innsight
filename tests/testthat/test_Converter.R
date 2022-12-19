@@ -270,15 +270,6 @@ test_that("Test torch sequential model: Dense with dropout", {
   expect_lt(mean((y - y_true)^2), 1e-12)
 })
 
-test_that("Test torch sequential model: Unknwon layer type", {
-  library(torch)
-
-  model <- nn_sequential(
-    nn_linear(5,5),
-    nn_batch_norm1d(5))
-  expect_error(Converter$new(model, input_dim = c(5)))
-})
-
 test_that("Test torch sequential model: 1D Conv", {
   library(torch)
   input <- torch_randn(10, 3, 100)

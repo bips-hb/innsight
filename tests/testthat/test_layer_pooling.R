@@ -109,7 +109,7 @@ test_that("Test 1D maximum pooling layer", {
   rel <- max_pool1d$get_input_relevances(rel_output)
 
   expect_equal(dim(rel), c(10, 4, 30, 3))
-  expect_lt(as_array((sum(rel_output) - sum(rel))^2), 1e-3)
+  expect_lt(as_array((sum(rel_output) - sum(rel))^2), 1e-9)
 
   # Test LRP: alpha-beta-rule
   rel_output <- torch_randn(c(10, 4, 15, 3))
@@ -150,7 +150,7 @@ test_that("Test 2D maximum pooling layer", {
   rel <- max_pool2d$get_input_relevances(rel_output)
 
   expect_equal(dim(rel), c(10, 4, 20, 10, 3))
-  expect_lt(as_array((sum(rel_output) - sum(rel))^2), 1e-3)
+  expect_lt(as_array((sum(rel_output) - sum(rel))^2), 1e-9)
 
   # Test LRP: alpha-beta-rule
   rel_output <- torch_randn(c(10, 4, 10, 5, 3))
@@ -165,5 +165,6 @@ test_that("Test 2D maximum pooling layer", {
   contrib <- (x - x_ref)$unsqueeze(-1) * mul
 
   expect_equal(dim(mul), c(10, 4, 20, 10, 3))
+  #expect_lt(as_array(mean((contrib_true$sum(c(2,3,4)) - contrib$sum(c(2,3,4)))^2)), 1e-7)
 })
 

@@ -87,7 +87,7 @@ dense_layer <- nn_module(
   #   weight     [dim_out, dim_in]
   #
   #   output  [batch_size, dim_in, model_out]
-  get_gradient = function(grad_out, weight) {
+  get_gradient = function(grad_out, weight, ...) {
     grad_in <- torch_matmul(weight$t(), grad_out)
 
     grad_in

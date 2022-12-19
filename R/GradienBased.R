@@ -70,7 +70,7 @@ GradientBased <- R6Class(
                           dtype = "float"
                           ) {
       super$initialize(converter, data, channels_first, output_idx,
-                       ignore_last_act, dtype)
+                       ignore_last_act, TRUE, dtype)
 
       assert_logical(times_input)
       self$times_input <- times_input
@@ -285,7 +285,7 @@ boxplot.GradientBased <- function(x, ...) {
 #' @template param-dtype
 #' @template param-ignore_last_act
 #'
-#' @family methods
+#' @family Methods
 #' @export
 Gradient <- R6Class(
   classname = "Gradient",
@@ -375,7 +375,7 @@ Gradient <- R6Class(
 #' D. Smilkov et al. (2017) \emph{SmoothGrad: removing noise by adding noise.}
 #' CoRR, abs/1706.03825
 #'
-#' @family methods
+#' @family Methods
 #' @export
 SmoothGrad <- R6Class(
   classname = "SmoothGrad",
@@ -454,6 +454,9 @@ SmoothGrad <- R6Class(
 
       data <- lapply(data, function(input) {
         noise_scale <- self$noise_level * (max(input) - min(input))
+        if (noise_scale$item() == 0) {
+          noise_scale <- self$noise_level
+        }
         noise <- torch_randn_like(input) * noise_scale
 
         input + noise

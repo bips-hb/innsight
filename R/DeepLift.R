@@ -82,9 +82,10 @@ DeepLift <- R6Class(
                           ignore_last_act = TRUE,
                           rule_name = "rescale",
                           x_ref = NULL,
+                          winner_takes_all = TRUE,
                           dtype = "float") {
       super$initialize(converter, data, channels_first, output_idx,
-                       ignore_last_act, dtype)
+                       ignore_last_act, winner_takes_all, dtype)
 
       assertChoice(rule_name, c("rescale", "reveal_cancel"))
       self$rule_name <- rule_name

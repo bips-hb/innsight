@@ -61,7 +61,7 @@ test_that("Test get_gradient for batchnorm_layer", {
 test_that("Test get_input_relevances for batchnorm_layer", {
   library(torch)
 
-  batch_size <- 10
+  batch_size <- 5
   dim_in <- c(3, 10)
   dim_out <- c(3, 10)
   num_features <- 3
@@ -77,14 +77,14 @@ test_that("Test get_input_relevances for batchnorm_layer", {
   input <- torch_randn(c(batch_size, dim_in))
   input_ref <- torch_randn(c(1, dim_in))
 
-  bn(input)
+  out <- bn(input)
 
   rel <- torch_randn(c(batch_size, dim_out, 1))
 
   # Simple rule
   rel_simple <- bn$get_input_relevances(rel)
   expect_equal(dim(rel_simple), c(batch_size, dim_in, 1))
-  expect_lt(as_array(mean((rel_simple - rel)^2)), 1e-6)
+  expect_lt(as_array(mean((rel_simple - rel)^2)), 1e-12)
 
   # Epsilon rule
   rel_epsilon <- bn$get_input_relevances(rel, rule_name = "epsilon")
@@ -94,7 +94,7 @@ test_that("Test get_input_relevances for batchnorm_layer", {
   rel_alpha_beta <-
     bn$get_input_relevances(rel, rule_name = "alpha_beta")
   expect_equal(dim(rel_alpha_beta), c(batch_size, dim_in, 1))
-  expect_lt(as_array(mean((rel_alpha_beta - rel)^2)), 1e-6)
+  expect_lt(as_array(mean((rel_alpha_beta - rel)^2)), 1e-12)
 })
 
 

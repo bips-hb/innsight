@@ -26,7 +26,7 @@ InterpretingLayer <- nn_module(
 
   get_input_relevances = function(rel_output,
                                   rule_name = "simple",
-                                  rule_param = NULL) {
+                                  rule_param = NULL, ...) {
 
     # Set default rule parameter
     if (is.null(rule_param)) {
@@ -43,7 +43,7 @@ InterpretingLayer <- nn_module(
     # Apply selected LRP-rule
     if (rule_name == "simple") {
       z <- self$preactivation$unsqueeze(-1)
-      z <- z + (torch_sgn(z) + torch_eq(z, 0.0)) * eps
+      z <- z + torch_eq(z, 0.0) * eps
       rel_input <-
         self$get_gradient(rel_output / z, self$W) * self$input$unsqueeze(-1)
     } else if (rule_name == "epsilon") {
@@ -61,9 +61,7 @@ InterpretingLayer <- nn_module(
       # Apply the simple rule for each part:
       # - positive part
       z <- rel_output /
-        (out_part$pos +
-           out_part$pos$eq(0.0) * eps +
-           out_part$pos$sgn() * eps)$unsqueeze(-1)
+        (out_part$pos + out_part$pos$eq(0.0) * eps)$unsqueeze(-1)
 
       rel_pos <-
         self$get_gradient(z, W_pos) * input_pos +
@@ -71,9 +69,7 @@ InterpretingLayer <- nn_module(
 
       # - negative part
       z <- rel_output /
-        (out_part$neg +
-           out_part$neg$sgn() * eps -
-           out_part$neg$eq(0.0) * eps)$unsqueeze(-1)
+        (out_part$neg - out_part$neg$eq(0.0) * eps)$unsqueeze(-1)
 
       rel_neg <-
         self$get_gradient(z, W_pos) * input_neg +
@@ -86,7 +82,7 @@ InterpretingLayer <- nn_module(
     rel_input
   },
 
-  get_input_multiplier = function(mult_output, rule_name = "rescale") {
+  get_input_multiplier = function(mult_output, rule_name = "rescale", ...) {
 
     # --------------------- Non-linear part---------------------------
     mult_pos <- mult_output
@@ -110,7 +106,8 @@ InterpretingLayer <- nn_module(
         grad <- autograd_grad(y, x)[[1]]
 
         nonlin_mult <-
-          (1 - mask) * (delta_output / delta_preact) + mask * grad
+          (1 - mask) * (delta_output / (delta_preact + delta_preact$eq(0.0) * eps)) +
+          mask * grad
 
         mult_pos <- mult_output * nonlin_mult
         mult_neg <- mult_output * nonlin_mult

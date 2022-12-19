@@ -116,7 +116,7 @@ conv2d_layer <- nn_module(
   #
   #   output  [batch_size, in_channels, in_height, in_width, model_out]
   #
-  get_gradient = function(input, weight) {
+  get_gradient = function(input, weight, ...) {
     # Since we have added the model_out dimension, strides and dilation need to
     # be extended by 1.
 
