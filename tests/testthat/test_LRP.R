@@ -273,6 +273,25 @@ test_that("LRP: Conv1D-Net", {
   expect_true(
     lrp_ab_2$get_result(type = "torch.tensor")$dtype == torch_float()
   )
+
+  # Different rules
+  lrp_mixed_rules <- LRP$new(converter, data,
+                             rule_name = list(Dense_Layer = "alpha_beta"),
+                             rule_param = list(Dense_Layer = 2),
+                             channels_first = FALSE)
+  expect_equal(dim(lrp_mixed_rules$get_result()), c(4, 64, 3, 1))
+
+  lrp_mixed_rules <- LRP$new(converter, data,
+                             rule_name = list(Dense_Layer = "alpha_beta",
+                                              Conv1D_Layer = "epsilon"),
+                             rule_param = list(Dense_Layer = 2),
+                             channels_first = FALSE)
+  expect_equal(dim(lrp_mixed_rules$get_result()), c(4, 64, 3, 1))
+  expect_error(LRP$new(converter, data,
+                       rule_name = list(Flatten = "alpha_beta",
+                                        Conv1D_Layer = "epsilon"),
+                       rule_param = list(Dense_Layer = 2),
+                       channels_first = FALSE))
 })
 
 test_that("LRP: Conv2D-Net", {

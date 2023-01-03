@@ -93,16 +93,33 @@ LRP <- R6Class(
       super$initialize(converter, data, channels_first, output_idx,
                        ignore_last_act, winner_takes_all, dtype)
 
+      layer_names_with_rule <- c(
+        "Dense_Layer", "Conv1D_Layer", "Conv2D_Layer", "BatchNorm_Layer",
+        "AvgPool1D_Layer", "AvgPool2D_Layer", "MaxPool1D_Layer",
+        "MaxPool2D_Layer")
+
       assert(
         checkChoice(rule_name, c("simple", "epsilon", "alpha_beta")),
         checkList(rule_name, types = "character", names = "named")
       )
+      if (is.list(rule_name)) {
+        for (name in names(rule_name)) {
+          assertSubset(name, layer_names_with_rule,
+                       .var.name = "names(rule_name)")
+        }
+      }
       self$rule_name <- rule_name
 
       assert(
         checkNumber(rule_param, null.ok = TRUE),
         checkList(rule_param, types = "numeric", names = "named")
       )
+      if (is.list(rule_param)) {
+        for (name in names(rule_param)) {
+          assertSubset(name, layer_names_with_rule,
+                       .var.name = "names(rule_param)")
+        }
+      }
       self$rule_param <- rule_param
 
       self$converter$model$forward(self$data,
