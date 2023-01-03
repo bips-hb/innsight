@@ -43,7 +43,7 @@ InterpretingLayer <- nn_module(
     # Apply selected LRP-rule
     if (rule_name == "simple") {
       z <- self$preactivation$unsqueeze(-1)
-      z <- z + torch_eq(z, 0.0) * eps
+      z <- z + torch_eq(z, 0.0) * eps + z$sgn() * eps
       rel_input <-
         self$get_gradient(rel_output / z, self$W) * self$input$unsqueeze(-1)
     } else if (rule_name == "epsilon") {
@@ -61,7 +61,8 @@ InterpretingLayer <- nn_module(
       # Apply the simple rule for each part:
       # - positive part
       z <- rel_output /
-        (out_part$pos + out_part$pos$eq(0.0) * eps)$unsqueeze(-1)
+        (out_part$pos + out_part$pos$eq(0.0) * eps +
+           out_part$pos$sgn() * eps)$unsqueeze(-1)
 
       rel_pos <-
         self$get_gradient(z, W_pos) * input_pos +
@@ -69,7 +70,8 @@ InterpretingLayer <- nn_module(
 
       # - negative part
       z <- rel_output /
-        (out_part$neg - out_part$neg$eq(0.0) * eps)$unsqueeze(-1)
+        (out_part$neg - out_part$neg$eq(0.0) * eps +
+           out_part$neg$sgn() * eps)$unsqueeze(-1)
 
       rel_neg <-
         self$get_gradient(z, W_pos) * input_neg +
