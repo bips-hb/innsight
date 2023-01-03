@@ -280,8 +280,10 @@ InterpretingMethod <- R6Class(
         # afterwards
         if (!is.null(rel)) {
           if (method_name == "LRP") {
-            rel <- layer$get_input_relevances(rel, rule_name = self$rule_name,
-                                              rule_param = self$rule_param,
+            lrp_rule <-
+              get_lrp_rule(self$rule_name, self$rule_param, class(layer)[1])
+            rel <- layer$get_input_relevances(rel, rule_name = lrp_rule$rule_name,
+                                              rule_param = lrp_rule$rule_param,
                                               winner_takes_all = self$winner_takes_all)
           } else if (method_name == "DeepLift") {
             rel <- layer$get_input_multiplier(rel, rule_name = rule_name,
@@ -851,4 +853,23 @@ aggregate_channels <- function(result, out_idx, in_idx, idx_matches, data_idx,
   }
 
   res
+}
+
+get_lrp_rule <- function(rule_name, rule_param, layer_class) {
+  if (is.list(rule_name)) {
+    if (layer_class %in% names(rule_name)) {
+      rule_name <- rule_name[[layer_class]]
+    } else {
+      rule_name <- "simple"
+    }
+  }
+  if (is.list(rule_param)) {
+    if (layer_class %in% names(rule_param)) {
+      rule_param <- rule_param[[layer_class]]
+    } else {
+      rule_param <- NULL
+    }
+  }
+
+  list(rule_name = rule_name, rule_param = rule_param)
 }

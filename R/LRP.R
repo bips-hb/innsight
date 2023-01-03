@@ -93,10 +93,16 @@ LRP <- R6Class(
       super$initialize(converter, data, channels_first, output_idx,
                        ignore_last_act, winner_takes_all, dtype)
 
-      assertChoice(rule_name, c("simple", "epsilon", "alpha_beta"))
+      assert(
+        checkChoice(rule_name, c("simple", "epsilon", "alpha_beta")),
+        checkList(rule_name, types = "character", names = "named")
+      )
       self$rule_name <- rule_name
 
-      assertNumber(rule_param, null.ok = TRUE)
+      assert(
+        checkNumber(rule_param, null.ok = TRUE),
+        checkList(rule_param, types = "numeric", names = "named")
+      )
       self$rule_param <- rule_param
 
       self$converter$model$forward(self$data,
