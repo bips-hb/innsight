@@ -38,6 +38,7 @@ InterpretingMethod <- R6Class(
     ignore_last_act = NULL,
     result = NULL,
     output_idx = NULL,
+    verbose = NULL,
 
     #' @description
     #' Create a new instance of this super class.
@@ -69,6 +70,7 @@ InterpretingMethod <- R6Class(
                           output_idx = NULL,
                           ignore_last_act = TRUE,
                           winner_takes_all = TRUE,
+                          verbose = interactive(),
                           dtype = "float") {
       assertClass(converter, "Converter")
       self$converter <- converter
@@ -81,6 +83,9 @@ InterpretingMethod <- R6Class(
 
       assert_logical(winner_takes_all)
       self$winner_takes_all <- winner_takes_all
+
+      assertLogical(verbose)
+      self$verbose <- verbose
 
       assertChoice(dtype, c("float", "double"))
       self$dtype <- dtype
@@ -168,12 +173,15 @@ InterpretingMethod <- R6Class(
       rel_list <- vector(mode = "list",
                          length = length(self$converter$model$output_nodes))
 
-      message(paste0("Backward pass '", method_name, "':"))
-      # Define Progressbar
-      pb <- txtProgressBar(min = 0,
-                           max = length(self$converter$model$graph),
-                           style = 3)
-      n <- 0
+      if (self$verbose) {
+        message(paste0("\nBackward pass '", method_name, "':"))
+        # Define Progressbar
+        pb <- txtProgressBar(min = 0,
+                             max = length(self$converter$model$graph),
+                             style = 3)
+        n <- 0
+      }
+
       # We go through the graph in reversed order
       for (step in rev(self$converter$model$graph)) {
         # set the rule name
@@ -310,11 +318,14 @@ InterpretingMethod <- R6Class(
             append(rel_list, rel_ordered[i], after = ordered_idx[i] - 1)
         }
 
-        # Update progress bar
-        n <- n + 1
-        setTxtProgressBar(pb, n)
+        if (self$verbose) {
+          # Update progress bar
+          n <- n + 1
+          setTxtProgressBar(pb, n)
+        }
       }
-      close(pb)
+
+      if (self$verbose) close(pb)
 
       # If necessary, move channels last
       if (self$channels_first == FALSE) {

@@ -67,10 +67,11 @@ GradientBased <- R6Class(
                           output_idx = NULL,
                           ignore_last_act = TRUE,
                           times_input = TRUE,
+                          verbose = interactive(),
                           dtype = "float"
                           ) {
       super$initialize(converter, data, channels_first, output_idx,
-                       ignore_last_act, TRUE, dtype)
+                       ignore_last_act, TRUE, verbose, dtype)
 
       assert_logical(times_input)
       self$times_input <- times_input
@@ -175,7 +176,7 @@ GradientBased <- R6Class(
     }
   ),
   private = list(
-    calculate_gradients = function(input) {
+    calculate_gradients = function(input, method_name = "Gradient") {
       # Set 'requires_grad' for the input tensors
       lapply(input, function(i) i$requires_grad <- TRUE)
 
@@ -196,16 +197,21 @@ GradientBased <- R6Class(
       # Add up the output over the batch dimension
       out_sum <- lapply(out, torch_sum, dim = 1)
 
-      # Define Progressbar
-      pb <- txtProgressBar(min = 0, max = length(unlist(self$output_idx)),
-                           style = 3)
-      n <- 1
+      if (self$verbose) {
+        # Define Progressbar
+        message(paste0("\nBackward pass '", method_name, "':"))
+        pb <- txtProgressBar(min = 0, max = length(unlist(self$output_idx)),
+                             style = 3)
+        n <- 1
+      }
 
       # Definition of some temporary functions --------------------------------
       # Define function for calculating the gradients of one output
       calc_gradient_for_one_output <- function(idx, list_idx) {
-        setTxtProgressBar(pb, n)
-        n <<- n + 1
+        if (self$verbose) {
+          setTxtProgressBar(pb, n)
+          n <<- n + 1
+        }
 
         autograd_grad(out_sum[[list_idx]][idx], input, retain_graph = TRUE,
                       allow_unused = TRUE)
@@ -245,7 +251,7 @@ GradientBased <- R6Class(
       grads <- lapply(output_idx, calc_gradient_for_list_idx)
 
       lapply(input, function(i) i$requires_grad <- FALSE)
-      close(pb)
+      if (self$verbose) close(pb)
 
       grads
     }
@@ -325,9 +331,10 @@ Gradient <- R6Class(
                           output_idx = NULL,
                           ignore_last_act = TRUE,
                           times_input = FALSE,
+                          verbose = interactive(),
                           dtype = "float") {
       super$initialize(converter, data, channels_first, output_idx,
-                       ignore_last_act, times_input, dtype)
+                       ignore_last_act, times_input, verbose, dtype)
 
       self$result <- private$run()
       self$converter$model$reset()
@@ -335,8 +342,7 @@ Gradient <- R6Class(
   ),
   private = list(
     run = function() {
-      message("Backward pass 'Gradient':")
-      gradients <- private$calculate_gradients(self$data)
+      gradients <- private$calculate_gradients(self$data, "Gradient")
 
       if (self$times_input) {
         gradients <- calc_times_input(gradients, self$data)
@@ -429,9 +435,10 @@ SmoothGrad <- R6Class(
                           times_input = FALSE,
                           n = 50,
                           noise_level = 0.1,
+                          verbose = interactive(),
                           dtype = "float") {
       super$initialize(converter, data, channels_first, output_idx,
-                       ignore_last_act, times_input, dtype)
+                       ignore_last_act, times_input, verbose, dtype)
 
       assertInt(n, lower = 1)
       assertNumber(noise_level, lower = 0)
@@ -462,8 +469,7 @@ SmoothGrad <- R6Class(
         input + noise
       })
 
-      message("Backward pass 'SmoothGrad':")
-      gradients <- private$calculate_gradients(data)
+      gradients <- private$calculate_gradients(data, "SmoothGrad")
 
       if (self$times_input) {
         gradients <- calc_times_input(gradients, data)

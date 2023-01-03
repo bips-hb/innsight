@@ -82,6 +82,7 @@ ConnectionWeights <- R6Class(
                           output_idx = NULL,
                           channels_first = TRUE,
                           times_input = FALSE,
+                          verbose = interactive(),
                           dtype = "float") {
       assertClass(converter, "Converter")
       self$converter <- converter
@@ -91,6 +92,9 @@ ConnectionWeights <- R6Class(
 
       assert_logical(times_input)
       self$times_input <- times_input
+
+      assertLogical(verbose)
+      self$verbose <- verbose
 
       assertChoice(dtype, c("float", "double"))
       self$dtype <- dtype

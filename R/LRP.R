@@ -89,9 +89,10 @@ LRP <- R6Class(
                           rule_name = "simple",
                           rule_param = NULL,
                           winner_takes_all = TRUE,
+                          verbose = interactive(),
                           dtype = "float") {
       super$initialize(converter, data, channels_first, output_idx,
-                       ignore_last_act, winner_takes_all, dtype)
+                       ignore_last_act, winner_takes_all, verbose, dtype)
 
       layer_names_with_rule <- c(
         "Dense_Layer", "Conv1D_Layer", "Conv2D_Layer", "BatchNorm_Layer",
