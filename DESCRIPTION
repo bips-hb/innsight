@@ -73,6 +73,7 @@ Collate:
     'Layer_other.R'
     'Layer_pooling.R'
     'innsight.R'
+    'utils.R'
     'utils_ggplot.R'
     'utils_plotly.R'
     'innsight_ggplot2.R'
