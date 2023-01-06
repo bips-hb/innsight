@@ -17,8 +17,8 @@ You can use models from the following libraries:
 \item \code{\link[neuralnet]{neuralnet}}
 }
 
-Furthermore, a model can be passed as a list (see details for more
-information).
+Furthermore, a model can be passed as a list (see
+\code{vignette("detailed_overview", package = "innsight")}).
 }
 \details{
 In order to better understand and analyze the prediction of a neural
@@ -307,13 +307,13 @@ the argument \code{save_model_as_list} this can be saved anyway.}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{Converter$new()}}
-\item \href{#method-clone}{\code{Converter$clone()}}
+\item \href{#method-Converter-new}{\code{Converter$new()}}
+\item \href{#method-Converter-clone}{\code{Converter$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-Converter-new"></a>}}
+\if{latex}{\out{\hypertarget{method-Converter-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new Converter for a given neural network. When initialized,
 the model is inspected, converted as a list and then the a
@@ -359,7 +359,7 @@ generated automatically. But if this argument is set, all found
 input names in the passed model will be disregarded.}
 
 \item{\code{output_names}}{(Optional) A list with the names for the output
-dimensions exluding the batch dimension,
+dimensions excluding the batch dimension,
 e.g. for a model with \code{3} output nodes use
 \code{list(c("Y1", "Y2", "Y3"))}.\cr
 \emph{Note:} This argument is optional and otherwise the names are
@@ -382,8 +382,8 @@ A new instance of the R6 class \code{'Converter'}.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-Converter-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-Converter-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

@@ -7,6 +7,14 @@ convert_torch_sequential <- function(model) {
   model_as_list <- list()
   num <- 1
   modules_list <- model$modules[-1]
+
+  # Check for empty model
+  if (length(modules_list) == 0) {
+    stopf(
+      "You passed an empty torch model!", call = "Converter$new(...)"
+    )
+  }
+
   activation_possible <- FALSE
 
   for (modul in modules_list) {
@@ -95,10 +103,10 @@ convert_torch_sequential <- function(model) {
       activation_possible <- FALSE
       num <- num + 1
     } else {
-      stop(sprintf(
-        "Unknown module of classes: '%s'!",
-        paste(classes, collapse = "', '")
-      ))
+      stopf("Unknown module of class(es): '",
+            paste(classes, collapse = "', '"), "'!",
+            call = "Converter$new(...)"
+      )
     }
   }
   model_as_list$layers[[num - 1]]$output_layers <- -1
@@ -136,10 +144,10 @@ convert_torch_linear <- function(modul, num) {
 # Convert nn_conv1d -----------------------------------------------------------
 convert_torch_conv1d <- function(modul, num) {
   if (modul$padding_mode != "zeros") {
-    stop(sprintf(
-      "Padding mode '%s' is not allowed! Use 'zeros' instead.",
-      modul$padding_mode
-    ))
+    stopf(
+      "Padding mode '", modul$padding_mode, "' is not allowed! Use 'zeros' ",
+      "instead.", call = "Converter$new(...)"
+    )
   }
   if (is.null(modul$bias)) {
     bias <- rep(0, times = dim(modul$weight)[1])
@@ -165,10 +173,10 @@ convert_torch_conv1d <- function(modul, num) {
 # Convert nn_conv2d -----------------------------------------------------------
 convert_torch_conv2d <- function(modul, num) {
   if (modul$padding_mode != "zeros") {
-    stop(sprintf(
-      "Padding mode '%s' is not allowed! Use 'zeros' instead.",
-      modul$padding_mode
-    ))
+    stopf(
+      "Padding mode '", modul$padding_mode, "' is not allowed! Use 'zeros' ",
+      "instead.", call = "Converter$new(...)"
+    )
   }
   if (is.null(modul$bias)) {
     bias <- rep(0, times = dim(modul$weight)[1])
@@ -199,7 +207,8 @@ convert_torch_conv2d <- function(modul, num) {
 # Convert nn_avg_pool1d -------------------------------------------------------
 convert_torch_avg_pool1d <- function(modul, num) {
   if (sum(modul$padding) != 0) {
-    stop("Padding for pooling layers is not implemented yet!")
+    stopf("Padding for pooling layers is not implemented yet!",
+          call = "Converter$new(...)")
   }
 
   list(
@@ -216,7 +225,8 @@ convert_torch_avg_pool1d <- function(modul, num) {
 # Convert nn_avg_pool2d -------------------------------------------------------
 convert_torch_avg_pool2d <- function(modul, num) {
   if (sum(modul$padding) != 0) {
-    stop("Padding for pooling layers is not implemented yet!")
+    stopf("Padding for pooling layers is not implemented yet!",
+          call = "Converter$new(...)")
   }
 
   list(
@@ -233,7 +243,8 @@ convert_torch_avg_pool2d <- function(modul, num) {
 # Convert nn_max_pool1d -------------------------------------------------------
 convert_torch_max_pool1d <- function(modul, num) {
   if (sum(modul$padding) != 0) {
-    stop("Padding for pooling layers is not implemented yet!")
+    stopf("Padding for pooling layers is not implemented yet!",
+          call = "Converter$new(...)")
   }
 
   list(
@@ -250,7 +261,8 @@ convert_torch_max_pool1d <- function(modul, num) {
 # Convert nn_max_pool2d -------------------------------------------------------
 convert_torch_max_pool2d <- function(modul, num) {
   if (sum(modul$padding) != 0) {
-    stop("Padding for pooling layers is not implemented yet!")
+    stopf("Padding for pooling layers is not implemented yet!",
+          call = "Converter$new(...)")
   }
 
   list(
@@ -294,7 +306,7 @@ convert_torch_batchnorm <- function(modul, num) {
 
 # Convert skipping layers -----------------------------------------------------
 convert_torch_skipping <- function(type, num) {
-  message(sprintf("Skipping %s ...", type))
+  messagef("Skipping ", type, " ...")
 
   list(
     type = "Skipping",
@@ -310,20 +322,22 @@ convert_torch_skipping <- function(type, num) {
 
 activation_error <- function(type, num, layers) {
   if (num == 1) {
-    stop(
+    stopf(
       "In this package, it is not allowed to start with an activation",
-      " function. Your activation function: '", type, "'"
+      " function. Your activation function: '", type, "'",
+      call = "Converter$new(...)"
     )
   } else if (layers[[num - 1]]$type %in% c("Skipping", "Flatten", "BatchNorm")) {
-    stop(
+    stopf(
       "In this package, it is not allowed to use an activation function",
-      " ('", type, "') after a dropout, flatten or batchnormalization layer."
+      " ('", type, "') after a dropout, flatten or batchnormalization layer.",
+      call = "Converter$new(...)"
     )
   } else {
-    stop(
+    stopf(
       "In this package, it is not allowed to apply several activation",
       " functions in a row (..., '", layers[[num - 1]]$activation_name,
-      "' ,'", type, "')."
+      "' ,'", type, "').", call = "Converter$new(...)"
     )
   }
 }

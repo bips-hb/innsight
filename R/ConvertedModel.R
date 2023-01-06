@@ -211,9 +211,9 @@ ConvertedModel <- nn_module(
     # If the channels are last, we have to move the channel axis to the first
     # position after the batch dimension
     if (channels_first == FALSE) {
-      x_ref <- lapply(x_ref,
-                      function(z) torch_movedim(z, source = -1,
-                                                destination = 2))
+      x_ref <- lapply(
+        x_ref,
+        function(z) torch_movedim(z, source = -1, destination = 2))
     }
 
     # This is the main part of the forward pass.

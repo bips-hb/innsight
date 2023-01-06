@@ -135,22 +135,22 @@ Other methods:
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{Gradient$new()}}
-\item \href{#method-clone}{\code{Gradient$clone()}}
+\item \href{#method-Gradient-new}{\code{Gradient$new()}}
+\item \href{#method-Gradient-clone}{\code{Gradient$clone()}}
 }
 }
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result">}\href{../../innsight/html/InterpretingMethod.html#method-get_result}{\code{innsight::InterpretingMethod$get_result()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="GradientBased" data-id="boxplot">}\href{../../innsight/html/GradientBased.html#method-boxplot}{\code{innsight::GradientBased$boxplot()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="GradientBased" data-id="plot">}\href{../../innsight/html/GradientBased.html#method-plot}{\code{innsight::GradientBased$plot()}}\out{</span>}
-}
-\out{</details>}
-}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="boxplot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-boxplot'><code>innsight::InterpretingMethod$boxplot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-get_result'><code>innsight::InterpretingMethod$get_result()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot'><code>innsight::InterpretingMethod$plot()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-Gradient-new"></a>}}
+\if{latex}{\out{\hypertarget{method-Gradient-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new instance of the Vanilla Gradient method. When initialized,
 the method is applied to the given data and the results are stored in
@@ -163,6 +163,7 @@ the field \code{result}.
   output_idx = NULL,
   ignore_last_act = TRUE,
   times_input = FALSE,
+  verbose = interactive(),
   dtype = "float"
 )}\if{html}{\out{</div>}}
 }
@@ -222,6 +223,10 @@ often omitted.}
 \item{\code{times_input}}{Multiplies the gradients with the input features.
 This method is called 'Gradient x Input'.}
 
+\item{\code{verbose}}{This logical argument determines whether a progress bar is
+displayed for the calculation of the method or not. The default value is
+the output of the primitive R function \code{\link[=interactive]{interactive()}}.}
+
 \item{\code{dtype}}{The data type for the calculations. Use
 either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
 \link[torch:torch_dtype]{torch::torch_double}.}
@@ -230,8 +235,8 @@ either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-Gradient-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-Gradient-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

@@ -17,8 +17,8 @@ Compared to \emph{Layer-wise Relevance Propagation} (see \link{LRP}), the
 DeepLift method is an exact decomposition and not an approximation, so we
 get real contributions of the input features to the
 difference-from-reference prediction. There are two ways to handle
-activation functions: \emph{Rescale-Rule} (\code{'rescale'}) and
-\emph{RevealCancel-Rule} (\code{'reveal_cancel'}).
+activation functions: \emph{Rescale-rule} (\code{'rescale'}) and
+\emph{RevealCancel-rule} (\code{'reveal_cancel'}).
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -163,22 +163,22 @@ Either \code{'rescale'} or \code{'reveal_cancel'}.}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{DeepLift$new()}}
-\item \href{#method-plot}{\code{DeepLift$plot()}}
-\item \href{#method-boxplot}{\code{DeepLift$boxplot()}}
-\item \href{#method-clone}{\code{DeepLift$clone()}}
+\item \href{#method-DeepLift-new}{\code{DeepLift$new()}}
+\item \href{#method-DeepLift-clone}{\code{DeepLift$clone()}}
 }
 }
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result">}\href{../../innsight/html/InterpretingMethod.html#method-get_result}{\code{innsight::InterpretingMethod$get_result()}}\out{</span>}
-}
-\out{</details>}
-}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="boxplot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-boxplot'><code>innsight::InterpretingMethod$boxplot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-get_result'><code>innsight::InterpretingMethod$get_result()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot'><code>innsight::InterpretingMethod$plot()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-DeepLift-new"></a>}}
+\if{latex}{\out{\hypertarget{method-DeepLift-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new instance of the \emph{DeepLift} method. When initialized,
 the method is applied to the given data and the results are stored in
@@ -192,6 +192,8 @@ the field \code{result}.
   ignore_last_act = TRUE,
   rule_name = "rescale",
   x_ref = NULL,
+  winner_takes_all = TRUE,
+  verbose = interactive(),
   dtype = "float"
 )}\if{html}{\out{</div>}}
 }
@@ -263,6 +265,20 @@ for each of the input layers.
 zeros as reference input.
 }}
 
+\item{\code{winner_takes_all}}{This logical argument is only relevant for
+models with a MaxPooling layer. Since many zeros are produced during
+the backward pass due to the selection of the maximum value in the
+pooling kernel, another variant is implemented, which treats a
+MaxPooling as an AveragePooling layer in the backward pass to overcome
+the problem of too many zero relevances. With the default value \code{TRUE},
+the whole upper-layer relevance is passed to the maximum value in each
+pooling window. Otherwise, if \code{FALSE}, the relevance is distributed equally
+among all nodes in a pooling window.}
+
+\item{\code{verbose}}{This logical argument determines whether a progress bar is
+displayed for the calculation of the method or not. The default value is
+the output of the primitive R function \code{\link[=interactive]{interactive()}}.}
+
 \item{\code{dtype}}{The data type for the calculations. Use
 either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
 \link[torch:torch_dtype]{torch::torch_double}.}
@@ -271,189 +287,8 @@ either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-plot"></a>}}
-\if{latex}{\out{\hypertarget{method-plot}{}}}
-\subsection{Method \code{plot()}}{
-This method visualizes the result of individual data points of the
-selected method and enables a visual in-depth investigation with the help
-of the S4 classes \code{\link{innsight_ggplot2}} and \code{\link{innsight_plotly}}.\cr
-You can use the argument \code{data_idx} to select the data points in the
-given data for the plot. In addition, the individual output nodes for
-the plot can be selected with the argument \code{output_idx}. The different
-results for the selected data points and outputs are visualized using
-the ggplot2-based S4 class \code{innsight_ggplot2}. You can also use the
-\code{as_plotly} argument to generate an interactive plot with
-\code{innsight_plotly} based on the plot function \link[plotly:plot_ly]{plotly::plot_ly}. For
-more information and the whole bunch of possibilities, see
-\code{\link{innsight_ggplot2}} and \code{\link{innsight_plotly}}.\cr
-\cr
-\strong{Note:}
-\enumerate{
-\item For the interactive plotly-based plots, the suggested package
-\code{plotly} is required.
-\item The ggplot2-based plots for models with multiple input layers are
-a bit more complex, therefore the suggested packages \code{'grid'},
-\code{'gridExtra'} and \code{'gtable'} must be installed in your R session.
-}
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DeepLift$plot(
-  data_idx = 1,
-  output_idx = NULL,
-  aggr_channels = "sum",
-  as_plotly = FALSE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{data_idx}}{An integer vector containing the numbers of the data
-points whose result is to be plotted, e.g. \code{c(1,3)} for the first
-and third data point in the given data. Default: \code{1}.}
-
-\item{\code{output_idx}}{The indices of the output nodes for which the results
-is to be plotted. This can be either a \code{vector} of indices or a
-\code{list} of vectors of indices but must be a subset of the indices
-for which the results were calculated, i.e. a subset of \code{output_idx}
-from the initialization \code{new()} (see argument \code{output_idx} in
-method \code{new()} of this R6 class for details). By default (\code{NULL}),
-the smallest index of all calculated output nodes and output layers
-is used.}
-
-\item{\code{aggr_channels}}{Pass one of \code{'norm'}, \code{'sum'}, \code{'mean'} or a
-custom function to aggregate the channels, e.g. the maximum
-(\link[base:Extremes]{base::max}) or minimum (\link[base:Extremes]{base::min}) over the channels or only
-individual channels with \code{function(x) x[1]}. By default (\code{'sum'}),
-the sum of all channels is used.\cr
-\emph{Note:} This argument is used only for 2D and 3D input data.}
-
-\item{\code{as_plotly}}{This logical value (default: \code{FALSE}) can be used to
-create an interactive plot based on the library \code{plotly}
-(see \code{\link{innsight_plotly}} for details).\cr
-\emph{Note:} Make sure that the suggested package \code{plotly} is installed
-in your R session.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Returns either an \code{\link{innsight_ggplot2}} (\code{as_plotly = FALSE}) or an
-\code{\link{innsight_plotly}} (\code{as_plotly = TRUE}) object with the plotted
-individual results.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-boxplot"></a>}}
-\if{latex}{\out{\hypertarget{method-boxplot}{}}}
-\subsection{Method \code{boxplot()}}{
-This method visualizes the results of the selected method summarized as
-boxplots and enables a visual in-depth investigation of the global
-behavior with the help of the S4 classes \code{\link{innsight_ggplot2}} and
-\code{\link{innsight_plotly}}.\cr
-You can use the argument \code{output_idx} to select the individual output
-nodes for the plot. For tabular and 1D data, boxplots are created in
-which a reference value can be selected from the data using the
-\code{ref_data_idx} argument. For images, only the pixel-wise median is
-visualized due to the complexity. The plot is generated using the
-ggplot2-based S4 class \code{innsight_ggplot2}. You can also use the
-\code{as_plotly} argument to generate an interactive plot with
-\code{innsight_plotly} based on the plot function \link[plotly:plot_ly]{plotly::plot_ly}. For
-more information and the whole bunch of possibilities, see
-\code{\link{innsight_ggplot2}} and \code{\link{innsight_plotly}}.\cr \cr
-\strong{Note:}
-\enumerate{
-\item For the interactive plotly-based plots, the suggested package
-\code{plotly} is required.
-\item The ggplot2-based plots for models with multiple input layers are
-a bit more complex, therefore the suggested packages \code{'grid'},
-\code{'gridExtra'} and \code{'gtable'} must be installed in your R session.
-}
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DeepLift$boxplot(
-  output_idx = NULL,
-  data_idx = "all",
-  ref_data_idx = NULL,
-  aggr_channels = "sum",
-  preprocess_FUN = abs,
-  as_plotly = FALSE,
-  individual_data_idx = NULL,
-  individual_max = 20
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{output_idx}}{The indices of the output nodes for which the
-results is to be plotted. This can be either a \code{vector} of indices or
-a \code{list} of vectors of indices but must be a subset of the indices
-for which the results were calculated, i.e. a subset of \code{output_idx}
-from the initialization \code{new()} (see argument \code{output_idx} in method
-\code{new()} of this R6 class for details). By default (\code{NULL}), the
-smallest index of all calculated output nodes and output layers is used.}
-
-\item{\code{data_idx}}{By default ("all"), all available data points are used
-to calculate the boxplot information. However, this parameter can be
-used to select a subset of them by passing the indices. E.g. with
-\code{c(1:10, 25, 26)} only the first 10 data points and
-the 25th and 26th are used to calculate the boxplots.}
-
-\item{\code{ref_data_idx}}{This integer number determines the index for the
-reference data point. In addition to the boxplots, it is displayed in
-red color and is used to compare an individual result with the summary
-statistics provided by the boxplot. With the default value (\code{NULL})
-no individual data point is plotted. This index can be chosen with
-respect to all available data, even if only a subset is selected with
-argument \code{data_idx}.\cr
-\emph{Note:} Because of the complexity of 2D inputs, this argument is used
-only for tabular and 1D inputs and disregarded for 2D inputs.}
-
-\item{\code{aggr_channels}}{Pass one of \code{'norm'}, \code{'sum'}, \code{'mean'} or a
-custom function to aggregate the channels, e.g. the maximum
-(\link[base:Extremes]{base::max}) or minimum (\link[base:Extremes]{base::min}) over the channels or only
-individual channels with \code{function(x) x[1]}. By default (\code{'sum'}),
-the sum of all channels is used.\cr
-\emph{Note:} This argument is used only for 2D and 3D input data.}
-
-\item{\code{preprocess_FUN}}{This function is applied to the method's result
-before calculating the boxplots or medians. Since positive and negative values
-often cancel each other out, the absolute value (\code{abs}) is used by
-default. But you can also use the raw results (\code{identity}) to see the
-results' orientation, the squared data (\code{function(x) x^2}) to weight
-the outliers higher or any other function.}
-
-\item{\code{as_plotly}}{This logical value (default: \code{FALSE}) can be used to
-create an interactive plot based on the library \code{plotly}
-(see \code{\link{innsight_plotly}} for details).\cr
-\emph{Note:} Make sure that the suggested package \code{plotly} is installed
-in your R session.}
-
-\item{\code{individual_data_idx}}{Only relevant for a \code{plotly} plot with tabular
-or 1D inputs! This integer vector of data indices determines
-the available data points in a dropdown menu, which are drawn in
-individually analogous to \code{ref_data_idx} only for more data points.
-With the default value \code{NULL} the first \code{individual_max} data points
-are used.\cr
-\emph{Note:} If \code{ref_data_idx} is specified, this data point will be
-added to those from \code{individual_data_idx} in the dropdown menu.}
-
-\item{\code{individual_max}}{Only relevant for a \code{plotly} plot with tabular or
-1D inputs! This integer determines the maximum number of
-individual data points in the dropdown menu without counting
-\code{ref_data_idx}. This means that if \code{individual_data_idx} has more
-than \code{individual_max} indices, only the first \code{individual_max} will
-be used. A too high number can significantly increase the runtime.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Returns either an \code{\link{innsight_ggplot2}} (\code{as_plotly = FALSE}) or an
-\code{\link{innsight_plotly}} (\code{as_plotly = TRUE}) object with the plotted
-summarized results.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-DeepLift-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-DeepLift-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

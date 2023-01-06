@@ -276,10 +276,10 @@ convert_keras_pooling <- function(layer, type) {
   strides <- unlist(layer$strides)
 
   if (layer$padding != "valid") {
-    stop(sprintf(
-      "Padding mode '%s' is not implemented yet!",
-      layer$padding
-    ))
+    stopf(
+      "Padding mode '", layer$padding, "' is not implemented yet!",
+      call = "Converter$new(...)"
+    )
   }
 
   # in this package only 'channels_first'
@@ -330,7 +330,7 @@ convert_keras_zeropadding <- function(layer, type) {
   # padding size: either [left, right] or [top, bottom, left, right]
   padding <- unlist(layer$padding)
   if (length(padding) == 4) {
-    padding <- c(padding[3:4], padding[1:2]) # in torch [left, right, top, bottom]
+    padding <- c(padding[3:4], padding[1:2]) # in torch [left,right,top,bottom]
     data_format <- layer$data_format
   } else {
     data_format <- "channels_last"
@@ -370,8 +370,11 @@ convert_keras_batchnorm <- function(layer) {
     input_dim <- move_channels_first(input_dim)
     output_dim <- move_channels_first(output_dim)
   } else if (axis != 1L) { # i.e. neither first nor last axis
-    stop("Only batchnormalzation on axis '1' or '-1' are accepted! ",
-         "Your axis: '", axis, "'")
+    stopf(
+      "Only batchnormalzation on axis '1' or '-1' are accepted! ",
+      "Your axis: '", axis, "'",
+      call = "Converter$new(...)"
+    )
   }
 
   list(
@@ -412,7 +415,7 @@ convert_keras_flatten <- function(layer) {
 convert_keras_concatenate <- function(layer) {
   num_input_dims <- lapply(layer$input_shape, function(x) length(unlist(x)))
   if (any(unlist(num_input_dims) > 1)) {
-    warning(
+    warningf(
       "I assume that the concatenations axis points to the channel axis.",
       " Otherwise, an error can be thrown in the further process."
     )
@@ -430,8 +433,8 @@ convert_keras_concatenate <- function(layer) {
 convert_keras_add <- function(layer) {
   list(
     type = "Add",
-    dim_in = NULL,#lapply(layer$input_shape, unlist),
-    dim_out = NULL #, unlist(layer$output_shape)
+    dim_in = NULL,
+    dim_out = NULL
   )
 }
 
@@ -444,7 +447,7 @@ convert_keras_activation <- function(name) {
 # Skipping Layers -------------------------------------------------------------
 
 convert_keras_skipping <- function(type) {
-  message(sprintf("Skipping %s ...", type))
+  messagef("Skipping ", type, " ...")
 
   list(type = "Skipping")
 }
@@ -507,7 +510,7 @@ get_layers_graph <- function(layers, config) {
 
   graph <- list()
   layer_list <- list()
-  name_changes <-list()
+  name_changes <- list()
 
   for (layer in layers) {
     # Get layer index in the config
@@ -551,9 +554,10 @@ get_layers_graph <- function(layers, config) {
       graph <- append(graph, layer_graph)
       layer_list <- append(layer_list, res$layers)
       name_changes <- append(name_changes, res$name_changes)
-      name_changes <- append(name_changes,
-                             list(list(old = layer$name,
-                                       new = layer_config$config$output_layers[[1]][[1]])))
+      name_changes <- append(
+        name_changes,
+        list(list(old = layer$name,
+                  new = layer_config$config$output_layers[[1]][[1]])))
     } else {
       if (length(layer_config$inbound_nodes) == 1) { # non InputLayer
         in_names <- unlist(
@@ -561,7 +565,8 @@ get_layers_graph <- function(layers, config) {
       } else if (length(layer_config$inbound_nodes) == 0) { # InputLayer
         in_names <- NULL
       } else { # Weight-Sharing is not supported
-        stop("Models that share weights are not supported yet!")
+        stopf("Models that share weights are not supported yet!",
+              call = "Converter$new(...)")
       }
 
       graph[[layer$name]] <-
@@ -629,13 +634,14 @@ check_consistent_data_format <- function(current_format, given_format) {
     data_format <- current_format
   } else {
     # The package can not handle different data formats
-    stop(paste0(
+    stopf(
       "The package innsight can not handle unconsistent data formats. ",
       "I found the format '", given_format, "', but the data format ",
       "of a previous layer was '", current_format, "'! \n",
       "Choose either only the format 'channels_first' or only ",
-      "'channels_last' for all layers."
-    ))
+      "'channels_last' for all layers.",
+      call = "Converter$new(...)"
+    )
   }
 
   data_format
@@ -652,11 +658,11 @@ combine_activations <- function(model_as_list) {
           model_as_list[[in_layer]]$activation_name <-
             model_as_list[[i]]$act_name
         } else if (is.character(act_name)) {
-          stop("It is not allowed to use several activation functions in ",
+          stopf("It is not allowed to use several activation functions in ",
                "consecutive order! You used a '", model_as_list[[i]]$act_name,
                "' activation directly after a '",
                model_as_list[[in_layer]]$activation_name, "' activation.",
-               call. = FALSE)
+               call = "Converter$new(...)")
         } else {
           keep <- TRUE
         }

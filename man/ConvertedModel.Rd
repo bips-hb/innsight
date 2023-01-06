@@ -57,12 +57,14 @@ in this package.
 The forward method of the whole model, i.e. it calculates the output
 \eqn{y=f(x)} of a given input \eqn{x}. In doing so, all intermediate
 values are stored in the individual torch modules from \code{modules_list}.
-\subsection{Usage}{\preformatted{self(x, channels_first = TRUE,
+\subsection{Usage}{
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{self(x, channels_first = TRUE,
         save_input = FALSE,
         save_preactivation = FALSE,
         save_output = FAlSE,
         save_last_layer = FALSE)
-}
+}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -97,13 +99,15 @@ given inputs.
 
 This method updates the stored intermediate values in each module from the
 list \code{modules_list} when the reference input \code{x_ref} has changed.
-\subsection{Usage}{\preformatted{self$update_ref(x_ref,
+\subsection{Usage}{
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{self$update_ref(x_ref,
                 channels_first = TRUE,
                 save_input = FALSE,
                 save_preactivation = FALSE,
                 save_output = FAlSE,
                 save_last_layer = FALSE)
-}
+}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

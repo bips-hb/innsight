@@ -146,22 +146,22 @@ perturbation, i.e. \eqn{\sigma = (max(x) - min(x)) *} \code{noise_level}.}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{SmoothGrad$new()}}
-\item \href{#method-clone}{\code{SmoothGrad$clone()}}
+\item \href{#method-SmoothGrad-new}{\code{SmoothGrad$new()}}
+\item \href{#method-SmoothGrad-clone}{\code{SmoothGrad$clone()}}
 }
 }
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result">}\href{../../innsight/html/InterpretingMethod.html#method-get_result}{\code{innsight::InterpretingMethod$get_result()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="GradientBased" data-id="boxplot">}\href{../../innsight/html/GradientBased.html#method-boxplot}{\code{innsight::GradientBased$boxplot()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="innsight" data-topic="GradientBased" data-id="plot">}\href{../../innsight/html/GradientBased.html#method-plot}{\code{innsight::GradientBased$plot()}}\out{</span>}
-}
-\out{</details>}
-}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="boxplot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-boxplot'><code>innsight::InterpretingMethod$boxplot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-get_result'><code>innsight::InterpretingMethod$get_result()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot'><code>innsight::InterpretingMethod$plot()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-SmoothGrad-new"></a>}}
+\if{latex}{\out{\hypertarget{method-SmoothGrad-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new instance of the \emph{SmoothGrad} method. When initialized,
 the method is applied to the given data and the results are stored in
@@ -176,6 +176,7 @@ the field \code{result}.
   times_input = FALSE,
   n = 50,
   noise_level = 0.1,
+  verbose = interactive(),
   dtype = "float"
 )}\if{html}{\out{</div>}}
 }
@@ -237,8 +238,12 @@ This method is called 'Gradient x Input'.}
 
 \item{\code{n}}{Number of perturbations of the input data (default: \eqn{50}).}
 
-\item{\code{noise_level}}{Determines the standard deviation of the gaussian
+\item{\code{noise_level}}{Determines the standard deviation of the Gaussian
 perturbation, i.e. \eqn{\sigma = (max(x) - min(x)) *} \code{noise_level}.}
+
+\item{\code{verbose}}{This logical argument determines whether a progress bar is
+displayed for the calculation of the method or not. The default value is
+the output of the primitive R function \code{\link[=interactive]{interactive()}}.}
 
 \item{\code{dtype}}{The data type for the calculations. Use
 either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
@@ -248,8 +253,8 @@ either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-SmoothGrad-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-SmoothGrad-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

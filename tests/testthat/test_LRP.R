@@ -494,7 +494,7 @@ test_that("LRP: Correctness (mixed model with add layer)", {
   library(torch)
 
   data <- lapply(list(c(12,15,3), c(20), c(10)),
-                 function(x) torch_randn(c(10,x)))
+                 function(x) torch_randn(c(10,x), dtype = torch_double()))
 
   input_1 <- layer_input(shape = c(12,15,3))
   part_1 <- input_1 %>%
@@ -504,7 +504,7 @@ test_that("LRP: Correctness (mixed model with add layer)", {
     layer_dense(12, activation = "relu", use_bias = FALSE)
   input_2 <- layer_input(shape = c(10))
   part_2 <- input_2 %>%
-    layer_dense(12, activation = "tanh", use_bias = FALSE)
+    layer_dense(12, activation = "relu", use_bias = FALSE)
   input_3 <- layer_input(shape = c(20))
   part_3 <- input_3 %>%
     layer_dense(12, activation = "relu", use_bias = FALSE)
@@ -520,14 +520,14 @@ test_that("LRP: Correctness (mixed model with add layer)", {
 
   conv <- Converter$new(model)
 
-  lrp <- LRP$new(conv, data, channels_first = FALSE)
+  lrp <- LRP$new(conv, data, channels_first = FALSE, dtype = "double")
 
   res_total_true <- as.array(model(lapply(data, as.array)))
   res <- lrp$result[[1]]
   res_total <- as.array(
     res[[1]]$sum(c(2,3,4,5)) + res[[2]]$sum(c(2,3)) + res[[3]]$sum(c(2,3)))
 
-  expect_lt(mean((res_total - res_total_true)^2), 1e-10)
+  expect_lt(mean((res_total - res_total_true)^2), 1e-12)
 })
 
 test_that("LRP: Correctness (mixed model with concat layer)", {

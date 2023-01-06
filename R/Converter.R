@@ -12,8 +12,8 @@
 #' \code{\link[keras]{keras_model_sequential}}),
 #' * \code{\link[neuralnet]{neuralnet}}
 #'
-#' Furthermore, a model can be passed as a list (see details for more
-#' information).
+#' Furthermore, a model can be passed as a list (see
+#' \code{vignette("detailed_overview", package = "innsight")}).
 #'
 #' @field model The converted neural network based on the torch module
 #' [ConvertedModel].
@@ -87,7 +87,7 @@ Converter <- R6Class("Converter",
     #' generated automatically. But if this argument is set, all found
     #' input names in the passed model will be disregarded.
     #' @param output_names (Optional) A list with the names for the output
-    #' dimensions exluding the batch dimension,
+    #' dimensions excluding the batch dimension,
     #' e.g. for a model with `3` output nodes use
     #' `list(c("Y1", "Y2", "Y3"))`.\cr
     #' *Note:* This argument is optional and otherwise the names are
@@ -126,10 +126,10 @@ Converter <- R6Class("Converter",
         model_as_list <- convert_torch(model, input_dim)
       } else {
         # Unknown model class -------------------------------------------------
-        stop(sprintf(
-          "Unknown module of classes: '%s'!",
-          paste(class(model), collapse = "', '")
-        ))
+        stopf(
+          "Unknown argument 'model' of class(es): '",
+          paste(class(model), collapse = "', '"), "'",
+          call = "Converter$new(...)")
       }
 
       # Check input dimension (if specified)
@@ -184,15 +184,17 @@ Converter <- R6Class("Converter",
       )
 
       if (is.null(model_as_list$input_nodes)) {
-        warning("Argument 'input_nodes' is unspecified! In the following, ",
-                "it is assumed that the first entry in '$layers' is the ",
-                "only input layer.", call. = FALSE)
+        warningf(
+          "Argument 'input_nodes' is unspecified! In the following, it is ",
+          "assumed that the first entry in 'model$layers' is the only ",
+          "input layer.", call = "Converter$new(...)")
         model_as_list$input_nodes <- 1L
       }
       if (is.null(model_as_list$output_nodes)) {
-        warning("Argument 'output_nodes' is unspecified! In the following, ",
-                "it is assumed that the last entry in '$layers' is the ",
-                "only output layer.", call. = FALSE)
+        warningf(
+          "Argument 'output_nodes' is unspecified! In the following, it is ",
+          "assumed that the last entry in 'model$layers' is the only output ",
+          "layer.", call = "Converter$new(...)")
         model_as_list$output_nodes <- length(model_as_list$layers)
       }
 
@@ -251,19 +253,22 @@ Converter <- R6Class("Converter",
         )
         # Set default for 'out_layers' and 'in_layers'
         if (is.null(in_layers)) {
-          warning("Argument '$layers[[", i, "]]$in_layers' is not specified!",
-                  "In the following, it is assumed that the ",
-                  "layer of index '", max(i - 1, 0), "' is the input ",
-                  "layer of the current one.", call. = FALSE)
+          warningf(
+            "Argument 'model$layers[[", i, "]]$in_layers' is not specified! ",
+            "In the following, it is assumed that the layer of index '",
+            max(i - 1, 0), "' is the input layer of the current one.",
+            call = "Converter$new(...)")
           in_layers <- max(i - 1, 0)
         }
         if (is.null(out_layers)) {
           num_layers <- length(model_as_list$layers)
           out_layers <- ifelse(i == num_layers, -1, i + 1)
-          warning("Argument '$layers[[", i, "]]$out_layers' is not specified!",
-                  " In the following, it is assumed that the ",
-                  "layer of index '", out_layers, "' is the subsequent ",
-                  "layer of the current one.", call. = FALSE)
+          warningf(
+            "Argument 'model$layers[[", i, "]]$out_layers' is not specified! ",
+            "In the following, it is assumed that the layer of index '",
+            out_layers, "' is the subsequent layer of the current one.",
+            call = "Converter$new(...)"
+          )
         }
 
         # Store the layer indices in the corresponding lists
@@ -318,10 +323,10 @@ Converter <- R6Class("Converter",
         !all_equal(model_as_list$output_dim, tmp$calc_output_shapes)) {
         calc <- shape_to_char(tmp$calc_output_shapes)
         given <- shape_to_char(model_as_list$output_dim)
-        stop(
+        stopf(
           "Missmatch between the calculated and given model output shapes:\n",
-          "Calculated: ", calc, "\n",
-          "Given:      ", given
+          "Calculated: '", calc, "'\nGiven:      '", given, "'",
+          call = "Converter$new(...)"
         )
       }
       model_as_list$output_dim <- tmp$calc_output_shapes
@@ -329,11 +334,11 @@ Converter <- R6Class("Converter",
       # Check for classification output
       output_dims <- unlist(lapply(model_as_list$output_dim, length))
       if (any(output_dims != 1)) {
-        stop(
+        stopf(
           "This package only allows models with classification or regression ",
           "output, i.e. the model output dimension has to be one. ",
           "But your model has an output dimension of '",
-          max(output_dims), "'!"
+          max(output_dims), "'!", call = "Converter$new(...)"
         )
       }
 
@@ -347,11 +352,10 @@ Converter <- R6Class("Converter",
         if (!all_equal(input_names_lenght, model_as_list$input_dim)) {
           given <- shape_to_char(input_names_lenght)
           calc <- shape_to_char(model_as_list$input_dim)
-          stop(
+          stopf(
             "Missmatch between the calculated shape of input names and ",
-            "given input names:\n",
-            "Calculated: ", calc, "\n",
-            "Given:      ", given
+            "given input names:\nCalculated: ", calc, "\nGiven:      ", given,
+            call = "Converter$new(...)"
           )
         }
       }
@@ -368,11 +372,10 @@ Converter <- R6Class("Converter",
         if (!all_equal(output_names_length, model_as_list$output_dim)) {
           given <- shape_to_char(output_names_length)
           calc <- shape_to_char(model_as_list$output_dim)
-          stop(
+          stopf(
             "Missmatch between the calculated shape of output names and ",
-            "given output names:\n",
-            "Calculated: ", calc, "\n",
-            "Given:      ", given
+            "given output names:\nCalculated: ", calc, "\nGiven:      ", given,
+            call = "Converter$new(...)"
           )
         }
       }
@@ -463,12 +466,13 @@ create_conv1d_layer <- function(layer_as_list, dtype, i) {
   if (length(padding) == 1) {
     padding <- rep(padding, 2)
   } else if (length(padding) != 2) {
-    stop(paste0(
-      "Expected a padding vector in 'model_as_list$layers[[", i, "]] ",
-      "of length:\n", "   - 1: same padding for each side\n",
-      "   - 2: first value: padding for left side; second value: ",
-      "padding for right side\n But your length: ", length(padding)
-    ))
+    stopf(
+      "Expected a padding vector in 'model$layers[[", i, "]] ",
+      "of length:\n", "    - 1: same padding for each side\n",
+      "    - 2: first value: padding for left side; second value: ",
+      "padding for right side\n But your length: ", length(padding),
+      call = "Converter$new(...)"
+    )
   }
 
   conv1d_layer(weight, bias, dim_in, dim_out, stride, padding, dilation,
@@ -514,34 +518,36 @@ create_conv2d_layer <- function(layer_as_list, dtype, i) {
   } else if (length(padding) == 2) {
     padding <- rep(padding, each = 2)
   } else if (length(padding) != 4) {
-    stop(paste0(
+    stopf(
       "Expected a padding vector in 'model_as_list$layers[[", i, "]] ",
-      "of length:\n", "   - 1: same padding on each side\n",
-      "   - 2: first value: pad_left and pad_right; second value: pad_top ",
+      "of length:\n", "    - 1: same padding on each side\n",
+      "    - 2: first value: pad_left and pad_right; second value: pad_top ",
       "and pad_bottom\n",
-      "   - 4: (pad_left, pad_right, pad_top, pad_bottom)\n",
-      "But your length: ", length(padding)
-    ))
+      "    - 4: (pad_left, pad_right, pad_top, pad_bottom)\n",
+      "But your length: ", length(padding), call = "Converter$new(...)"
+    )
   }
   if (length(stride) == 1) {
     stride <- rep(stride, 2)
   } else if (length(stride) != 2) {
-    stop(paste0(
+    stopf(
       "Expected a stride vector in 'model_as_list$layers[[", i, "]] ",
-      "of length:\n", "   - 1: same stride for image heigth and width\n",
-      "   - 2: first value: strides for height; second value: strides ",
-      "for width\n", "But your length: ", length(stride)
-    ))
+      "of length:\n", "    - 1: same stride for image heigth and width\n",
+      "    - 2: first value: strides for height; second value: strides ",
+      "for width\n", "But your length: ", length(stride),
+      call = "Converter$new(...)"
+    )
   }
   if (length(dilation) == 1) {
     dilation <- rep(dilation, 2)
   } else if (length(dilation) != 2) {
-    stop(paste0(
+    stopf(
       "Expected a dilation vector in 'model_as_list$layers[[", i, "]] ",
-      "of length:\n", "   - 1: same dilation for image heigth and width\n",
-      "   - 2: first value: dilation for height; second value: dilation ",
-      "for width\n", "But your length: ", length(dilation)
-    ))
+      "of length:\n", "    - 1: same dilation for image heigth and width\n",
+      "    - 2: first value: dilation for height; second value: dilation ",
+      "for width\n", "But your length: ", length(dilation),
+      call = "Converter$new(...)"
+    )
   }
 
   conv2d_layer(weight, bias, dim_in, dim_out, stride, padding, dilation,
@@ -871,11 +877,10 @@ check_and_register_shapes <- function(modules_list, graph, model_as_list,
       given <- shape_to_char(given_input_shape)
       calc <- shape_to_char(calculated_input_shape)
 
-      stop(
+      stopf(
         "Missmatch between the calculated and given input shape for layer ",
-        "index '", step$used_node, "':\n",
-        "Calculated: ", calc, "\n",
-        "Given:      ", given
+        "index '", step$used_node, "':\nCalculated: ", calc, "\n",
+        "Given:      ", given, call = "Converter$new(...)"
       )
     }
 
@@ -906,7 +911,7 @@ check_and_register_shapes <- function(modules_list, graph, model_as_list,
             paste0("(", paste("*", input$shape[-1], collapse = ","), ")"),
             "\n\n\n Original message:\n", e
           )
-        stop(e)
+        stopf(e, call = "Converter$new(...)")
       }
     )
 
@@ -919,11 +924,10 @@ check_and_register_shapes <- function(modules_list, graph, model_as_list,
       given <- paste0("(*,", paste(given_output_shape, collapse = ","), ")")
       calc <- paste0("(*,", paste(calculated_output_shape, collapse = ","), ")")
 
-      stop(
+      stopf(
         "Missmatch between the calculated and given output shape for ",
-        "layer index '", step$used_node, "':\n",
-        "Calculated: ", calc, "\n",
-        "Given:      ", given
+        "layer index '", step$used_node, "':\nCalculated: ", calc, "\n",
+        "Given:      ", given, call = "Converter$new(...)"
       )
     }
 
@@ -996,10 +1000,10 @@ get_input_names <- function(input_dims) {
     } else if (length(input_dim) == 3) {
       short_names <- c("C", "H", "W")
     } else {
-      stop(
+      stopf(
         "Too many input dimensions. This package only allows model ",
         "inputs with '1', '2' or '3' dimensions and not '",
-        length(input_dim), "'!"
+        length(input_dim), "'!", call = "Converter$new(...)"
       )
     }
 
@@ -1053,22 +1057,23 @@ convert_torch <- function(model, input_dim) {
     }
     for (i in seq_along(input_dim)) {
       if (!testNumeric(input_dim[[i]], lower = 1)) {
-        stop(
+        stopf(
           "For a 'torch' model, you have to specify the argument ",
-          "'input_dim'!"
+          "'input_dim'!", call = "Converter$new(...)"
         )
       }
     }
     model_as_list <- convert_torch_sequential(model)
     model_as_list$input_dim <- input_dim
   } else {
-    stop("At the moment, only sequential models are allowed!")
+    stopf("At the moment, only sequential models are allowed!",
+          call = "Converter$new(...)")
   }
 
   model_as_list
 }
 
-all_equal <- function(x,y) {
+all_equal <- function(x, y) {
   if (identical(length(x), length(y))) {
     error <- all(unlist(lapply(seq_along(x), function(i) x[[i]] == y[[i]])))
   } else {

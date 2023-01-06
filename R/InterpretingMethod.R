@@ -19,6 +19,14 @@
 #' @template param-channels_first
 #' @template param-ignore_last_act
 #' @template param-dtype
+#' @template param-aggr_channels
+#' @template param-as_plotly
+#' @template param-verbose
+#' @template param-ref_data_idx
+#' @template param-preprocess_FUN
+#' @template param-individual_data_idx
+#' @template param-individual_max
+#' @template param-winner_takes_all
 #' @template field-data
 #' @template field-converter
 #' @template field-channels_first
@@ -26,6 +34,8 @@
 #' @template field-ignore_last_act
 #' @template field-result
 #' @template field-output_idx
+#' @template field-verbose
+#' @template field-winner_takes_all
 #'
 InterpretingMethod <- R6Class(
   classname = "InterpretingMethod",
@@ -101,7 +111,8 @@ InterpretingMethod <- R6Class(
     #' This function returns the result of this method for the given data
     #' either as an array (`'array'`), a torch tensor (`'torch.tensor'`,
     #' or `'torch_tensor'`) of size *(batch_size, dim_in, dim_out)* or as a
-    #' data.frame (`'data.frame'`).
+    #' data.frame (`'data.frame'`). This method is also implemented as a
+    #' generic S3 function [`get_result`].
     #'
     #' @param type The data type of the result. Use one of `'array'`,
     #' `'torch.tensor'`, `'torch_tensor'` or `'data.frame'`
@@ -162,6 +173,288 @@ InterpretingMethod <- R6Class(
       }
 
       result
+    },
+
+    #' @description
+    #' This method visualizes the result of the selected
+    #' method and enables a visual in-depth investigation with the help
+    #' of the S4 classes [`innsight_ggplot2`] and [`innsight_plotly`].\cr
+    #' You can use the argument `data_idx` to select the data points in the
+    #' given data for the plot. In addition, the individual output nodes for
+    #' the plot can be selected with the argument `output_idx`. The different
+    #' results for the selected data points and outputs are visualized using
+    #' the ggplot2-based S4 class `innsight_ggplot2`. You can also use the
+    #' `as_plotly` argument to generate an interactive plot with
+    #' `innsight_plotly` based on the plot function [plotly::plot_ly]. For
+    #' more information and the whole bunch of possibilities,
+    #' see [`innsight_ggplot2`] and [`innsight_plotly`].\cr
+    #' \cr
+    #' **Note:**
+    #' 1. For the interactive plotly-based plots, the suggested package
+    #' `plotly` is required.
+    #' 2. The ggplot2-based plots for models with multiple input layers are
+    #' a bit more complex, therefore the suggested packages `'grid'`,
+    #' `'gridExtra'` and `'gtable'` must be installed in your R session.
+    #' 3. If the global *Connection Weights* method was applied, the
+    #' unnecessary argument `data_idx` will be ignored.
+    #'
+    #' @param data_idx An integer vector containing the numbers of the data
+    #' points whose result is to be plotted, e.g. `c(1,3)` for the first
+    #' and third data point in the given data. Default: `1`. This argument
+    #' will be ignored for the global *Connection Weights* method.
+    #' @param output_idx The indices of the output nodes for which the results
+    #' is to be plotted. This can be either a `vector` of indices or a `list`
+    #' of vectors of indices but must be a subset of the indices for which the
+    #' results were calculated, i.e. a subset of `output_idx` from the
+    #' initialization `new()` (see argument `output_idx` in method `new()` of
+    #' this R6 class for details). By default (`NULL`), the smallest index
+    #' of all calculated output nodes and output layers is used.
+    #'
+    #' @return
+    #' Returns either an [`innsight_ggplot2`] (`as_plotly = FALSE`) or an
+    #' [`innsight_plotly`] (`as_plotly = TRUE`) object with the plotted
+    #' individual results.
+    #'
+    plot = function(data_idx = 1,
+                    output_idx = NULL,
+                    aggr_channels = "sum",
+                    as_plotly = FALSE) {
+
+      if (inherits(self, "ConnectionWeights")) {
+        if (!self$times_input) {
+          if (!identical(data_idx, 1)) {
+            messagef(
+              "Without the 'times_input' argument, the method ",
+              "'ConnectionWeights' is a global method, therefore no individual",
+              " data instances can be plotted. But you passed the argument ",
+              "'data_idx': 'c(", paste(data_idx, collapse = ", "), ")'!",
+              "\nThe argument 'data_idx' will be ignored in the following!"
+            )
+          }
+          data_idx <- 1
+          self$data <- list(array(0, dim = c(1, 1)))
+          include_data <- TRUE
+        } else {
+          include_data <- FALSE
+        }
+        value_name <- "Relative Importance"
+      } else if (inherits(self, "LRP")) {
+        value_name <- "Relevance"
+        include_data <- TRUE
+      } else if (inherits(self, "DeepLift")) {
+        value_name <- "Contribution"
+        include_data <- TRUE
+      } else if (inherits(self, "GradientBased")) {
+        value_name <- "Gradient"
+        include_data <- TRUE
+      }
+
+      # Check correctness of arguments
+      assertIntegerish(data_idx, lower = 1, upper = dim(self$data[[1]])[1])
+      output_idx <- check_output_idx_for_plot(output_idx, self$output_idx)
+      assertLogical(as_plotly)
+
+      # Set aggregation function for channels
+      aggr_channels <- get_aggr_function(aggr_channels)
+
+      # Get only relevant model outputs
+      null_idx <- unlist(lapply(output_idx, is.null))
+      result <- self$result[!null_idx]
+
+      # Get the relevant output and class node indices
+      # This is done by matching the given output indices ('output_idx') with
+      # the calculated output indices ('self$output_idx'). Afterwards,
+      # all non-relevant output indices are removed
+      idx_matches <- lapply(
+        seq_along(output_idx),
+        function(i) match(output_idx[[i]], self$output_idx[[i]]))[!null_idx]
+
+      result <- apply_results(result, aggregate_channels, idx_matches, data_idx,
+                              self$channels_first, aggr_channels)
+
+      # Get and modify input names
+      input_names <- lapply(self$converter$input_names, function(in_name) {
+        if (length(in_name) > 1) {
+          in_name[[1]] <- "aggregated"
+        }
+        in_name
+      })
+
+      result_df <- create_dataframe_from_result(
+        data_idx, result, input_names, self$converter$output_names, output_idx)
+
+      # Get plot
+      if (as_plotly) {
+        p <- create_plotly(result_df, value_name, include_data, FALSE, NULL)
+      } else {
+        p <- create_ggplot(result_df, value_name, include_data, FALSE)
+      }
+
+      p
+    },
+
+    #' @description
+    #' This method visualizes the results of the selected method summarized as
+    #' boxplots and enables a visual in-depth investigation of the global
+    #' behavior with the help of the S4 classes [`innsight_ggplot2`] and
+    #' [`innsight_plotly`].\cr
+    #' You can use the argument `output_idx` to select the individual output
+    #' nodes for the plot. For tabular and 1D data, boxplots are created in
+    #' which a reference value can be selected from the data using the
+    #' `ref_data_idx` argument. For images, only the pixel-wise median is
+    #' visualized due to the complexity. The plot is generated using the
+    #' ggplot2-based S4 class `innsight_ggplot2`. You can also use the
+    #' `as_plotly` argument to generate an interactive plot with
+    #' `innsight_plotly` based on the plot function [plotly::plot_ly]. For
+    #' more information and the whole bunch of possibilities, see
+    #' [`innsight_ggplot2`] and [`innsight_plotly`].\cr \cr
+    #' **Note:**
+    #' 1. This method can only be used for the local *Connection Weights*
+    #' method, i.e. if `times_input` is `TRUE` and `data` is provided.
+    #' 2. For the interactive plotly-based plots, the suggested package
+    #' `plotly` is required.
+    #' 3. The ggplot2-based plots for models with multiple input layers are
+    #' a bit more complex, therefore the suggested packages `'grid'`,
+    #' `'gridExtra'` and `'gtable'` must be installed in your R session.
+    #'
+    #' @param output_idx The indices of the output nodes for which the
+    #' results is to be plotted. This can be either a `vector` of indices or
+    #' a `list` of vectors of indices but must be a subset of the indices for
+    #' which the results were calculated, i.e. a subset of `output_idx` from
+    #' the initialization `new()` (see argument `output_idx` in method `new()`
+    #' of this R6 class for details). By default (`NULL`), the smallest index
+    #' of all calculated output nodes and output layers is used.
+    #' @param data_idx By default ("all"), all available data points are used
+    #' to calculate the boxplot information. However, this parameter can be
+    #' used to select a subset of them by passing the indices. E.g. with
+    #' `c(1:10, 25, 26)` only the first 10 data points and
+    #' the 25th and 26th are used to calculate the boxplots.
+    #'
+    #' @return
+    #' Returns either an [`innsight_ggplot2`] (`as_plotly = FALSE`) or an
+    #' [`innsight_plotly`] (`as_plotly = TRUE`) object with the plotted
+    #' summarized results.
+    boxplot = function(output_idx = NULL,
+                       data_idx = "all",
+                       ref_data_idx = NULL,
+                       aggr_channels = "sum",
+                       preprocess_FUN = abs,
+                       as_plotly = FALSE,
+                       individual_data_idx = NULL,
+                       individual_max = 20) {
+
+      if (inherits(self, "ConnectionWeights")) {
+        if (!self$times_input) {
+          stopf(
+            "Only if the result of the Connection-Weights method is ",
+            "multiplied by the data ('times_input' = TRUE), it is a local ",
+            "method and only then boxplots can be generated over multiple ",
+            "instances. Thus, the argument 'data' must be specified and ",
+            "'times_input = TRUE' when applying the 'ConnectionWeights$new' ",
+            "method.", call = "ConnectionWeights$boxplot(...)")
+        }
+        value_name <- "Relative Importance"
+      } else if (inherits(self, "LRP")) {
+        value_name <- "Relevance"
+      } else if (inherits(self, "DeepLift")) {
+        value_name <- "Contribution"
+      } else if (inherits(self, "GradientBased")) {
+        value_name <- "Gradient"
+      }
+
+      #
+      # Do checks
+      #
+
+      # output_idx
+      output_idx <- check_output_idx_for_plot(output_idx, self$output_idx)
+      # data_idx
+      num_data <- dim(self$data[[1]])[1]
+      if (identical(data_idx, "all")) {
+        data_idx <- seq_len(num_data)
+      }
+      assertIntegerish(data_idx, lower = 1,
+                       upper = num_data,
+                       any.missing = FALSE)
+      # ref_data_idx
+      assertInt(ref_data_idx, lower = 1, upper = num_data, null.ok = TRUE)
+      # aggr_channels
+      aggr_channels <- get_aggr_function(aggr_channels)
+      # preprocess_FUN
+      assertFunction(preprocess_FUN)
+      # as_plotly
+      assertLogical(as_plotly)
+      # individual_data_idx
+      assertIntegerish(individual_data_idx, lower = 1, upper = num_data,
+                       null.ok = TRUE, any.missing = FALSE)
+      if (is.null(individual_data_idx)) individual_data_idx <- seq_len(num_data)
+      # individual_max
+      assertInt(individual_max, lower = 1)
+      individual_max <- min(individual_max, num_data)
+
+      # Set the individual instances for the plot
+      if (!as_plotly) {
+        individual_idx <- ref_data_idx
+      } else {
+        individual_idx <- unique(
+          c(ref_data_idx, individual_data_idx[seq_len(individual_max)]))
+        individual_idx <- individual_idx[!is.na(individual_idx)]
+      }
+
+
+      # Get only relevant model outputs
+      null_idx <- unlist(lapply(output_idx, is.null))
+      result <- self$result[!null_idx]
+
+      # Get the relevant output and class node indices
+      # This is done by matching the given output indices ('output_idx') with
+      # the calculated output indices ('self$output_idx'). Afterwards,
+      # all non-relevant output indices are removed
+      idx_matches <- lapply(
+        seq_along(output_idx),
+        function(i) match(output_idx[[i]], self$output_idx[[i]]))[!null_idx]
+
+      # apply preprocess function
+      preprocess <- function(result, out_idx, in_idx, idx_matches) {
+        res <- result[[out_idx]][[in_idx]]
+        if (is.null(res)) {
+          res <- NULL
+        } else {
+          res <- preprocess_FUN(res)
+        }
+
+        res
+      }
+      result <- apply_results(result, preprocess, idx_matches)
+
+      # Get and modify input names
+      input_names <- lapply(self$converter$input_names, function(in_name) {
+        if (length(in_name) > 1) {
+          in_name[[1]] <- "aggregated"
+        }
+        in_name
+      })
+
+      idx <- sort(unique(c(individual_idx, data_idx)))
+      # Create boxplot data
+      result <-
+        apply_results(result, aggregate_channels, idx_matches, idx,
+                      self$channels_first, aggr_channels)
+      result_df <- create_dataframe_from_result(
+        idx, result, input_names, self$converter$output_names, output_idx)
+
+      idx <- as.numeric(gsub("data_", "", as.character(result_df$data)))
+      result_df$boxplot_data <- ifelse(idx %in% data_idx, TRUE, FALSE)
+      result_df$individual_data <- ifelse(idx %in% individual_idx, TRUE, FALSE)
+
+      # Get plot
+      if (as_plotly) {
+        p <- create_plotly(result_df, value_name, FALSE, TRUE, ref_data_idx)
+      } else {
+        p <- create_ggplot(result_df, value_name, FALSE, TRUE, ref_data_idx)
+      }
+
+      p
     }
   ),
   private = list(
@@ -174,7 +467,7 @@ InterpretingMethod <- R6Class(
                          length = length(self$converter$model$output_nodes))
 
       if (self$verbose) {
-        message(paste0("\nBackward pass '", method_name, "':"))
+        messagef("Backward pass '", method_name, "':")
         # Define Progressbar
         pb <- txtProgressBar(min = 0,
                              max = length(self$converter$model$graph),
@@ -372,7 +665,8 @@ InterpretingMethod <- R6Class(
 
     test_data = function(data, name = "data") {
       if (missing(data)) {
-        stop("Argument 'data' is missing!")
+        stopf("Argument 'data' is missing!",
+              call = paste0(class(self)[[1]]), "$new(...)")
       }
       if (!is.list(data) | is.data.frame(data)) {
         data <- list(data)
@@ -421,164 +715,30 @@ InterpretingMethod <- R6Class(
 
         input_data
       })
-    },
-
-    # ----------------------- Plot Function ----------------------------------
-
-    plot = function(data_idx = 1,
-                    output_idx = c(),
-                    aggr_channels = "sum",
-                    as_plotly = FALSE,
-                    value_name = "value",
-                    include_data = TRUE) {
-
-      # Check correctness of arguments
-      assertIntegerish(data_idx, lower = 1, upper = dim(self$data[[1]])[1])
-      output_idx <- check_output_idx_for_plot(output_idx, self$output_idx)
-      assertLogical(as_plotly)
-
-      # Set aggregation function for channels
-      aggr_channels <- get_aggr_function(aggr_channels)
-
-      # Get only relevant model outputs
-      null_idx <- unlist(lapply(output_idx, is.null))
-      result <- self$result[!null_idx]
-
-      # Get the relevant output and class node indices
-      # This is done by matching the given output indices ('output_idx') with
-      # the calculated output indices ('self$output_idx'). Afterwards,
-      # all non-relevant output indices are removed
-      idx_matches <- lapply(
-        seq_along(output_idx),
-        function(i) match(output_idx[[i]], self$output_idx[[i]]))[!null_idx]
-
-      result <- apply_results(result, aggregate_channels, idx_matches, data_idx,
-                              self$channels_first, aggr_channels)
-
-      # Get and modify input names
-      input_names <- lapply(self$converter$input_names, function(in_name) {
-        if (length(in_name) > 1) {
-          in_name[[1]] <- "aggregated"
-        }
-        in_name
-      })
-
-      result_df <- create_dataframe_from_result(
-        data_idx, result, input_names, self$converter$output_names, output_idx)
-
-      # Get plot
-      if (as_plotly) {
-        p <- create_plotly(result_df, value_name, include_data, FALSE, NULL)
-      } else {
-        p <- create_ggplot(result_df, value_name, include_data, FALSE)
-      }
-
-      p
-    },
-
-    # ------------------------ Boxplots -------------------------------------
-
-    boxplot = function(output_idx, data_idx, ref_data_idx, aggr_channels,
-                       preprocess_FUN, as_plotly, individual_data_idx,
-                       individual_max, value_name) {
-
-      #
-      # Do checks
-      #
-
-      # output_idx
-      output_idx <- check_output_idx_for_plot(output_idx, self$output_idx)
-      # data_idx
-      num_data <- dim(self$data[[1]])[1]
-      if (identical(data_idx, "all")) {
-        data_idx <- seq_len(num_data)
-      }
-      assertIntegerish(data_idx, lower = 1,
-                       upper = num_data,
-                       any.missing = FALSE)
-      # ref_data_idx
-      assertInt(ref_data_idx, lower = 1, upper = num_data, null.ok = TRUE)
-      # aggr_channels
-      aggr_channels <- get_aggr_function(aggr_channels)
-      # preprocess_FUN
-      assertFunction(preprocess_FUN)
-      # as_plotly
-      assertLogical(as_plotly)
-      # individual_data_idx
-      assertIntegerish(individual_data_idx, lower = 1, upper = num_data,
-                       null.ok = TRUE, any.missing = FALSE)
-      if (is.null(individual_data_idx)) individual_data_idx <- seq_len(num_data)
-      # individual_max
-      assertInt(individual_max, lower = 1)
-      individual_max <- min(individual_max, num_data)
-
-      # Set the individual instances for the plot
-      if (!as_plotly) {
-        individual_idx <- ref_data_idx
-      } else {
-        individual_idx <- unique(
-          c(ref_data_idx, individual_data_idx[seq_len(individual_max)]))
-        individual_idx <- individual_idx[!is.na(individual_idx)]
-      }
-
-
-      # Get only relevant model outputs
-      null_idx <- unlist(lapply(output_idx, is.null))
-      result <- self$result[!null_idx]
-
-      # Get the relevant output and class node indices
-      # This is done by matching the given output indices ('output_idx') with
-      # the calculated output indices ('self$output_idx'). Afterwards,
-      # all non-relevant output indices are removed
-      idx_matches <- lapply(
-        seq_along(output_idx),
-        function(i) match(output_idx[[i]], self$output_idx[[i]]))[!null_idx]
-
-      # apply preprocess function
-      preprocess <- function(result, out_idx, in_idx, idx_matches) {
-        res <- result[[out_idx]][[in_idx]]
-        if (is.null(res)) {
-          res <- NULL
-        } else {
-          res <- preprocess_FUN(res)
-        }
-
-        res
-      }
-      result <- apply_results(result, preprocess, idx_matches)
-
-      # Get and modify input names
-      input_names <- lapply(self$converter$input_names, function(in_name) {
-        if (length(in_name) > 1) {
-          in_name[[1]] <- "aggregated"
-        }
-        in_name
-      })
-
-      idx <- sort(unique(c(individual_idx, data_idx)))
-      # Create boxplot data
-      result <-
-        apply_results(result, aggregate_channels, idx_matches, idx,
-                      self$channels_first, aggr_channels)
-      result_df <- create_dataframe_from_result(
-        idx, result, input_names, self$converter$output_names, output_idx)
-
-      idx <- as.numeric(gsub("data_", "", as.character(result_df$data)))
-      result_df$boxplot_data <- ifelse(idx %in% data_idx, TRUE, FALSE)
-      result_df$individual_data <- ifelse(idx %in% individual_idx, TRUE, FALSE)
-
-      # Get plot
-      if (as_plotly) {
-        p <- create_plotly(result_df, value_name, FALSE, TRUE, ref_data_idx)
-      } else {
-        p <- create_ggplot(result_df, value_name, FALSE, TRUE, ref_data_idx)
-      }
-
-      p
     }
   )
 )
 
+
+#' Get the result of an Interpretation Method
+#'
+#' This is a generic S3 method for the R6 method
+#' `InterpretingMethod$get_result()`. See the respective method described in
+#' [InterpretingMethod] for details.
+#'
+#' @param x An object of the class [InterpretingMethod] including the
+#' subclasses [Gradient], [SmoothGrad], [LRP], [DeepLift] and
+#' [ConnectionWeights].
+#' @param ... Other arguments specified in the R6 method
+#' `InterpretingMethod$get_result()`. See [InterpretingMethod] for details.
+#'
+#' @export
+get_result <- function(x, ...) UseMethod("get_result", x)
+
+#' @exportS3Method
+get_result.InterpretingMethod <- function(x, ...) {
+  x$get_result(...)
+}
 
 ###############################################################################
 #                                 Utils
