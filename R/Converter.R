@@ -22,11 +22,11 @@
 #' input shapes are already in this format. In addition, the batch
 #' dimension isn't included, e.g. for an input layer of shape `c(*,32,32,3)`
 #' with channels in the last axis you get `list(c(3,32,32))`.
-#' @field input_names A list with the names for each input
+#' @field input_names A list with the names as factors for each input
 #' dimension of the shape as stored in the field `input_dim`.
 #' @field output_dim  A list of the output dimensions of each output layer.
-#' @field output_names A list with the names for each output dimension of
-#' shape as stored in the field `output_dim`.
+#' @field output_names A list with the names as factors for each output
+#' dimension of shape as stored in the field `output_dim`.
 #' @field model_as_list The model stored in a named list (see details for more
 #' information). By default, the entry `model_as_list$layers` is deleted
 #' because it may require a lot of memory for large networks. However, with
@@ -82,14 +82,16 @@ Converter <- R6Class("Converter",
     #' dimension excluding the batch dimension, e.g. for a dense layer
     #' with `3` input features use `list(c("X1", "X2", "X3"))` or for a
     #' 1D convolutional layer with signal length `5` and `2` channels use
-    #' `list(c("C1", "C2"), c("L1","L2","L3","L4","L5"))`.\cr
+    #' `list(c("C1", "C2"), c("L1","L2","L3","L4","L5"))`. Instead of character
+    #' vectors you can also use factors to set an order for the plots.\cr
     #' *Note:* This argument is optional and otherwise the names are
     #' generated automatically. But if this argument is set, all found
     #' input names in the passed model will be disregarded.
     #' @param output_names (Optional) A list with the names for the output
     #' dimensions excluding the batch dimension,
     #' e.g. for a model with `3` output nodes use
-    #' `list(c("Y1", "Y2", "Y3"))`.\cr
+    #' `list(c("Y1", "Y2", "Y3"))`. Instead of a character
+    #' vector you can also use a factor to set an order for the plots.\cr
     #' *Note:* This argument is optional and otherwise the names are
     #' generated automatically. But if this argument is set, all found
     #' output names in the passed model will be disregarded.
@@ -1043,7 +1045,16 @@ set_name_format <- function(in_or_out_names) {
   # Do the checks
   for (i in seq_along(in_or_out_names)) {
     for (j in seq_along(in_or_out_names[[i]])) {
-      assertCharacter(in_or_out_names[[i]][[j]], null.ok = TRUE)
+      assert(
+        checkCharacter(in_or_out_names[[i]][[j]], null.ok = TRUE),
+        checkFactor(in_or_out_names[[i]][[j]], null.ok = TRUE)
+      )
+      # to factor
+      if (!is.factor(in_or_out_names[[i]][[j]])) {
+        in_or_out_names[[i]][[j]] <-
+          factor(in_or_out_names[[i]][[j]],
+                 levels = unique(in_or_out_names[[i]][[j]]))
+      }
     }
   }
 

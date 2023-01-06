@@ -289,13 +289,13 @@ input shapes are already in this format. In addition, the batch
 dimension isn't included, e.g. for an input layer of shape \verb{c(*,32,32,3)}
 with channels in the last axis you get \code{list(c(3,32,32))}.}
 
-\item{\code{input_names}}{A list with the names for each input
+\item{\code{input_names}}{A list with the names as factors for each input
 dimension of the shape as stored in the field \code{input_dim}.}
 
 \item{\code{output_dim}}{A list of the output dimensions of each output layer.}
 
-\item{\code{output_names}}{A list with the names for each output dimension of
-shape as stored in the field \code{output_dim}.}
+\item{\code{output_names}}{A list with the names as factors for each output
+dimension of shape as stored in the field \code{output_dim}.}
 
 \item{\code{model_as_list}}{The model stored in a named list (see details for more
 information). By default, the entry \code{model_as_list$layers} is deleted
@@ -353,7 +353,8 @@ and used for internal checks. In addition, the input dimension
 dimension excluding the batch dimension, e.g. for a dense layer
 with \code{3} input features use \code{list(c("X1", "X2", "X3"))} or for a
 1D convolutional layer with signal length \code{5} and \code{2} channels use
-\code{list(c("C1", "C2"), c("L1","L2","L3","L4","L5"))}.\cr
+\code{list(c("C1", "C2"), c("L1","L2","L3","L4","L5"))}. Instead of character
+vectors you can also use factors to set an order for the plots.\cr
 \emph{Note:} This argument is optional and otherwise the names are
 generated automatically. But if this argument is set, all found
 input names in the passed model will be disregarded.}
@@ -361,7 +362,8 @@ input names in the passed model will be disregarded.}
 \item{\code{output_names}}{(Optional) A list with the names for the output
 dimensions excluding the batch dimension,
 e.g. for a model with \code{3} output nodes use
-\code{list(c("Y1", "Y2", "Y3"))}.\cr
+\code{list(c("Y1", "Y2", "Y3"))}. Instead of a character
+vector you can also use a factor to set an order for the plots.\cr
 \emph{Note:} This argument is optional and otherwise the names are
 generated automatically. But if this argument is set, all found
 output names in the passed model will be disregarded.}
