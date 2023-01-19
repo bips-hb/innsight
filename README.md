@@ -10,16 +10,18 @@
 status](https://www.r-pkg.org/badges/version/innsight)](https://CRAN.R-project.org/package=innsight)
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Codecov test
+coverage](https://codecov.io/gh/bips-hb/innsight/branch/master/graph/badge.svg)](https://app.codecov.io/gh/bips-hb/innsight?branch=master)
 <!-- badges: end -->
 
 ## Table of Contents
 
--   [Introduction](#introduction)
--   [Installation](#installation)
--   [Usage](#usage)
--   [Examples](#examples)
--   [Contributing and Future Work](#contributing-and-future-work)
--   [Funding](#funding)
+- [Introduction](#introduction)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Examples](#examples)
+- [Contributing and Future Work](#contributing-and-future-work)
+- [Funding](#funding)
 
 ## Introduction
 
@@ -38,23 +40,22 @@ an R analogue to
 This package implements several model-specific interpretability (Feature
 Attribution) methods based on neural networks in R, e.g.,
 
--   Layer-wise Relevance Propagation
-    ([LRP](https://doi.org/10.1371/journal.pone.0130140))
-    -   Including propagation rules:
-        ![\\varepsilon](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;%5Cvarepsilon "\varepsilon")-rule
-        and
-        ![\\alpha](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;%5Calpha "\alpha")-![\\beta](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;%5Cbeta "\beta")-rule
--   Deep Learning Important Features
-    ([DeepLift](https://arxiv.org/abs/1704.02685))
-    -   Including propagation rules for non-linearities: rescale rule
-        and reveal-cancel rule
--   Gradient-based methods:
-    -   Vanilla Gradient, including [Gradient x
-        Input](https://www.jmlr.org/papers/v11/baehrens10a.html)
-    -   Smoothed gradients
-        ([SmoothGrad](https://arxiv.org/abs/1706.03825)), including
-        SmoothGrad x Input
--   Connection Weights
+- Layer-wise Relevance Propagation
+  ([LRP](https://doi.org/10.1371/journal.pone.0130140))
+  - Including propagation rules:
+    ![\varepsilon](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;%5Cvarepsilon "\varepsilon")-rule
+    and
+    ![\alpha](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;%5Calpha "\alpha")-![\beta](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;%5Cbeta "\beta")-rule
+- Deep Learning Important Features
+  ([DeepLift](https://arxiv.org/abs/1704.02685))
+  - Including propagation rules for non-linearities: rescale rule and
+    reveal-cancel rule
+- Gradient-based methods:
+  - Vanilla Gradient, including [Gradient x
+    Input](https://www.jmlr.org/papers/v11/baehrens10a.html)
+  - Smoothed gradients ([SmoothGrad](https://arxiv.org/abs/1706.03825)),
+    including SmoothGrad x Input
+- Connection Weights
 
 Example results for these methods on ImageNet with pretrained network
 Vgg16:
@@ -67,21 +68,9 @@ network has been learned. Basically, a neural network of the libraries
 [`keras`](https://keras.rstudio.com/) and
 [`neuralnet`](https://CRAN.R-project.org/package=neuralnet) can be
 passed, which is internally converted into a `torch` model with special
-insights needed for interpretation. Currently, the following model and
-layer types are accepted:
-
--   `torch::nn_sequential` with layers `nn_linear`, `nn_conv1d`,
-    `nn_conv2d`, `nn_max_pool1d`, `nn_max_pool2d`, `nn_avg_pool1d`,
-    `nn_avg_pool2d`, `nn_dropout`, `nn_flatten`
--   `keras::keras_model_sequential` or `keras::keras_model` with layers
-    `layer_dense`, `layer_conv_1d`, `layer_conv_2d`,
-    `layer_max_pooling_1d`, `layer_max_pooling_2d`,
-    `layer_average_pooling_1d`, `layer_average_pooling_2d`,
-    `layer_dropout`, `layer_flatten`
-
-But it is also possible to pass an arbitrary net in form of a named list
-(see
-[vignette](https://bips-hb.github.io/innsight/articles/Custom_Model_Definition.html)
+insights needed for interpretation. But it is also possible to pass an
+arbitrary net in form of a named list (see
+[vignette](https://bips-hb.github.io/innsight/vignette/detailed_overview.html#model-as-named-list)
 for details).
 
 ## Installation
@@ -124,37 +113,48 @@ behavior by using the methods from the package `innsight`, then stick to
 the following pseudo code:
 
 ``` r
-# --------------- Train your model -----------------
+# --------------- Step 0: Train your model -----------------
 # 'model' has to be an instance of either torch::nn_sequential, 
 # keras::keras_model_sequential, keras::keras_model or neuralnet::neuralnet
 model = ...
 
-# -------------- Convert your model ----------------
+# -------------- Step 1: Convert your model ----------------
 # For keras and neuralnet
 converter <- Converter$new(model)
 # For a torch model the argument 'input_dim' is required
 converter <- Converter$new(model, input_dim = model_input_dim)
 
-# ----------------- Apply method -------------------
+# -------------- Step 2: Apply method ----------------------
 # Apply global method
 result <- Method$new(converter) # no data argument is needed
-# Plot the result
-plot(result)
-
 # Apply local methods
 result <- Method$new(converter, data)
+
+# -------------- Step 3: Get and plot results --------------
+# Get the results as an array
+res <- get_result(result)
 # Plot individual results
 plot(result)
 # Plot a boxplot of all given data points in argument 'data' 
 boxplot(result)
+# Interactive plots can also be created for both methods
+plot(result, as_plotly = TRUE)
 ```
+
+For a more detailed high-level introduction, see the [“Get
+started”](https://bips-hb.github.io/innsight/articles/innsight.html)
+vignette, and for a full in-depth explanation with all the
+possibilities, see the [“In-depth
+Explanation”](https://bips-hb.github.io/innsight/vignette/detailed_overview.html)
+vignette.
 
 ## Examples
 
--   Iris dataset with `torch` model (numeric tabular data) [→
-    vignette](https://bips-hb.github.io/innsight/vignette/example_1_iris.html)
--   Penguin dataset with `torch` model (numeric and categorical tabular
-    data)
+- Iris dataset with `torch` model (numeric tabular data) [→
+  vignette](https://bips-hb.github.io/innsight/vignette/example_1_iris.html)
+- Penguin dataset with `torch` model and trained with `luz` (numeric and
+  categorical tabular data) [→
+  vignette](https://bips-hb.github.io/innsight/vignette/example_2_penguin.html)
 
 ## Contributing and Future Work
 
@@ -167,11 +167,11 @@ for their analyses. Therefore, don’t hesitate to write me
 missing something for your analyses or have great ideas for extending
 this package. Currently, we are working on the following:
 
--   [ ] Extension to non-sequential models in `keras` with multiple in-
-    and outputs, e.g. for mixed data of tabular and image data
--   [ ] More methods, e.g. Grad-CAM, integrated gradients, etc.
--   [ ] More examples and documentation (contact me if you have a
-    non-trivial application for me)
+- [x] Extension to non-sequential models in `keras` with multiple in-
+  and outputs, e.g. for mixed data of tabular and image data
+- [ ] More methods, e.g. Grad-CAM, integrated gradients, etc.
+- [ ] More examples and documentation (contact me if you have a
+  non-trivial application for me)
 
 ## Funding
 

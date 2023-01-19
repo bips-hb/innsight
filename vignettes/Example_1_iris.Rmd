@@ -1,6 +1,9 @@
 ---
 title: "Example 1: Iris Dataset with `torch`"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 2
 always_allow_html: yes
 vignette: >
   %\VignetteIndexEntry{Example 1: Iris Dataset with `torch`}
@@ -19,44 +22,54 @@ knitr::opts_chunk$set(
 ```
 
 ```{r, echo = FALSE}
-Sys.setenv(LANG="en_US.UTF-8")
+Sys.setenv(LANG = "en_US.UTF-8")
 set.seed(1111)
+options(width = 500)
 torch::torch_manual_seed(1111)
 ```
 
-In this very simple example, we want to show you the use of the `innsight` 
+In this very simple example, we want to show you the use of the **innsight** 
 package and its possibilities in the simplest case. For this, we use the Iris 
 dataset, which contains the length and width of the sepals and petals of the 
 three flower species Iris setosa, versicolor and virginica. In total, 
 there are measurements of $50$ flowers of each type in centimeters.
 
-## Step 1: Train a model
+## Step 0: Train a model
 
-The first step does not necessarily need the `innsight` package yet, but at 
+The first step does not necessarily need the **innsight** package yet, but at 
 this point, it is listed anyway to have a fully working example. In this 
-example, the model is created in torch and trained as well.
+example, the model is created in **torch** and trained as well.
 
-**Note:** It is also possible to train the torch model using the 
+**Note:** It is also possible to train the **torch** model using the 
 [`luz`](https://mlverse.github.io/luz/) package, which is described in 
-<span style="color: red;">!! TODO !! vignette </span>.
+the [vignette with the penguin dataset](https://bips-hb.github.io/innsight/articles/Example_2_penguin.html) (see `?vignette(package='innsight'`)).
 
 ```{r example_1_train, echo = TRUE, eval = TRUE}
 library(innsight)
 library(torch)
-data(iris)
+
+# Set seeds for reproducibility
+set.seed(42)
+torch_manual_seed(42)
 
 # Prepare Data
+data(iris)
 x <- torch_tensor(as.matrix(iris[, -5]))
+# normalize input to [-1, 1]
+x <- 2 * (x - x$min(1)[[1]]) / (x$max(1)[[1]] - x$min(1)[[1]]) - 1
 y <- torch_tensor(as.integer(iris[, 5]))
+
+
+# normalize input data
 
 # Define Model
 model <- nn_sequential(
-  nn_linear(4, 30), 
+  nn_linear(4, 30),
   nn_relu(),
-  nn_dropout(0.3), 
-  nn_linear(30, 10), 
+  nn_dropout(0.3),
+  nn_linear(30, 10),
   nn_relu(),
-  nn_linear(10, 3), 
+  nn_linear(10, 3),
   nn_softmax(dim = 2)
 )
 
@@ -74,34 +87,35 @@ for (t in 1:2500) {
 }
 ```
 
-## Step 2: Convert the model
+## Step 1: Convert the model
 
-The easiest way to convert a model for the `innsight` package is just using the 
-model for the Converter class without any further arguments (except for `torch` 
-models the input dimension is still needed). Thus, the converting for our 
+The easiest way to convert a model for the **innsight** package is just using the 
+model for the Converter class without any further arguments (except for **torch** 
+models the input dimension is still needed). Thus, the converting part for our 
 trained model is done by:
 
 ```{r example_1_conv_1}
 converter <- Converter$new(model, input_dim = c(4))
 ```
 
-Since there are no labels for the inputs and outputs in the `torch` model, they 
-were generated automatically by `innsight`. But you can pass them by yourself
+Since there are no labels for the inputs and outputs in the **torch** model, they 
+were generated automatically by **innsight**. But you can pass them by yourself
 using the corresponding arguments. These labels are then also used in the 
-visualizations in [step 4](#step-4-visualization).
+visualizations in [step 4](#step-3-visualization).
 
 ```{r example_1_conv_2}
-converter <- Converter$new(model, 
+converter <- Converter$new(model,
   input_dim = c(4),
   input_names = c("Sepal (length)", "Sepal (width)", "Petal (length)", "Petal (width)"),
-  output_names = c("Setosa", "Versicolor", "Virginica"))
+  output_names = c("Setosa", "Versicolor", "Virginica")
+)
 ```
 
-## Step 3: Apply methods
+## Step 2: Apply methods
 
 Now we can apply the implemented methods to our trained model. Although these 
 methods are different, they are called more or less the same way in 
-`innsight`. Essential arguments are of course the converter object 
+**innsight**. Essential arguments are of course the converter object 
 (`converter`) and the data (`data`) to which the method is to be applied.
 In addition to the essential and method-specific arguments, the following other 
 arguments can be set for each (local) method:
@@ -122,50 +136,67 @@ indices with this argument.
 activation function to get better results. This is especially true for 
 classification problems with softmax or sigmoid as the last activation.
 
-For more information on the arguments see 
-<span style="color: red;">!! TODO !! vignette </span>.
+For more and detailed information on the arguments see [this article](https://bips-hb.github.io/innsight/vignette/detailed_overview.html#step-2-apply-selected-method). In the following, we apply our trained model to different 
+methods provided in the package:
 
-#### Gradient without last activation
-
+<ul>
+<li>
+**Gradient without last activation**
 ```{r, message = FALSE, results = 'hide'}
-grad_no_softmax <- Gradient$new(converter, iris[,1:4], ignore_last_act = TRUE)
+grad_no_softmax <- Gradient$new(converter, x, ignore_last_act = TRUE)
 ```
-
-#### Gradient with last activation
-
+</li>
+<li>
+**Gradient with last activation**
 ```{r, message = FALSE, results = 'hide'}
-grad_softmax <- Gradient$new(converter, iris[,1:4], ignore_last_act = FALSE)
+grad_softmax <- Gradient$new(converter, x, ignore_last_act = FALSE)
 ```
-
-#### LRP with $\varepsilon$-rule ($\varepsilon = 0.01$)
+</li>
+<li>
+**LRP with $\varepsilon$-rule ($\varepsilon = 0.01$)**
 
 We can also set the method-specific arguments, such as the LRP rule and its 
 associated parameter:
 
 ```{r, message = FALSE, results = 'hide'}
-lrp_eps <- LRP$new(converter, iris[,1:4], rule_name = "epsilon", rule_param = 0.01)
+lrp_eps <- LRP$new(converter, x, rule_name = "epsilon", rule_param = 0.01)
 ```
-
-#### Deeplift with mean as reference value
+</li>
+<li>
+**DeepLift with mean as reference value**
 
 ```{r, message = FALSE, results = 'hide'}
-x_ref <- matrix(colMeans(iris[, 1:4]), 1, 4) # ref value need the shape (1,4)
-deeplift_mean <- DeepLift$new(converter, iris[,1:4], x_ref = x_ref)
+x_ref <- x$mean(1, keepdim = TRUE) # ref value need the shape (1,4)
+deeplift_mean <- DeepLift$new(converter, x, x_ref = x_ref)
+```
+</li>
+</ul>
+
+Afterwards the results can be retrieved either with the class method 
+`method$get_result` or the equivalent S3 function `get_result`. With the 
+argument `type`, it is also possible to select whether the results are returned 
+as `array`, `data.frame` or `torch_tensor`:
+
+```{r}
+# get result as a data.frame with the class method
+head(grad_no_softmax$get_result(type = "data.frame"), 5)
+
+# get result as array (default) with the generic S3 function
+str(get_result(grad_no_softmax))
 ```
 
-## Step 4: Visualization
+## Step 3: Visualization
 
-The package `innsight` provides two ways to visualize the results of a method, 
+The package **innsight** provides two ways to visualize the results of a method, 
 namely as `innsight_ggplot2` or `innsight_plotly` object. Both are S4 classes 
 to combine multiple plots nicely and to be able to make visual modifications 
 or adjustments to the selection of plots even after the object has been created.
-The first class is based on [`ggplot2`](https://ggplot2.tidyverse.org/) and
-behaves partly like an ordinary `ggplot2` object. Whereas the other one is 
-based on the [`plotly`](https://plotly.com/r/) package and creates an 
+The first class is based on [**ggplot2**](https://ggplot2.tidyverse.org/) and
+behaves partly like an ordinary **ggplot2** object. Whereas the other one is 
+based on the [**plotly**](https://plotly.com/r/) package and creates an 
 interactive graph with more detailed information about each variable.
 For more information on the S4 classes `innsight_ggplot`
-and `innsight_plotly` see 
-<span style="color: red;">!! TODO !! vignette </span>.
+and `innsight_plotly` see the [in-depth vignette](https://bips-hb.github.io/innsight/vignette/detailed_overview.html#advanced-plotting) or the respective R documentation (`?innsight_ggplot2` or `?innsight_plotly`).
 
 For each of these classes and thus of course also for each method, there are 
 two plot functions, `plot` shows only individual data points and 
@@ -175,36 +206,48 @@ two plot functions, `plot` shows only individual data points and
 
 The function `plot` is implemented for each of the available methods. You can 
 select your desired data points and output nodes/classes with the `data_idx` 
-and `output_idx` arguments, respectively. To switch between a `ggplot2` and 
-`plotly` based plot, you can use the logical `as_plotly` parameter, but 
+and `output_idx` arguments, respectively. To switch between a **ggplot2** and 
+**plotly`** based plot, you can use the logical `as_plotly` parameter, but 
 this requires a successful installation of this package.
 
 **Note:** Of course, only results of output nodes/classes to which the method 
 has been applied can be plotted, i.e. the indices in the `output_idx` 
-argument must be subset of the argument with the same name when calling 
-the method in Step 3.
+argument must be a subset of the argument with the same name when calling 
+the method in Step 2.
 
-**`ggplot2`-based plot**
+**ggplot2-based plot**
+
+Despite being an object of the class `innsight_ggplot2`, it can be treated 
+like a normal **ggplot2** object, i.e. geoms, scales and themes can be added 
+and modified.
 
 ```{r, fig.height=6, fig.keep='all', fig.width=9}
 # Show data point 1 and 111 for output node 1 (Setosa) and 2 (Versicolor)
-plot(grad_no_softmax, data_idx = c(1,111), output_idx = c(1,2)) +
+plot(grad_no_softmax, data_idx = c(1, 111), output_idx = c(1, 2)) +
   ggplot2::theme_bw()
 ```
 
-**`plotly`-based plot**
+**plotly-based plot**
 
-```{r, fig.height=4, fig.keep='all', fig.width=9, eval = requireNamespace("plotly")}
+```{r, fig.height=4, fig.keep='all', fig.width=9, eval = FALSE}
 # Show data point 1 for output node 1 (Setosa) and 2 (Versicolor)
-plot(deeplift_mean, data_idx = 1, output_idx = c(1,2), as_plotly = TRUE)
+plot(deeplift_mean, data_idx = 1, output_idx = c(1, 2), as_plotly = TRUE)
+```
+```{r, fig.height=4, echo = FALSE, fig.width=9, message = FALSE, eval = Sys.getenv("RENDER_PLOTLY", unset = 0) == 1}
+# Show data point 1 for output node 1 (Setosa) and 2 (Versicolor)
+p <- plot(deeplift_mean, data_idx = 1, output_idx = c(1, 2), as_plotly = TRUE)
+plotly::config(print(p, shareY = TRUE))
+```
+```{r, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 0, echo = FALSE}
+warning("Due to the size, this image was not generated in the R vignette! See the innsight webpage for this image: https://bips-hb.github.io/innsight/articles/Example_1_iris.html#plot-individual-results")
 ```
 
 #### Plot summarized results
 
-The function `boxplot` is implemented for each of the available local methods. 
+The S3 function `boxplot` is implemented for each of the available local methods. 
 You can select your desired data points (default is `'all'`) and output 
 nodes/classes with the `data_idx` and `output_idx` arguments, respectively. 
-To switch between a `ggplot2` and `plotly` based plot, you can use the 
+To switch between a **ggplot2** and **plotly** based plot, you can use the 
 logical `as_plotly` parameter, but this requires a successful installation of 
 this package. In addition, you can use `ref_data_idx` to select a single data 
 point that will be visualized in red as a reference value, and 
@@ -214,21 +257,33 @@ in advance (e.g. the absolute value).
 **Note:** Of course, only results of output nodes/classes to which the method 
 has been applied can be plotted, i.e. the indices in the `output_idx` 
 argument must be subset of the argument with the same name when calling 
-the method in Step 3.
+the method in Step 2.
 
-**`ggplot2`-based plot**
+**ggplot2-based plot**
+
+Despite being an object of the class `innsight_ggplot2`, it can be treated 
+like a normal **ggplot2** object, i.e. geoms, scales and themes can be added 
+and modified.
 
 ```{r, fig.height=6, fig.keep='all', fig.width=9}
 # Summarized results for output node 1 (Setosa) and 2 (Versicolor) and
 # reference value 3
-boxplot(grad_no_softmax, output_idx = c(1,2), ref_data_idx = 3, preprocess_FUN = abs) +
+boxplot(grad_no_softmax, output_idx = c(1, 2), ref_data_idx = 3, preprocess_FUN = abs) +
   ggplot2::theme_bw()
 ```
 
-**`plotly`-based plot**
+**plotly-based plot**
 
-```{r, fig.height=4, fig.keep='all', fig.width=9, eval = requireNamespace("plotly")}
-# Summarized results for output node 1 (Setosa) and 2 (Versicolor) and
-# without a preprocess function
-boxplot(lrp_eps, output_idx = c(1,2), as_plotly = TRUE, preprocess_FUN = identity)
+```{r, fig.height=4, fig.keep='all', fig.width=9, eval = FALSE}
+# Show boxplot only for instances of class setosa for output node 1 (Setosa)
+# and 2 (Versicolor)
+boxplot(lrp_eps, data_idx = 1:50, output_idx = c(1, 2), as_plotly = TRUE)
+```
+```{r, fig.height=4, echo = FALSE, fig.width=9, message = FALSE, eval = Sys.getenv("RENDER_PLOTLY", unset = 0) == 1}
+# Show data point 1 for output node 1 (Setosa) and 2 (Versicolor)
+p <- boxplot(lrp_eps, data_idx = 1:50, output_idx = c(1, 2), as_plotly = TRUE)
+plotly::config(print(p, shareY = TRUE))
+```
+```{r, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 0, echo = FALSE}
+warning("Due to the size, this image was not generated in the R vignette! See the innsight webpage for this image: https://bips-hb.github.io/innsight/articles/Example_1_iris.html#plot-summarized-results")
 ```
