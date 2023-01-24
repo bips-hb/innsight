@@ -35,6 +35,7 @@ Imports:
     torch,
     methods
 Suggests:
+    covr,
     gtable,
     grid,
     gridExtra,

@@ -93,8 +93,8 @@ jobs:
             sudo $cmd
           done < <(Rscript -e "writeLines(remotes::system_requirements('$ID-$VERSION_ID'))")
 
-      - name: Install RcppTOML for windows and R-3.6
-        if: runner.os == 'Windows' & runner.r == '3.6'
+      - name: Install RcppTOML for windows and R3_6
+        if: runner.os == 'Windows' && runner.r == '3.6'
         run: remotes::install_version("RcppTOML", version = "0.1.7")
 
       - name: Install Package + deps
