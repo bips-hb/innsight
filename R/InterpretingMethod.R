@@ -137,9 +137,24 @@ InterpretingMethod <- R6Class(
           self$output_idx)
       } else if (type == "data.frame") {
         # Get the result as a data.frame
+        # The function 'create_dataframe_from_result' assumes the channels
+        # first format
+        result <- self$result
+        if (self$channels_first == FALSE) {
+          FUN <- function(result, out_idx, in_idx) {
+            res <- result[[out_idx]][[in_idx]]
+            if (res$dim() > 1) {
+              res <- torch_movedim(res, source = -2, destination = 2)
+            }
+
+            res
+          }
+          result <- apply_results(result, FUN)
+        }
+
         # Convert the torch_tensor result into a data.frame
         result <- create_dataframe_from_result(
-          seq_len(dim(self$data[[1]])[1]), self$result,
+          seq_len(dim(self$data[[1]])[1]), result,
           self$converter$input_names, self$converter$output_names,
           self$output_idx)
         # Remove unnecessary columns
