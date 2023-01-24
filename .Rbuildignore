@@ -14,3 +14,4 @@
 ^Meta$
 ^vignettes/figure$
 ^vignettes/articles$
+^codecov\.yml$

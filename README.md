@@ -1,11 +1,11 @@
 
 # `innsight` - Get the Insights of your Neural Network
 
-<a href='https://bips-hb.github.io/innsight'><img src='man/figures/logo.png' align="right" width="200" /></a>
+<a href='https://bips-hb.github.io/innsight/'><img src='man/figures/logo.png' align="right" width="200" /></a>
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/bips-hb/innsight/workflows/R-CMD-check/badge.svg)](https://github.com/bips-hb/innsight/actions)
+[![R-CMD-check](https://github.com/bips-hb/innsight/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bips-hb/innsight/actions/workflows/R-CMD-check.yaml)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/innsight)](https://CRAN.R-project.org/package=innsight)
 [![Lifecycle:
@@ -40,6 +40,7 @@ an R analogue to
 This package implements several model-specific interpretability (Feature
 Attribution) methods based on neural networks in R, e.g.,
 
+<<<<<<< HEAD
 - Layer-wise Relevance Propagation
   ([LRP](https://doi.org/10.1371/journal.pone.0130140))
   - Including propagation rules:
@@ -56,6 +57,25 @@ Attribution) methods based on neural networks in R, e.g.,
   - Smoothed gradients ([SmoothGrad](https://arxiv.org/abs/1706.03825)),
     including SmoothGrad x Input
 - Connection Weights
+=======
+-   Layer-wise Relevance Propagation
+    ([LRP](https://doi.org/10.1371/journal.pone.0130140))
+    -   Including propagation rules:
+        ![\\varepsilon](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;%5Cvarepsilon "\varepsilon")-rule
+        and
+        ![\\alpha](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;%5Calpha "\alpha")-![\\beta](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;%5Cbeta "\beta")-rule
+-   Deep Learning Important Features
+    ([DeepLift](https://arxiv.org/abs/1704.02685))
+    -   Including propagation rules for non-linearities: rescale rule
+        and reveal-cancel rule
+-   Gradient-based methods:
+    -   Vanilla Gradient, including [Gradient x
+        Input](https://www.jmlr.org/papers/v11/baehrens10a.html)
+    -   Smoothed gradients
+        ([SmoothGrad](https://arxiv.org/abs/1706.03825)), including
+        SmoothGrad x Input
+-   Connection Weights
+>>>>>>> master
 
 Example results for these methods on ImageNet with pretrained network
 Vgg19 ( see [Example 3: ImageNet with
@@ -67,7 +87,7 @@ The package `innsight` aims to be as flexible as possible and
 independent of a specific deep learning package in which the passed
 network has been learned. Basically, a neural network of the libraries
 [`torch`](https://torch.mlverse.org/),
-[`keras`](https://keras.rstudio.com/) and
+[`keras`](https://tensorflow.rstudio.com/) and
 [`neuralnet`](https://CRAN.R-project.org/package=neuralnet) can be
 passed, which is internally converted into a `torch` model with special
 insights needed for interpretation. But it is also possible to pass an
