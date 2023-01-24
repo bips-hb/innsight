@@ -15,8 +15,9 @@ reference:
     - DeepLift
     - ConnectionWeights
 
-- title: Visualization
+- title: Visualization and getting Results
   contents:
+  - get_result
   - innsight_ggplot2
   - innsight_plotly
 
@@ -37,3 +38,9 @@ reference:
   - show.innsight_plotly
   - "[.innsight_plotly"
   - "[[.innsight_plotly"
+
+- title: Superclasses and Package information
+  contents:
+  - innsight-package
+  - GradientBased
+  - InterpretingMethod
