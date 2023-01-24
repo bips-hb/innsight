@@ -75,20 +75,10 @@ Of course, we are not the first to provide several feature attribution methods f
 
 <div class="column-right">
 
-```{tikz, fig.ext = 'png', echo = FALSE, fig.cap = "**Figure 2:** `innsight`", cache = FALSE}
-\LARGE
-\definecolor{torchorange}{HTML}{EE4C2C}
-\definecolor{BIPSBlue}{RGB}{23, 99, 170} 
-\begin{tikzpicture}
-		\draw[BIPSBlue, thick, fill = BIPSBlue!20, rounded corners] (0,0) rectangle (4,-3);
-		\node[BIPSBlue, scale = 0.6] at (2, -0.4) {\texttt{innsight}};
-		\draw[torchorange, very thick, fill = torchorange!20, rounded corners] (0.2,-0.8) rectangle (3.8,-2.8);
-		\node[torchorange, scale = 0.6] at (1, -1.8) {\texttt{torch}};
-		\draw[gray, very thick, fill = gray!20, rounded corners] (2,-1) rectangle (3.6,-2.6);
-		\node[black!80, scale = 0.4] at (2.8, -1.4) {C++};
-		\node[black!80, scale = 0.5] at (2.8, -1.9) {LibTorch};
-\end{tikzpicture}
+```{r, echo=FALSE, fig.cap = "**Figure 2:** `innsight`"}
+knitr::include_graphics("images/innsight_torch.png")
 ```
+
 </div>
 
 In addition to the availability in R, the package is also outstanding for the following aspects:
