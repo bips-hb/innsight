@@ -36,7 +36,7 @@ knitr::opts_chunk$set(
 `innsight` is an R package that interprets the behavior and explains individual
 predictions of modern neural networks. Many methods for explaining individual
 predictions already exist, but hardly any of them are implemented or 
-available in R. Most of these so-called *'Feature Attribution'* methods are
+available in R. Most of these so-called *Feature Attribution* methods are
 only implemented in Python and thus difficult to access or use for the 
 R community. In this sense, the package `innsight` provides a common interface
 for various methods for the interpretability of neural networks and can 
@@ -63,8 +63,7 @@ for details):
 ![vgg16](https://github.com/bips-hb/innsight/blob/master/man/images/Vgg19_result.png?raw=true)
 
 The package `innsight` aims to be as flexible as possible and independent of a 
-specific deep learning package in which the passed network has been learned. 
-<<<<<<< HEAD
+specific deep learning package in which the passed network has been learned.
 Basically, a neural network of the libraries [`torch`](https://torch.mlverse.org/), [`keras`](https://keras.rstudio.com/) and [`neuralnet`](https://CRAN.R-project.org/package=neuralnet)
 can be passed, which is internally converted into a `torch` model with special
 insights needed for interpretation. But it is also possible to pass an 
