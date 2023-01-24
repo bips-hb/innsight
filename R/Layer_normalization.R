@@ -87,6 +87,8 @@ batchnorm_layer <- nn_module(
       rel <- rule_param * z_plus / (z_plus + torch_maximum(bias, 0.0)) +
         (1 - rule_param) * z_minus / (z_minus + torch_minimum(bias, 0.0))
       rel <- rel$unsqueeze(-1) * rel_output
+    } else if (rule_name == "pass") {
+      rel <- rel_output
     }
 
     rel

@@ -79,6 +79,9 @@ InterpretingLayer <- nn_module(
 
       # calculate over all relevance for the lower layer
       rel_input <- rel_pos * rule_param + rel_neg * (1 - rule_param)
+    } else if (rule_name == "pass") {
+      stopf("The rule 'pass' is only implemented for layers with the same ",
+            "input and output size!")
     }
 
     rel_input

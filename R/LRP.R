@@ -105,6 +105,8 @@ LRP <- R6Class(
         for (name in names(rule_name)) {
           assertSubset(name, layer_names_with_rule,
                        .var.name = "names(rule_name)")
+          assertChoice(rule_name[[name]],
+                       c("simple", "epsilon", "alpha_beta", "pass"))
         }
       }
       self$rule_name <- rule_name
