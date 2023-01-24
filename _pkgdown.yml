@@ -20,7 +20,7 @@ reference:
   - innsight_ggplot2
   - innsight_plotly
 
-- subtitle: `innsight_ggplot2`
+- subtitle: "`innsight_ggplot2`"
   contents:
   - plot.innsight_ggplot2
   - print.innsight_ggplot2
@@ -30,7 +30,7 @@ reference:
   - "[[.innsight_ggplot2"
   - "+.innsight_ggplot2"
 
-- subtitle: `innsight_plotly`
+- subtitle: "`innsight_plotly`"
   contents:
   - plot.innsight_plotly
   - print.innsight_plotly
