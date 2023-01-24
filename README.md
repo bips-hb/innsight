@@ -58,8 +58,10 @@ Attribution) methods based on neural networks in R, e.g.,
 - Connection Weights
 
 Example results for these methods on ImageNet with pretrained network
-Vgg16:
-![vgg16](https://github.com/bips-hb/innsight/blob/master/man/images/vgg16.png?raw=true)
+Vgg19 ( see [Example 3: ImageNet with
+`keras`](https://bips-hb.github.io/innsight/vignette/example_3_imagenet.html)
+for details):
+![vgg16](https://github.com/bips-hb/innsight/blob/master/man/images/Vgg19_result.png?raw=true)
 
 The package `innsight` aims to be as flexible as possible and
 independent of a specific deep learning package in which the passed
@@ -81,7 +83,7 @@ of [`devtools`](https://www.r-project.org/nosvn/pandoc/devtools.html) is
 required)
 
 ``` r
-# Stable version
+# Stable version (v0.1.1)
 install.packages("innsight")
 
 # Development version
@@ -155,6 +157,8 @@ vignette.
 - Penguin dataset with `torch` model and trained with `luz` (numeric and
   categorical tabular data) [→
   vignette](https://bips-hb.github.io/innsight/vignette/example_2_penguin.html)
+- ImageNet dataset with pretrained models in `keras` (image data) [→
+  article](https://bips-hb.github.io/innsight/vignette/example_3_imagenet.html)
 
 ## Contributing and Future Work
 

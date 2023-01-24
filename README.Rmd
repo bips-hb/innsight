@@ -57,8 +57,10 @@ interpretability (Feature Attribution) methods based on neural networks in R, e.
   SmoothGrad x Input
 * Connection Weights
 
-Example results for these methods on ImageNet with pretrained network Vgg16:
-![vgg16](https://github.com/bips-hb/innsight/blob/master/man/images/vgg16.png?raw=true)
+Example results for these methods on ImageNet with pretrained network Vgg19 (
+see [Example 3: ImageNet with `keras`](https://bips-hb.github.io/innsight/vignette/example_3_imagenet.html)
+for details):
+![vgg16](https://github.com/bips-hb/innsight/blob/master/man/images/Vgg19_result.png?raw=true)
 
 The package `innsight` aims to be as flexible as possible and independent of a 
 specific deep learning package in which the passed network has been learned. 
@@ -75,7 +77,7 @@ from GitHub with the following commands (successful
 installation of [`devtools`](https://www.r-project.org/nosvn/pandoc/devtools.html) is required)
 
 ```{r, eval = FALSE}
-# Stable version
+# Stable version (v0.1.1)
 install.packages("innsight")
 
 # Development version
@@ -144,6 +146,8 @@ the ["In-depth Explanation"](https://bips-hb.github.io/innsight/vignette/detaile
 [&#8594; vignette](https://bips-hb.github.io/innsight/vignette/example_1_iris.html)
 - Penguin dataset with `torch` model and trained with `luz` (numeric and categorical tabular data)
 [&#8594; vignette](https://bips-hb.github.io/innsight/vignette/example_2_penguin.html)
+- ImageNet dataset with pretrained models in `keras` (image data)
+[&#8594; article](https://bips-hb.github.io/innsight/vignette/example_3_imagenet.html)
 
 
 ## Contributing and Future Work
