@@ -1,4 +1,4 @@
-#' @importFrom methods is new
+#' @importFrom methods is new show
 NULL
 
 #' S4-Class for ggplot2-based plots

@@ -132,7 +132,10 @@ setMethod(
       fig <- add_outputlayer_strips(fig, x@col_dims)
     }
 
-    invisible(print(fig))
+    # Show the result
+    print(fig)
+
+    invisible(fig)
   }
 )
 

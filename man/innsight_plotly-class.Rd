@@ -29,7 +29,9 @@ are multiple input layers (\code{multiplot = TRUE}), another output strip is
 added for the columns.
 }
 
-An example structure of the plot with multiple input layers is shown below:\preformatted{|      Output 1: Node 1      |      Output 1: Node 3      |
+An example structure of the plot with multiple input layers is shown below:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{|      Output 1: Node 1      |      Output 1: Node 3      |
 |   Input 1   |   Input 2    |   Input 1   |   Input 2    |
 |---------------------------------------------------------|-------------
 |             |              |             |              |
@@ -39,7 +41,7 @@ An example structure of the plot with multiple input layers is shown below:\pref
 |             |              |             |              |
 | plots[2,1]  |  plots[2,2]  | plots[2,3]  | plots[2,4]   | data point 2
 |             |              |             |              |
-}
+}\if{html}{\out{</div>}}
 
 Additionally, some generic functions are implemented to visualize individual
 aspects of the overall plot or to examine them in more detail. All available

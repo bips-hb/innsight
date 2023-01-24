@@ -57,7 +57,9 @@ indices and theme for the extra row of strips are stored in the slots
 \code{output_strips} and \code{col_dims}. The strips for the input
 layer and the data points (if not boxplot) are created using
 \link[ggplot2:facet_grid]{ggplot2::facet_grid} in the individual ggplot2 objects of the grob matrix.
-An example structure is shown below:\preformatted{|      Output 1: Node 1      |      Output 1: Node 3      |
+An example structure is shown below:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{|      Output 1: Node 1      |      Output 1: Node 3      |
 |   Input 1   |   Input 2    |   Input 1   |   Input 2    |
 |---------------------------------------------------------|-------------
 |             |              |             |              |
@@ -67,7 +69,7 @@ An example structure is shown below:\preformatted{|      Output 1: Node 1      |
 |             |              |             |              |
 | grobs[2,1]  |  grobs[2,2]  | grobs[2,3]  | grobs[2,4]   | data point 2
 |             |              |             |              |
-}
+}\if{html}{\out{</div>}}
 
 Similar to the other case, generic functions are implemented to add
 graphical objects from ggplot2, create the whole plot or select only
