@@ -82,7 +82,7 @@ plot_bar <- function(result_df, value_name = "value", facet_rows = NULL,
       aes(x = as.numeric(.data$feature) - 0.35,
           xend = as.numeric(.data$feature) + 0.35,
           y = .data$value, yend = .data$value, group = .data$feature),
-      col = "red", size = 1)
+      col = "red", linewidth = 1)
 
     result_df <- result_df[result_df$boxplot_data, ]
     geom <- geom_boxplot(aes(group = .data$feature), fill = "gray", alpha = 0.8,

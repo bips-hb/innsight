@@ -33,6 +33,21 @@ jobs:
           extra-packages: any::pkgdown, local::.
           needs: website
 
+      - name: Install remotes
+        run: install.packages("remotes")
+
+      - name: Install Package + deps
+        run: remotes::install_local(dependencies = TRUE, force = TRUE)
+
+      - name: Install Miniconda
+        run: reticulate::install_miniconda()
+
+      - name: Install Tensorflow + Keras deps
+        run: keras::install_keras()
+
+      - name: Install LibTorch
+        run: torch::install_torch()
+
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
