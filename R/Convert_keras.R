@@ -359,7 +359,9 @@ convert_keras_zeropadding <- function(layer, type) {
 convert_keras_batchnorm <- function(layer) {
   input_dim <- unlist(layer$input_shape)
   output_dim <- unlist(layer$output_shape)
-  axis <- as.numeric(layer$axis)
+  if (is.numeric(layer$axis)) axis <- layer$axis
+  else if (is.list(layer$axis)) axis <- as.numeric(layer$axis)
+  else axis <- as.numeric(layer$axis[[0]])
   gamma <- as.numeric(layer$gamma$value())
   eps <- as.numeric(layer$epsilon)
   beta <- as.numeric(layer$beta)

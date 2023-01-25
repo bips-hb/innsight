@@ -437,16 +437,14 @@ test_that("DeepLift: Keras model with two inputs + two outputs (concat)", {
 
   main_input <- layer_input(shape = c(10,10,2), name = 'main_input')
   lstm_out <- main_input %>%
-    layer_conv_2d(2, c(2,2)) %>%
+    layer_conv_2d(2, c(2,2), activation = "relu") %>%
     layer_flatten() %>%
     layer_dense(units = 4)
   auxiliary_input <- layer_input(shape = c(5), name = 'aux_input')
   auxiliary_output <- layer_concatenate(c(lstm_out, auxiliary_input)) %>%
     layer_dense(units = 2, activation = 'softmax', name = 'aux_output')
   main_output <- layer_concatenate(c(lstm_out, auxiliary_input)) %>%
-    layer_dense(units = 5, activation = 'tanh') %>%
-    layer_dense(units = 4, activation = 'tanh') %>%
-    layer_dense(units = 2, activation = 'tanh') %>%
+    layer_dense(units = 5, activation = 'relu') %>%
     layer_dense(units = 3, activation = 'sigmoid', name = 'main_output')
   model <- keras_model(
     inputs = c(auxiliary_input, main_input),
