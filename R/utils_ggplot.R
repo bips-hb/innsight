@@ -135,6 +135,14 @@ plot_image <- function(result_df, value_name = "value", facet_rows = NULL,
 
   # normalize result for all data points
   if (calc_fill) {
+    func <- function(x) {
+      non_nan <- x[!is.nan(x) & !is.na(x)]
+      if (length(non_nan) == 0) res <- 0
+      else res <- max(abs(non_nan))
+
+      res
+    }
+
     if (boxplot) {
       result_df$fill <- ave(result_df$value,
                             result_df$boxplot_data,
@@ -142,14 +150,19 @@ plot_image <- function(result_df, value_name = "value", facet_rows = NULL,
                             as.character(result_df$feature),
                             as.character(result_df$feature_2),
                             FUN = median)
-      max_median <- max(abs(result_df$fill[result_df$boxplot_data]))
-      result_df$fill <- if (max_median == 0) 0 else result_df$fill / max_median
+      max_median <- func(result_df$fill[result_df$boxplot_data])
+      if (max_median == 0) {
+        result_df$fill <- result_df$fill * 0
+      } else {
+        result_df$fill <- result_df$fill / max_median
+      }
     } else {
-        group_max <- ave(result_df$value,
-                         as.character(result_df$data),
-                         as.character(result_df$output_node),
-                         FUN = function(x) max(abs(x)))
-        result_df$fill <- ifelse(group_max == 0, 0, result_df$value / group_max)
+      group_max <- ave(result_df$value,
+                       as.character(result_df$data),
+                       as.character(result_df$output_node),
+                       FUN = func)
+      result_df$fill <- ifelse(group_max == 0, result_df$value * 0,
+                               result_df$value / group_max)
     }
   }
 
@@ -170,8 +183,15 @@ plot_image <- function(result_df, value_name = "value", facet_rows = NULL,
   }
 
   # Create plot/boxplot
-  max_value <- max(result_df$fill)
-  min_value <- min(result_df$fill)
+  non_nan_fill <- result_df$fill[!is.nan(result_df$fill) & !is.na(result_df$fill)]
+  if (length(non_nan_fill) == 0) {
+    max_value <- 0
+    min_value <- 0
+  } else {
+    max_value <- max(non_nan_fill)
+    min_value <- min(non_nan_fill)
+  }
+
 
   if (min_value >= 0) {
     breaks <- c(0, 1)
