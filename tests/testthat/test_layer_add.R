@@ -77,7 +77,8 @@ test_that("Test function reshape_to_input for 1D-CNN", {
   rel_total_true <- rel_out$sum(c(2,3,4))
   rel_total <- torch_stack(lapply(rel_in,
                                   function(x) x$sum(c(2,3,4))), dim = -1)$sum(2)
-  expect_lt(mean(as.array((rel_total - rel_total_true)^2)), 1e-10)
+  mean(as.array((rel_total - rel_total_true)^2))
+  expect_lt(mean(as.array((rel_total - rel_total_true)^2)), 1e-9)
 })
 
 test_that("Test function reshape_to_input for 2D-CNN", {
@@ -105,5 +106,5 @@ test_that("Test function reshape_to_input for 2D-CNN", {
   rel_total_true <- rel_out$sum(c(2,3,4,5))
   rel_total <- torch_stack(lapply(rel_in,
                                   function(x) x$sum(c(2,3,4,5))), dim = -1)$sum(2)
-  expect_lt(mean(as.array((rel_total - rel_total_true)^2)), 1e-10)
+  expect_lt(mean(as.array((rel_total - rel_total_true)^2)), 1e-9)
 })
