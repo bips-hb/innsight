@@ -1,10 +1,13 @@
-pandoc: 2.14.2
-pkgdown: 2.0.6
+pandoc: 2.19.2
+pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
-  Custom_Model_Definition: Custom_Model_Definition.html
+  Example_1_iris: Example_1_iris.html
+  Example_2_penguin: Example_2_penguin.html
+  Example_3_imagenet: Example_3_imagenet.html
+  detailed_overview: detailed_overview.html
   innsight: innsight.html
-last_built: 2022-08-31T08:44Z
+last_built: 2023-02-01T21:14Z
 urls:
   reference: https://bips-hb.github.io/innsight/reference
   article: https://bips-hb.github.io/innsight/articles
