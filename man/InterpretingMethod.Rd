@@ -2,46 +2,100 @@
 % Please edit documentation in R/InterpretingMethod.R
 \name{InterpretingMethod}
 \alias{InterpretingMethod}
-\title{Super class for Interpreting Methods}
+\title{Super Class for Interpreting Methods}
 \description{
-This is a super class for all data-based interpreting methods.
-Implemented are the following methods:
+This is a super class for all interpreting methods in the
+\code{innsight} package. Implemented are the following methods:
 \itemize{
-\item Deep Learning Important Features (\link{DeepLift})
-\item Layer-wise Relevance Propagation (\link{LRP})
+\item \emph{Deep Learning Important Features} (\link{DeepLift})
+\item \emph{Layer-wise Relevance Propagation} (\link{LRP})
 \item Gradient-based methods:
 \itemize{
-\item Vanilla gradients including 'Gradients x Input' (\link{Gradient})
-\item Smoothed gradients including 'SmoothGrad x Input' (\link{SmoothGrad})
+\item \emph{Vanilla gradients} including \emph{Gradients x Input} (\link{Gradient})
+\item Smoothed gradients including \emph{SmoothGrad x Input} (\link{SmoothGrad})
 }
+\item \emph{Connection Weights} (global and local) (\link{ConnectionWeights})
 }
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{data}}{The passed data as a torch tensor in the given data type
-(\code{dtype}) to be interpreted with the selected method.}
+\item{\code{data}}{(\code{list})\cr
+The passed data as a \code{list} of \code{torch_tensors} in the selected
+data format (field \code{dtype}) matching the corresponding shapes of the
+individual input layers. Besides, the channel axis is moved to the
+second position after the batch size because internally only the
+format \emph{channels first} is used.\cr}
 
-\item{\code{converter}}{An instance of the R6 class \code{\link{Converter}}.}
+\item{\code{converter}}{(\code{\link{Converter}})\cr
+An instance of the \code{Converter} class that includes the
+torch-converted model and some other model-specific attributes. See
+\code{\link{Converter}} for details.\cr}
 
-\item{\code{dtype}}{The data type for the calculations. Either \code{'float'}
-for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for \link[torch:torch_dtype]{torch::torch_double}.}
+\item{\code{channels_first}}{(\code{logical(1)})\cr
+The channel position of the given data. If \code{TRUE}, the
+channel axis is placed at the second position between the batch size and
+the rest of the input axes, e.g. \code{c(10,3,32,32)} for a batch of ten images
+with three channels and a height and width of 32 pixels. Otherwise (\code{FALSE}),
+the channel axis is at the last position, i.e. \code{c(10,32,32,3)}. This is
+especially important for layers like flatten, where the order is crucial
+and therefore the channels have to be moved from the internal
+format 'channels_first' back to the original format before the layer
+is calculated.\cr}
 
-\item{\code{channels_first}}{The format of the given date, i.e. channels on
-last dimension (\code{FALSE}) or after the batch dimension (\code{TRUE}). If the
-data has no channels, the default value \code{TRUE} is used.}
+\item{\code{dtype}}{(\code{character(1)})\cr
+The data type for the calculations. Either \code{'float'} for
+\link{torch_float} or \code{'double'} for \link{torch_double}.\cr}
 
-\item{\code{ignore_last_act}}{A boolean value to include the last
-activation into all the calculations, or not (default: \code{TRUE}). In some
-cases, the last activation leads to a saturation problem.}
+\item{\code{ignore_last_act}}{(\code{logical(1)})\cr
+A logical value to include the last activation
+functions into all the calculations, or not.\cr}
 
-\item{\code{result}}{The methods result of the given data as a
-torch tensor of size \emph{(batch_size, dim_in, dim_out)} in the given data type
-(\code{dtype}).}
+\item{\code{result}}{(\code{list})\cr
+The results of the method on the passed data. A unified
+list structure is used regardless of the complexity of the model: The outer
+list contains the individual output layers and the inner list the input
+layers. The results for the respective output and input layer are then
+stored there as torch tensors in the given data format (field \code{dtype}).
+In addition, the channel axis is moved to its original place and the last
+axis contains the selected output nodes for the individual output layers
+(see \code{output_idx}).\cr
+For example, the structure of the result for two output
+layers (output node 1 for the first and 2 and 4 for the second) and two
+input layers with \code{channels_first = FALSE} looks like this:
 
-\item{\code{output_idx}}{This vector determines for which outputs the method
-will be applied. By default (\code{NULL}), all outputs (but limited to the
-first 10) are considered.}
+\if{html}{\out{<div class="sourceCode">}}\preformatted{List of 2 # both output layers
+  $ :List of 2 # both input layers
+    ..$ : torch_tensor [batch_size, dim_in_1, channel_axis, 1]
+    ..$ : torch_tensor [batch_size, dim_in_2, channel_axis, 1]
+ $ :List of 2 # both input layers
+    ..$ : torch_tensor [batch_size, dim_in_1, channel_axis, 2]
+    ..$ : torch_tensor [batch_size, dim_in_2, channel_axis, 2]
+}\if{html}{\out{</div>}}}
+
+\item{\code{output_idx}}{(\code{list})\cr
+This list of indices specifies the output nodes to which
+the method is to be applied. In the order of the output layers, the list
+contains the respective output nodes indices and unwanted output layers
+have the entry \code{NULL} instead of a vector of indices,
+e.g. \code{list(NULL, c(1,3))} for the first and third output node in the
+second output layer.\cr}
+
+\item{\code{verbose}}{(\code{logical(1)})\cr
+This logical value determines whether a progress bar is
+displayed for the calculation of the method or not. The default value is
+the output of the primitive R function \code{\link[=interactive]{interactive()}}.\cr}
+
+\item{\code{winner_takes_all}}{(\code{logical(1)})\cr
+This logical value is only relevant for
+models with a MaxPooling layer. Since many zeros are produced during
+the backward pass due to the selection of the maximum value in the
+pooling kernel, another variant is implemented, which treats a
+MaxPooling as an AveragePooling layer in the backward pass to overcome
+the problem of too many zero relevances. With the default value \code{TRUE},
+the whole upper-layer relevance is passed to the maximum value in each
+pooling window. Otherwise, if \code{FALSE}, the relevance is distributed equally
+among all nodes in a pooling window.\cr}
 }
 \if{html}{\out{</div>}}
 }
@@ -50,6 +104,9 @@ first 10) are considered.}
 \itemize{
 \item \href{#method-InterpretingMethod-new}{\code{InterpretingMethod$new()}}
 \item \href{#method-InterpretingMethod-get_result}{\code{InterpretingMethod$get_result()}}
+\item \href{#method-InterpretingMethod-plot}{\code{InterpretingMethod$plot()}}
+\item \href{#method-InterpretingMethod-boxplot}{\code{InterpretingMethod$boxplot()}}
+\item \href{#method-InterpretingMethod-print}{\code{InterpretingMethod$print()}}
 \item \href{#method-InterpretingMethod-clone}{\code{InterpretingMethod$clone()}}
 }
 }
@@ -65,6 +122,8 @@ Create a new instance of this super class.
   channels_first = TRUE,
   output_idx = NULL,
   ignore_last_act = TRUE,
+  winner_takes_all = TRUE,
+  verbose = interactive(),
   dtype = "float"
 )}\if{html}{\out{</div>}}
 }
@@ -72,26 +131,80 @@ Create a new instance of this super class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{converter}}{An instance of the R6 class \code{\link{Converter}}.}
+\item{\code{converter}}{(\code{\link{Converter}})\cr
+An instance of the \code{Converter} class that includes the
+torch-converted model and some other model-specific attributes. See
+\code{\link{Converter}} for details.\cr}
 
-\item{\code{data}}{The data for which this method is to be applied. It has
-to be an array or array-like format of size \emph{(batch_size, dim_in)}.}
+\item{\code{data}}{(\code{\link{array}}, \code{\link{data.frame}}, \code{\link{torch_tensor}} or \code{list})\cr
+The data to which the method is to be applied. These must
+have the same format as the input data of the passed model to the
+converter object. This means either
+\itemize{
+\item an \code{array}, \code{data.frame}, \code{torch_tensor} or array-like format of
+size \emph{(batch_size, dim_in)}, if e.g.the model has only one input layer, or
+\item a \code{list} with the corresponding input data (according to the
+upper point) for each of the input layers.\cr
+}}
 
-\item{\code{channels_first}}{The format of the given data, i.e. channels on
-last dimension (\code{FALSE}) or after the batch dimension (\code{TRUE}). If the
-data has no channels, use the default value \code{TRUE}.}
+\item{\code{channels_first}}{(\code{logical(1)})\cr
+The channel position of the given data (argument
+\code{data}). If \code{TRUE}, the channel axis is placed at the second position
+between the batch size and the rest of the input axes, e.g.
+\code{c(10,3,32,32)} for a batch of ten images with three channels and a
+height and width of 32 pixels. Otherwise (\code{FALSE}), the channel axis
+is at the last position, i.e. \code{c(10,32,32,3)}. If the data
+has no channel axis, use the default value \code{TRUE}.\cr}
 
-\item{\code{output_idx}}{This vector determines for which output indices the
-method will be applied. By default (\code{NULL}), all outputs (but limited to
-the first 10) are considered.}
+\item{\code{output_idx}}{(\code{integer}, \code{list} or \code{NULL})\cr
+These indices specify the output nodes for which the method is to be
+applied. In order to allow models with multiple output layers, there are
+the following possibilities to select the indices of the output
+nodes in the individual output layers:
+\itemize{
+\item An \code{integer} vector of indices: If the model has only one output
+layer, the values correspond to the indices of the output nodes, e.g.
+\code{c(1,3,4)} for the first, third and fourth output node. If there are
+multiple output layers, the indices of the output nodes from the first
+output layer are considered.
+\item A \code{list} of \code{integer} vectors of indices: If the method is to be
+applied to output nodes from different layers, a list can be passed
+that specifies the desired indices of the output nodes for each
+output layer. Unwanted output layers have the entry \code{NULL} instead
+of a vector of indices, e.g. \code{list(NULL, c(1,3))} for the first and
+third output node in the second output layer.
+\item \code{NULL} (default): The method is applied to all output nodes
+in the first output layer but is limited to the first ten as the
+calculations become more computationally expensive for more
+output nodes.\cr
+}}
 
-\item{\code{ignore_last_act}}{A boolean value to include the last
-activation into all the calculations, or not (default: \code{TRUE}). In
-some cases, the last activation leads to a saturation problem.}
+\item{\code{ignore_last_act}}{(\code{logical(1)})\cr
+Set this logical value to include the last
+activation functions for each output layer, or not (default: \code{TRUE}).
+In practice, the last activation (especially for softmax activation) is
+often omitted.\cr}
 
-\item{\code{dtype}}{dtype The data type for the calculations. Use
-either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
-\link[torch:torch_dtype]{torch::torch_double}.}
+\item{\code{winner_takes_all}}{(\code{logical(1)})\cr
+This logical argument is only relevant for
+models with a MaxPooling layer. Since many zeros are produced during
+the backward pass due to the selection of the maximum value in the
+pooling kernel, another variant is implemented, which treats a
+MaxPooling as an AveragePooling layer in the backward pass to overcome
+the problem of too many zero relevances. With the default value \code{TRUE},
+the whole upper-layer relevance is passed to the maximum value in each
+pooling window. Otherwise, if \code{FALSE}, the relevance is distributed equally
+among all nodes in a pooling window.\cr}
+
+\item{\code{verbose}}{(\code{logical(1)})\cr
+This logical argument determines whether a progress bar is
+displayed for the calculation of the method or not. The default value is
+the output of the primitive R function \code{\link[=interactive]{interactive()}}.\cr}
+
+\item{\code{dtype}}{(\code{character(1)})\cr
+The data type for the calculations. Use
+either \code{'float'} for \link{torch_float} or \code{'double'} for
+\link{torch_double}.\cr}
 }
 \if{html}{\out{</div>}}
 }
@@ -103,7 +216,8 @@ either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{
 This function returns the result of this method for the given data
 either as an array (\code{'array'}), a torch tensor (\code{'torch.tensor'},
 or \code{'torch_tensor'}) of size \emph{(batch_size, dim_in, dim_out)} or as a
-data.frame (\code{'data.frame'}).
+data.frame (\code{'data.frame'}). This method is also implemented as a
+generic S3 function \code{\link{get_result}}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{InterpretingMethod$get_result(type = "array")}\if{html}{\out{</div>}}
 }
@@ -111,15 +225,227 @@ data.frame (\code{'data.frame'}).
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{type}}{The data type of the result. Use one of \code{'array'},
+\item{\code{type}}{(\code{character(1)})\cr
+The data type of the result. Use one of \code{'array'},
 \code{'torch.tensor'}, \code{'torch_tensor'} or \code{'data.frame'}
-(default: \code{'array'}).}
+(default: \code{'array'}).\cr}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
 The result of this method for the given data in the chosen
 type.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-InterpretingMethod-plot"></a>}}
+\if{latex}{\out{\hypertarget{method-InterpretingMethod-plot}{}}}
+\subsection{Method \code{plot()}}{
+This method visualizes the result of the selected
+method and enables a visual in-depth investigation with the help
+of the S4 classes \code{\link{innsight_ggplot2}} and \code{\link{innsight_plotly}}.\cr
+You can use the argument \code{data_idx} to select the data points in the
+given data for the plot. In addition, the individual output nodes for
+the plot can be selected with the argument \code{output_idx}. The different
+results for the selected data points and outputs are visualized using
+the ggplot2-based S4 class \code{innsight_ggplot2}. You can also use the
+\code{as_plotly} argument to generate an interactive plot with
+\code{innsight_plotly} based on the plot function \link[plotly:plot_ly]{plotly::plot_ly}. For
+more information and the whole bunch of possibilities,
+see \code{\link{innsight_ggplot2}} and \code{\link{innsight_plotly}}.\cr
+\cr
+\strong{Notes:}
+\enumerate{
+\item For the interactive plotly-based plots, the suggested package
+\code{plotly} is required.
+\item The ggplot2-based plots for models with multiple input layers are
+a bit more complex, therefore the suggested packages \code{'grid'},
+\code{'gridExtra'} and \code{'gtable'} must be installed in your R session.
+\item If the global \emph{Connection Weights} method was applied, the
+unnecessary argument \code{data_idx} will be ignored.
+}
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{InterpretingMethod$plot(
+  data_idx = 1,
+  output_idx = NULL,
+  aggr_channels = "sum",
+  as_plotly = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_idx}}{(\code{integer})\cr
+An integer vector containing the numbers of the data
+points whose result is to be plotted, e.g. \code{c(1,3)} for the first
+and third data point in the given data. Default: \code{1}. This argument
+will be ignored for the global \emph{Connection Weights} method.\cr}
+
+\item{\code{output_idx}}{(\code{integer}, \code{list} or \code{NULL})\cr
+The indices of the output nodes for which the results
+is to be plotted. This can be either a \code{integer} vector of indices or a
+\code{list} of \code{integer} vectors of indices but must be a subset of the indices for
+which the results were calculated, i.e. a subset of \code{output_idx} from the
+initialization \code{new()} (see argument \code{output_idx} in method \code{new()} of
+this R6 class for details). By default (\code{NULL}), the smallest index
+of all calculated output nodes and output layers is used.\cr}
+
+\item{\code{aggr_channels}}{(\code{character(1)} or \code{\link{function}})\cr
+Pass one of \code{'norm'}, \code{'sum'}, \code{'mean'} or a
+custom function to aggregate the channels, e.g. the maximum
+(\link[base:Extremes]{base::max}) or minimum (\link[base:Extremes]{base::min}) over the channels or only
+individual channels with \code{function(x) x[1]}. By default (\code{'sum'}),
+the sum of all channels is used.\cr
+\emph{Note:} This argument is used only for 2D and 3D input data.\cr}
+
+\item{\code{as_plotly}}{(\code{logical(1)})\cr
+This logical value (default: \code{FALSE}) can be used to
+create an interactive plot based on the library \code{plotly}
+(see \code{\link{innsight_plotly}} for details).\cr
+\emph{Note:} Make sure that the suggested package \code{plotly} is installed
+in your R session.\cr}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Returns either an \code{\link{innsight_ggplot2}} (\code{as_plotly = FALSE}) or an
+\code{\link{innsight_plotly}} (\code{as_plotly = TRUE}) object with the plotted
+individual results.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-InterpretingMethod-boxplot"></a>}}
+\if{latex}{\out{\hypertarget{method-InterpretingMethod-boxplot}{}}}
+\subsection{Method \code{boxplot()}}{
+This method visualizes the results of the selected method summarized as
+boxplots and enables a visual in-depth investigation of the global
+behavior with the help of the S4 classes \code{\link{innsight_ggplot2}} and
+\code{\link{innsight_plotly}}.\cr
+You can use the argument \code{output_idx} to select the individual output
+nodes for the plot. For tabular and 1D data, boxplots are created in
+which a reference value can be selected from the data using the
+\code{ref_data_idx} argument. For images, only the pixel-wise median is
+visualized due to the complexity. The plot is generated using the
+ggplot2-based S4 class \code{innsight_ggplot2}. You can also use the
+\code{as_plotly} argument to generate an interactive plot with
+\code{innsight_plotly} based on the plot function \link[plotly:plot_ly]{plotly::plot_ly}. For
+more information and the whole bunch of possibilities, see
+\code{\link{innsight_ggplot2}} and \code{\link{innsight_plotly}}.\cr \cr
+\strong{Notes:}
+\enumerate{
+\item This method can only be used for the local \emph{Connection Weights}
+method, i.e. if \code{times_input} is \code{TRUE} and \code{data} is provided.
+\item For the interactive plotly-based plots, the suggested package
+\code{plotly} is required.
+\item The ggplot2-based plots for models with multiple input layers are
+a bit more complex, therefore the suggested packages \code{'grid'},
+\code{'gridExtra'} and \code{'gtable'} must be installed in your R session.
+}
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{InterpretingMethod$boxplot(
+  output_idx = NULL,
+  data_idx = "all",
+  ref_data_idx = NULL,
+  aggr_channels = "sum",
+  preprocess_FUN = abs,
+  as_plotly = FALSE,
+  individual_data_idx = NULL,
+  individual_max = 20
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{output_idx}}{(\code{integer}, \code{list} or \code{NULL})\cr
+The indices of the output nodes for which the
+results is to be plotted. This can be either a \code{vector} of indices or
+a \code{list} of vectors of indices but must be a subset of the indices for
+which the results were calculated, i.e. a subset of \code{output_idx} from
+the initialization \code{new()} (see argument \code{output_idx} in method \code{new()}
+of this R6 class for details). By default (\code{NULL}), the smallest index
+of all calculated output nodes and output layers is used.\cr}
+
+\item{\code{data_idx}}{(\code{integer})\cr
+By default, all available data points are used
+to calculate the boxplot information. However, this parameter can be
+used to select a subset of them by passing the indices. E.g. with
+\code{c(1:10, 25, 26)} only the first 10 data points and
+the 25th and 26th are used to calculate the boxplots.\cr}
+
+\item{\code{ref_data_idx}}{(\code{integer(1)} or \code{NULL})\cr
+This integer number determines the index for the
+reference data point. In addition to the boxplots, it is displayed in
+red color and is used to compare an individual result with the summary
+statistics provided by the boxplot. With the default value (\code{NULL})
+no individual data point is plotted. This index can be chosen with
+respect to all available data, even if only a subset is selected with
+argument \code{data_idx}.\cr
+\emph{Note:} Because of the complexity of 2D inputs, this argument is used
+only for tabular and 1D inputs and disregarded for 2D inputs.\cr}
+
+\item{\code{aggr_channels}}{(\code{character(1)} or \code{\link{function}})\cr
+Pass one of \code{'norm'}, \code{'sum'}, \code{'mean'} or a
+custom function to aggregate the channels, e.g. the maximum
+(\link[base:Extremes]{base::max}) or minimum (\link[base:Extremes]{base::min}) over the channels or only
+individual channels with \code{function(x) x[1]}. By default (\code{'sum'}),
+the sum of all channels is used.\cr
+\emph{Note:} This argument is used only for 2D and 3D input data.\cr}
+
+\item{\code{preprocess_FUN}}{(\code{function})\cr
+This function is applied to the method's result
+before calculating the boxplots or medians. Since positive and negative values
+often cancel each other out, the absolute value (\code{abs}) is used by
+default. But you can also use the raw results (\code{identity}) to see the
+results' orientation, the squared data (\code{function(x) x^2}) to weight
+the outliers higher or any other function.\cr}
+
+\item{\code{as_plotly}}{(\code{logical(1)})\cr
+This logical value (default: \code{FALSE}) can be used to
+create an interactive plot based on the library \code{plotly}
+(see \code{\link{innsight_plotly}} for details).\cr
+\emph{Note:} Make sure that the suggested package \code{plotly} is installed
+in your R session.\cr}
+
+\item{\code{individual_data_idx}}{(\code{integer} or \code{NULL})\cr
+Only relevant for a \code{plotly} plot with tabular
+or 1D inputs! This integer vector of data indices determines
+the available data points in a dropdown menu, which are drawn in
+individually analogous to \code{ref_data_idx} only for more data points.
+With the default value \code{NULL} the first \code{individual_max} data points
+are used.\cr
+\emph{Note:} If \code{ref_data_idx} is specified, this data point will be
+added to those from \code{individual_data_idx} in the dropdown menu.\cr}
+
+\item{\code{individual_max}}{(\code{integer(1)})\cr
+Only relevant for a \code{plotly} plot with tabular or
+1D inputs! This integer determines the maximum number of
+individual data points in the dropdown menu without counting
+\code{ref_data_idx}. This means that if \code{individual_data_idx} has more
+than \code{individual_max} indices, only the first \code{individual_max} will
+be used. A too high number can significantly increase the runtime.\cr}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Returns either an \code{\link{innsight_ggplot2}} (\code{as_plotly = FALSE}) or an
+\code{\link{innsight_plotly}} (\code{as_plotly = TRUE}) object with the plotted
+summarized results.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-InterpretingMethod-print"></a>}}
+\if{latex}{\out{\hypertarget{method-InterpretingMethod-print}{}}}
+\subsection{Method \code{print()}}{
+Print a summary of the method object. This summary contains the
+individual fields and in particular the results of the applied method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{InterpretingMethod$print()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Returns the method object invisibly via \code{\link[base:invisible]{base::invisible}}.
 }
 }
 \if{html}{\out{<hr>}}

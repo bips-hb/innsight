@@ -1,0 +1,392 @@
+---
+title: "Example 3: ImageNet with `keras`"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  out.width = "90%"
+)
+```
+
+This is a rather short article, just to illustrate the use of the `innsight` 
+package on a few images of the [ImageNet dataset](https://www.image-net.org/) 
+and pre-trained `keras` models. For more detailed information about the package 
+and the implemented methods we refer to [this article](https://bips-hb.github.io/innsight/vignette/detailed_overview.html) and for simpler but in 
+detailed explained examples we kindly recommend to [Example 1](https://bips-hb.github.io/innsight/vignette/example_1_iris.html) and [Example 2](https://bips-hb.github.io/innsight/vignette/example_2_penguin.html).
+
+In this example, we want to apply the `innsight` package on pre-trained models 
+on the ImageNet dataset using `keras`. This 
+dataset is a classification problem of images in $1000$ classes containing 
+over $500$ images per class. We have selected examples of a few 
+classes each and will analyze them with respect to different networks in 
+the following.
+
+<p align="center">
+  <img alt="steel bridge" src="images/image_1.png" width="200" height = "200">
+  <img alt="dog with tennis ball" src="images/image_2.png" width="200" height = "200">
+  <img alt="daisy" src="images/image_6.png" width="200" height = "200">
+  <img alt="ballon" src="images/image_13.png" width="200" height = "200">
+</p>
+
+## Preprocess Images
+
+The original images all have a different sizes and the pre-trained models all 
+require an input size of $224 \times 224 \times 3$ and the channels are 
+zero-centered according to the channel mean of the whole dataset; hence, we need
+to pre-process the images accordingly, which we will do in the following steps:
+
+```{r}
+# Load required packages
+library(keras)
+library(innsight)
+
+# Load images
+img_files <- paste0("images/", c("image_1.png", "image_2.png", "image_6.png", "image_13.png"))
+images <- k_stack(lapply(img_files, 
+                 function(path) image_to_array(image_load(path, target_size = c(224, 224)))))
+
+# now 'images' is a batch of 4 images of equal size 224x224x3
+dim(images)
+
+# preprocess images matching the conditions of the pre-trained models
+images <- imagenet_preprocess_input(images)
+```
+
+## Method configuration
+
+Besides the images, we also need the labels of the $1000$ classes, which we get
+via a trick with the `imagenet_decode_predictions` function:
+
+```{r}
+# get class labels
+res <- imagenet_decode_predictions(array(1:1000, dim = c(1,1000)), top = 1000)[[1]]
+imagenet_labels <- res$class_description[order(res$class_name)]
+```
+
+Last but not least, we define the configurations for the methods we want to 
+apply to the images and the models. This is a list that contains the 
+method call, method name and the corresponding method arguments. For more 
+information to the methods and the method-specific arguments, we refer to the
+[in-depth vignette](https://bips-hb.github.io/innsight/vignette/detailed_overview.html#step-2-apply-selected-method).
+
+```{r}
+config <- list(
+  list(
+    method = Gradient$new, 
+    method_name = "Gradient", 
+    method_args = list()),
+  list(
+    method = SmoothGrad$new, 
+    method_name = "SmoothGrad", 
+    method_args = list(n = 10)),
+  list(
+    method = Gradient$new, 
+    method_name = "Gradient x Input", 
+    method_args = list(times_input = TRUE)),
+  list(
+    method = LRP$new, 
+    method_name = "LRP (alpha_beta)", 
+    method_args = list(
+      rule_name = list(BatchNorm_Layer = "pass", Conv2D_Layer = "alpha_beta", 
+                       MaxPool2D_Layer = "alpha_beta", Dense_Layer = "alpha_beta",
+                       AvgPool2D_Layer = "alpha_beta"), 
+      rule_param = 1)),
+  list(
+    method = LRP$new, 
+    method_name = "LRP (composite)", 
+    method_args = list(
+      rule_name = list(BatchNorm_Layer = "pass", Conv2D_Layer = "alpha_beta", 
+                       MaxPool2D_Layer = "epsilon", AvgPool2D_Layer = "alpha_beta"), 
+      rule_param = list(Conv2D_Layer = 0.5, AvgPool2D_Layer = 0.5, 
+                        MaxPool2D_Layer = 0.001))),
+  list(
+    method = DeepLift$new, 
+    method_name = "DeepLift (rescale zeros)", 
+    method_args = list()),
+  list(
+    method = DeepLift$new, 
+    method_name = "DeepLift (reveal-cancel mean)",
+    method_args = list(rule_name = "reveal_cancel", x_ref = "mean"))
+)
+```
+
+In order to keep this article clear, we define a few utility functions below, 
+which will be used later on.
+
+<details>
+<summary> **Utility functions** </summary>
+```{r}
+# Function for getting the method arguments
+get_method_args <- function(conf, converter, data, output_idx) {
+  args <- conf$method_args
+  args$converter <- converter
+  args$data <- data 
+  args$output_idx <- output_idx
+  args$channels_first <- FALSE
+  args$verbose <- FALSE
+  
+  # for DeepLift use the channel mean
+  if (!is.null(args$x_ref)) {
+    mean <- array(apply(as.array(args$data), c(1, 4), mean), dim = c(1,1,1,3))
+    sd <- array(apply(as.array(args$data), c(1, 4), sd), dim = c(1,1,1,3))
+    args$x_ref <- torch::torch_randn(c(1,224,224,3)) * sd + mean
+  }
+  
+  args
+}
+
+apply_innsight <- function(method_conf, pred_df, FUN) {
+  lapply(seq_len(nrow(pred_df)), # For each image...
+       function(i) {
+         do.call(rbind, args = lapply(method_conf, FUN, i = i)) # and each method...
+       })
+}
+
+add_original_images <- function(img_files, gg_plot, num_methods) {
+  library(png)
+  
+  img_pngs <- lapply(img_files, 
+                 function(path) image_to_array(image_load(path, target_size = c(224, 224))) / 255)
+  
+  gl <- lapply(img_pngs, grid::rasterGrob)
+  gl <- append(gl, list(gg_plot))
+  
+  num_images <- length(img_files)
+  layout_matrix <- matrix(c(seq_len(num_images), 
+                            rep(num_images + 1, num_images * num_methods)), 
+                          nrow = num_images)
+  
+  list(grobs = gl, layout_matrix = layout_matrix)
+}
+```
+</details>
+
+## Pretrained Model Vgg19
+
+Now let's analyze the individual images according to the class that the model
+Vgg19 (see `?application_vgg19` for details) predicts for them. In the 
+`innsight` package these output classes have to be chosen by ourselves, because 
+a calculation for all $1000$ classes would be too computationally expensive.
+For this reason, we first determine the corresponding predictions from the model:
+
+```{r}
+# Load the model
+model <- application_vgg19(include_top = TRUE, weights = "imagenet") 
+
+# get predictions
+pred <- predict(model, images)
+pred_df <- imagenet_decode_predictions(pred, top = 1)
+
+# store the top prediction with the class label in a data.frame
+pred_df <- do.call(rbind, args = lapply(pred_df, function(x) x[1, ]))
+
+# add the model output index as a column
+pred_df <- cbind(pred_df, index = apply(pred, 1, which.max))
+
+# show the summary of the output predictions
+pred_df
+```
+
+Afterwards, we apply all the methods from the configuration `config` to the model 
+by first putting it into a `Converter` object and then applying the methods to 
+each image individually.
+
+```{r, eval=!file.exists("cache/result_vgg19.Rds") | Sys.getenv("RUN_ARTICLES", unset = 0) == 1}
+# Step 1: Convert the model ----------------------------------------------------
+converter <- Converter$new(model, output_names = imagenet_labels)
+
+FUN <- function(conf, i) {
+   # Get method args and add the converter, data, output index
+   # channels first and verbose arguments
+   args <- get_method_args(conf, converter, images[i,,,, drop = FALSE],  
+                           pred_df$index[i])
+   
+   # Step 2: Apply method ------------------------------------------------------
+   method <- do.call(conf$method, args = args)
+   
+   # Step 3: Get the result as a data.frame ------------------------------------
+   result <- get_result(method, "data.frame")
+   result$data <- paste0("data_", i)
+   result$method <- conf$method_name
+   
+   # Tidy a bit..
+   rm(method)
+   gc()
+   
+   result
+}
+
+result <- apply_innsight(config, pred_df, FUN)
+
+# Combine results and transform into data.table
+library(data.table)
+result <- data.table(do.call(rbind, result))
+```
+
+```{r, echo = FALSE, eval=!file.exists("cache/result_vgg19.Rds") | Sys.getenv("RUN_ARTICLES", unset = 0) == 1}
+saveRDS(result, "cache/result_vgg19.Rds")
+```
+
+```{r, echo = FALSE, eval=file.exists("cache/result_vgg19.Rds") & Sys.getenv("RUN_ARTICLES", unset = 0) == 0}
+library(data.table)
+result <- readRDS("cache/result_vgg19.Rds")
+```
+
+After the results have been generated and summarized in a `data.table`, they 
+can be visualized using `ggplot2`:
+
+```{r, fig.width=12, fig.height=6, out.width="100%"}
+library(ggplot2)
+
+# First, we take the channels mean
+result <- result[, .(value = mean(value)), 
+                 by = c("data", "feature", "feature_2", "output_node", "method")]
+
+# Now, we normalize the relevance values for each output, data point and method to [-1, 1]
+result <- result[, .(value = value / max(abs(value)), feature = feature, feature_2 = feature_2),
+                 by = c("data", "output_node", "method")]
+
+result$method <- factor(result$method, levels = unique(result$method))
+
+# set probabilities
+labels <- paste0(pred_df$class_description, " (", round(pred_df$score * 100, 2), "%)")
+result$data <- factor(result$data, levels = unique(result$data), labels = labels)
+
+# Create ggplot2 plot
+p <- ggplot(result) + 
+  geom_raster(aes(x = as.numeric(feature_2), y = as.numeric(feature), fill= value)) +
+  scale_fill_gradient2(guide = "none", mid = "white", low = "blue", high = "red") +
+  facet_grid(rows = vars(data), cols = vars(method), 
+             labeller = labeller(data = label_wrap_gen(), method = label_wrap_gen())) +
+  scale_y_reverse(expand = c(0,0), breaks = NULL) + 
+  scale_x_continuous(expand = c(0,0), breaks = NULL) +
+  labs(x = NULL, y = NULL)
+
+
+# Create column with the original images and show the combined plot
+res <- add_original_images(img_files, p, length(unique(result$method)))
+gridExtra::grid.arrange(grobs = res$grobs, layout_matrix = res$layout_matrix)
+```
+
+## Pretrained Model ResNet50
+
+We can execute these steps to another model analogously:
+
+<details>
+<summary> **The exact same steps as in the last section** </summary>
+
+Load the model ResNet50 (see `?application_resnet50` for details) and get
+the predictions:
+
+```{r}
+# Load the model
+model <- application_resnet50(include_top = TRUE, weights = "imagenet") 
+
+# get predictions
+pred <- predict(model, images)
+pred_df <- imagenet_decode_predictions(pred, top = 1)
+
+# store the top prediction with the class label in a data.frame
+pred_df <- do.call(rbind, args = lapply(pred_df, function(x) x[1, ]))
+
+# add the model output index as a column
+pred_df <- cbind(pred_df, index = apply(pred, 1, which.max))
+```
+
+Apply all methods specified in `config` to all images:
+
+```{r, eval=!file.exists("cache/result_resnet50.Rds") | Sys.getenv("RUN_ARTICLES", unset = 0) == 1}
+# Step 1: Convert the model ----------------------------------------------------
+converter <- Converter$new(model, output_names = imagenet_labels)
+
+FUN <- function(conf, i) {
+   # Get method args and add the converter, data, output index
+   # channels first and verbose arguments
+   args <- get_method_args(conf, converter, images[i,,,, drop = FALSE],  
+                           pred_df$index[i])
+   
+   # Step 2: Apply method ------------------------------------------------------
+   method <- do.call(conf$method, args = args)
+   
+   # Step 3: Get the result as a data.frame ------------------------------------
+   result <- get_result(method, "data.frame")
+   result$data <- paste0("data_", i)
+   result$method <- conf$method_name
+   
+   # Tidy a bit..
+   rm(method)
+   gc()
+   
+   result
+}
+
+result <- apply_innsight(config, pred_df, FUN)
+
+# Combine results and transform into data.table
+library(data.table)
+result <- data.table(do.call(rbind, result))
+```
+
+```{r, echo = FALSE, eval=!file.exists("cache/result_resnet50.Rds") | Sys.getenv("RUN_ARTICLES", unset = 0) == 1}
+saveRDS(result, "cache/result_resnet50.Rds")
+```
+
+```{r, echo = FALSE, eval=file.exists("cache/result_resnet50.Rds") & Sys.getenv("RUN_ARTICLES", unset = 0) == 0}
+library(data.table)
+result <- readRDS("cache/result_resnet50.Rds")
+```
+
+After the results have been generated and summarized in a `data.table`, they 
+can be visualized using `ggplot2`:
+
+```{r, fig.width=12, fig.height=6, out.width="100%"}
+library(ggplot2)
+
+# First, we take the channels mean
+result <- result[, .(value = mean(value)), 
+                 by = c("data", "feature", "feature_2", "output_node", "method")]
+
+# Now, we normalize the relevance values for each output, data point and method to [-1, 1]
+result <- result[, .(value = value / max(abs(value)), feature = feature, feature_2 = feature_2),
+                 by = c("data", "output_node", "method")]
+
+result$method <- factor(result$method, levels = unique(result$method))
+
+# set probabilities
+labels <- paste0(pred_df$class_description, " (", round(pred_df$score * 100, 2), "%)")
+result$data <- factor(result$data, levels = unique(result$data), labels = labels)
+
+# Create ggplot2 plot
+p <- ggplot(result) + 
+  geom_raster(aes(x = as.numeric(feature_2), y = as.numeric(feature), fill= value)) +
+  scale_fill_gradient2(guide = "none", mid = "white", low = "blue", high = "red") +
+  facet_grid(rows = vars(data), cols = vars(method), 
+             labeller = labeller(data = label_wrap_gen(), method = label_wrap_gen())) +
+  scale_y_reverse(expand = c(0,0), breaks = NULL) + 
+  scale_x_continuous(expand = c(0,0), breaks = NULL) +
+  labs(x = NULL, y = NULL)
+
+
+# Create column with the original images and show the combined plot
+
+res <- add_original_images(img_files, p, length(unique(result$method)))
+```
+</details>
+
+Show the result:
+
+```{r, fig.width=12, fig.height=6, out.width="100%"}
+gridExtra::grid.arrange(grobs = res$grobs, layout_matrix = res$layout_matrix)
+```
+
+
+
+
+
+
+
+
+
+

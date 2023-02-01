@@ -1,1 +1,46 @@
 url: https://bips-hb.github.io/innsight
+
+
+reference:
+- title: Converter and converted Model
+  contents:
+  - Converter
+  - ConvertedModel
+
+- title: Feature Attribution Methods
+  contents:
+    - Gradient
+    - SmoothGrad
+    - LRP
+    - DeepLift
+    - ConnectionWeights
+
+- title: Visualization and getting Results
+  contents:
+  - get_result
+  - innsight_ggplot2
+  - innsight_plotly
+
+- subtitle: "`innsight_ggplot2`"
+  contents:
+  - plot.innsight_ggplot2
+  - print.innsight_ggplot2
+  - show.innsight_ggplot2
+  - "[.innsight_ggplot2"
+  - "[<-.innsight_ggplot2"
+  - "[[.innsight_ggplot2"
+  - "+.innsight_ggplot2"
+
+- subtitle: "`innsight_plotly`"
+  contents:
+  - plot.innsight_plotly
+  - print.innsight_plotly
+  - show.innsight_plotly
+  - "[.innsight_plotly"
+  - "[[.innsight_plotly"
+
+- title: Superclasses and Package information
+  contents:
+  - innsight-package
+  - GradientBased
+  - InterpretingMethod

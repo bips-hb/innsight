@@ -2,7 +2,7 @@
 % Please edit documentation in R/Converter.R
 \name{Converter}
 \alias{Converter}
-\title{Converter of an artificial Neural Network}
+\title{Converter of an Artificial Neural Network}
 \description{
 This class analyzes a passed neural network and stores its internal
 structure and the individual layers by converting the entire network into an
@@ -17,8 +17,9 @@ You can use models from the following libraries:
 \item \code{\link[neuralnet]{neuralnet}}
 }
 
-Furthermore, a model can be passed as a list (see details for more
-information).
+Furthermore, a model can be passed as a list (see
+\code{vignette("detailed_overview", package = "innsight")} or the
+\href{https://bips-hb.github.io/innsight/vignette/detailed_overview.html#model-as-named-list}{website}).
 }
 \details{
 In order to better understand and analyze the prediction of a neural
@@ -27,10 +28,10 @@ which are not stored in an ordinary forward pass, are often required. For
 this reason, a given neural network is converted into a torch-based neural
 network, which provides all the necessary information for an interpretation.
 The converted torch model is stored in the field \code{model} and is an instance
-of \code{\link[innsight:ConvertedModel]{innsight::ConvertedModel}}.
+of \code{\link[innsight:ConvertedModel]{ConvertedModel}}.
 However, before the torch model is created, all relevant details of the
 passed model are extracted into a named list. This list can be saved
-in complete form in the \code{model_dict} field with the argument
+in complete form in the \code{model_as_list} field with the argument
 \code{save_model_as_list}, but this may consume a lot of memory for large
 networks and is not done by default. Also, this named list can again be
 used as a passed model for the class \code{Converter}, which will be described
@@ -40,11 +41,11 @@ in more detail in the section 'Implemented Libraries'.
 An object of the Converter class can be applied to the
 following methods:
 \itemize{
-\item Layerwise Relevance Propagation (\link{LRP}), Bach et al. (2015)
-\item Deep Learning Important Features (\link{DeepLift}), Shrikumar et al. (2017)
-\item \link{SmoothGrad} including 'SmoothGrad x Input', Smilkov et al. (2017)
-\item Vanilla \link{Gradient} including 'Gradient x Input'
-\item \link{ConnectionWeights}, Olden et al. (2004)
+\item \emph{Layerwise Relevance Propagation} (\link{LRP}), Bach et al. (2015)
+\item \emph{Deep Learning Important Features} (\link{DeepLift}), Shrikumar et al. (2017)
+\item \emph{\link{SmoothGrad}} including \emph{SmoothGrad x Input}, Smilkov et al. (2017)
+\item \emph{Vanilla \link{Gradient}} including \emph{Gradient x Input}
+\item \emph{\link{ConnectionWeights}}, Olden et al. (2004)
 }
 }
 
@@ -54,104 +55,10 @@ The converter is implemented for models from the libraries
 \code{\link[torch]{nn_sequential}},
 \code{\link[neuralnet]{neuralnet}} and \code{\link[keras]{keras}}. But you
 can also write a wrapper for other libraries because a model can be passed
-as a named list with the following components:
-\itemize{
-\item \strong{\verb{$input_dim}}\cr
-An integer vector with the model input dimension, e.g. for
-a dense layer with 5 input features use \code{c(5)} or for  a 1D-convolutional
-layer with signal length 50 and 4 channels use \code{c(4,50)}.
-\item \strong{\verb{$input_names}} (optional)\cr
-A list with the names for each input dimension, e.g. for
-a dense layer with 3 input features use \code{list(c("X1", "X2", "X3"))} or for a
-1D-convolutional layer with signal length 5 and 2 channels use
-\code{list(c("C1", "C2"), c("L1","L2","L3","L4","L5"))}. By default (\code{NULL})
-the names are generated.
-\item \strong{\verb{$output_dim}} (optional)\cr
-An integer vector with the model output dimension analogous to \verb{$input_dim}.
-This value does not need to be specified. But if it is set, the calculated
-value will be compared with it to avoid errors during converting.
-\item \strong{\verb{$output_names}} (optional)\cr
-A list with the names for each output dimension analogous to \verb{$input_names}.
-By default (\code{NULL}) the names are generated.
-\item \strong{\verb{$layers}}\cr
-A list with the respective layers of the model. Each layer is represented as
-another list that requires the following entries depending on the type:
-\itemize{
-\item \strong{Dense Layer:}
-\itemize{
-\item \strong{\verb{$type}}: \code{'Dense'}
-\item \strong{\verb{$weight}}: The weight matrix of the dense layer with shape
-(\code{dim_out}, \code{dim_in}).
-\item \strong{\verb{$bias}}: The bias vector of the dense layer with length
-\code{dim_out}.
-\item \strong{\code{activation_name}}: The name of the activation function for this
-dense layer, e.g. \code{'relu'}, \code{'tanh'} or \code{'softmax'}.
-\item \strong{\code{dim_in}} (optional): The input dimension of this layer. This
-value is not necessary, but helpful to check the format of the weight
-matrix.
-\item \strong{\code{dim_out}} (optional): The output dimension of this layer. This
-value is not necessary, but helpful to check the format of the weight
-matrix.
-}
-\item \strong{Convolutional Layers:}
-\itemize{
-\item \strong{\verb{$type}}: \code{'Conv1D'} or \code{'Conv2D'}
-\item \strong{\verb{$weight}}: The weight array of the convolutional layer with shape
-(\code{out_channels}, \code{in_channels}, \code{kernel_length}) for 1D or
-(\code{out_channels}, \code{in_channels}, \code{kernel_height}, \code{kernel_width}) for
-2D.
-\item \strong{\verb{$bias}}: The bias vector of the layer with length \code{out_channels}.
-\item \strong{\verb{$activation_name}}: The name of the activation function for this
-layer, e.g. \code{'relu'}, \code{'tanh'} or \code{'softmax'}.
-\item \strong{\verb{$dim_in}} (optional): The input dimension of this layer according
-to the format (\code{in_channels}, \code{in_length}) for 1D or
-(\code{in_channels}, \code{in_height}, \code{in_width}) for 2D.
-\item \strong{\verb{$dim_out}} (optional): The output dimension of this layer
-according to the format (\code{out_channels}, \code{out_length}) for 1D or
-(\code{out_channels}, \code{out_height}, \code{out_width}) for 2D.
-\item \strong{\verb{$stride}} (optional): The stride of the convolution (single
-integer for 1D and tuple of two integers for 2D). If this value is not
-specified, the default values (1D: \code{1} and 2D: \code{c(1,1)}) are used.
-\item \strong{\verb{$padding}} (optional): Zero-padding added to the sides of the
-input before convolution. For 1D-convolution a tuple of the form
-(\code{pad_left}, \code{pad_right}) and for 2D-convolution
-(\code{pad_left}, \code{pad_right}, \code{pad_top}, \code{pad_bottom}) is required. If this
-value is not specified, the default values (1D: \code{c(0,0)} and 2D:
-\code{c(0,0,0,0)}) are used.
-\item \strong{\verb{$dilation}} (optional): Spacing between kernel elements (single
-integer for 1D and tuple of two integers for 2D). If this value is
-not specified, the default values (1D: \code{1} and 2D: \code{c(1,1)}) are used.
-}
-\item \strong{Pooling Layers:}
-\itemize{
-\item \strong{\verb{$type}}: \code{'MaxPooling1D'}, \code{'MaxPooling2D'}, \code{'AveragePooling1D'}
-or \code{'AveragePooling2D'}
-\item \strong{\verb{$kernel_size}}: The size of the pooling window as an integer
-value for 1D-pooling and an tuple of two integers for 2D-pooling.
-\item \strong{\verb{$strides}} (optional): The stride of the pooling window (single
-integer for 1D and tuple of two integers for 2D). If this value is not
-specified (\code{NULL}), the value of \code{kernel_size} will be used.
-\item \strong{\code{dim_in}} (optional): The input dimension of this layer. This
-value is not necessary, but helpful to check the correctness of the
-converted model.
-\item \strong{\code{dim_out}} (optional): The output dimension of this layer. This
-value is not necessary, but helpful to check the correctness of the
-converted model.
-}
-\item \strong{Flatten Layer:}
-\itemize{
-\item \strong{\verb{$type}}: \code{'Flatten'}
-\item \strong{\verb{$dim_in}} (optional): The input dimension of this layer
-without the batch dimension.
-\item \strong{\verb{$dim_out}} (optional): The output dimension of this layer
-without the batch dimension.
-}
-}
-}
-
-\strong{Note:} This package works internally only with the data format 'channels
-first', i.e. all input dimensions and weight matrices must be adapted
-accordingly.
+as a named list which is described in detail in the vignette "In-depth
+Explanation"
+(see \code{vignette("detailed_overview", package = "innsight")} or the
+\href{https://bips-hb.github.io/innsight/vignette/detailed_overview.html#model-as-named-list}{website}).
 }
 }
 \examples{
@@ -170,11 +77,11 @@ data <- torch_randn(25, 5)
 # Convert the model (for torch models is 'input_dim' required!)
 converter <- Converter$new(model, input_dim = c(5))
 
-# Get the converted model
+# Get the converted model stored in the field 'model'
 converted_model <- converter$model
 
 # Test it with the original model
-mean(abs(converted_model(data) - model(data)))
+mean(abs(converted_model(data)[[1]] - model(data)))
 
 
 #----------------------- Example 2: Neuralnet ------------------------------
@@ -193,37 +100,37 @@ converter <- Converter$new(nn)
 
 # Print all the layers
 converter$model$modules_list
-
+\dontshow{\}) # examplesIf}
+\dontshow{if (keras::is_keras_available() & torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 #----------------------- Example 3: Keras ----------------------------------
 library(keras)
 
-if (is_keras_available()) {
-  # Define a keras model
-  model <- keras_model_sequential()
-  model \%>\%
-    layer_conv_2d(
-      input_shape = c(32, 32, 3), kernel_size = 8, filters = 8,
-      activation = "relu", padding = "same"
-    ) \%>\%
-    layer_conv_2d(
-      kernel_size = 8, filters = 4,
-      activation = "tanh", padding = "same"
-    ) \%>\%
-    layer_conv_2d(
-      kernel_size = 4, filters = 2,
-      activation = "relu", padding = "same"
-    ) \%>\%
-    layer_flatten() \%>\%
-    layer_dense(units = 64, activation = "relu") \%>\%
-    layer_dense(units = 1, activation = "sigmoid")
+# Make sure keras is installed properly
+is_keras_available()
 
-  # Convert this model and save model as list
-  converter <- Converter$new(model, save_model_as_list = TRUE)
+# Define a keras model
+model <- keras_model_sequential()
+model \%>\%
+  layer_conv_2d(
+    input_shape = c(32, 32, 3), kernel_size = 8, filters = 8,
+    activation = "relu", padding = "same") \%>\%
+  layer_conv_2d(
+    kernel_size = 8, filters = 4,
+    activation = "tanh", padding = "same") \%>\%
+  layer_conv_2d(
+    kernel_size = 4, filters = 2,
+    activation = "relu", padding = "same") \%>\%
+  layer_flatten() \%>\%
+  layer_dense(units = 64, activation = "relu") \%>\%
+  layer_dense(units = 1, activation = "sigmoid")
 
-  # Print the converted model as a named list
-  str(converter$model_dict)
-}
+# Convert this model and save model as list
+converter <- Converter$new(model, save_model_as_list = TRUE)
 
+# Print the converted model as a named list
+str(converter$model_dict)
+\dontshow{\}) # examplesIf}
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 #----------------------- Example 4: List  ----------------------------------
 
 # Define a model
@@ -280,13 +187,31 @@ CoRR, abs/1706.03825
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{model}}{The converted neural network based on the torch module
-\link{ConvertedModel}.}
+\item{\code{model}}{(\code{\link{ConvertedModel}})\cr
+The converted neural network based on the torch module \link{ConvertedModel}.\cr}
 
-\item{\code{model_dict}}{The model stored in a named list (see details for more
-information). By default, the entry \code{model_dict$layers} is deleted
+\item{\code{input_dim}}{(\code{list})\cr
+A list of the input dimensions of each input layer. Since
+internally the channels-first format is used for all calculations, the
+input shapes are already in this format. In addition, the batch
+dimension isn't included, e.g. for an input layer of shape \verb{c(*,32,32,3)}
+with channels in the last axis you get \code{list(c(3,32,32))}.\cr}
+
+\item{\code{input_names}}{(\code{list})\cr
+A list with the names as factors for each input
+dimension of the shape as stored in the field \code{input_dim}.\cr}
+
+\item{\code{output_dim}}{(\code{list})\cr
+A list of the output dimensions of each output layer.\cr}
+
+\item{\code{output_names}}{(\code{list})\cr A list with the names as factors for each
+output dimension of shape as stored in the field \code{output_dim}.\cr}
+
+\item{\code{model_as_list}}{(\code{list})\cr
+The model stored in a named list (see details for more
+information). By default, the entry \code{model_as_list$layers} is deleted
 because it may require a lot of memory for large networks. However, with
-the argument \code{save_model_as_list} this can be saved anyway.}
+the argument \code{save_model_as_list} this can be saved anyway.\cr}
 }
 \if{html}{\out{</div>}}
 }
@@ -294,6 +219,7 @@ the argument \code{save_model_as_list} this can be saved anyway.}
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-Converter-new}{\code{Converter$new()}}
+\item \href{#method-Converter-print}{\code{Converter$print()}}
 \item \href{#method-Converter-clone}{\code{Converter$clone()}}
 }
 }
@@ -301,7 +227,10 @@ the argument \code{save_model_as_list} this can be saved anyway.}
 \if{html}{\out{<a id="method-Converter-new"></a>}}
 \if{latex}{\out{\hypertarget{method-Converter-new}{}}}
 \subsection{Method \code{new()}}{
-Create a new Converter for a given neural network.
+Create a new Converter for a given neural network. When initialized,
+the model is inspected, converted as a list and then the a
+torch-converted model (\link{ConvertedModel}) is created and stored in
+the field \code{model}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Converter$new(
   model,
@@ -316,51 +245,76 @@ Create a new Converter for a given neural network.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{model}}{A trained neural network for classification or regression
+\item{\code{model}}{(\code{\link{nn_sequential}}, \code{\link[keras]{keras_model}},
+\code{\link[neuralnet]{neuralnet}} or \code{list})\cr
+A trained neural network for classification or regression
 tasks to be interpreted. Only models from the following types or
 packages are allowed: \code{\link[torch]{nn_sequential}},
 \code{\link[keras]{keras_model}},
 \code{\link[keras]{keras_model_sequential}},
 \code{\link[neuralnet]{neuralnet}} or a named list (see details).}
 
-\item{\code{input_dim}}{An integer vector with the model input dimension
-excluding the batch dimension, e.g. for a dense layer with \code{5} input
-features use \code{c(5)} or for a 1D convolutional layer with signal
-length \code{50} and \code{4} channels use \code{c(4, 50)}. \cr
-\strong{Note:} This argument is only necessary for \code{torch::nn_sequential},
-for all others it is automatically extracted from the passed model.
-In addition, the input dimension \code{input_dim} has to be in the format
-channels first.}
+\item{\code{input_dim}}{(\code{integer})\cr
+The model input dimension excluding the batch
+dimension. If there is only one input layer it can be specified as
+a vector, otherwise use a list of the shapes of the
+individual input layers.\cr
+\emph{Note:} This argument is only necessary for \code{torch::nn_sequential},
+for all others it is automatically extracted from the passed model
+and used for internal checks. In addition, the input dimension
+\code{input_dim} has to be in the format channels first.\cr}
 
-\item{\code{input_names}}{(Optional) A list with the names for each input
-dimension, e.g. for a dense layer with \code{3} input features use
-\code{list(c("X1", "X2", "X3"))} or for a 1D convolutional layer with
-signal length \code{5} and \code{2} channels use
-\code{list(c("C1", "C2"), c("L1","L2","L3","L4","L5"))}.\cr
-\strong{Note:} This argument is optional and otherwise the names are
+\item{\code{input_names}}{(\code{list})\cr
+A list with the names for each input
+dimension excluding the batch dimension, e.g. for a dense layer
+with \code{3} input features use \code{list(c("X1", "X2", "X3"))} or for a
+1D convolutional layer with signal length \code{5} and \code{2} channels use
+\code{list(c("C1", "C2"), c("L1","L2","L3","L4","L5"))}. Instead of character
+vectors you can also use factors to set an order for the plots.\cr
+\emph{Note:} This argument is optional and otherwise the names are
 generated automatically. But if this argument is set, all found
-input names in the passed model will be disregarded.}
+input names in the passed model will be disregarded.\cr}
 
-\item{\code{output_names}}{(Optional) A list with the names for the output,
-e.g. for a model with \code{3} outputs use \code{list(c("Y1", "Y2", "Y3"))}.\cr
-\strong{Note:} This argument is optional and otherwise the names are
+\item{\code{output_names}}{(\code{character} or \code{list})\cr
+A list with the names for the output
+dimensions excluding the batch dimension,
+e.g. for a model with \code{3} output nodes use
+\code{list(c("Y1", "Y2", "Y3"))}. Instead of a character
+vector you can also use a factor to set an order for the plots.\cr
+\emph{Note:} This argument is optional and otherwise the names are
 generated automatically. But if this argument is set, all found
-output names in the passed model will be disregarded.}
+output names in the passed model will be disregarded.\cr}
 
-\item{\code{dtype}}{The data type for the calculations. Use
+\item{\code{dtype}}{(\code{character(1)})\cr
+The data type for the calculations. Use
 either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
-\link[torch:torch_dtype]{torch::torch_double}.}
+\link[torch:torch_dtype]{torch::torch_double}.\cr}
 
-\item{\code{save_model_as_list}}{This logical value specifies whether the
-passed model should be stored as a list (as it is described in the
-details also as an alternative input for a model). This list can take
+\item{\code{save_model_as_list}}{(\code{logical(1)})\cr
+This logical value specifies whether the
+passed model should be stored as a list. This list can take
 a lot of memory for large networks, so by default the model is not
-stored as a list (\code{FALSE}).}
+stored as a list (\code{FALSE}).\cr}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
 A new instance of the R6 class \code{'Converter'}.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Converter-print"></a>}}
+\if{latex}{\out{\hypertarget{method-Converter-print}{}}}
+\subsection{Method \code{print()}}{
+Print a summary of the Converter object. This summary contains the
+individual fields and in particular the torch-converted model
+(\link{ConvertedModel}) with the layers.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Converter$print()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Returns the Converter object invisibly via \code{\link[base:invisible]{base::invisible}}.
 }
 }
 \if{html}{\out{<hr>}}

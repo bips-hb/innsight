@@ -2,15 +2,15 @@
 % Please edit documentation in R/GradienBased.R
 \name{GradientBased}
 \alias{GradientBased}
-\title{Super class for Gradient-based Interpretation Methods}
+\title{Super Class for Gradient-based Interpretation Methods}
 \description{
 Super class for gradient-based interpretation methods. This
 class inherits from \link{InterpretingMethod}. It summarizes all implemented
 gradient-based methods and provides a private function to calculate the
 gradients w.r.t. to the input for given data. Implemented are:
 \itemize{
-\item 'Vanilla Gradients' and 'Gradient x Input' (\link{Gradient})
-\item 'SmoothGrad' and 'SmoothGrad x Input' (\link{SmoothGrad})
+\item \emph{Vanilla Gradients} and \emph{Gradient x Input} (\link{Gradient})
+\item \emph{SmoothGrad} and \emph{SmoothGrad x Input} (\link{SmoothGrad})
 }
 }
 \section{Super class}{
@@ -19,8 +19,10 @@ gradients w.r.t. to the input for given data. Implemented are:
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{times_input}}{Multiplies the gradients with the input features.
-This method is called 'Gradient x Input'.}
+\item{\code{times_input}}{(\verb{logical(1}))\cr
+This logical value indicates whether the results
+were multiplied by the provided input data or not. If \code{TRUE}, the
+method is called \emph{Gradient x Input}.\cr}
 }
 \if{html}{\out{</div>}}
 }
@@ -28,15 +30,16 @@ This method is called 'Gradient x Input'.}
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-GradientBased-new}{\code{GradientBased$new()}}
-\item \href{#method-GradientBased-plot}{\code{GradientBased$plot()}}
-\item \href{#method-GradientBased-boxplot}{\code{GradientBased$boxplot()}}
 \item \href{#method-GradientBased-clone}{\code{GradientBased$clone()}}
 }
 }
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="boxplot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-boxplot'><code>innsight::InterpretingMethod$boxplot()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-get_result'><code>innsight::InterpretingMethod$get_result()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot'><code>innsight::InterpretingMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="print"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-print'><code>innsight::InterpretingMethod$print()</code></a></span></li>
 </ul>
 </details>
 }}
@@ -44,7 +47,9 @@ This method is called 'Gradient x Input'.}
 \if{html}{\out{<a id="method-GradientBased-new"></a>}}
 \if{latex}{\out{\hypertarget{method-GradientBased-new}{}}}
 \subsection{Method \code{new()}}{
-Create a new instance of this class.
+Create a new instance of this class. When initialized,
+the method is applied to the given data and the results are stored in
+the field \code{result}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{GradientBased$new(
   converter,
@@ -53,6 +58,7 @@ Create a new instance of this class.
   output_idx = NULL,
   ignore_last_act = TRUE,
   times_input = TRUE,
+  verbose = interactive(),
   dtype = "float"
 )}\if{html}{\out{</div>}}
 }
@@ -60,182 +66,75 @@ Create a new instance of this class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{converter}}{The converter of class \link{Converter} with the stored and
-torch-converted model.}
+\item{\code{converter}}{(\code{\link{Converter}})\cr
+An instance of the \code{Converter} class that includes the
+torch-converted model and some other model-specific attributes. See
+\code{\link{Converter}} for details.\cr}
 
-\item{\code{data}}{The given data in an array-like format to be interpreted
-with the selected gradient-based method.}
+\item{\code{data}}{(\code{\link{array}}, \code{\link{data.frame}}, \code{\link{torch_tensor}} or \code{list})\cr
+The data to which the method is to be applied. These must
+have the same format as the input data of the passed model to the
+converter object. This means either
+\itemize{
+\item an \code{array}, \code{data.frame}, \code{torch_tensor} or array-like format of
+size \emph{(batch_size, dim_in)}, if e.g.the model has only one input layer, or
+\item a \code{list} with the corresponding input data (according to the
+upper point) for each of the input layers.\cr
+}}
 
-\item{\code{channels_first}}{The format of the given date, i.e. channels on
-last dimension (\code{FALSE}) or after the batch dimension (\code{TRUE}). If the
-data has no channels, use the default value \code{TRUE}.}
+\item{\code{channels_first}}{(\code{logical(1)})\cr
+The channel position of the given data (argument
+\code{data}). If \code{TRUE}, the channel axis is placed at the second position
+between the batch size and the rest of the input axes, e.g.
+\code{c(10,3,32,32)} for a batch of ten images with three channels and a
+height and width of 32 pixels. Otherwise (\code{FALSE}), the channel axis
+is at the last position, i.e. \code{c(10,32,32,3)}. If the data
+has no channel axis, use the default value \code{TRUE}.\cr}
 
-\item{\code{output_idx}}{This vector determines for which outputs the method
-will be applied. By default (\code{NULL}), all outputs (but limited to the
-first 10) are considered.}
+\item{\code{output_idx}}{(\code{integer}, \code{list} or \code{NULL})\cr
+These indices specify the output nodes for which
+the method is to be applied. In order to allow models with multiple
+output layers, there are the following possibilities to select
+the indices of the output nodes in the individual output layers:
+\itemize{
+\item An \code{integer} vector of indices: If the model has only one output
+layer, the values correspond to the indices of the output nodes, e.g.
+\code{c(1,3,4)} for the first, third and fourth output node. If there are
+multiple output layers, the indices of the output nodes from the first
+output layer are considered.
+\item A \code{list} of \code{integer} vectors of indices: If the method is to be
+applied to output nodes from different layers, a list can be passed
+that specifies the desired indices of the output nodes for each
+output layer. Unwanted output layers have the entry \code{NULL} instead of
+a vector of indices, e.g. \code{list(NULL, c(1,3))} for the first and
+third output node in the second output layer.
+\item \code{NULL} (default): The method is applied to all output nodes in
+the first output layer but is limited to the first ten as the
+calculations become more computationally expensive for more output
+nodes.\cr
+}}
 
-\item{\code{ignore_last_act}}{Set this boolean value to include the last
-activation, or not (default: \code{TRUE}). In some cases, the last activation
-leads to a saturation problem.}
+\item{\code{ignore_last_act}}{(\code{logical(1)})\cr
+Set this logical value to include the last
+activation functions for each output layer, or not (default: \code{TRUE}).
+In practice, the last activation (especially for softmax activation) is
+often omitted.\cr}
 
-\item{\code{times_input}}{Multiplies the gradients with the input features.
-This method is called 'Gradient x Input'.}
+\item{\code{times_input}}{(\verb{logical(1})\cr
+Multiplies the gradients with the input features.
+This method is called \emph{Gradient x Input}.\cr}
 
-\item{\code{dtype}}{The data type for the calculations. Use
-either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
-\link[torch:torch_dtype]{torch::torch_double}.}
+\item{\code{verbose}}{(\code{logical(1)})\cr
+This logical argument determines whether a progress bar is
+displayed for the calculation of the method or not. The default value is
+the output of the primitive R function \code{\link[=interactive]{interactive()}}.\cr}
+
+\item{\code{dtype}}{(\code{character(1)})\cr
+The data type for the calculations. Use
+either \code{'float'} for \link{torch_float} or \code{'double'} for
+\link{torch_double}.\cr}
 }
 \if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GradientBased-plot"></a>}}
-\if{latex}{\out{\hypertarget{method-GradientBased-plot}{}}}
-\subsection{Method \code{plot()}}{
-This method visualizes the result of the selected method in a
-\link[ggplot2:ggplot]{ggplot2::ggplot}. You can use the argument \code{data_idx} to select
-the data points in the given data for the plot. In addition, the
-individual output nodes for the plot can be selected with the argument
-\code{output_idx}. The different results for the selected data points and
-outputs are visualized using the method \link[ggplot2:facet_grid]{ggplot2::facet_grid}.
-You can also use the \code{as_plotly} argument to generate an interactive
-plot based on the plot function \link[plotly:plot_ly]{plotly::plot_ly}.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GradientBased$plot(
-  data_idx = 1,
-  output_idx = NULL,
-  aggr_channels = "sum",
-  as_plotly = FALSE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{data_idx}}{An integer vector containing the numbers of the data
-points whose result is to be plotted, e.g. \code{c(1,3)} for the first
-and third data point in the given data. Default: \code{c(1)}.}
-
-\item{\code{output_idx}}{An integer vector containing the numbers of the
-output indices whose result is to be plotted, e.g. \code{c(1,4)} for the
-first and fourth model output. But this vector must be included in the
-vector \code{output_idx} from the initialization, otherwise, no results were
-calculated for this output node and can not be plotted. By default
-(\code{NULL}), the smallest index of all calculated output nodes is used.}
-
-\item{\code{aggr_channels}}{Pass one of \code{'norm'}, \code{'sum'}, \code{'mean'} or a
-custom function to aggregate the channels, e.g. the maximum
-(\link[base:Extremes]{base::max}) or minimum (\link[base:Extremes]{base::min}) over the channels or only
-individual channels with \code{function(x) x[1]}. By default (\code{'sum'}),
-the sum of all channels is used.\cr
-\strong{Note:} This argument is used only for 2D and 3D inputs.}
-
-\item{\code{as_plotly}}{This boolean value (default: \code{FALSE}) can be used to
-create an interactive plot based on the library \code{plotly}. This function
-takes use of \link[plotly:ggplotly]{plotly::ggplotly}, hence make sure that the suggested
-package \code{plotly} is installed in your R session.\cr
-\strong{Advanced:} You can first
-output the results as a ggplot (\code{as_plotly = FALSE}) and then make
-custom changes to the plot, e.g. other theme or other fill color. Then
-you can manually call the function \code{ggplotly} to get an interactive
-plotly plot.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Returns either a \link[ggplot2:ggplot]{ggplot2::ggplot} (\code{as_plotly = FALSE}) or a
-\link[plotly:plot_ly]{plotly::plot_ly} (\code{as_plotly = TRUE}) with the plotted results.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GradientBased-boxplot"></a>}}
-\if{latex}{\out{\hypertarget{method-GradientBased-boxplot}{}}}
-\subsection{Method \code{boxplot()}}{
-This function visualizes the results of this method in a boxplot, where
-the type of visualization depends on the input dimension of the data.
-By default a \link[ggplot2:ggplot]{ggplot2::ggplot} is returned, but with the argument
-\code{as_plotly} an interactive \link[plotly:plot_ly]{plotly::plot_ly} plot can be created,
-which however requires a successful installation of the package
-\code{plotly}.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GradientBased$boxplot(
-  output_idx = NULL,
-  data_idx = "all",
-  ref_data_idx = NULL,
-  aggr_channels = "norm",
-  preprocess_FUN = abs,
-  as_plotly = FALSE,
-  individual_data_idx = NULL,
-  individual_max = 20
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{output_idx}}{An integer vector containing the numbers of the
-output indices whose result is to be plotted, e.g. \code{c(1,4)} for the
-first and fourth model output. But this vector must be included in the
-vector \code{output_idx} from the initialization, otherwise, no results were
-calculated for this output node and can not be plotted. By default
-(\code{NULL}), the smallest index of all calculated output nodes is used.}
-
-\item{\code{data_idx}}{By default ("all"), all available data is used to
-calculate the boxplot information. However, this parameter can be used
-to select a subset of them by passing the indices. E.g. with
-\code{data_idx = c(1:10, 25, 26)} only the first \code{10} data points and
-the 25th and 26th are used to calculate the boxplots.}
-
-\item{\code{ref_data_idx}}{This integer number determines the index for the
-reference data point. In addition to the boxplots, it is displayed in
-red color and is used to compare an individual result with the summary
-statistics provided by the boxplot. With the default value (\code{NULL})
-no individual data point is plotted. This index can be chosen with
-respect to all available data, even if only a subset is selected with
-argument \code{data_idx}.\cr
-\strong{Note:} Because of the complexity of 3D inputs, this argument is used
-only for 1D and 2D inputs and disregarded for 3D inputs.}
-
-\item{\code{aggr_channels}}{Pass one of \code{'norm'}, \code{'sum'}, \code{'mean'} or a
-custom function to aggregate the channels, e.g. the maximum
-(\link[base:Extremes]{base::max}) or minimum (\link[base:Extremes]{base::min}) over the channels or only
-individual channels with \code{function(x) x[1]}. By default (\code{'norm'}),
-the Euclidean norm of all channels is used.\cr
-\strong{Note:} This argument is used only for 2D and 3D inputs.}
-
-\item{\code{preprocess_FUN}}{This function is applied to the method's result
-before calculating the boxplots. Since positive and negative values
-often cancel each other out, the absolute value (\code{abs}) is used by
-default. But you can also use the raw data (\code{identity}) to see the
-results' orientation, the squared data (\code{function(x) x^2}) to weight
-the outliers higher or any other function.}
-
-\item{\code{as_plotly}}{This boolean value (default: \code{FALSE}) can be used to
-create an interactive plot based on the library \code{plotly} instead of
-\code{ggplot2}. Make sure that the suggested package \code{plotly} is installed
-in your R session.}
-
-\item{\code{individual_data_idx}}{Only relevant for a \code{plotly} plot with input
-dimension \code{1} or \code{2}! This integer vector of data indices determines
-the available data points in a dropdown menu, which are drawn in
-individually analogous to \code{ref_data_idx} only for more data points.
-With the default value \code{NULL} the first \code{individual_max} data points
-are used.\cr
-\strong{Note:} If \code{ref_data_idx} is specified, this data point will be
-added to those from \code{individual_data_idx} in the dropdown menu.}
-
-\item{\code{individual_max}}{Only relevant for a \code{plotly} plot with input
-dimension \code{1} or \code{2}! This integer determines the maximum number of
-individual data points in the dropdown menu without counting
-\code{ref_data_idx}. This means that if \code{individual_data_idx} has more
-than \code{individual_max} indices, only the first \code{individual_max} will
-be used. A too high number can significantly increase the runtime.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Returns either a \link[ggplot2:ggplot]{ggplot2::ggplot} (\code{as_plotly = FALSE}) or a
-\link[plotly:plot_ly]{plotly::plot_ly} (\code{as_plotly = TRUE}) with the boxplots.
 }
 }
 \if{html}{\out{<hr>}}

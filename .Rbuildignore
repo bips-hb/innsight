@@ -9,4 +9,9 @@
 ^images$
 ^man/images$
 ^cran-comments\.md$
+^man-roxygen*$
+^doc$
+^Meta$
+^vignettes/figure$
+^vignettes/articles$
 ^codecov\.yml$

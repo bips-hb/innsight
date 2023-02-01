@@ -29,16 +29,16 @@ test_that("Gradient: Plot and Boxplot", {
 
   p <- plot(grad)
   boxp <- boxplot(grad)
-  expect_true("ggplot" %in% class(p))
-  expect_true("ggplot" %in% class(boxp))
+  expect_s4_class(p, "innsight_ggplot2")
+  expect_s4_class(boxp, "innsight_ggplot2")
   p <- plot(grad, data_idx = 1:3)
   boxp <- boxplot(grad, data_idx = 1:4)
-  expect_true("ggplot" %in% class(p))
-  expect_true("ggplot" %in% class(boxp))
+  expect_s4_class(p, "innsight_ggplot2")
+  expect_s4_class(boxp, "innsight_ggplot2")
   p <- plot(grad, data_idx = 1:3, output_idx = 1:3)
   boxp <- boxplot(grad, data_idx = 1:5, output_idx = 1:3)
-  expect_true("ggplot" %in% class(p))
-  expect_true("ggplot" %in% class(boxp))
+  expect_s4_class(p, "innsight_ggplot2")
+  expect_s4_class(boxp, "innsight_ggplot2")
   boxp <- boxplot(grad, ref_data_idx = c(4))
 
   # plotly
@@ -46,17 +46,17 @@ test_that("Gradient: Plot and Boxplot", {
 
   p <- plot(grad, as_plotly = TRUE)
   boxp <- boxplot(grad, as_plotly = TRUE)
-  expect_true("plotly" %in% class(p))
-  expect_true("plotly" %in% class(boxp))
+  expect_s4_class(p, "innsight_plotly")
+  expect_s4_class(boxp, "innsight_plotly")
   p <- plot(grad, data_idx = 1:3, as_plotly = TRUE)
   boxp <- boxplot(grad, data_idx = 1:4, as_plotly = TRUE, individual_max = 2,
                   individual_data_idx = c(1,2,5,6))
-  expect_true("plotly" %in% class(p))
-  expect_true("plotly" %in% class(boxp))
+  expect_s4_class(p, "innsight_plotly")
+  expect_s4_class(boxp, "innsight_plotly")
   p <- plot(grad, data_idx = 1:3, output_idx = 1:3, as_plotly = TRUE)
   boxp <- boxplot(grad, data_idx = 1:5, output_idx = 1:3, as_plotly = TRUE)
-  expect_true("plotly" %in% class(p))
-  expect_true("plotly" %in% class(boxp))
+  expect_s4_class(p, "innsight_plotly")
+  expect_s4_class(boxp, "innsight_plotly")
 
 })
 
@@ -81,7 +81,7 @@ test_that("Gradient: Dense-Net (Neuralnet)", {
   grad <- Gradient$new(converter, data, dtype = "double")
   expect_equal(dim(grad$get_result()), c(10, 4, 3))
 
-  grad <- Gradient$new(converter, data, times_input = FALSE)
+  grad <- Gradient$new(converter, data, times_input = TRUE)
   expect_equal(dim(grad$get_result()), c(10, 4, 3))
 
   grad <- Gradient$new(converter, data, ignore_last_act = FALSE)
@@ -111,7 +111,7 @@ test_that("Gradient: Dense-Net (keras)", {
   grad <- Gradient$new(converter, data, dtype = "double")
   expect_equal(dim(grad$get_result()), c(10, 4, 3))
 
-  grad <- Gradient$new(converter, data, times_input = FALSE)
+  grad <- Gradient$new(converter, data, times_input = TRUE)
   expect_equal(dim(grad$get_result()), c(10, 4, 3))
 
   grad <- Gradient$new(converter, data, ignore_last_act = FALSE)
@@ -147,7 +147,7 @@ test_that("SmoothGrad: Dense-Net", {
   grad <- SmoothGrad$new(converter, data, dtype = "double")
   expect_equal(dim(grad$get_result()), c(10, 4, 3))
 
-  grad <- SmoothGrad$new(converter, data, times_input = FALSE)
+  grad <- SmoothGrad$new(converter, data, times_input = TRUE)
   expect_equal(dim(grad$get_result()), c(10, 4, 3))
 
   grad <- SmoothGrad$new(converter, data, ignore_last_act = FALSE)
@@ -191,7 +191,7 @@ test_that("Gradient: Conv1D-Net", {
   expect_equal(dim(grad$get_result()), c(4, 64, 3, 1))
 
   grad <- Gradient$new(converter, data,
-    times_input = FALSE,
+    times_input = TRUE,
     channels_first = FALSE
   )
   expect_equal(dim(grad$get_result()), c(4, 64, 3, 1))
@@ -225,49 +225,48 @@ test_that("Gradient: Conv1D-Net", {
 
   # Test plot and boxplot functions
   p <- plot(grad)
-  expect_true(inherits(p, "ggplot"))
+  expect_s4_class(p, "innsight_ggplot2")
   p <- plot(grad_last)
-  expect_true(inherits(p, "ggplot"))
+  expect_s4_class(p, "innsight_ggplot2")
   p <- plot(grad, output_idx = c(1))
-  expect_true(inherits(p, "ggplot"))
+  expect_s4_class(p, "innsight_ggplot2")
   p <- plot(grad, aggr_channels = "sum",
             data_idx = c(1,2))
-  expect_true(inherits(p, "ggplot"))
+  expect_s4_class(p, "innsight_ggplot2")
   p <- plot(grad, aggr_channels = "mean")
-  expect_true(inherits(p, "ggplot"))
+  expect_s4_class(p, "innsight_ggplot2")
   p <- plot(grad, aggr_channels = "norm")
-  expect_true(inherits(p, "ggplot"))
+  expect_s4_class(p, "innsight_ggplot2")
   p <- plot(grad, aggr_channels = mean)
-  expect_true(inherits(p, "ggplot"))
+  expect_s4_class(p, "innsight_ggplot2")
 
   p <- boxplot(grad)
-  expect_true(inherits(p, "ggplot"))
+  expect_s4_class(p, "innsight_ggplot2")
   p <- boxplot(grad_last)
-  expect_true(inherits(p, "ggplot"))
+  expect_s4_class(p, "innsight_ggplot2")
   p <- boxplot(grad, output_idx = c(1))
-  expect_true(inherits(p, "ggplot"))
+  expect_s4_class(p, "innsight_ggplot2")
   p <- boxplot(grad, data_idx = 1:3)
-  expect_true(inherits(p, "ggplot"))
-  p <- boxplot(grad, individual_max = 2, individual_data_idx = 1:5 )
-  expect_true(inherits(p, "ggplot"))
+  expect_s4_class(p, "innsight_ggplot2")
+  p <- boxplot(grad, individual_max = 2, individual_data_idx = 1:2 )
+  expect_s4_class(p, "innsight_ggplot2")
   p <- boxplot(grad, ref_data_idx = c(4))
-  expect_true(inherits(p, "ggplot"))
+  expect_s4_class(p, "innsight_ggplot2")
 
   skip_if_not_installed("plotly")
   p <- plot(grad, as_plotly = TRUE)
-  expect_true(inherits(p, "plotly"))
-
+  expect_s4_class(p, "innsight_plotly")
   p <- boxplot(grad, as_plotly = TRUE)
-  expect_true(inherits(p, "plotly"))
+  expect_s4_class(p, "innsight_plotly")
   p <- boxplot(grad, output_idx = c(1), as_plotly = TRUE)
-  expect_true(inherits(p, "plotly"))
+  expect_s4_class(p, "innsight_plotly")
   p <- boxplot(grad, data_idx = 1:3, as_plotly = TRUE)
-  expect_true(inherits(p, "plotly"))
-  p <- boxplot(grad, individual_max = 2, individual_data_idx = 1:5,
+  expect_s4_class(p, "innsight_plotly")
+  p <- boxplot(grad, individual_max = 2, individual_data_idx = 1:2,
                as_plotly = TRUE)
-  expect_true(inherits(p, "plotly"))
+  expect_s4_class(p, "innsight_plotly")
   p <- boxplot(grad, as_plotly = TRUE, ref_data_idx = c(3))
-  expect_true(inherits(p, "plotly"))
+  expect_s4_class(p, "innsight_plotly")
 })
 
 
@@ -302,7 +301,7 @@ test_that("SmoothGrad: Conv1D-Net", {
   expect_equal(dim(grad$get_result()), c(4, 64, 3, 1))
 
   grad <- SmoothGrad$new(converter, data,
-    times_input = FALSE,
+    times_input = TRUE,
     channels_first = FALSE
   )
   expect_equal(dim(grad$get_result()), c(4, 64, 3, 1))
@@ -361,7 +360,7 @@ test_that("Gradient: Conv2D-Net", {
   expect_equal(dim(grad$get_result()), c(4, 32, 32, 3, 2))
 
   grad <- Gradient$new(converter, data,
-    times_input = FALSE,
+    times_input = TRUE,
     channels_first = FALSE
   )
   expect_equal(dim(grad$get_result()), c(4, 32, 32, 3, 2))
@@ -395,50 +394,49 @@ test_that("Gradient: Conv2D-Net", {
 
   # Test plot function
   p <- plot(grad)
-  expect_true(inherits(p, "ggplot"))
+  expect_s4_class(p, "innsight_ggplot2")
   p <- plot(grad_first)
-  expect_true(inherits(p, "ggplot"))
+  expect_s4_class(p, "innsight_ggplot2")
   p <- plot(grad, output_idx = c(1))
-  expect_true(inherits(p, "ggplot"))
+  expect_s4_class(p, "innsight_ggplot2")
   p <- plot(grad, aggr_channels = "sum", data_idx = 1:2)
-  expect_true(inherits(p, "ggplot"))
+  expect_s4_class(p, "innsight_ggplot2")
   p <- plot(grad, aggr_channels = "mean")
-  expect_true(inherits(p, "ggplot"))
+  expect_s4_class(p, "innsight_ggplot2")
   p <- plot(grad, aggr_channels = "norm")
-  expect_true(inherits(p, "ggplot"))
+  expect_s4_class(p, "innsight_ggplot2")
   p <- plot(grad, aggr_channels = function(x) -abs(sum(x)))
-  expect_true(inherits(p, "ggplot"))
+  expect_s4_class(p, "innsight_ggplot2")
 
   p <- boxplot(grad)
-  expect_true(inherits(p, "ggplot"))
+  expect_s4_class(p, "innsight_ggplot2")
   p <- boxplot(grad, preprocess_FUN = identity)
-  expect_true(inherits(p, "ggplot"))
+  expect_s4_class(p, "innsight_ggplot2")
   p <- boxplot(grad, preprocess_FUN = function(x) -abs(x))
-  expect_true(inherits(p, "ggplot"))
+  expect_s4_class(p, "innsight_ggplot2")
   p <- boxplot(grad_first)
-  expect_true(inherits(p, "ggplot"))
+  expect_s4_class(p, "innsight_ggplot2")
   p <- boxplot(grad, output_idx = c(1))
-  expect_true(inherits(p, "ggplot"))
+  expect_s4_class(p, "innsight_ggplot2")
   p <- boxplot(grad, data_idx = 1:3)
-  expect_true(inherits(p, "ggplot"))
-  p <- boxplot(grad, individual_max = 2, individual_data_idx = 1:5 )
-  expect_true(inherits(p, "ggplot"))
+  expect_s4_class(p, "innsight_ggplot2")
+  p <- boxplot(grad, individual_max = 2, individual_data_idx = 1:2 )
+  expect_s4_class(p, "innsight_ggplot2")
 
   skip_if_not_installed("plotly")
   p <- plot(grad, as_plotly = TRUE)
-  expect_true(inherits(p, "plotly"))
-
+  expect_s4_class(p, "innsight_plotly")
   p <- boxplot(grad, as_plotly = TRUE)
-  expect_true(inherits(p, "plotly"))
+  expect_s4_class(p, "innsight_plotly")
   p <- boxplot(grad, output_idx = c(1), as_plotly = TRUE)
-  expect_true(inherits(p, "plotly"))
+  expect_s4_class(p, "innsight_plotly")
   p <- boxplot(grad, data_idx = 1:3, as_plotly = TRUE)
-  expect_true(inherits(p, "plotly"))
-  p <- boxplot(grad, individual_max = 2, individual_data_idx = 1:5,
+  expect_s4_class(p, "innsight_plotly")
+  p <- boxplot(grad, individual_max = 2, individual_data_idx = 1:2,
                as_plotly = TRUE)
-  expect_true(inherits(p, "plotly"))
+  expect_s4_class(p, "innsight_plotly")
   p <- boxplot(grad, as_plotly = TRUE, ref_data_idx = c(3))
-  expect_true(inherits(p, "plotly"))
+  expect_s4_class(p, "innsight_plotly")
 })
 
 test_that("SmoothGrad: Conv2D-Net", {
@@ -478,7 +476,7 @@ test_that("SmoothGrad: Conv2D-Net", {
   expect_equal(dim(grad$get_result()), c(4, 32, 32, 3, 2))
 
   grad <- SmoothGrad$new(converter, data,
-    times_input = FALSE,
+    times_input = TRUE,
     channels_first = FALSE
   )
   expect_equal(dim(grad$get_result()), c(4, 32, 32, 3, 2))
@@ -499,51 +497,50 @@ test_that("SmoothGrad: Conv2D-Net", {
   expect_equal(dim(grad$get_result()), c(4, 32, 32, 3, 2))
 })
 
-
-test_that("Correctness Gradient and SmoothGrad", {
+test_that("Gradient + SmoothGrad: Keras model with two inputs + two outputs", {
   library(keras)
-  library(torch)
 
-  data <- array(rnorm(10 * 32 * 32 * 3), dim = c(10, 32, 32, 3))
-
-  model <- keras_model_sequential()
-  model %>%
-    layer_conv_2d(
-      input_shape = c(32, 32, 3), kernel_size = 8, filters = 8,
-      activation = "softplus", padding = "valid"
-    ) %>%
-    layer_conv_2d(
-      kernel_size = 8, filters = 4, activation = "tanh",
-      padding = "same"
-    ) %>%
-    layer_conv_2d(
-      kernel_size = 4, filters = 2, activation = "relu",
-      padding = "valid"
-    ) %>%
+  main_input <- layer_input(shape = c(10,10,2), name = 'main_input')
+  lstm_out <- main_input %>%
+    layer_conv_2d(2, c(2,2), activation = "relu") %>%
     layer_flatten() %>%
-    layer_dense(units = 64, activation = "relu") %>%
-    layer_dense(units = 16, activation = "relu") %>%
-    layer_dense(units = 1, activation = "sigmoid")
+    layer_dense(units = 4)
+  auxiliary_input <- layer_input(shape = c(5), name = 'aux_input')
+  auxiliary_output <- layer_concatenate(c(lstm_out, auxiliary_input)) %>%
+    layer_dense(units = 2, activation = 'softmax', name = 'aux_output')
+  main_output <- layer_concatenate(c(lstm_out, auxiliary_input)) %>%
+    layer_dense(units = 5, activation = 'tanh') %>%
+    layer_dense(units = 4, activation = 'tanh') %>%
+    layer_dense(units = 2, activation = 'tanh') %>%
+    layer_dense(units = 3, activation = 'softmax', name = 'main_output')
+  model <- keras_model(
+    inputs = c(auxiliary_input, main_input),
+    outputs = c(auxiliary_output, main_output)
+  )
 
-  # test non-fitted model
   converter <- Converter$new(model)
+  data <- lapply(list(c(5), c(10,10,2)),
+                 function(x) array(rnorm(10 * prod(x)), dim = c(10, x)))
 
-  grad <- Gradient$new(converter, data,
-    channels_first = FALSE,
-    times_input = FALSE,
-    dtype = "double"
-  )
+  grad <- Gradient$new(converter, data, channels_first = FALSE,
+                       output_idx = list(c(2), c(1,3)), times_input = TRUE)
+  result <- grad$get_result()
+  expect_equal(length(result), 2)
+  expect_equal(length(result[[1]]), 2)
+  expect_equal(dim(result[[1]][[1]]), c(10,5,1))
+  expect_equal(dim(result[[1]][[2]]), c(10,10,10,2,1))
+  expect_equal(length(result[[2]]), 2)
+  expect_equal(dim(result[[2]][[1]]), c(10,5,2))
+  expect_equal(dim(result[[2]][[2]]), c(10,10,10,2,2))
 
-  smooth_grad <- SmoothGrad$new(converter, data,
-    channels_first = FALSE,
-    times_input = FALSE,
-    noise_level = 1e-8
-  )
-
-  result_grad <- grad$get_result(type = "torch.tensor")
-  result_smoothgrad <- smooth_grad$get_result(type = "torch.tensor")
-
-  expect_lt(as.array(mean(abs(sum(result_grad - result_smoothgrad,
-    dim = c(2, 3, 4, 5)
-  ))^2)), 1e-8)
+  grad <- SmoothGrad$new(converter, data, channels_first = FALSE,
+                       output_idx = list(c(1), c(1,2)), times_input = TRUE)
+  result <- grad$get_result()
+  expect_equal(length(result), 2)
+  expect_equal(length(result[[1]]), 2)
+  expect_equal(dim(result[[1]][[1]]), c(10,5,1))
+  expect_equal(dim(result[[1]][[2]]), c(10,10,10,2,1))
+  expect_equal(length(result[[2]]), 2)
+  expect_equal(dim(result[[2]][[1]]), c(10,5,2))
+  expect_equal(dim(result[[2]][[2]]), c(10,10,10,2,2))
 })

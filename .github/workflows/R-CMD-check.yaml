@@ -46,7 +46,6 @@ jobs:
           - {os: 'ubuntu-20.04', tf: '2.6', r: 'release'}
           - {os: 'ubuntu-20.04', tf: '2.5', r: 'release'}
           - {os: 'ubuntu-20.04', tf: '2.4', r: 'release'}
-          - {os: 'ubuntu-20.04', tf: '2.3', r: 'release'}
 
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: 'true'
@@ -93,6 +92,10 @@ jobs:
             echo "$cmd"
             sudo $cmd
           done < <(Rscript -e "writeLines(remotes::system_requirements('$ID-$VERSION_ID'))")
+
+      - name: Install RcppTOML for windows and R3_6
+        if: matrix.config.os == 'windows-latest' && matrix.config.r == '3.6'
+        run: remotes::install_version("RcppTOML", version = "0.1.7")
 
       - name: Install Package + deps
         run: remotes::install_local(dependencies = TRUE, force = TRUE)
