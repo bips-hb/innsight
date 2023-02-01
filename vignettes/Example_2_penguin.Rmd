@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.align = "center",
   out.width = "90%",
-  eval = requireNamespace("palmerpenguins") && requireNamespace("luz")
+  eval = requireNamespace("palmerpenguins") & requireNamespace("luz") & torch::torch_is_installed()
   )
 ```
 
@@ -28,6 +28,10 @@ Sys.setenv(LANG="en_US.UTF-8")
 set.seed(111)
 torch::torch_manual_seed(111)
 ```
+
+
+> **`r knitr::asis_output("\U1F4DD")`  Note**  
+> Since the **innsight** package relies on the **torch** package for each method and this requires a successful installation of LibTorch and other dependencies (`torch::install_torch()`), no examples can be run in the R vignette for memory reasons. For the executed codechunks we refer to [our website](https://bips-hb.github.io/innsight/articles/Example_2_penguin.html).
 
 
 This example is even a little more complex than the first because we are using 
@@ -49,7 +53,7 @@ categorical characteristics sex and island were recorded. To give you a brief
 overview of the data, let's create a pair plot of some variables using 
 **GGally**:
 
-```{r, warning=FALSE, fig.width=12, fig.height=8, message=FALSE, eval = TRUE}
+```{r, warning=FALSE, fig.width=12, fig.height=8, message=FALSE}
 library(palmerpenguins)
 
 # remove NAs
@@ -308,8 +312,8 @@ dim(get_result(lrp_ab_2))
 #> [1] 333  7  3
 ```
 
-**Note:** 
-Even if the input names can be passed to the converter in other ways, 
+> **`r knitr::asis_output("\U1F4DD")`  Note**  
+> Even if the input names can be passed to the converter in other ways, 
 they will be stored internally as a list (input layer) of lists (for each 
 dimension). Since in this case we have only one input layer and only one 
 feature dimension, it is sufficient to modify only 
@@ -358,7 +362,7 @@ plot(lrp_ab_2, output_idx = c(1,3)) +
 
 **Interpretation**
 
-In this case, we analyse the first data point of the test data `test_ds`, 
+In this case, we analyze the first data point of the test data `test_ds`, 
 which is also the first instance in the penguin dataset `penguin_data`.
 Unnormalized, it looks like this:
 

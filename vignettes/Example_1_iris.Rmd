@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
   size = "huge",
   collapse = TRUE,
   comment = "#>",
+  eval = torch::torch_is_installed(),
   fig.align = "center",
   out.width = "95%"
 )
@@ -27,6 +28,9 @@ set.seed(1111)
 options(width = 500)
 torch::torch_manual_seed(1111)
 ```
+
+> **`r knitr::asis_output("\U1F4DD")`  Note**  
+> Since the **innsight** package relies on the `torch` package for each method and this requires a successful installation of LibTorch and other dependencies (`torch::install_torch()`), no examples can be run in the R vignette for memory reasons. For the executed codechunks we refer to [our website](https://bips-hb.github.io/innsight/articles/Example_1_iris.html).
 
 In this very simple example, we want to show you the use of the **innsight** 
 package and its possibilities in the simplest case. For this, we use the Iris 
@@ -40,11 +44,12 @@ The first step does not necessarily need the **innsight** package yet, but at
 this point, it is listed anyway to have a fully working example. In this 
 example, the model is created in **torch** and trained as well.
 
-**Note:** It is also possible to train the **torch** model using the 
+> **`r knitr::asis_output("\U1F4DD")`  Note**  
+> It is also possible to train the **torch** model using the 
 [`luz`](https://mlverse.github.io/luz/) package, which is described in 
 the [vignette with the penguin dataset](https://bips-hb.github.io/innsight/articles/Example_2_penguin.html) (see `?vignette(package='innsight'`)).
 
-```{r example_1_train, echo = TRUE, eval = TRUE}
+```{r example_1_train, echo = TRUE}
 library(innsight)
 library(torch)
 
@@ -103,7 +108,7 @@ were generated automatically by **innsight**. But you can pass them by yourself
 using the corresponding arguments. These labels are then also used in the 
 visualizations in [step 4](#step-3-visualization).
 
-```{r example_1_conv_2}
+```{r example_1_conv_2, eval = torch::torch_is_installed()}
 converter <- Converter$new(model,
   input_dim = c(4),
   input_names = c("Sepal (length)", "Sepal (width)", "Petal (length)", "Petal (width)"),
@@ -142,7 +147,7 @@ methods provided in the package:
 <ul>
 <li>
 **Gradient without last activation**
-```{r, message = FALSE, results = 'hide'}
+```{r}
 grad_no_softmax <- Gradient$new(converter, x, ignore_last_act = TRUE)
 ```
 </li>
@@ -210,7 +215,8 @@ and `output_idx` arguments, respectively. To switch between a **ggplot2** and
 **plotly`** based plot, you can use the logical `as_plotly` parameter, but 
 this requires a successful installation of this package.
 
-**Note:** Of course, only results of output nodes/classes to which the method 
+> **`r knitr::asis_output("\U1F4DD")`  Note**  
+> Of course, only results of output nodes/classes to which the method 
 has been applied can be plotted, i.e. the indices in the `output_idx` 
 argument must be a subset of the argument with the same name when calling 
 the method in Step 2.
@@ -233,13 +239,10 @@ plot(grad_no_softmax, data_idx = c(1, 111), output_idx = c(1, 2)) +
 # Show data point 1 for output node 1 (Setosa) and 2 (Versicolor)
 plot(deeplift_mean, data_idx = 1, output_idx = c(1, 2), as_plotly = TRUE)
 ```
-```{r, fig.height=4, echo = FALSE, fig.width=9, message = FALSE, eval = Sys.getenv("RENDER_PLOTLY", unset = 0) == 1}
+```{r, fig.height=4, echo = FALSE, fig.width=9, message = FALSE, eval = Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed()}
 # Show data point 1 for output node 1 (Setosa) and 2 (Versicolor)
 p <- plot(deeplift_mean, data_idx = 1, output_idx = c(1, 2), as_plotly = TRUE)
 plotly::config(print(p, shareY = TRUE))
-```
-```{r, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 0, echo = FALSE}
-warning("Due to the size, this image was not generated in the R vignette! See the innsight webpage for this image: https://bips-hb.github.io/innsight/articles/Example_1_iris.html#plot-individual-results")
 ```
 
 #### Plot summarized results
@@ -254,7 +257,8 @@ point that will be visualized in red as a reference value, and
 `preprocess_FUN` to select a function that will be applied to all data 
 in advance (e.g. the absolute value).
 
-**Note:** Of course, only results of output nodes/classes to which the method 
+> **`r knitr::asis_output("\U1F4DD")`  Note**  
+> Of course, only results of output nodes/classes to which the method 
 has been applied can be plotted, i.e. the indices in the `output_idx` 
 argument must be subset of the argument with the same name when calling 
 the method in Step 2.
@@ -279,11 +283,8 @@ boxplot(grad_no_softmax, output_idx = c(1, 2), ref_data_idx = 3, preprocess_FUN 
 # and 2 (Versicolor)
 boxplot(lrp_eps, data_idx = 1:50, output_idx = c(1, 2), as_plotly = TRUE)
 ```
-```{r, fig.height=4, echo = FALSE, fig.width=9, message = FALSE, eval = Sys.getenv("RENDER_PLOTLY", unset = 0) == 1}
+```{r, fig.height=4, echo = FALSE, fig.width=9, message = FALSE, eval = Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed()}
 # Show data point 1 for output node 1 (Setosa) and 2 (Versicolor)
 p <- boxplot(lrp_eps, data_idx = 1:50, output_idx = c(1, 2), as_plotly = TRUE)
 plotly::config(print(p, shareY = TRUE))
-```
-```{r, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 0, echo = FALSE}
-warning("Due to the size, this image was not generated in the R vignette! See the innsight webpage for this image: https://bips-hb.github.io/innsight/articles/Example_1_iris.html#plot-summarized-results")
 ```

@@ -19,6 +19,7 @@ editor_options:
 knitr::opts_chunk$set(
   fig.dpi = ifelse(Sys.getenv("RENDER_PLOTLY", unset = 0) == 1, 400, 50), 
   collapse = TRUE, 
+  eval = torch::torch_is_installed(),
   comment = "#>",
   fig.align = "center",
   out.width = "90%"
@@ -27,7 +28,7 @@ knitr::opts_chunk$set(
 library(innsight)
 ```
 
-```{css, echo = FALSE}
+```{css, echo = FALSE, eval = TRUE}
 details {
   padding: 10px 10px;
 }
@@ -58,6 +59,9 @@ details[open] {
 }
 </style>
 ```
+
+> **`r knitr::asis_output("\U1F4DD")`  Note**  
+> Since the **innsight** package relies on the **torch** package for each method and this requires a successful installation of LibTorch and other dependencies (`torch::install_torch()`), no examples can be run in the R vignette for memory reasons. For the executed codechunks we refer to [our website](https://bips-hb.github.io/innsight/articles/detailed_overview.html).
 
 As described in the [introduction](https://bips-hb.github.io/innsight/articles/innsight.html), 
 **innsight** is a package that aims to
@@ -125,14 +129,14 @@ available:
 -   Activation functions: `nn_relu`, `nn_leaky_relu`, `nn_softplus`, 
     `nn_sigmoid`, `nn_softmax`, `nn_tanh` (open an issue if you need any more)
 
-**Notes:**
-
--   In a **torch** model, the shape of the inputs is not stored; hence it
+> **`r knitr::asis_output("\U1F4DD")`  Notes**  
+>
+> -   In a **torch** model, the shape of the inputs is not stored; hence it
     must be specified with argument `input_dim` within the
     initialization of the `Converter` object.
-    
--   An activation function can only occur directly after a linear,
-    convolutional or pooling layer and not at arbitrary positions.
+>    
+> -   An activation function can only occur directly after a linear,
+     convolutional or pooling layer and not at arbitrary positions.
 
 <details>
 
@@ -202,7 +206,7 @@ used:
 
 **Example 1: `keras_model_sequential`**
 
-```{r}
+```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 library(keras)
 
 # Create model
@@ -218,7 +222,7 @@ converter <- Converter$new(keras_model_seq)
 
 **Example 2: `keras_model`**
 
-```{r}
+```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 library(keras)
 
 input_image <- layer_input(shape = c(10,10,3))
@@ -390,18 +394,17 @@ model$input_names <- list(
 -   **`layers`**\
     (see next subsection)
 
-**Note:**\
+> **`r knitr::asis_output("\U1F4DD")`  Notes**  
 The arguments for the input and output names are optional. By default
 (`NULL`), they are generated, i.e.
-
--   the output names are `c("Y1", "Y2", "Y3", ... )` for each output layer.
-
--   the input names are
-    -   `c("X1", "X2", "X3", ...)` for tabular input layers,
-    -   `list(c("C1", "C2", ...), c("L1", "L2", ...))` for 1D input
-        layers and
-    -   `list(c("C1", "C2", ...), c("H1", "H2", ...), c("W1", "W2", ...))`
-        for 2D input layers.
+>
+> -   the output names are `c("Y1", "Y2", "Y3", ... )` for each output layer.
+  -   the input names are  
+>
+>      *   `c("X1", "X2", "X3", ...)` for tabular input layers,  
+>      *   `list(c("C1", "C2", ...), c("L1", "L2", ...))` for 1D input layers and  
+>      *   `list(c("C1", "C2", ...), c("H1", "H2", ...), c("W1", "W2", ...))`
+      for 2D input layers.
 
 #### Adding layers to your list-model
 
@@ -519,7 +522,7 @@ dense_layer <- list(
 
 **Examples for convolutional layers**
 
-```{r}
+```{r, eval = FALSE}
 # 1D convolutional layer
 conv_1D <- list(
       type = "Conv1D",
@@ -563,7 +566,7 @@ conv_2D <- list(
 
 **Example for a pooling layer**
 
-```{r}
+```{r, eval = FALSE}
 # 2D average pooling layer
 avg_pool2D <- list(
   type = "AveragePooling2D",
@@ -607,7 +610,7 @@ $$
 
 **Example for a batch normalization layer**
 
-```{r}
+```{r, eval = FALSE}
 # batch normalization layer
 batchnorm <- list(
   type = "BatchNorm",
@@ -638,7 +641,7 @@ batchnorm <- list(
 
 **Example for a flatten layer**
 
-```{r}
+```{r, eval = FALSE}
 # flatten layer
 flatten <- list(
   type = "Flatten",
@@ -662,7 +665,7 @@ flatten <- list(
 
 **Examples for global pooling layers**
 
-```{r}
+```{r, eval = FALSE}
 # global MaxPooling layer
 global_max_pool2D <- list(
   type = "GlobalPooling",
@@ -703,7 +706,7 @@ global_avg_pool1D <- list(
 
 **Example for a padding layer**
 
-```{r}
+```{r, eval = FALSE}
 # padding layer
 padding <- list(
   type = "Padding",
@@ -726,12 +729,13 @@ padding <- list(
 -   **`dim`:** An integer value that describes the axis over which the
     inputs are concatenated.
 
-**Note:** For this layer the argument `dim_in` is a list of input
+> **`r knitr::asis_output("\U1F4DD")`  Note**  
+For this layer the argument `dim_in` is a list of input
 dimensions.
 
 **Example for a concatenation layer**
 
-```{r}
+```{r, eval = FALSE}
 # concatenation layer
 concat <- list(
   type = "Concatenation",
@@ -749,12 +753,13 @@ concat <- list(
 
 <summary>**Adding layer (`type = "Add"`)**</summary>
 
-**Note:** For this layer the argument `dim_in` is a list of input
+> **`r knitr::asis_output("\U1F4DD")`  Note**  
+For this layer the argument `dim_in` is a list of input
 dimensions.
 
 **Example for an adding layer**
 
-```{r}
+```{r, eval = FALSE}
 # adding layer
 add <- list(
   type = "Add",
@@ -803,16 +808,23 @@ be in the *"channels first"* format for internal reasons:
     $3 \times 32 \times 20$ and $32 \times 20 \times 3$) the shape
     `c(3, 32, 20)` must be passed.
 
--   **Multiple inputs:** If the passed model has multiple input layers,
-    they can be passed in the correct layer-order in a list of the
-    shapes from above. For example, for a model with an input layer with
-    five features and another input layer with images of size
-    $32\times32\times3$, the list `list(c(5), c(3, 32, 32))` must be
-    passed.\
-    **Note:** With multiple input layers, it is required that the original
-    ordering of the input layers of the passed model matches the
-    ordering in `input_dim` and also the ordering of the input names in
-    the `input_names` argument.
+<ul>
+<li>
+**Multiple inputs:** If the passed model has multiple input layers,
+they can be passed in the correct layer-order in a list of the
+shapes from above. For example, for a model with an input layer with
+five features and another input layer with images of size
+$32\times32\times3$, the list `list(c(5), c(3, 32, 32))` must be
+passed.  
+
+> **`r knitr::asis_output("\U1F4DD")`  Note**  
+With multiple input layers, it is required that the original
+ordering of the input layers of the passed model matches the
+ordering in `input_dim` and also the ordering of the input names in
+the `input_names` argument.
+
+</li>
+</ul>
 
 ## Argument `input_names`
 
@@ -875,13 +887,13 @@ can be passes as described below:
     )
     ```
 
-**Note:**\
-The argument for the input names is optional. By default (`NULL`) they
+> **`r knitr::asis_output("\U1F4DD")`  Notes**  
+> The argument for the input names is optional. By default (`NULL`) they
 are generated, i.e. the input names are
-
--   `list(c("X1", "X2", "X3", ...))` for tabular input layers
--   `list(c("C1", "C2", ...), c("L1", "L2", ...))` for 1D input layers
--   `list(c("C1", "C2", ...), c("H1", "H2", ...), c("W1", "W2", ...))`
+>
+> -   `list(c("X1", "X2", "X3", ...))` for tabular input layers
+> -   `list(c("C1", "C2", ...), c("L1", "L2", ...))` for 1D input layers
+> -   `list(c("C1", "C2", ...), c("H1", "H2", ...), c("W1", "W2", ...))`
     for 2D input layers.
 
 ## Argument `output_names`
@@ -926,7 +938,7 @@ point (`"float"` the default value) and 64-bit floating point numbers
 (`"double"`). All weights, constants and inputs are then converted
 accordingly into the data format `torch_float` or `torch_double`.
 
-**Note:**\
+> **`r knitr::asis_output("\U1F4DD")`  Note**  
 At this point we want to note that this decision is especially crucial
 for exact comparisons, and if the precision is too inaccurate, errors
 could occur. See the following example:
@@ -1151,7 +1163,8 @@ Accepted are data as:
 -   `list`: You can also pass a list with the corresponding input data
     according to the upper points for each input layer.
 
-**Note:** The argument data is a necessary argument only for the local
+> **`r knitr::asis_output("\U1F4DD")`  Note**  
+The argument data is a necessary argument only for the local
 interpretation methods. Otherwise, it is unnecessary, e.g. the global
 variant of the [Connection Weights](#connection-weights) method can be used 
 without data.
@@ -1217,7 +1230,7 @@ understandable, they are all explained with the help of the following
 simple example model with ReLU activation in the first, hyperbolic
 tangent in the last layer and only one in- and output node:
 
-```{r, echo=FALSE, fig.cap = "**Fig. 1:** Example neural network", out.width = "80%"}
+```{r, eval = TRUE, echo=FALSE, fig.cap = "**Fig. 1:** Example neural network", out.width = "80%"}
 knitr::include_graphics("images/example_net.png")
 ```
 
@@ -1731,14 +1744,16 @@ layer and consequently gets the relevances for each input variable. A
 visual overview of the entire method using the simple rule as an example
 is given in Fig. 6.
 
-**Note:** At this point, it must be mentioned that the LRP variants do not
+> **`r knitr::asis_output("\U1F4DD")`  Note**  
+At this point, it must be mentioned that the LRP variants do not
 lead to an exact decomposition of the output since some of the relevance
 is absorbed by the bias terms. This is because the bias is included in
 the pre-activation but does not appear in any of the numerators.
+
 :::
 
 ::: column-right
-```{r, echo=FALSE, fig.cap = "**Fig. 6:** Layerwise Relevance Propagation"}
+```{r, eval = TRUE, echo=FALSE, fig.cap = "**Fig. 6:** Layerwise Relevance Propagation"}
 knitr::include_graphics("images/lrp.png")
 ```
 :::
@@ -1859,7 +1874,7 @@ ggplot() +
 
 </details>
 
-### Deep Learning Important FeaTures (DeepLIFT)
+### Deep Learning Important Features (DeepLift)
 
 One method that, to some extent, echoes the idea of *LRP* is the so-called
 *Deep Learning Important Features (DeepLift)* method introduced by
@@ -2153,7 +2168,7 @@ List of k
 
 <details>
 <summary> **Example with a tabular model** </summary>
-```{r, eval = TRUE}
+```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Apply method 'Gradient x Input' for classes 1 ('setosa')  and 3 ('virginica')
 tab_grad <- Gradient$new(tab_conv, tab_data, output_idx = c(1,3),
                          times_input = TRUE)
@@ -2169,7 +2184,7 @@ result_array[c(1,10),,]
 
 <details>
 <summary> **Example with an image model** </summary>
-```{r, eval = TRUE}
+```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Apply method 'Gradient' for outputs 1  and 2
 img_grad <- Gradient$new(img_conv, img_data, output_idx = c(1,2))
 # Get result
@@ -2195,7 +2210,7 @@ $\text{input_dim}_i$ the input shape of input layer `'Input_i'`:
 
 <details>
 <summary> Create model and data </summary>
-```{r}
+```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 library(keras)
 
 first_input <- layer_input(shape = c(10,10,2))
@@ -2218,7 +2233,7 @@ data <- lapply(list(c(10,10,2), c(11)),
 ```
 </details>
 
-```{r, eval = TRUE}
+```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Apply method 'Gradient' for outputs 1  and 2
 grad <- Gradient$new(conv, data, output_idx = c(1,2), channels_first = FALSE)
 # Get result
@@ -2242,7 +2257,7 @@ layer `'Output_j'` as specified in the argument `'output_idx'`.
 
 <details>
 <summary> Create model and data </summary>
-```{r}
+```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 library(keras)
 
 first_input <- layer_input(shape = c(10,10,2))
@@ -2268,7 +2283,7 @@ data <- lapply(list(c(10,10,2), c(11)),
 ```
 </details>
 
-```{r, eval = TRUE}
+```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Apply method 'Gradient' for outputs 1 and 2 in the first and
 # for outputs 1 and 3 in the second output layer
 grad <- Gradient$new(conv, data, output_idx = list(c(1,2), c(1,3)), 
@@ -2340,7 +2355,7 @@ outputs, we get the following `data.frame`:
 options(width = 500)
 ```
 
-```{r}
+```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 head(get_result(tab_grad, "data.frame"), 5)
 ```
 
@@ -2348,13 +2363,13 @@ Analogously, you can also output the results for the model with image data.
 As already mentioned, the columns for the channel and for the image width 
 are then added:
 
-```{r}
+```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 head(get_result(img_grad, "data.frame"), 5)
 ```
 
 <details>
 <summary> Example usage with `ggplot2` </summary>
-```{r, fig.width= 8, fig.height=6}
+```{r, fig.width= 8, fig.height=6, eval = torch::torch_is_installed() & keras::is_keras_available()}
 library(ggplot2)
 library(neuralnet)
 
@@ -2393,29 +2408,46 @@ information and the whole bunch of possibilities, see the R documentation
 (`?innsight_ggplot2` and `?innsight_plotly`) or in 
 [this section](#advanced-plotting). There are the following arguments:
 
-* `data_idx`: An integer vector containing the numbers of the data points whose 
+<ul>
+<li>
+`data_idx`: An integer vector containing the numbers of the data points whose 
 result is to be plotted, e.g. `c(1,3)` for the first and third data point in 
 the given data.  
-**Note:** This argument will be ignored for the global *Connection 
-Weights* method.
 
-* `output_idx`: The indices of the output nodes for which the results is to 
+> **`r knitr::asis_output("\U1F4DD")`  Note**  
+> This argument will be ignored for the global *Connection Weights* method.
+
+</li>
+
+<li>
+`output_idx`: The indices of the output nodes for which the results is to 
 be plotted. This can be either a vector of indices or a list of vectors of 
 indices but must be a subset of the indices for which the results were 
 calculated, i.e. a subset of the [argument `output_idx`](#argument-output_idx) 
 passed to the respective method previously. By default (`NULL`), the smallest 
 index of all calculated output nodes and output layers is used.
+</li>
 
-* `aggr_channels`: Pass one of `'norm'`, `'sum'`, `'mean'` or a custom 
+<li>
+`aggr_channels`: Pass one of `'norm'`, `'sum'`, `'mean'` or a custom 
 function to aggregate the channels. By default (`'sum'`), the sum of all 
 channels is used.  
-**Note:** This argument is used only for 1D signal and 2D image input data.
 
-* `as_plotly`: This logical value (default: `FALSE`) can be used to create 
+> **`r knitr::asis_output("\U1F4DD")`  Note**  
+> This argument is used only for 1D signal and 2D image input data.
+
+</li>
+
+<li>
+`as_plotly`: This logical value (default: `FALSE`) can be used to create 
 an interactive plot based on the library `plotly` (see `?innsight_plotly` or
 [here](#plots-based-on-plotly) for details).  
-**Note:** Make sure that the suggested package **plotly** is installed in 
-your R session.
+
+> **`r knitr::asis_output("\U1F4DD")`  Note**  
+> Make sure that the suggested package **plotly** is installed in your R session.
+
+</li>
+</ul>
 
 ```{r, eval = FALSE}
 # Class method
@@ -2434,7 +2466,7 @@ plot(method,
 
 **Examples and usage:**
 
-```{r, fig.width = 8, fig.height=5}
+```{r, fig.width = 8, fig.height=5, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Create plot for output classes '1' (setosa) and '3' (virginica) and
 # data points '1' and '70'
 p <- plot(tab_grad, output_idx = c(1,3), data_idx = c(1,70))
@@ -2447,7 +2479,7 @@ p +
   ggplot2::theme_bw() +
   ggplot2::ggtitle("My first 'innsight'-plot")
 ```
-```{r, fig.width = 8, fig.height=3}
+```{r, fig.width = 8, fig.height=3, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # In addition, you can use all the options of the class 'innsight_ggplot2',
 # e.g. getting the corresponding ggplot2 object
 class(p[[1,1]])
@@ -2463,10 +2495,7 @@ p <- plot(tab_grad, output_idx = c(1,3), data_idx = c(1,70), as_plotly = TRUE)
 # Show plot (it also includes a drop down menu for selecting the colorscale)
 p
 ```
-```{r, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 0, echo = FALSE}
-print("Due to the size, this image was not generated in the R vignette! See the innsight webpage for this image: https://bips-hb.github.io/innsight/articles/detailed_overview.html#plot-single-results-plot")
-```
-```{r, fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1}
+```{r, fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available()}
 # You can do the same with the plotly-based plots
 p <- plot(tab_grad, output_idx = c(1,3), data_idx = c(1,70), as_plotly = TRUE)
 
@@ -2474,7 +2503,7 @@ p <- plot(tab_grad, output_idx = c(1,3), data_idx = c(1,70), as_plotly = TRUE)
 plotly::config(print(p))
 ```
 
-```{r, fig.width = 8, fig.height=5}
+```{r, fig.width = 8, fig.height=5, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # We can do the same for models with image data. In addition, you can define
 # the aggregation function for the channels
 p <- plot(img_grad, output_idx = c(1,2), data_idx = c(1,4),
@@ -2495,7 +2524,7 @@ get the results  with `method$result` (a list of `torch_tensor`s!), change
 it accordingly, and then save it back to the field `method$result` as a list of 
 `torch_tensor`s.
 
-```{r, fig.width = 8, fig.height=5}
+```{r, fig.width = 8, fig.height=5, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # You can also do custom modifications of the results, e.g.
 # taking the absolute value of all results. But the 
 # shape has to be the same after the modification!
@@ -2532,59 +2561,88 @@ information and the whole bunch of possibilities, see the R documentation
 (`?innsight_ggplot2` and `?innsight_plotly`) or in 
 [this section](#advanced-plotting). There are the following arguments:
 
-* `output_idx`: The indices of the output nodes for which the results is to 
+<ul>
+<li>
+`output_idx`: The indices of the output nodes for which the results is to 
 be plotted. This can be either a vector of indices or a list of vectors of 
 indices but must be a subset of the indices for which the results were 
 calculated, i.e. a subset of the [argument `output_idx`](#argument-output_idx) 
 passed to the respective method previously. By default (`NULL`), the smallest 
 index of all calculated output nodes and output layers is used.
+</li>
 
-* `data_idx`: By default, all available data points are used to calculate 
+<li>
+`data_idx`: By default, all available data points are used to calculate 
 the boxplot information. However, this parameter can be used to select a 
 subset of them by passing the indices. E.g. with `c(1:10, 25, 26)` only the 
 first 10 data points and the 25th and 26th are used to calculate the boxplots.
+</li>
 
-* `ref_data_idx`: This integer number determines the index for the reference 
+<li>
+`ref_data_idx`: This integer number determines the index for the reference 
 data point. In addition to the boxplots, it is displayed in red color and is 
 used to compare an individual result with the summary statistics provided by 
 the boxplot. With the default value (`NULL`), no individual data point is 
 plotted. This index can be chosen with respect to all available data, even 
 if only a subset is selected with argument `data_idx`.  
-**Note:** Because of the complexity of 2D inputs, this argument is used only 
+
+> **`r knitr::asis_output("\U1F4DD")`  Note**  
+> Because of the complexity of 2D inputs, this argument is used only 
 for tabular and 1D signal inputs and disregarded for 2D image inputs.
 
-* `aggr_channels`: Pass one of `'norm'`, `'sum'`, `'mean'` or a custom 
+</li>
+
+<li>
+`aggr_channels`: Pass one of `'norm'`, `'sum'`, `'mean'` or a custom 
 function to aggregate the channels. By default (`'sum'`), the sum of all 
 channels is used.  
-**Note:** This argument is used only for 1D signal and 2D image input data.
 
-* `preprocess_FUN`: This function is applied to the method's result before 
+> **`r knitr::asis_output("\U1F4DD")`  Note**  
+This argument is used only for 1D signal and 2D image input data.
+
+</li>
+
+<li>
+`preprocess_FUN`: This function is applied to the method's result before 
 calculating the boxplot information or medians. Since positive and negative 
 values often cancel each other out, the absolute value is used by default. But 
 you can also use the raw results (`base::identity`) to see the results' 
 orientation, the squared data (`function(x) x^2`) to weight the outliers 
 higher or any other function.
+</li>
 
-* `as_plotly`: This logical value (default: `FALSE`) can be used to create 
+<li>
+`as_plotly`: This logical value (default: `FALSE`) can be used to create 
 an interactive plot based on the library **plotly** (see `?innsight_plotly` 
 or [here](#plots-based-on-plotly) for details).  
-**Note:** Make sure that the suggested package **plotly** is installed in 
-your R session.
 
-* `individual_data_idx` (Only relevant for a plotly plot with tabular or 
+> **`r knitr::asis_output("\U1F4DD")`  Note**  
+> Make sure that the suggested package **plotly** is installed in your R session.
+
+</li>
+
+<li>
+`individual_data_idx` (Only relevant for a plotly plot with tabular or 
 1D signal inputs!): This integer vector of data indices determines the available 
 data points in a dropdown menu, which are drawn in individually analogous to 
 `ref_data_idx` only for more data points. With the default value `NULL` the 
 first `individual_max` data points are used.  
-**Note:** If `ref_data_idx` is specified, this data point will be added to 
+
+> **`r knitr::asis_output("\U1F4DD")`  Note**  
+> If `ref_data_idx` is specified, this data point will be added to 
 those from `individual_data_idx` in the dropdown menu.
 
-* `individual_max` (Only relevant for a plotly plot with tabular or 1D signal
+</li>
+
+<li>
+`individual_max` (Only relevant for a plotly plot with tabular or 1D signal
 inputs!): This integer determines the maximum number of individual data points
 in the dropdown menu without counting `ref_data_idx`. This means that if 
 `individual_data_idx` has more than `individual_max` indices, only the 
 first `individual_max` will be used. A too high number can significantly 
 increase the runtime.
+</li>
+</ul>
 
 ```{r, eval = FALSE}
 # Class method
@@ -2611,7 +2669,7 @@ boxplot(method,
 
 **Examples and usage:**
 
-```{r, fig.width = 8, fig.height=5}
+```{r, fig.width = 8, fig.height=5, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Create a boxplot for output classes '1' (setosa) and '3' (virginica)
 p <- boxplot(tab_grad, output_idx = c(1, 3))
 
@@ -2635,10 +2693,7 @@ p <- boxplot(tab_grad, output_idx = c(1,3), data_idx = 1:50,
 # point and toggle the plot type 'Boxplot' or 'Violin')
 p
 ```
-```{r, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 0, echo = FALSE}
-print("Due to the size, this image was not generated in the R vignette! See the innsight webpage for this image: https://bips-hb.github.io/innsight/articles/detailed_overview.html#plot-summarized-results-boxplot")
-```
-```{r, fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1}
+```{r, fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available()}
 # You can do the same with the plotly-based plots
 p <- boxplot(tab_grad, output_idx = c(1,3), data_idx = 1:50,
              ref_data_idx = 60, as_plotly = TRUE)
@@ -2647,7 +2702,7 @@ p <- boxplot(tab_grad, output_idx = c(1,3), data_idx = 1:50,
 # point and toggle the plot type Boxplot or Violin)
 plotly::config(print(p))
 ```
-```{r, fig.width=8, fig.height=4}
+```{r, fig.width=8, fig.height=4, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # We can do the same for models with image data. In addition, you can define
 # the aggregation function for the channels
 p <- boxplot(img_grad, output_idx = c(1,2), aggr_channels = "norm")
@@ -2671,10 +2726,7 @@ p <- boxplot(img_grad, output_idx = c(1,2), aggr_channels = "norm",
 # and a scale for selecting the respective percentile)
 p
 ```
-```{r, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 0, echo = FALSE}
-print("Due to the size, this image was not generated in the R vignette! See the innsight webpage for this image: https://bips-hb.github.io/innsight/articles/detailed_overview.html#plot-summarized-results-boxplot")
-```
-```{r, fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1}
+```{r, fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available()}
 # You can do the same with the plotly-based plots
 p <- boxplot(img_grad, output_idx = c(1,2), aggr_channels = "norm", 
              as_plotly = TRUE)
@@ -2695,7 +2747,7 @@ generated in a model with images and tabular data as inputs.
 
 <details>
 <summary> Create results for the following examples </summary>
-```{r}
+```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 library(keras)
 library(torch)
 
@@ -2806,7 +2858,7 @@ output layer is needed.
 * `boxplot`: A logical value indicating whether the result of individual
 data points or a boxplot over multiple instances is displayed.
 
-```{r}
+```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Create plot for output node 1 and 2 in the first output layer and
 # data points 1 and 3
 p <- plot(res_one_input, output_idx = c(1,2), data_idx = c(1,3))
@@ -2844,11 +2896,11 @@ can be added as usual (see ```ggplot2::`+.gg` ``` for more information).
 However, an object of the class `innsight_ggplot2` is returned.
 <details>
 <summary> Examples </summary>
-```{r, fig.height=6, fig.width=8}
+```{r, fig.height=6, fig.width=8, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Create plot
 p <- plot(res_one_input, output_idx = c(1,2), data_idx = c(1,3))
 
-# Now we can add geoms, themes and scales as usual for ggplo2 objects
+# Now we can add geoms, themes and scales as usual for ggplot2 objects
 df <- data.frame(x = c(0.5,  0.5, 10.5, 10.5, 0.5), 
                  y = c(0.5, 10.5, 10.5,  0.5, 0.5))
 new_p <- p +
@@ -2875,7 +2927,7 @@ and columns can be accessed and is returned as an object of the class
 `innsight_ggplot2`.
 <details>
 <summary> Example </summary>
-```{r, fig.height=6, fig.width=8}
+```{r, fig.height=6, fig.width=8, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Create plot
 p <- plot(res_one_input, output_idx = c(1,2), data_idx = c(1,3))
 
@@ -2899,7 +2951,7 @@ plot by passing the respective row and column index. This plot is returned
 as a **ggplot2** object.
 <details>
 <summary> Example </summary>
-```{r, fig.height=6, fig.width=8}
+```{r, fig.height=6, fig.width=8, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Create plot
 p <- plot(res_one_input, output_idx = c(1,2), data_idx = c(1,3))
 
@@ -2923,7 +2975,7 @@ functions, which all behave the same in this case. They create the plot of the
 results and return a **ggplot2** object invisibly.
 <details>
 <summary> Examples </summary>
-```{r, fig.height=3, fig.width=8}
+```{r, fig.height=3, fig.width=8, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Create plot
 p <- plot(res_one_input, output_idx = c(1,2), data_idx = 1)
 
@@ -2980,14 +3032,13 @@ each strip the number of columns for each output node strip.
 * `boxplot`: A logical value indicating whether the result of individual data
 points or a boxplot over multiple instances is displayed.
 
-**Note:**  
-
+> **`r knitr::asis_output("\U1F4DD")`  Note**  
 Since these plots are more complex and do not build **ggplot2** objects 
 anymore, the suggested packages **grid**, **gridExtra** and **gtable** are 
 needed and loaded. 
 
 
-```{r}
+```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Create a plot for output node 1 in the first output layer and node 2 in the
 # second output layer and data points 1 and 3
 p <- plot(res_two_inputs, output_idx = list(1, c(1,2)), data_idx = c(1, 3))
@@ -3030,7 +3081,7 @@ results and return a **gtable** object invisibly. For `plot` and `print`, you ca
 also pass additional arguments forwarded to `gridExtra::arrangeGrob`.
 <details>
 <summary> Examples </summary>
-```{r, fig.height=4, fig.width=10}
+```{r, fig.height=4, fig.width=10, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Create plot
 p <- plot(res_two_inputs, output_idx = list(1,2), data_idx = 1)
 
@@ -3052,7 +3103,7 @@ each of the plots can also be changed individually and is independent of the
 others. Individual modifications can be made with this generic function.
 <details>
 <summary> Examples </summary>
-```{r, fig.height=7, fig.width=12}
+```{r, fig.height=7, fig.width=12, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Create plot
 p <- plot(res_two_inputs, output_idx = list(1,2), data_idx = c(1,3))
 
@@ -3116,16 +3167,16 @@ An example structure of the plot with multiple input layers is shown below:
 | 
 ```
 
-**Notes:**
-
-* The **plotly** package is not a required package for **innsight**, so when 
+> **`r knitr::asis_output("\U1F4DD")`  Notes**  
+>
+> * The **plotly** package is not a required package for **innsight**, so when 
 creating interactive plotly-based plots, users should have it installed in 
 their R environment on their own.
-
-* The slots already mentioned and explained below, are for internal use only 
+>
+> * The slots already mentioned and explained below, are for internal use only 
 and generally should not be touched by users applying standard use cases.
-
-* Due to the size of interactive plots, the following ploty-based plots are 
+>
+> * Due to the size of interactive plots, the following ploty-based plots are 
 only rendered in the vignette at the [pkdown website](https://bips-hb.github.io/innsight/articles/detailed_overview.html#plots-based-on-plotly) and not in the base R vignette!
 
 **Slots:**
@@ -3156,7 +3207,7 @@ sliders, margins etc. (see `?plotly::layout` for more details).
 * `col_dims` : A list of two lists assigning a column index (`col_idx`) the
 corresponding output strip label (`col_label`).
 
-```{r}
+```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Create a plot for output node 1 in the first layer and output node 2 in the
 # second layer and data point 1 and 3
 p <- plot(res_two_inputs, output_idx = list(1,2), data_idx = c(1,3), 
@@ -3204,7 +3255,7 @@ p <- plot(res_two_inputs, output_idx = list(1,2), data_idx = c(1,3),
 # Show the whole plot
 p
 ```
-```{r, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1, echo = FALSE, fig.height=4,out.width= "100%", fig.width=20}
+```{r, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available(), echo = FALSE, fig.height=4,out.width= "100%", fig.width=20}
 # Create plot
 p <- plot(res_two_inputs, output_idx = list(1,2), data_idx = c(1,3), 
           as_plotly = TRUE)
@@ -3226,7 +3277,7 @@ class(p_new)
 # Show the subplot
 p_new
 ```
-```{r, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1, echo = FALSE, fig.height=5, fig.width=10}
+```{r, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available(), echo = FALSE, fig.height=5, fig.width=10}
 # Now you can select specific rows and columns for in-depth investigation,
 # e.g. only the result for output "Y2"
 p_new <- p[1:2, 3:4]
@@ -3260,7 +3311,7 @@ class(p_new)
 # Show the plot
 p_new
 ```
-```{r, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1, echo = FALSE, fig.height=5, fig.width=10}
+```{r, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available(), echo = FALSE, fig.height=5, fig.width=10}
 # Create plot
 p <- plot(res_two_inputs, output_idx = list(1,2), data_idx = c(1,3), 
           as_plotly = TRUE)
@@ -3298,7 +3349,7 @@ class(plot(p))
 # e.g. the margins
 print(p, margin = c(0.03, 0.03, 0.01, 0.01))
 ```
-```{r, fig.height=4, fig.width=10, echo = FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1}
+```{r, fig.height=4, fig.width=10, echo = FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available()}
 # Create plot
 p <- plot(res_two_inputs, output_idx = list(1,2), data_idx = 1,
           as_plotly = TRUE)

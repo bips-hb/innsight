@@ -38,7 +38,6 @@ details[open] {
 ```{r, echo = FALSE}
 Sys.setenv(LANG="en_US.UTF-8")
 set.seed(1111)
-torch::torch_manual_seed(1111)
 ```
 
 <style>
@@ -151,8 +150,8 @@ Currently, only models created by `torch::nn_sequential` are accepted.
 However, the most popular standard layers and activation functions are 
 available (see [here](https://bips-hb.github.io/innsight/vignette/detailed_overview.html#package-torch) for details).
 
-**Note:**
-If you want to create an instance of the class `Converter` with a **torch** 
+> **`r knitr::asis_output("\U1F4DD")`  Note**  
+> If you want to create an instance of the class `Converter` with a **torch** 
 model that meets the above conditions, you have to specify the shape of the 
 inputs with the argument `input_dim`. Because this information is not stored 
 in every given **torch** model.
@@ -423,18 +422,19 @@ connectweights_cnn <- ConnectionWeights$new(conv_cnn, x, times_input = TRUE)
 ```
 </details>
 </li>
-</ul>
+</ul>  
+  
 
-#### Notes
-
-* By default, the last activation function is not taken into account 
+> **`r knitr::asis_output("\U1F4DD")`  Notes**  
+>
+> * By default, the last activation function is not taken into account 
 for all data-based methods. Because often this is the sigmoid/logistic or 
 the softmax function, which has increasingly smaller gradients with growing 
 distance from 0, which leads to the so-called 
 *saturation problem*. But if you still want to consider the last activation 
 function, use the argument `ignore_last_act = FALSE`.
-
-* For data with channels, it is not possible to determine exactly on which 
+> 
+> * For data with channels, it is not possible to determine exactly on which 
 axis the channels are located. Internally, all data and the converted model are 
 in the data format *"channels first"*, i.e. directly after the batch dimension 
 $\left(\text{batchsize}, \text{channels}, \text{input_dim}\right)$. In case you
@@ -442,8 +442,8 @@ want to pass data with *"channels last"* (e.g. for MNIST-data
 $\left(\text{batchsize}, 28,28,3\right)$), 
 you have to indicate that with argument `channels_first` in the
 applied method.
-
-* It can happen with very large and deep neural networks that the calculation 
+>
+> * It can happen with very large and deep neural networks that the calculation 
 for all outputs requires both the entire memory and takes a very long time. 
 But often, the results are needed only for certain output nodes. By default, 
 only the results for the first 10 outputs are calculated, which can be adjusted
@@ -551,8 +551,8 @@ boxplot(method,
         ...)                    # other arguments
 ```
 
-**Note:**  
-The argument `output_idx` can be either a vector of indices or a list of 
+> **`r knitr::asis_output("\U1F4DD")`  Note**    
+> The argument `output_idx` can be either a vector of indices or a list of 
 vectors of indices but must be a subset of the indices for which the results were 
 calculated, i.e. a subset of the argument `output_idx` passed to the 
 respective method previously. By default (`NULL`), the smallest 
@@ -602,10 +602,7 @@ boxplot(smooth_dense, output_idx = 1:3, preprocess_FUN = identity,
 boxplot(smooth_dense, output_idx = 1:3, preprocess_FUN = identity,
         ref_data_idx = c(55), as_plotly = TRUE)
 ```
-```{r, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 0, echo = FALSE}
-print("Due to the size, this image was not generated in the R vignette! See the innsight webpage for this image: https://bips-hb.github.io/innsight/articles/innsight.html#plot-results")
-```
-```{r, fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1}
+```{r, fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed()}
 # You can do the same with the plotly-based plots
 p <- boxplot(smooth_dense, output_idx = 1:3, preprocess_FUN = identity,
         ref_data_idx = c(55), as_plotly = TRUE)
