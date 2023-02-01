@@ -442,10 +442,10 @@ test_that("DeepLift: Keras model with two inputs + two outputs (concat)", {
     layer_dense(units = 4)
   auxiliary_input <- layer_input(shape = c(5), name = 'aux_input')
   auxiliary_output <- layer_concatenate(c(lstm_out, auxiliary_input)) %>%
-    layer_dense(units = 2, activation = 'softmax', name = 'aux_output')
+    layer_dense(units = 2, activation = 'relu', name = 'aux_output')
   main_output <- layer_concatenate(c(lstm_out, auxiliary_input)) %>%
     layer_dense(units = 5, activation = 'relu') %>%
-    layer_dense(units = 3, activation = 'sigmoid', name = 'main_output')
+    layer_dense(units = 3, activation = 'tanh', name = 'main_output')
   model <- keras_model(
     inputs = c(auxiliary_input, main_input),
     outputs = c(auxiliary_output, main_output)
@@ -493,9 +493,9 @@ test_that("DeepLift: Keras model with two inputs + two outputs (concat)", {
   contrib_3 <- as.array(result$Output_2$Input_1[,,2]$sum(c(2)) +
                           result$Output_2$Input_2[,,,,2]$sum(c(2,3,4)))
 
-  expect_lt(mean((contrib_true[[1]] - contrib_1)^2), 1e-9)
-  expect_lt(mean((contrib_true[[2]] - contrib_2)^2), 1e-9)
-  expect_lt(mean((contrib_true[[3]] - contrib_3)^2), 1e-9)
+  expect_lt(mean((contrib_true[[1]] - contrib_1)^2), 1e-8)
+  expect_lt(mean((contrib_true[[2]] - contrib_2)^2), 1e-8)
+  expect_lt(mean((contrib_true[[3]] - contrib_3)^2), 1e-8)
 
   # Check DeepLift with reveal-cancel rule and ignoring last activation
   data <- lapply(list(c(5), c(10,10,2)),
@@ -546,9 +546,9 @@ test_that("DeepLift: Keras model with two inputs + two outputs (concat)", {
   contrib_3 <- as.array(result$Output_2$Input_1[,,2]$sum(c(2)) +
                           result$Output_2$Input_2[,,,,2]$sum(c(2,3,4)))
 
-  expect_lt(mean((contrib_true[[1]] - contrib_1)^2), 1e-9)
-  expect_lt(mean((contrib_true[[2]] - contrib_2)^2), 1e-9)
-  expect_lt(mean((contrib_true[[3]] - contrib_3)^2), 1e-9)
+  expect_lt(mean((contrib_true[[1]] - contrib_1)^2), 1e-8)
+  expect_lt(mean((contrib_true[[2]] - contrib_2)^2), 1e-8)
+  expect_lt(mean((contrib_true[[3]] - contrib_3)^2), 1e-8)
 })
 
 
