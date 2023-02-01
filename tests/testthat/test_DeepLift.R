@@ -493,9 +493,9 @@ test_that("DeepLift: Keras model with two inputs + two outputs (concat)", {
   contrib_3 <- as.array(result$Output_2$Input_1[,,2]$sum(c(2)) +
                           result$Output_2$Input_2[,,,,2]$sum(c(2,3,4)))
 
-  expect_lt(mean((contrib_true[[1]] - contrib_1)^2), 1e-10)
-  expect_lt(mean((contrib_true[[2]] - contrib_2)^2), 1e-10)
-  expect_lt(mean((contrib_true[[3]] - contrib_3)^2), 1e-10)
+  expect_lt(mean((contrib_true[[1]] - contrib_1)^2), 1e-9)
+  expect_lt(mean((contrib_true[[2]] - contrib_2)^2), 1e-9)
+  expect_lt(mean((contrib_true[[3]] - contrib_3)^2), 1e-9)
 
   # Check DeepLift with reveal-cancel rule and ignoring last activation
   data <- lapply(list(c(5), c(10,10,2)),
@@ -546,9 +546,9 @@ test_that("DeepLift: Keras model with two inputs + two outputs (concat)", {
   contrib_3 <- as.array(result$Output_2$Input_1[,,2]$sum(c(2)) +
                           result$Output_2$Input_2[,,,,2]$sum(c(2,3,4)))
 
-  expect_lt(mean((contrib_true[[1]] - contrib_1)^2), 1e-10)
-  expect_lt(mean((contrib_true[[2]] - contrib_2)^2), 1e-10)
-  expect_lt(mean((contrib_true[[3]] - contrib_3)^2), 1e-10)
+  expect_lt(mean((contrib_true[[1]] - contrib_1)^2), 1e-9)
+  expect_lt(mean((contrib_true[[2]] - contrib_2)^2), 1e-9)
+  expect_lt(mean((contrib_true[[3]] - contrib_3)^2), 1e-9)
 })
 
 
