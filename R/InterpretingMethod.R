@@ -7,12 +7,12 @@
 #' @description This is a super class for all interpreting methods in the
 #' `innsight` package. Implemented are the following methods:
 #'
-#' - Deep Learning Important Features ([DeepLift])
-#' - Layer-wise Relevance Propagation ([LRP])
+#' - *Deep Learning Important Features* ([DeepLift])
+#' - *Layer-wise Relevance Propagation* ([LRP])
 #' - Gradient-based methods:
-#'    - Vanilla gradients including 'Gradients x Input' ([Gradient])
-#'    - Smoothed gradients including 'SmoothGrad x Input' ([SmoothGrad])
-#' - Connection Weights (global and local) ([ConnectionWeights])
+#'    - *Vanilla gradients* including *Gradients x Input* ([Gradient])
+#'    - Smoothed gradients including *SmoothGrad x Input* ([SmoothGrad])
+#' - *Connection Weights* (global and local) ([ConnectionWeights])
 #'
 #' @template param-converter
 #' @template param-data
@@ -53,18 +53,18 @@ InterpretingMethod <- R6Class(
     #' @description
     #' Create a new instance of this super class.
     #'
-    #' @param output_idx
+    #' @param output_idx (`integer`, `list` or `NULL`)\cr
     #' These indices specify the output nodes for which the method is to be
     #' applied. In order to allow models with multiple output layers, there are
     #' the following possibilities to select the indices of the output
     #' nodes in the individual output layers:
     #' \itemize{
-    #'   \item A `vector` of indices: If the model has only one output layer,
-    #'   the values correspond to the indices of the output nodes, e.g.
+    #'   \item An `integer` vector of indices: If the model has only one output
+    #'   layer, the values correspond to the indices of the output nodes, e.g.
     #'   `c(1,3,4)` for the first, third and fourth output node. If there are
     #'   multiple output layers, the indices of the output nodes from the first
     #'   output layer are considered.
-    #'   \item A `list` of `vectors` of indices: If the method is to be
+    #'   \item A `list` of `integer` vectors of indices: If the method is to be
     #'   applied to output nodes from different layers, a list can be passed
     #'   that specifies the desired indices of the output nodes for each
     #'   output layer. Unwanted output layers have the entry `NULL` instead
@@ -73,7 +73,7 @@ InterpretingMethod <- R6Class(
     #'   \item `NULL` (default): The method is applied to all output nodes
     #'   in the first output layer but is limited to the first ten as the
     #'   calculations become more computationally expensive for more
-    #'   output nodes.
+    #'   output nodes.\cr
     #' }
     initialize = function(converter, data,
                           channels_first = TRUE,
@@ -82,22 +82,22 @@ InterpretingMethod <- R6Class(
                           winner_takes_all = TRUE,
                           verbose = interactive(),
                           dtype = "float") {
-      assertClass(converter, "Converter")
+      cli_check(checkClass(converter, "Converter"), "converter")
       self$converter <- converter
 
-      assert_logical(channels_first)
+      cli_check(checkLogical(channels_first), "channels_first")
       self$channels_first <- channels_first
 
-      assert_logical(ignore_last_act)
+      cli_check(checkLogical(ignore_last_act), "ignore_last_act")
       self$ignore_last_act <- ignore_last_act
 
-      assert_logical(winner_takes_all)
+      cli_check(checkLogical(winner_takes_all), "winner_takes_all")
       self$winner_takes_all <- winner_takes_all
 
-      assertLogical(verbose)
+      cli_check(checkLogical(verbose), "verbose")
       self$verbose <- verbose
 
-      assertChoice(dtype, c("float", "double"))
+      cli_check(checkChoice(dtype, c("float", "double")), "dtype")
       self$dtype <- dtype
       self$converter$model$set_dtype(dtype)
 
@@ -114,15 +114,16 @@ InterpretingMethod <- R6Class(
     #' data.frame (`'data.frame'`). This method is also implemented as a
     #' generic S3 function [`get_result`].
     #'
-    #' @param type The data type of the result. Use one of `'array'`,
+    #' @param type (`character(1)`)\cr
+    #' The data type of the result. Use one of `'array'`,
     #' `'torch.tensor'`, `'torch_tensor'` or `'data.frame'`
-    #' (default: `'array'`).
+    #' (default: `'array'`).\cr
     #'
     #' @return The result of this method for the given data in the chosen
     #' type.
     get_result = function(type = "array") {
-      assertChoice(type, c("array", "data.frame", "torch.tensor",
-                           "torch_tensor"))
+      cli_check(checkChoice(type, c("array", "data.frame", "torch.tensor",
+                           "torch_tensor")), "type")
 
       # Get the result as an array
       if (type == "array") {
@@ -204,7 +205,7 @@ InterpretingMethod <- R6Class(
     #' more information and the whole bunch of possibilities,
     #' see [`innsight_ggplot2`] and [`innsight_plotly`].\cr
     #' \cr
-    #' **Note:**
+    #' **Notes:**
     #' 1. For the interactive plotly-based plots, the suggested package
     #' `plotly` is required.
     #' 2. The ggplot2-based plots for models with multiple input layers are
@@ -213,17 +214,19 @@ InterpretingMethod <- R6Class(
     #' 3. If the global *Connection Weights* method was applied, the
     #' unnecessary argument `data_idx` will be ignored.
     #'
-    #' @param data_idx An integer vector containing the numbers of the data
+    #' @param data_idx (`integer`)\cr
+    #'  An integer vector containing the numbers of the data
     #' points whose result is to be plotted, e.g. `c(1,3)` for the first
     #' and third data point in the given data. Default: `1`. This argument
-    #' will be ignored for the global *Connection Weights* method.
-    #' @param output_idx The indices of the output nodes for which the results
-    #' is to be plotted. This can be either a `vector` of indices or a `list`
-    #' of vectors of indices but must be a subset of the indices for which the
-    #' results were calculated, i.e. a subset of `output_idx` from the
+    #' will be ignored for the global *Connection Weights* method.\cr
+    #' @param output_idx (`integer`, `list` or `NULL`)\cr
+    #' The indices of the output nodes for which the results
+    #' is to be plotted. This can be either a `integer` vector of indices or a
+    #' `list` of `integer` vectors of indices but must be a subset of the indices for
+    #' which the results were calculated, i.e. a subset of `output_idx` from the
     #' initialization `new()` (see argument `output_idx` in method `new()` of
     #' this R6 class for details). By default (`NULL`), the smallest index
-    #' of all calculated output nodes and output layers is used.
+    #' of all calculated output nodes and output layers is used.\cr
     #'
     #' @return
     #' Returns either an [`innsight_ggplot2`] (`as_plotly = FALSE`) or an
@@ -265,9 +268,11 @@ InterpretingMethod <- R6Class(
       }
 
       # Check correctness of arguments
-      assertIntegerish(data_idx, lower = 1, upper = dim(self$data[[1]])[1])
+      cli_check(
+        checkIntegerish(data_idx, lower = 1, upper = dim(self$data[[1]])[1]),
+        "data_idx")
       output_idx <- check_output_idx_for_plot(output_idx, self$output_idx)
-      assertLogical(as_plotly)
+      cli_check(checkLogical(as_plotly), "as_plotly")
 
       # Set aggregation function for channels
       aggr_channels <- get_aggr_function(aggr_channels)
@@ -323,7 +328,7 @@ InterpretingMethod <- R6Class(
     #' `innsight_plotly` based on the plot function [plotly::plot_ly]. For
     #' more information and the whole bunch of possibilities, see
     #' [`innsight_ggplot2`] and [`innsight_plotly`].\cr \cr
-    #' **Note:**
+    #' **Notes:**
     #' 1. This method can only be used for the local *Connection Weights*
     #' method, i.e. if `times_input` is `TRUE` and `data` is provided.
     #' 2. For the interactive plotly-based plots, the suggested package
@@ -332,18 +337,20 @@ InterpretingMethod <- R6Class(
     #' a bit more complex, therefore the suggested packages `'grid'`,
     #' `'gridExtra'` and `'gtable'` must be installed in your R session.
     #'
-    #' @param output_idx The indices of the output nodes for which the
+    #' @param output_idx (`integer`, `list` or `NULL`)\cr
+    #' The indices of the output nodes for which the
     #' results is to be plotted. This can be either a `vector` of indices or
     #' a `list` of vectors of indices but must be a subset of the indices for
     #' which the results were calculated, i.e. a subset of `output_idx` from
     #' the initialization `new()` (see argument `output_idx` in method `new()`
     #' of this R6 class for details). By default (`NULL`), the smallest index
-    #' of all calculated output nodes and output layers is used.
-    #' @param data_idx By default ("all"), all available data points are used
+    #' of all calculated output nodes and output layers is used.\cr
+    #' @param data_idx (`integer`)\cr
+    #' By default, all available data points are used
     #' to calculate the boxplot information. However, this parameter can be
     #' used to select a subset of them by passing the indices. E.g. with
     #' `c(1:10, 25, 26)` only the first 10 data points and
-    #' the 25th and 26th are used to calculate the boxplots.
+    #' the 25th and 26th are used to calculate the boxplots.\cr
     #'
     #' @return
     #' Returns either an [`innsight_ggplot2`] (`as_plotly = FALSE`) or an
@@ -361,12 +368,12 @@ InterpretingMethod <- R6Class(
       if (inherits(self, "ConnectionWeights")) {
         if (!self$times_input) {
           stopf(
-            "Only if the result of the Connection-Weights method is ",
-            "multiplied by the data ('times_input' = TRUE), it is a local ",
+            "Only if the result of the {.emph ConnectionWeights} method is ",
+            "multiplied by the data ({.arg times_input} = TRUE), it is a local ",
             "method and only then boxplots can be generated over multiple ",
-            "instances. Thus, the argument 'data' must be specified and ",
-            "'times_input = TRUE' when applying the 'ConnectionWeights$new' ",
-            "method.", call = "ConnectionWeights$boxplot(...)")
+            "instances. Thus, the argument {.arg data} must be specified and ",
+            "{.arg times_input} = TRUE when applying the ",
+            "{.code ConnectionWeights$new} method.")
         }
         value_name <- "Relative Importance"
       } else if (inherits(self, "LRP")) {
@@ -388,23 +395,26 @@ InterpretingMethod <- R6Class(
       if (identical(data_idx, "all")) {
         data_idx <- seq_len(num_data)
       }
-      assertIntegerish(data_idx, lower = 1,
-                       upper = num_data,
-                       any.missing = FALSE)
+      cli_check(checkIntegerish(data_idx, lower = 1, upper = num_data,
+                                any.missing = FALSE), "data_idx")
       # ref_data_idx
-      assertInt(ref_data_idx, lower = 1, upper = num_data, null.ok = TRUE)
+      cli_check(
+        checkInt(ref_data_idx, lower = 1, upper = num_data, null.ok = TRUE),
+        "ref_data_idx")
       # aggr_channels
       aggr_channels <- get_aggr_function(aggr_channels)
       # preprocess_FUN
-      assertFunction(preprocess_FUN)
+      cli_check(checkFunction(preprocess_FUN), "preprocess_FUN")
       # as_plotly
-      assertLogical(as_plotly)
+      cli_check(checkLogical(as_plotly), "as_plotly")
       # individual_data_idx
-      assertIntegerish(individual_data_idx, lower = 1, upper = num_data,
-                       null.ok = TRUE, any.missing = FALSE)
+      cli_check(
+        checkIntegerish(individual_data_idx, lower = 1, upper = num_data,
+                        null.ok = TRUE, any.missing = FALSE),
+        "individual_data_idx")
       if (is.null(individual_data_idx)) individual_data_idx <- seq_len(num_data)
       # individual_max
-      assertInt(individual_max, lower = 1)
+      cli_check(checkInt(individual_max, lower = 1), "individual_max")
       individual_max <- min(individual_max, num_data)
 
       # Set the individual instances for the plot
@@ -470,6 +480,38 @@ InterpretingMethod <- R6Class(
       }
 
       p
+    },
+
+    #' @description
+    #' Print a summary of the method object. This summary contains the
+    #' individual fields and in particular the results of the applied method.
+    #'
+    #' @return Returns the method object invisibly via [`base::invisible`].
+    #'
+    print = function() {
+      cli_h1(paste0("Method {.emph ", class(self)[1], "} ({.pkg innsight})"))
+      cat("\n")
+
+      cli_div(theme = list(ul = list(`margin-left` = 2, before = ""),
+                           dl = list(`margin-left` = 2, before = "")))
+      cli_text("{.strong Fields} (method-specific):")
+      private$print_method_specific()
+      cat("\n")
+
+      cli_text("{.strong Fields} (other):")
+      i <- cli_ul()
+      print_output_idx(self$output_idx, self$converter$output_names)
+      cli_li(paste0("{.field ignore_last_act}:  ", self$ignore_last_act))
+      cli_li(paste0("{.field channels_first}:  ", self$channels_first))
+      cli_li(paste0("{.field dtype}:  '", self$dtype, "'"))
+      cli_end(id = i)
+
+      cli_h2("{.strong Result} ({.field result})")
+      print_result(self$result)
+
+      cli_h1("")
+
+      invisible(self)
     }
   ),
   private = list(
@@ -482,12 +524,11 @@ InterpretingMethod <- R6Class(
                          length = length(self$converter$model$output_nodes))
 
       if (self$verbose) {
-        messagef("Backward pass '", method_name, "':")
+        #messagef("Backward pass '", method_name, "':")
         # Define Progressbar
-        pb <- txtProgressBar(min = 0,
-                             max = length(self$converter$model$graph),
-                             style = 3)
-        n <- 0
+        cli_progress_bar(name = paste0("Backward pass '", method_name, "'"),
+                         total = length(self$converter$model$graph),
+                         type = "iterator", clear = FALSE)
       }
 
       # We go through the graph in reversed order
@@ -628,12 +669,11 @@ InterpretingMethod <- R6Class(
 
         if (self$verbose) {
           # Update progress bar
-          n <- n + 1
-          setTxtProgressBar(pb, n)
+          cli_progress_update(force = TRUE)
         }
       }
 
-      if (self$verbose) close(pb)
+      if (self$verbose) cli_progress_done()
 
       # If necessary, move channels last
       if (self$channels_first == FALSE) {
@@ -680,8 +720,7 @@ InterpretingMethod <- R6Class(
 
     test_data = function(data, name = "data") {
       if (missing(data)) {
-        stopf("Argument 'data' is missing!",
-              call = paste0(class(self)[[1]]), "$new(...)")
+        stopf("Argument {.arg data} is missing!")
       }
       if (!is.list(data) | is.data.frame(data)) {
         data <- list(data)
@@ -696,10 +735,10 @@ InterpretingMethod <- R6Class(
           as.array(input_data)
         },
         error = function(e) {
-          stop("Failed to convert the argument '", name,
-               "[[", i, "]]' to an array ",
-               "using the function 'base::as.array'. The class of your ",
-               "argument '", name, "[[", i, "]]': '",
+          stopf("Failed to convert the argument {.arg ", name,
+               "[[", i, "]]} to an array ",
+               "using the function {.fn base::as.array}. The class of your ",
+               "argument {.arg ", name, "[[", i, "]]}: '",
                paste(class(input_data), collapse = "', '"), "'")
         })
 
@@ -711,12 +750,12 @@ InterpretingMethod <- R6Class(
 
         if (length(dim(input_data)[-1]) != length(ordered_dim) ||
             !all(dim(input_data)[-1] == ordered_dim)) {
-          stop(
-            "Unmatch in model dimension (*, ",
+          stopf(
+            "Unmatch in model input dimension (*, ",
             paste0(ordered_dim, collapse = ", "), ") and dimension of ",
-            "argument '", name, "[[", i, "]]' (",
+            "argument {.arg ", name, "[[", i, "]]} (",
             paste0(dim(input_data), collapse = ", "),
-            "). Try to change the argument 'channels_first', if only ",
+            "). Try to change the argument {.arg channels_first}, if only ",
             "the channels are wrong."
           )
         }
@@ -730,6 +769,10 @@ InterpretingMethod <- R6Class(
 
         input_data
       })
+    },
+
+    print_method_specific = function() {
+      NULL
     }
   )
 )
@@ -756,6 +799,73 @@ get_result.InterpretingMethod <- function(x, ...) {
 }
 
 ###############################################################################
+#                           print utility functions
+###############################################################################
+print_result <- function(result) {
+  num_outlayers <- length(result)
+  num_inlayers <- length(result[[1]])
+
+  for (i in seq_along(result)) {
+    if (num_outlayers > 1) cli_text(paste0("{.strong Output layer ", i, ":}"))
+    for (j in seq_along(result[[i]])) {
+      if (num_inlayers > 1) {
+        in_l <- cli_ul()
+        cli_li(paste0("Input layer ", j, ":"))
+      }
+      if (is.null(result[[i]][[j]])) {
+        items <- paste0(col_cyan(symbol$i), " {.emph (not connected to output layer ", i, ")}")
+        cli_bullets(c(" " = items))
+      } else {
+        items <- list(
+          paste0("(", paste0(result[[i]][[j]]$shape, collapse = ", "), ")"),
+          paste0(paste0(c("min: ", "median: ", "max: "),
+                        signif(as_array(result[[i]][[j]]$quantile(c(0,0.5,1))))),
+                 collapse = ", "),
+          as_array(result[[i]][[j]]$isnan()$sum())
+        )
+
+        names(items) <- paste0(symbol$line,
+                               c(" Shape", " Range", " Number of NaN values"))
+        cli_dl(items)
+      }
+      if (num_inlayers > 1) cli_end(in_l)
+    }
+  }
+}
+
+print_output_idx <- function(output_idx, out_names) {
+  draw_layer <- if (length(output_idx) > 1) TRUE else FALSE
+
+  if (draw_layer) {
+    cli_li("{.field output_idx}:")
+    layer_list <- cli_ul()
+  }
+
+  for (i in seq_along(output_idx)) {
+    if (draw_layer) {
+      prefix <- paste0("Output layer ", i, ": {.emph ")
+    } else {
+      prefix <- "{.field output_idx}: {.emph "
+    }
+
+    if (is.null(output_idx[[i]])) {
+      output_idx[[i]] <- "not applied!"
+      labels <- ""
+    } else {
+      labels <- paste0(
+        " (", symbol$arrow_right, " corresponding labels: {.emph '",
+        paste0(out_names[[i]][[1]][output_idx[[i]]], collapse = "'}, {.emph '"),
+        "'})")
+    }
+
+    cli_li(paste0(
+      prefix,
+      paste0(output_idx[[i]], collapse = "}, {.emph "), "}", labels))
+  }
+}
+
+
+###############################################################################
 #                                 Utils
 ###############################################################################
 
@@ -774,15 +884,15 @@ check_output_idx <- function(output_idx, output_dim) {
     n <- 1
     for (output in output_idx) {
       limit <- output_dim[[n]]
-      assertInt(limit)
+      cli_check(checkInt(limit), "limit")
       if (!testIntegerish(output, lower = 1, upper = limit, null.ok = TRUE)) {
-        stop("Assertion on 'output_idx[[", n, "]]' failed: Values ",
-             paste(output, collapse = ","), " is not <= ", limit, ".")
+        stopf("Assertion on {.arg output_idx[[", n, "]]} failed: Value(s) ",
+             paste(output, collapse = ","), " not <= ", limit, ".")
       }
       n <- n + 1
     }
   } else {
-    stop("The argument 'output_idx' has to be either a vector with maximum ",
+    stopf("The argument {.arg output_idx} has to be either a vector with maximum ",
          "value of '", output_dim[[1]], "' or a list of length '",
          length(output_dim), "' with maximal values of '",
          paste(unlist(output_dim), collapse = ","), "'.")
@@ -940,17 +1050,17 @@ check_output_idx_for_plot <- function(output_idx, true_output_idx) {
     idx <- which(unlist(lapply(true_output_idx, is.null)) == FALSE)[1]
     output_idx[[idx]] <- true_output_idx[[idx]][1]
   } else if (testIntegerish(output_idx)) {
-    assertSubset(output_idx, true_output_idx[[1]])
+    cli_check(checkSubset(output_idx, true_output_idx[[1]]), "output_idx")
     output_idx <- list(output_idx)
   } else if (testList(output_idx, max.len = length(true_output_idx))) {
     for (out_idx in seq_along(true_output_idx)) {
-      assertSubset(output_idx[[out_idx]], true_output_idx[[out_idx]],
-                   .var.name = paste0("output_idx[[", out_idx, "]]"))
+      cli_check(checkSubset(output_idx[[out_idx]], true_output_idx[[out_idx]]),
+                paste0("output_idx[[", out_idx, "]]"))
     }
   } else {
     values <- unlist(lapply(true_output_idx, paste, collapse = ","))
     values <- paste0("[[", seq_along(values), "]] ", values, " ")
-    stop("The argument 'output_idx' has to be either a vector with value of '",
+    stopf("The argument {.arg output_idx} has to be either a vector with value of '",
          paste(true_output_idx[[1]], collapse = ","),
          "' or a list of length '", length(true_output_idx),
          "' with values of '", values, "'. Only for these output nodes ",
@@ -992,10 +1102,10 @@ apply_results <- function(result, FUN, ...) {
 }
 
 get_aggr_function <- function(aggr_channels) {
-  assert(
+  cli_check(c(
     checkFunction(aggr_channels),
     checkChoice(aggr_channels, c("norm", "sum", "mean"))
-  )
+  ), "aggr_channels")
 
   if (!is.function(aggr_channels)) {
     if (aggr_channels == "norm") {

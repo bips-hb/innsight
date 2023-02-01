@@ -26,7 +26,7 @@
 
 \item{drop}{unused argument}
 
-\item{value}{Another instance of the s4 class \code{innsight_ggplot2} but of
+\item{value}{Another instance of the S4 class \code{innsight_ggplot2} but of
 shape \code{i} x \code{j}.}
 }
 \value{
@@ -41,7 +41,7 @@ column with those from \code{value} and returns the modified instance of
 }
 }
 \description{
-The s4 class \code{\link{innsight_ggplot2}} visualizes the results in the form of
+The S4 class \code{\link{innsight_ggplot2}} visualizes the results in the form of
 a matrix, with the output nodes (and also the input layers) in the columns
 and the selected data points in the rows. With these basic generic indexing
 functions, the plots of individual rows and columns can be accessed,

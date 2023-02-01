@@ -19,11 +19,11 @@
 #'
 #' An object of the Converter class can be applied to the
 #' following methods:
-#'   * Layerwise Relevance Propagation ([LRP]), Bach et al. (2015)
-#'   * Deep Learning Important Features ([DeepLift]), Shrikumar et al. (2017)
-#'   * [SmoothGrad] including 'SmoothGrad x Input', Smilkov et al. (2017)
-#'   * Vanilla [Gradient] including 'Gradient x Input'
-#'   * [ConnectionWeights], Olden et al. (2004)
+#'   * *Layerwise Relevance Propagation* ([LRP]), Bach et al. (2015)
+#'   * *Deep Learning Important Features* ([DeepLift]), Shrikumar et al. (2017)
+#'   * *[SmoothGrad]* including *SmoothGrad x Input*, Smilkov et al. (2017)
+#'   * *Vanilla [Gradient]* including *Gradient x Input*
+#'   * *[ConnectionWeights]*, Olden et al. (2004)
 #'
 #'
 #' ## Implemented Libraries
@@ -33,5 +33,6 @@
 #' can also write a wrapper for other libraries because a model can be passed
 #' as a named list which is described in detail in the vignette "In-depth
 #' Explanation"
-#' (see \code{vignette("detailed_overview", package = "innsight")}).
+#' (see \code{vignette("detailed_overview", package = "innsight")} or the
+#' [website](https://bips-hb.github.io/innsight/vignette/detailed_overview.html#model-as-named-list)).
 #'

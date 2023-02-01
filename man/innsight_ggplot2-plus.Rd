@@ -8,20 +8,18 @@
 \S4method{+}{innsight_ggplot2,ANY}(e1, e2)
 }
 \arguments{
-\item{e1}{An instance of the s4 class \link{innsight_ggplot2}.}
+\item{e1}{An instance of the S4 class \code{\link{innsight_ggplot2}}.}
 
-\item{e2}{An object of class \link[ggplot2:ggplot]{ggplot2::ggplot} or a \link[ggplot2:theme]{ggplot2::theme}.}
+\item{e2}{An object of class \code{\link[ggplot2:ggplot]{ggplot2::ggplot}} or a \code{\link[ggplot2:theme]{ggplot2::theme}}.}
 }
 \description{
-This generic add function allows to treat an instance of \link{innsight_ggplot2}
-as an ordinary plot object of \link{ggplot2}. For example geoms, themes and
-scales can be added as usual (see \link[ggplot2:gg-add]{ggplot2::+.gg} for more information).
-}
-\details{
+This generic add function allows to treat an instance of \code{\link{innsight_ggplot2}}
+as an ordinary plot object of \code{\link{ggplot2}}. For example geoms, themes and
+scales can be added as usual (see \code{\link[ggplot2:gg-add]{ggplot2::+.gg}} for more information).\cr \cr
 \strong{Note:} If \code{e1} represents a multiplot (i.e., \code{e1@mulitplot = TRUE}),
 \code{e2} is added to each individual plot. If only specific plots need to be
 changed, the generic assignment function should be used (see
-\link{innsight_ggplot2} for more details).
+\link{innsight_ggplot2} for details).
 }
 \seealso{
 \code{\link{innsight_ggplot2}},

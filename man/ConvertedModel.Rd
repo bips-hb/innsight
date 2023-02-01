@@ -2,15 +2,17 @@
 % Please edit documentation in R/ConvertedModel.R
 \name{ConvertedModel}
 \alias{ConvertedModel}
-\title{Converted torch-based Model}
+\title{Converted \code{torch}-based Model}
 \usage{
 ConvertedModel(modules_list, graph, input_nodes, output_nodes, dtype = "float")
 }
 \arguments{
-\item{modules_list}{A list of all accepted layers created by the 'Converter'
-class during initialization.}
+\item{modules_list}{(\code{list})\cr
+A list of all accepted layers created by the \code{\link{Converter}}
+class during initialization.\cr}
 
-\item{graph}{The \code{graph} argument gives a way to pass an input through
+\item{graph}{(\code{list})\cr
+The \code{graph} argument gives a way to pass an input through
 the model, which is especially relevant for non-sequential architectures.
 It can be seen as a list of steps in which order the layers from
 \code{modules_list} must be applied. The list contains the following elements:
@@ -30,24 +32,27 @@ The indices of the outputs from \code{current_nodes}, which are
 used as inputs of the current layer (\code{used_node}).
 \item \verb{$times}\cr
 The frequency of the output value, i.e. is the output used
-more than once as an input for subsequent layers?
+more than once as an input for subsequent layers?\cr
 }}
 
-\item{input_nodes}{A vector of layer indices describing the input layers,
-i.e. they are used as the starting point for the calculations.}
+\item{input_nodes}{(\code{numeric})\cr
+A vector of layer indices describing the input layers,
+i.e. they are used as the starting point for the calculations.\cr}
 
-\item{output_nodes}{A vector of layer indices describing the indices
-of the output layers.}
+\item{output_nodes}{(\code{numeric})\cr
+A vector of layer indices describing the indices
+of the output layers.\cr}
 
-\item{dtype}{The data type for all the calculations and defined tensors. Use
-either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
-\link[torch:torch_dtype]{torch::torch_double}.}
+\item{dtype}{(\code{character(1)})\cr
+The data type for all the calculations and defined tensors. Use
+either \code{'float'} for \code{\link[torch:torch_dtype]{torch::torch_float}} or \code{'double'} for
+\code{\link[torch:torch_dtype]{torch::torch_double}}.\cr}
 }
 \description{
-This class stores all layers converted to torch in a module which can be
-used like the original model (but torch-based). In addition, it provides
+This class stores all layers converted to \code{torch} in a module which can be
+used like the original model (but \code{torch}-based). In addition, it provides
 other functions that are useful for interpreting individual predictions or
-explaining the entire model. This model is part of the class \link{Converter}
+explaining the entire model. This model is part of the class \code{\link{Converter}}
 and is the core for all the necessary calculations in the methods provided
 in this package.
 }
@@ -59,11 +64,12 @@ The forward method of the whole model, i.e. it calculates the output
 values are stored in the individual torch modules from \code{modules_list}.
 \subsection{Usage}{
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{self(x, channels_first = TRUE,
-        save_input = FALSE,
-        save_preactivation = FALSE,
-        save_output = FAlSE,
-        save_last_layer = FALSE)
+\if{html}{\out{<div class="sourceCode">}}\preformatted{self(x,
+     channels_first = TRUE,
+     save_input = FALSE,
+     save_preactivation = FALSE,
+     save_output = FAlSE,
+     save_last_layer = FALSE)
 }\if{html}{\out{</div>}}
 }
 

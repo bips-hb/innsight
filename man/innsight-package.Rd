@@ -10,7 +10,7 @@
 individual predictions of modern neural networks. Many methods for
 explaining individual predictions already exist, but hardly any of them
 are implemented or available in R. Most of these so-called
-\emph{'Feature Attribution'} methods are only implemented in Python and
+\emph{feature attribution} methods are only implemented in Python and
 thus difficult to access or use for the R community. In this sense,
 the package \code{innsight} provides a common interface for various methods
 for the interpretability of neural networks and can therefore be considered
@@ -18,36 +18,36 @@ as an R analogue to 'iNNvestigate' or 'Captum' for Python.
 }
 \details{
 This package implements several model-specific interpretability
-(Feature Attribution) methods based on neural networks in R, e.g.,
+(feature attribution) methods based on neural networks in R, e.g.,
 \itemize{
-\item Layer-wise Relevance Propagation (\link{LRP})
+\item \emph{Layer-wise Relevance Propagation (\link{LRP})}
 \itemize{
 \item Including propagation rules: \eqn{\epsilon}-rule and
 \eqn{\alpha}-\eqn{\beta}-rule
 }
-\item Deep Learning Important Features (\link{DeepLift})
+\item \emph{Deep Learning Important Features (\link{DeepLift})}
 \itemize{
-\item Including propagation rules for non-linearities: rescale rule and
-reveal-cancel rule
+\item Including propagation rules for non-linearities: \emph{rescale} rule and
+\emph{reveal-cancel} rule
 }
 \item Gradient-based methods:
 \itemize{
-\item Vanilla \link{Gradient}, including 'Gradient x Input'
-\item Smoothed gradients (\link{SmoothGrad}), including 'SmoothGrad x Input'
+\item \emph{Vanilla \link{Gradient}}, including \emph{Gradient x Input}
+\item Smoothed gradients \emph{(\link{SmoothGrad})}, including \emph{SmoothGrad x Input}
 }
-\item \link{ConnectionWeights}
+\item \emph{\link{ConnectionWeights}}
 }
 
 The package \code{innsight} aims to be as flexible as possible and independent
 of a specific deep learning package in which the passed network has been
 learned. Basically, a neural network of the libraries
-\link[torch:nn_sequential]{torch::nn_sequential}, \link[keras:keras_model_sequential]{keras::keras_model_sequential},
-\link[keras:keras_model]{keras::keras_model} and \link[neuralnet:neuralnet]{neuralnet::neuralnet} can be passed to the
-main building block \link{Converter},
+\code{\link[torch:nn_sequential]{torch::nn_sequential}}, \code{\link[keras:keras_model_sequential]{keras::keras_model_sequential}},
+\code{\link[keras:keras_model]{keras::keras_model}} and \code{\link[neuralnet:neuralnet]{neuralnet::neuralnet}} can be passed to the
+main building block \code{\link{Converter}},
 which converts and stores the passed model as a torch model
-(\link{ConvertedModel}) with special insights needed for interpretation.
+(\code{\link{ConvertedModel}}) with special insights needed for interpretation.
 It is also possible to pass an arbitrary net in form of a named list
-(see details in \link{Converter}).
+(see details in \code{\link{Converter}}).
 }
 \seealso{
 Useful links:

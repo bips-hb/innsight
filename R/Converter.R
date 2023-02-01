@@ -13,24 +13,29 @@
 #' * \code{\link[neuralnet]{neuralnet}}
 #'
 #' Furthermore, a model can be passed as a list (see
-#' \code{vignette("detailed_overview", package = "innsight")}).
+#' \code{vignette("detailed_overview", package = "innsight")} or the
+#' [website](https://bips-hb.github.io/innsight/vignette/detailed_overview.html#model-as-named-list)).
 #'
-#' @field model The converted neural network based on the torch module
-#' [ConvertedModel].
-#' @field input_dim A list of the input dimensions of each input layer. Since
+#' @field model ([`ConvertedModel`])\cr
+#' The converted neural network based on the torch module [ConvertedModel].\cr
+#' @field input_dim (`list`)\cr
+#' A list of the input dimensions of each input layer. Since
 #' internally the channels-first format is used for all calculations, the
 #' input shapes are already in this format. In addition, the batch
 #' dimension isn't included, e.g. for an input layer of shape `c(*,32,32,3)`
-#' with channels in the last axis you get `list(c(3,32,32))`.
-#' @field input_names A list with the names as factors for each input
-#' dimension of the shape as stored in the field `input_dim`.
-#' @field output_dim  A list of the output dimensions of each output layer.
-#' @field output_names A list with the names as factors for each output
-#' dimension of shape as stored in the field `output_dim`.
-#' @field model_as_list The model stored in a named list (see details for more
+#' with channels in the last axis you get `list(c(3,32,32))`.\cr
+#' @field input_names (`list`)\cr
+#' A list with the names as factors for each input
+#' dimension of the shape as stored in the field `input_dim`.\cr
+#' @field output_dim (`list`)\cr
+#' A list of the output dimensions of each output layer.\cr
+#' @field output_names (`list`)\cr A list with the names as factors for each
+#' output dimension of shape as stored in the field `output_dim`.\cr
+#' @field model_as_list (`list`)\cr
+#' The model stored in a named list (see details for more
 #' information). By default, the entry `model_as_list$layers` is deleted
 #' because it may require a lot of memory for large networks. However, with
-#' the argument `save_model_as_list` this can be saved anyway.
+#' the argument `save_model_as_list` this can be saved anyway.\cr
 #'
 #' @template details-Converter
 #' @template examples-Converter
@@ -64,21 +69,25 @@ Converter <- R6Class("Converter",
     #' torch-converted model ([ConvertedModel]) is created and stored in
     #' the field `model`.
     #'
-    #' @param model A trained neural network for classification or regression
+    #' @param model ([`nn_sequential`], \code{\link[keras]{keras_model}},
+    #' \code{\link[neuralnet]{neuralnet}} or `list`)\cr
+    #' A trained neural network for classification or regression
     #' tasks to be interpreted. Only models from the following types or
     #' packages are allowed: \code{\link[torch]{nn_sequential}},
     #' \code{\link[keras]{keras_model}},
     #' \code{\link[keras]{keras_model_sequential}},
     #' \code{\link[neuralnet]{neuralnet}} or a named list (see details).
-    #' @param input_dim The model input dimension excluding the batch
+    #' @param input_dim (`integer`)\cr
+    #' The model input dimension excluding the batch
     #' dimension. If there is only one input layer it can be specified as
     #' a vector, otherwise use a list of the shapes of the
     #' individual input layers.\cr
     #' *Note:* This argument is only necessary for `torch::nn_sequential`,
     #' for all others it is automatically extracted from the passed model
     #' and used for internal checks. In addition, the input dimension
-    #' `input_dim` has to be in the format channels first.
-    #' @param input_names (Optional) A list with the names for each input
+    #' `input_dim` has to be in the format channels first.\cr
+    #' @param input_names (`list`)\cr
+    #' A list with the names for each input
     #' dimension excluding the batch dimension, e.g. for a dense layer
     #' with `3` input features use `list(c("X1", "X2", "X3"))` or for a
     #' 1D convolutional layer with signal length `5` and `2` channels use
@@ -86,30 +95,33 @@ Converter <- R6Class("Converter",
     #' vectors you can also use factors to set an order for the plots.\cr
     #' *Note:* This argument is optional and otherwise the names are
     #' generated automatically. But if this argument is set, all found
-    #' input names in the passed model will be disregarded.
-    #' @param output_names (Optional) A list with the names for the output
+    #' input names in the passed model will be disregarded.\cr
+    #' @param output_names (`character` or `list`)\cr
+    #' A list with the names for the output
     #' dimensions excluding the batch dimension,
     #' e.g. for a model with `3` output nodes use
     #' `list(c("Y1", "Y2", "Y3"))`. Instead of a character
     #' vector you can also use a factor to set an order for the plots.\cr
     #' *Note:* This argument is optional and otherwise the names are
     #' generated automatically. But if this argument is set, all found
-    #' output names in the passed model will be disregarded.
-    #' @param save_model_as_list This logical value specifies whether the
+    #' output names in the passed model will be disregarded.\cr
+    #' @param save_model_as_list (`logical(1)`)\cr
+    #' This logical value specifies whether the
     #' passed model should be stored as a list. This list can take
     #' a lot of memory for large networks, so by default the model is not
-    #' stored as a list (`FALSE`).
-    #' @param dtype The data type for the calculations. Use
+    #' stored as a list (`FALSE`).\cr
+    #' @param dtype (`character(1)`)\cr
+    #' The data type for the calculations. Use
     #' either `'float'` for [torch::torch_float] or `'double'` for
-    #' [torch::torch_double].
+    #' [torch::torch_double].\cr
     #'
     #' @return A new instance of the R6 class \code{'Converter'}.
     #'
     initialize = function(model, input_dim = NULL, input_names = NULL,
                           output_names = NULL, dtype = "float",
                           save_model_as_list = FALSE) {
-      assertChoice(dtype, c("float", "double"))
-      assertLogical(save_model_as_list)
+      cli_check(checkChoice(dtype, c("float", "double")), "dtype")
+      cli_check(checkLogical(save_model_as_list), "save_model_as_list")
 
       # Analyze the passed model and store its internal structure in a list of
       # layers
@@ -129,9 +141,9 @@ Converter <- R6Class("Converter",
       } else {
         # Unknown model class -------------------------------------------------
         stopf(
-          "Unknown argument 'model' of class(es): '",
-          paste(class(model), collapse = "', '"), "'",
-          call = "Converter$new(...)")
+          "Unknown argument {.arg model} of class(es): '",
+          paste(class(model), collapse = "', '"), "'"
+        )
       }
 
       # Check input dimension (if specified)
@@ -139,10 +151,14 @@ Converter <- R6Class("Converter",
         if (!is.list(input_dim)) {
           input_dim <- list(input_dim)
         }
-        assertTRUE(length(input_dim) == length(model_as_list$input_dim))
+        cli_check(
+          checkTRUE(length(input_dim) == length(model_as_list$input_dim)),
+          "length(input_dim) == length(model_as_list$input_dim)")
         for (i in seq_along(input_dim)) {
-          assertSetEqual(input_dim[[i]], model_as_list$input_dim[[i]],
-                         ordered = TRUE)
+          cli_check(
+            checkSetEqual(input_dim[[i]], model_as_list$input_dim[[i]],
+                          ordered = TRUE),
+            paste0("input_dim[[", i, "]]"))
         }
       }
 
@@ -156,6 +172,19 @@ Converter <- R6Class("Converter",
 
       # Create torch model
       private$create_model_from_list(model_as_list, dtype, save_model_as_list)
+    },
+
+    #' @description
+    #' Print a summary of the Converter object. This summary contains the
+    #' individual fields and in particular the torch-converted model
+    #' ([ConvertedModel]) with the layers.
+    #'
+    #' @return Returns the Converter object invisibly via [`base::invisible`].
+    #'
+    print = function() {
+      print_converter(self)
+
+      invisible(self)
     }
   ),
   private = list(
@@ -165,38 +194,41 @@ Converter <- R6Class("Converter",
       #------------------- Do necessary checks --------------------------------
       # Necessary entries in the list:
       #   'layers', 'input_dim', 'input_nodes', 'output_nodes'
-      assertSubset("layers", names(model_as_list))
-      assertList(model_as_list$layers, min.len = 1)
+      cli_check(checkNames(names(model_as_list), must.include = c("layers")),
+                "names(model_as_list)")
+      cli_check(checkList(model_as_list$layers, min.len = 1),
+                "model_as_list$layers")
       # Make sure that 'input_dim' is a list
       if (!is.list(model_as_list$input_dim)) {
         model_as_list$input_dim <- list(model_as_list$input_dim)
       }
-      assertList(model_as_list$input_dim, types = "integerish")
+      cli_check(checkList(model_as_list$input_dim, types = "integerish"),
+                "model_as_list$input_dim")
       # Save input dimensions as integers
       model_as_list$input_dim <- lapply(model_as_list$input_dim, as.integer)
 
       # Check whether input and output nodes are given
-      assertNumeric(model_as_list$input_nodes,
+      cli_check(checkNumeric(model_as_list$input_nodes,
         lower = 1, null.ok = TRUE,
         upper = length(model_as_list$layers)
-      )
-      assertNumeric(model_as_list$output_nodes,
+      ), "model_as_list$input_nodes")
+      cli_check(checkNumeric(model_as_list$output_nodes,
         lower = 1, null.ok = TRUE,
         upper = length(model_as_list$layers)
-      )
+      ), "model_as_list$output_nodes")
 
       if (is.null(model_as_list$input_nodes)) {
         warningf(
-          "Argument 'input_nodes' is unspecified! In the following, it is ",
-          "assumed that the first entry in 'model$layers' is the only ",
-          "input layer.", call = "Converter$new(...)")
+          "Argument {.arg input_nodes} is unspecified! In the following, it is ",
+          "assumed that the first entry in {.arg model$layers} is the only ",
+          "input layer.")
         model_as_list$input_nodes <- 1L
       }
       if (is.null(model_as_list$output_nodes)) {
         warningf(
-          "Argument 'output_nodes' is unspecified! In the following, it is ",
-          "assumed that the last entry in 'model$layers' is the only output ",
-          "layer.", call = "Converter$new(...)")
+          "Argument {.arg output_nodes} is unspecified! In the following, it is ",
+          "assumed that the last entry in {.arg model$layers} is the only output ",
+          "layer.")
         model_as_list$output_nodes <- length(model_as_list$layers)
       }
 
@@ -206,8 +238,8 @@ Converter <- R6Class("Converter",
       if (!is.null(out_dim) & !is.list(out_dim)) {
         model_as_list$output_dim <- list(out_dim)
       }
-      assertList(model_as_list$output_dim, types = "integerish",
-                 null.ok = TRUE)
+      cli_check(checkList(model_as_list$output_dim, types = "integerish",
+                          null.ok = TRUE), "model_as_list$output_dim")
 
       # In- and output names are stored as a list of lists. The outer list
       # represents the different in- or output layers of the model and the
@@ -233,44 +265,41 @@ Converter <- R6Class("Converter",
       for (i in seq_along(model_as_list$layers)) {
         layer_as_list <- model_as_list$layers[[i]]
         type <- layer_as_list$type
-        assertString(type)
-        assertChoice(type, c(
+        cli_check(checkString(type), "type")
+        cli_check(checkChoice(type, c(
           "Flatten", "Skipping", "Dense", "Conv1D", "Conv2D",
           "MaxPooling1D", "MaxPooling2D", "AveragePooling1D",
           "AveragePooling2D", "Concatenate", "Add", "Padding", "BatchNorm",
           "GlobalPooling", "Activation"
-        ))
+        )), "type")
 
         # Get incoming and outgoing layers (as indices) of the current layer
         in_layers <- layer_as_list$input_layers
         out_layers <- layer_as_list$output_layers
         # Check for correct format of the layer indices
-        assert(
+        cli_check(c(
           checkList(in_layers, types = "integerish"),
           checkIntegerish(in_layers, any.missing = FALSE, null.ok = TRUE)
-        )
-        assert(
+        ), "in_layers")
+        cli_check(c(
           checkList(out_layers, types = "integerish"),
           checkIntegerish(out_layers, any.missing = FALSE, null.ok = TRUE)
-        )
+        ), "out_layers")
         # Set default for 'out_layers' and 'in_layers'
         if (is.null(in_layers)) {
           warningf(
-            "Argument 'model$layers[[", i, "]]$in_layers' is not specified! ",
+            "Argument {.arg model$layers[[", i, "]]$in_layers} is not specified! ",
             "In the following, it is assumed that the layer of index '",
-            max(i - 1, 0), "' is the input layer of the current one.",
-            call = "Converter$new(...)")
+            max(i - 1, 0), "' is the input layer of the current one.")
           in_layers <- max(i - 1, 0)
         }
         if (is.null(out_layers)) {
           num_layers <- length(model_as_list$layers)
           out_layers <- ifelse(i == num_layers, -1, i + 1)
           warningf(
-            "Argument 'model$layers[[", i, "]]$out_layers' is not specified! ",
+            "Argument {.arg model$layers[[", i, "]]$out_layers} is not specified! ",
             "In the following, it is assumed that the layer of index '",
-            out_layers, "' is the subsequent layer of the current one.",
-            call = "Converter$new(...)"
-          )
+            out_layers, "' is the subsequent layer of the current one.")
         }
 
         # Store the layer indices in the corresponding lists
@@ -325,11 +354,11 @@ Converter <- R6Class("Converter",
         !all_equal(model_as_list$output_dim, tmp$calc_output_shapes)) {
         calc <- shape_to_char(tmp$calc_output_shapes)
         given <- shape_to_char(model_as_list$output_dim)
-        stopf(
-          "Missmatch between the calculated and given model output shapes:\n",
-          "Calculated: '", calc, "'\nGiven:      '", given, "'",
-          call = "Converter$new(...)"
-        )
+        stopf(c(
+          "Missmatch between the calculated and given model output shapes:",
+          "*" = paste0("Calculated: '", calc, "'"),
+          "*" = paste0("Given: '", given, "'")),
+          use_paste = FALSE)
       }
       model_as_list$output_dim <- tmp$calc_output_shapes
 
@@ -340,8 +369,7 @@ Converter <- R6Class("Converter",
           "This package only allows models with classification or regression ",
           "output, i.e. the model output dimension has to be one. ",
           "But your model has an output dimension of '",
-          max(output_dims), "'!", call = "Converter$new(...)"
-        )
+          max(output_dims), "'!")
       }
 
       # Check input names
@@ -354,11 +382,12 @@ Converter <- R6Class("Converter",
         if (!all_equal(input_names_lenght, model_as_list$input_dim)) {
           given <- shape_to_char(input_names_lenght)
           calc <- shape_to_char(model_as_list$input_dim)
-          stopf(
-            "Missmatch between the calculated shape of input names and ",
-            "given input names:\nCalculated: ", calc, "\nGiven:      ", given,
-            call = "Converter$new(...)"
-          )
+          stopf(c(
+            paste0("Missmatch between the calculated shape of input names and ",
+            "given input names:"),
+            "*" = paste0("Calculated: '", calc, "'"),
+            "*" = paste0("Given: '", given, "'")),
+            use_paste = FALSE)
         }
       }
 
@@ -374,11 +403,12 @@ Converter <- R6Class("Converter",
         if (!all_equal(output_names_length, model_as_list$output_dim)) {
           given <- shape_to_char(output_names_length)
           calc <- shape_to_char(model_as_list$output_dim)
-          stopf(
-            "Missmatch between the calculated shape of output names and ",
-            "given output names:\nCalculated: ", calc, "\nGiven:      ", given,
-            call = "Converter$new(...)"
-          )
+          stopf(c(
+            paste0("Missmatch between the calculated shape of output names and ",
+                   "given output names:"),
+            "*" = paste0("Calculated: '", calc, "'"),
+            "*" = paste0("Given: '", given, "'")),
+            use_paste = FALSE)
         }
       }
 
@@ -408,10 +438,9 @@ Converter <- R6Class("Converter",
 # Dense Layer -----------------------------------------------------------------
 create_dense_layer <- function(layer_as_list, dtype) {
   # Check for required keys
-  assertSubset(
-    c("weight", "bias", "activation_name"),
-    names(layer_as_list)
-  )
+  cli_check(checkNames(names(layer_as_list),
+                       must.include = c("weight", "bias", "activation_name")),
+            "names(layer_as_list)")
 
   # Get arguments
   dim_in <- layer_as_list$dim_in
@@ -421,11 +450,13 @@ create_dense_layer <- function(layer_as_list, dtype) {
   activation_name <- layer_as_list$activation_name
 
   # Check arguments
-  assertIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE)
-  assertIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE)
-  assertArray(weight, mode = "numeric", d = 2)
-  assertVector(bias, len = dim_out)
-  assertString(activation_name)
+  cli_check(checkIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_in")
+  cli_check(checkIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_out")
+  cli_check(checkArray(weight, mode = "numeric", d = 2), "weight")
+  cli_check(checkNumeric(bias, len = dim_out), "bias")
+  cli_check(checkString(activation_name), "activation_name")
 
   dense_layer(weight, bias, activation_name, dim_in, dim_out,
     dtype = dtype
@@ -435,10 +466,9 @@ create_dense_layer <- function(layer_as_list, dtype) {
 # Conv1D Layer ----------------------------------------------------------------
 create_conv1d_layer <- function(layer_as_list, dtype, i) {
   # Check for required keys
-  assertSubset(
-    c("weight", "bias", "activation_name"),
-    names(layer_as_list)
-  )
+  cli_check(checkNames(names(layer_as_list),
+                       must.include = c("weight", "bias", "activation_name")),
+            "names(layer_as_list)")
 
   # Get arguments
   dim_in <- layer_as_list$dim_in
@@ -451,14 +481,16 @@ create_conv1d_layer <- function(layer_as_list, dtype, i) {
   padding <- layer_as_list$padding
 
   # Check arguments
-  assertIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE)
-  assertIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE)
-  assertArray(weight, mode = "numeric", d = 3)
-  assertVector(bias, len = dim_out[1])
-  assertString(activation_name)
-  assertInt(stride, null.ok = TRUE)
-  assertInt(dilation, null.ok = TRUE)
-  assertNumeric(padding, null.ok = TRUE, lower = 0)
+  cli_check(checkIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_in")
+  cli_check(checkIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_out")
+  cli_check(checkArray(weight, mode = "numeric", d = 3), "weight")
+  cli_check(checkNumeric(bias, len = dim_out[1]), "bias")
+  cli_check(checkString(activation_name), "activation_name")
+  cli_check(checkInt(stride, null.ok = TRUE), "stride")
+  cli_check(checkInt(dilation, null.ok = TRUE), "dilation")
+  cli_check(checkNumeric(padding, null.ok = TRUE, lower = 0), "padding")
 
   # Set default arguments
   if (is.null(stride)) stride <- 1
@@ -468,13 +500,13 @@ create_conv1d_layer <- function(layer_as_list, dtype, i) {
   if (length(padding) == 1) {
     padding <- rep(padding, 2)
   } else if (length(padding) != 2) {
-    stopf(
-      "Expected a padding vector in 'model$layers[[", i, "]] ",
-      "of length:\n", "    - 1: same padding for each side\n",
-      "    - 2: first value: padding for left side; second value: ",
-      "padding for right side\n But your length: ", length(padding),
-      call = "Converter$new(...)"
-    )
+    stopf(c(
+      paste0("Expected a padding vector in {.arg model$layers[[", i, "]]} ",
+      "of length:"),
+      ">" = "'1': same padding for each side",
+      ">" = paste0("'2': first value: padding for left side; second value: ",
+      "padding for right side"),
+      paste0("But your length: '", length(padding), "'")), use_paste = FALSE)
   }
 
   conv1d_layer(weight, bias, dim_in, dim_out, stride, padding, dilation,
@@ -485,10 +517,9 @@ create_conv1d_layer <- function(layer_as_list, dtype, i) {
 
 # Conv2D Layer ----------------------------------------------------------------
 create_conv2d_layer <- function(layer_as_list, dtype, i) {
-  assertSubset(
-    c("weight", "bias", "activation_name"),
-    names(layer_as_list)
-  )
+  cli_check(checkNames(names(layer_as_list),
+                       must.include = c("weight", "bias", "activation_name")),
+            "names(layer_as_list)")
 
   # Get arguments
   dim_in <- layer_as_list$dim_in
@@ -501,14 +532,16 @@ create_conv2d_layer <- function(layer_as_list, dtype, i) {
   padding <- layer_as_list$padding
 
   # Check arguments
-  assertIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE)
-  assertIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE)
-  assertArray(weight, mode = "numeric", d = 4)
-  assertVector(bias, len = dim_out[1])
-  assertString(activation_name)
-  assertNumeric(stride, null.ok = TRUE, lower = 1)
-  assertNumeric(dilation, null.ok = TRUE, lower = 1)
-  assertNumeric(padding, null.ok = TRUE, lower = 0)
+  cli_check(checkIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_in")
+  cli_check(checkIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_out")
+  cli_check(checkArray(weight, mode = "numeric", d = 4), "weight")
+  cli_check(checkNumeric(bias, len = dim_out[1]), "bias")
+  cli_check(checkString(activation_name), "activation_name")
+  cli_check(checkNumeric(stride, null.ok = TRUE, lower = 1), "stride")
+  cli_check(checkNumeric(dilation, null.ok = TRUE, lower = 1), "dilation")
+  cli_check(checkNumeric(padding, null.ok = TRUE, lower = 0), "padding")
 
   # Set default arguments
   if (is.null(stride)) stride <- c(1, 1)
@@ -520,36 +553,36 @@ create_conv2d_layer <- function(layer_as_list, dtype, i) {
   } else if (length(padding) == 2) {
     padding <- rep(padding, each = 2)
   } else if (length(padding) != 4) {
-    stopf(
-      "Expected a padding vector in 'model_as_list$layers[[", i, "]] ",
-      "of length:\n", "    - 1: same padding on each side\n",
-      "    - 2: first value: pad_left and pad_right; second value: pad_top ",
-      "and pad_bottom\n",
-      "    - 4: (pad_left, pad_right, pad_top, pad_bottom)\n",
-      "But your length: ", length(padding), call = "Converter$new(...)"
-    )
+    stopf(c(
+      paste0("Expected a padding vector in {.arg model_as_list$layers[[", i, "]]} ",
+      "of length:"),
+      ">" = "'1': same padding on each side",
+      ">" = paste0("'2': first value: pad_left and pad_right; second value: ",
+                   "pad_top and pad_bottom"),
+      ">" = "'4': (pad_left, pad_right, pad_top, pad_bottom)",
+      paste0("But your length: '", length(padding), "'")), use_paste = FALSE)
   }
   if (length(stride) == 1) {
     stride <- rep(stride, 2)
   } else if (length(stride) != 2) {
-    stopf(
-      "Expected a stride vector in 'model_as_list$layers[[", i, "]] ",
-      "of length:\n", "    - 1: same stride for image heigth and width\n",
-      "    - 2: first value: strides for height; second value: strides ",
-      "for width\n", "But your length: ", length(stride),
-      call = "Converter$new(...)"
-    )
+    stopf(c(
+      paste0("Expected a stride vector in {.arg model_as_list$layers[[", i, "]]} ",
+             "of length:"),
+      ">" = "'1': same stride for image heigth and width",
+      ">" = paste0("'2': first value: strides for height; second value: ",
+                   "strides for width"),
+      paste0("But your length: '", length(stride), "'")), use_paste = FALSE)
   }
   if (length(dilation) == 1) {
     dilation <- rep(dilation, 2)
   } else if (length(dilation) != 2) {
-    stopf(
-      "Expected a dilation vector in 'model_as_list$layers[[", i, "]] ",
-      "of length:\n", "    - 1: same dilation for image heigth and width\n",
-      "    - 2: first value: dilation for height; second value: dilation ",
-      "for width\n", "But your length: ", length(dilation),
-      call = "Converter$new(...)"
-    )
+    stopf(c(
+      paste0("Expected a dilation vector in {.arg model_as_list$layers[[", i, "]]} ",
+             "of length:"),
+      ">" = "'1': same dilation for image heigth and width",
+      ">" = paste0("'2': first value: dilation for height; second value: ",
+                   "dilation for width"),
+      paste0("But your length: '", length(dilation), "'")), use_paste = FALSE)
   }
 
   conv2d_layer(weight, bias, dim_in, dim_out, stride, padding, dilation,
@@ -561,7 +594,8 @@ create_conv2d_layer <- function(layer_as_list, dtype, i) {
 # Pooling Layers -------------------------------------------------------------
 create_pooling_layer <- function(layer_as_list, type) {
   # Check for required keys
-  assertSubset(c("kernel_size"), names(layer_as_list))
+  cli_check(checkNames(names(layer_as_list), must.include = c("kernel_size")),
+            "names(layer_as_list)")
 
 
   dim_in <- layer_as_list$dim_in
@@ -569,31 +603,34 @@ create_pooling_layer <- function(layer_as_list, type) {
   kernel_size <- layer_as_list$kernel_size
   strides <- layer_as_list$strides
 
-  assertVector(kernel_size, min.len = 1, max.len = 2)
-  assertVector(strides, min.len = 1, max.len = 2, null.ok = TRUE)
-  assertIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE)
-  assertIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE)
+  cli_check(checkNumeric(kernel_size, min.len = 1, max.len = 2), "kernel_size")
+  cli_check(checkNumeric(strides, min.len = 1, max.len = 2, null.ok = TRUE),
+            "strides")
+  cli_check(checkIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_in")
+  cli_check(checkIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_out")
 
   if (is.null(strides)) strides <- kernel_size
 
   if (type == "MaxPooling1D") {
-    assertSetEqual(length(kernel_size), 1)
-    assertSetEqual(length(strides), 1)
+    cli_check(checkNumeric(kernel_size, len = 1), "kernel_size")
+    cli_check(checkNumeric(strides, len = 1), "strides")
 
     layer <- max_pool1d_layer(kernel_size, dim_in, dim_out, strides)
   } else if (type == "AveragePooling1D") {
-    assertSetEqual(length(kernel_size), 1)
-    assertSetEqual(length(strides), 1)
+    cli_check(checkNumeric(kernel_size, len = 1), "kernel_size")
+    cli_check(checkNumeric(strides, len = 1), "strides")
 
     layer <- avg_pool1d_layer(kernel_size, dim_in, dim_out, strides)
   } else if (type == "MaxPooling2D") {
-    assertSetEqual(length(kernel_size), 2)
-    assertSetEqual(length(strides), 2)
+    cli_check(checkNumeric(kernel_size, len = 2), "kernel_size")
+    cli_check(checkNumeric(strides, len = 2), "strides")
 
     layer <- max_pool2d_layer(kernel_size, dim_in, dim_out, strides)
   } else if (type == "AveragePooling2D") {
-    assertSetEqual(length(kernel_size), 2)
-    assertSetEqual(length(strides), 2)
+    cli_check(checkNumeric(kernel_size, len = 2), "kernel_size")
+    cli_check(checkNumeric(strides, len = 2), "strides")
 
     layer <- avg_pool2d_layer(kernel_size, dim_in, dim_out, strides)
   }
@@ -609,9 +646,11 @@ create_globalpooling_layer <- function(layer_as_list) {
   method <- layer_as_list$method
 
   # Check arguments
-  assertIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE)
-  assertIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE)
-  assertChoice(method, c("average", "max"))
+  cli_check(checkIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_in")
+  cli_check(checkIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_out")
+  cli_check(checkChoice(method, c("average", "max")), "method")
 
   if (method == "average") {
     layer <- global_avgpool_layer(dim_in, dim_out)
@@ -631,10 +670,12 @@ create_flatten_layer <- function(layer_as_list) {
   end_dim <- layer_as_list$end_dim
 
   # Check arguments
-  assertIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE)
-  assertIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE)
-  assertInt(start_dim, null.ok = TRUE)
-  assertInt(end_dim, null.ok = TRUE)
+  cli_check(checkIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_in")
+  cli_check(checkIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_out")
+  cli_check(checkInt(start_dim, null.ok = TRUE), "start_dim")
+  cli_check(checkInt(end_dim, null.ok = TRUE), "end_dim")
 
   # Set default arguments
   if (is.null(start_dim)) start_dim <- 2L
@@ -651,9 +692,10 @@ create_concatenate_layer <- function(layer_as_list) {
   dim <- layer_as_list$axis
 
   # Check arguments
-  assertList(dim_in, null.ok = TRUE, types = "integerish")
-  assertIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE)
-  assertInt(dim)
+  cli_check(checkList(dim_in, null.ok = TRUE, types = "integerish"), "dim_in")
+  cli_check(checkIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_out")
+  cli_check(checkInt(dim), "dim")
 
   concatenate_layer(dim, dim_in, dim_out)
 }
@@ -666,8 +708,9 @@ create_activation_layer <- function(layer_as_list) {
   act_name <- layer_as_list$act_name
 
   # Check arguments
-  assertList(dim_in, null.ok = TRUE, types = "integerish")
-  assertIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE)
+  cli_check(checkList(dim_in, null.ok = TRUE, types = "integerish"), "dim_in")
+  cli_check(checkIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_out")
 
   activation_layer(dim_in, dim_out, act_name)
 }
@@ -679,8 +722,9 @@ create_add_layer <- function(layer_as_list) {
   dim_out <- layer_as_list$dim_out
 
   # Check arguments
-  assertList(dim_in, null.ok = TRUE, types = "integerish")
-  assertIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE)
+  cli_check(checkList(dim_in, null.ok = TRUE, types = "integerish"), "dim_in")
+  cli_check(checkIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_out")
 
   add_layer(dim_in, dim_out)
 }
@@ -695,11 +739,14 @@ create_padding_layer <- function(layer_as_list) {
   mode <- layer_as_list$mode
 
   # Check arguments
-  assertIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE)
-  assertIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE)
-  assertNumeric(padding, min.len = 1, max.len = 4)
-  assertNumber(value)
-  assertChoice(mode, c("constant", "reflect", "replicate", "circular"))
+  cli_check(checkIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_in")
+  cli_check(checkIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_out")
+  cli_check(checkNumeric(padding, min.len = 1, max.len = 4), "padding")
+  cli_check(checkNumber(value), "value")
+  cli_check(checkChoice(mode, c("constant", "reflect", "replicate", "circular")),
+            "mode")
 
   padding_layer(padding, dim_in, dim_out, mode, value)
 }
@@ -717,14 +764,16 @@ create_batchnorm_layer <- function(layer_as_list) {
   run_var <- layer_as_list$run_var
 
   # Check arguments
-  assertIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE)
-  assertIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE)
-  assertNumber(num_features)
-  assertNumeric(gamma, len = num_features)
-  assertNumber(eps)
-  assertNumeric(beta, len = num_features)
-  assertNumeric(run_mean, len = num_features)
-  assertNumeric(run_var, len = num_features)
+  cli_check(checkIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_in")
+  cli_check(checkIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_out")
+  cli_check(checkNumber(num_features), "num_features")
+  cli_check(checkNumeric(gamma, len = num_features), "gamma")
+  cli_check(checkNumber(eps), "eps")
+  cli_check(checkNumeric(beta, len = num_features), "beta")
+  cli_check(checkNumeric(run_mean, len = num_features), "run_mean")
+  cli_check(checkNumeric(run_var, len = num_features), "run_var")
 
   batchnorm_layer(num_features, eps, gamma, beta, run_mean, run_var,
                   dim_in, dim_out)
@@ -737,10 +786,114 @@ create_skipping_layer <- function(layer_as_list) {
   dim_out <- layer_as_list$dim_out
 
   # Check arguments
-  assertIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE)
-  assertIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE)
+  cli_check(checkIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_in")
+  cli_check(checkIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_out")
 
   skipping_layer(dim_in, dim_out)
+}
+
+
+###############################################################################
+#                           print utility functions
+###############################################################################
+
+print_converter <- function(conv) {
+  cli_h1("Converter ({.pkg innsight})")
+  cat("\n")
+  cli_div(theme = list(ul = list(`margin-left` = 2, before = ""),
+                       dl = list(`margin-left` = 2, before = "")))
+
+  cli_text("{.strong Fields:}")
+  i <- cli_ul()
+  cli_li(paste0("{.field input_dim}:  ", get_dims(conv$input_dim)))
+  cli_li(paste0("{.field output_dim}:  ", get_dims(conv$output_dim)))
+  cli_li(paste0("{.field input_names}:"))
+  print_names(conv$input_names)
+  cli_li(paste0("{.field output_names}:"))
+  print_names(conv$output_names, TRUE)
+  if (is.null(conv$model_as_list)) {
+    s <- "{.emph not included}"
+  } else {
+    s <- "{.emph included}"
+  }
+  cli_li(paste0("{.field model_as_list}: ", s))
+  cli_li("{.field model} (class {.pkg ConvertedModel}):")
+  print_layers(conv$model$modules_list)
+  cli_end(id = i)
+  cli_h1("")
+}
+
+print_layers <- function(layers) {
+  li <- cli_ol()
+  for (layer in layers) {
+    cli_li(paste0(
+      "{.strong ", class(layer)[1], "}: ",
+      "input_dim: ", get_dims(layer$input_dim), ", ",
+      "output_dim: ", get_dims(layer$output_dim)
+    ))
+  }
+  cli_end(li)
+}
+
+get_dims <- function(x) {
+  res <- lapply(x, function(s) paste0("(*, ", paste0(s, collapse = ", "), ")"))
+
+  paste0(res, collapse = ", ")
+}
+
+print_names <- function(x, is_output_layer = FALSE) {
+  draw_layer <- length(x) > 1
+  if (draw_layer) layer_list <- cli_ul()
+
+  for (i in seq_along(x)) {
+    if (draw_layer) {
+      if (is_output_layer) {
+        cli_li(paste0("Output layer ", i, ":"))
+      } else {
+        cli_li(paste0("Input layer ", i, ":"))
+      }
+
+    }
+    dims <- length(x[[i]])
+    if (dims == 1) {
+      if (is_output_layer) {
+        labels <- paste0(symbol$line, " Output node/Class (", length(x[[i]][[1]]), ")")
+      } else {
+        labels <- paste0(symbol$line, " Feature (", length(x[[i]][[1]]), ")")
+      }
+
+      items <- combine_names(x[[i]][[1]], label = labels)
+    } else if (dims == 2) {
+      labels <- c("Channels", "Signal length")
+      lab_lengths <- unlist(lapply(x[[i]], length))
+      labels <- paste0(symbol$line, " ", labels," (", lab_lengths, ")")
+      items <- list(combine_names(x[[i]][[1]], labels[[1]]),
+                    combine_names(x[[i]][[2]], labels[[2]]))
+    } else {
+      labels <- c("Channels", "Image height", "Image width")
+      lab_lengths <- unlist(lapply(x[[i]], length))
+      labels <- paste0(symbol$line, " ", labels," (", lab_lengths, ")")
+      items <- list(combine_names(x[[i]][[1]], labels[[1]]),
+                    combine_names(x[[i]][[2]], labels[[2]]),
+                    combine_names(x[[i]][[3]], labels[[3]]))
+    }
+    names(items) <- labels
+    cli_dl(items)
+  }
+
+  if (draw_layer) cli_end(layer_list)
+}
+
+combine_names <- function(x, label = NULL) {
+  comb_x <- cumsum(nchar(c(label, paste0(x, sep = ", ")), type = "width"))
+  if (any(comb_x > 0.95 * getOption("width"))) {
+    idx <- sum(comb_x <= 0.95 * getOption("width")) - 1
+    x <- x[seq_len(idx)]
+    x[length(x)] <- "..."
+  }
+  paste0("{.emph ", paste0(x, collapse = "}, {.emph "), "}")
 }
 
 
@@ -879,11 +1032,11 @@ check_and_register_shapes <- function(modules_list, graph, model_as_list,
       given <- shape_to_char(given_input_shape)
       calc <- shape_to_char(calculated_input_shape)
 
-      stopf(
-        "Missmatch between the calculated and given input shape for layer ",
-        "index '", step$used_node, "':\nCalculated: ", calc, "\n",
-        "Given:      ", given, call = "Converter$new(...)"
-      )
+      stopf(c(
+        paste0("Missmatch between the calculated and given input shape for ",
+               "layer index '", step$used_node, "':"),
+        "*" = paste0("Calculated: '", calc, "'"),
+        "*" = paste0("Given: '", given, "'")), use_paste = FALSE)
     }
 
     # Register input shape for this layer
@@ -894,26 +1047,28 @@ check_and_register_shapes <- function(modules_list, graph, model_as_list,
       out <- modules_list[[step$used_node]](input),
       error = function(e) {
         layer_as_list <- model_as_list$layers[[step$used_node]]
-        e$message <-
+        e$message <- c(
           paste0(
             "Could not create layer of index '", step$used_node, "' of type '",
             layer_as_list$type, "'. Maybe you used incorrect parameters or a ",
             "wrong dimension order of your weight matrix. The weight matrix ",
             "for a dense layer has to be stored as an array of shape ",
-            "(dim_in, dim_out), for a 1D-convolutional as an array of ",
-            "(out_channels, in_channels, kernel_length) and for ",
-            "2D-convolutional (out_channels, in_channels, kernel_height, ",
-            "kernel_width).\n\n",
-            "Your weight dimension: ",
-            ifelse(is.null(layer_as_list$weight), "(no weights available)",
-              paste0("(", paste(dim(layer_as_list$weight), collapse = ","),
-                     ")")
-            ),
-            "\n", "Your layer input shape: ",
-            paste0("(", paste("*", input$shape[-1], collapse = ","), ")"),
-            "\n\n\n Original message:\n", e
+            "{.epmh (dim_in, dim_out)}, for a 1D-convolutional as an array of ",
+            "{.emph (out_channels, in_channels, kernel_length)} and for ",
+            "2D-convolutional {.emph (out_channels, in_channels, kernel_height, ",
+            "kernel_width)}."),
+          "i" = paste0("Your weight dimension: ",
+                       ifelse(is.null(layer_as_list$weight),
+                              "(no weights available)",
+                              paste0("(", paste(dim(layer_as_list$weight),
+                                                collapse = ","),")"))),
+          "i" = paste0("Your layer input shape: ",
+                       paste0("(", paste("*", input$shape[-1],
+                                         collapse = ","), ")")),
+          "",
+          "x" = "Original message:", col_grey(e$message)
           )
-        stopf(e, call = "Converter$new(...)")
+        stopf(e$message, use_paste = FALSE)
       }
     )
 
@@ -926,11 +1081,11 @@ check_and_register_shapes <- function(modules_list, graph, model_as_list,
       given <- paste0("(*,", paste(given_output_shape, collapse = ","), ")")
       calc <- paste0("(*,", paste(calculated_output_shape, collapse = ","), ")")
 
-      stopf(
-        "Missmatch between the calculated and given output shape for ",
-        "layer index '", step$used_node, "':\nCalculated: ", calc, "\n",
-        "Given:      ", given, call = "Converter$new(...)"
-      )
+      stopf(c(
+        paste0("Missmatch between the calculated and given output shape for ",
+               "layer index '", step$used_node, "':"),
+        "*" = paste0("Calculated: '", calc, "'"),
+        "*" = paste0("Given: '", given, "'")), use_paste = FALSE)
     }
 
     # Register output shape for this layer
@@ -1005,8 +1160,7 @@ get_input_names <- function(input_dims) {
       stopf(
         "Too many input dimensions. This package only allows model ",
         "inputs with '1', '2' or '3' dimensions and not '",
-        length(input_dim), "'!", call = "Converter$new(...)"
-      )
+        length(input_dim), "'!")
     }
 
     mapply(function(x, y) paste0(rep(y, times = x), 1:x),
@@ -1045,10 +1199,10 @@ set_name_format <- function(in_or_out_names) {
   # Do the checks
   for (i in seq_along(in_or_out_names)) {
     for (j in seq_along(in_or_out_names[[i]])) {
-      assert(
+      cli_check(c(
         checkCharacter(in_or_out_names[[i]][[j]], null.ok = TRUE),
         checkFactor(in_or_out_names[[i]][[j]], null.ok = TRUE)
-      )
+      ), "in_or_out_names[[i]][[j]]")
       # to factor
       if (!is.factor(in_or_out_names[[i]][[j]])) {
         in_or_out_names[[i]][[j]] <-
@@ -1069,16 +1223,15 @@ convert_torch <- function(model, input_dim) {
     for (i in seq_along(input_dim)) {
       if (!testNumeric(input_dim[[i]], lower = 1)) {
         stopf(
-          "For a 'torch' model, you have to specify the argument ",
-          "'input_dim'!", call = "Converter$new(...)"
-        )
+          "For a {.pkg torch} model, you have to specify the argument ",
+          "{.arg input_dim}!")
       }
     }
     model_as_list <- convert_torch_sequential(model)
     model_as_list$input_dim <- input_dim
   } else {
-    stopf("At the moment, only sequential models are allowed!",
-          call = "Converter$new(...)")
+    stopf("At the moment, only sequential models ({.fn torch::nn_sequential}) ",
+          "are allowed!")
   }
 
   model_as_list

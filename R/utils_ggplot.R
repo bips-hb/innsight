@@ -240,8 +240,8 @@ plot_extended <- function(result_df, value_name, include_data, boxplot,
   # Load required packages
   for (pkg in c("grid", "gtable", "gridExtra")) {
     if (!requireNamespace(pkg, quietly = FALSE)) {
-      stop(
-        "Please install the '", pkg, "' package if you want to create an ",
+      stopf(
+        "Please install the {.pkg ", pkg, "} package if you want to create an ",
         "plot for multiple input layers."
       )
     }

@@ -3,14 +3,14 @@
 ###############################################################################
 
 #'
-#' @title Super class for Gradient-based Interpretation Methods
+#' @title Super Class for Gradient-based Interpretation Methods
 #' @description Super class for gradient-based interpretation methods. This
 #' class inherits from [InterpretingMethod]. It summarizes all implemented
 #' gradient-based methods and provides a private function to calculate the
 #' gradients w.r.t. to the input for given data. Implemented are:
 #'
-#' - 'Vanilla Gradients' and 'Gradient x Input' ([Gradient])
-#' - 'SmoothGrad' and 'SmoothGrad x Input' ([SmoothGrad])
+#' - *Vanilla Gradients* and *Gradient x Input* ([Gradient])
+#' - *SmoothGrad* and *SmoothGrad x Input* ([SmoothGrad])
 #'
 #' @template param-converter
 #' @template param-data
@@ -25,9 +25,10 @@ GradientBased <- R6Class(
   inherit = InterpretingMethod,
   public = list(
 
-    #' @field times_input This logical value indicates whether the results
+    #' @field times_input (`logical(1`))\cr
+    #' This logical value indicates whether the results
     #' were multiplied by the provided input data or not. If `TRUE`, the
-    #' method is called *Gradient x Input*.
+    #' method is called *Gradient x Input*.\cr
     times_input = NULL,
 
     #' @description
@@ -35,8 +36,9 @@ GradientBased <- R6Class(
     #' the method is applied to the given data and the results are stored in
     #' the field `result`.
     #'
-    #' @param times_input Multiplies the gradients with the input features.
-    #' This method is called 'Gradient x Input'.
+    #' @param times_input (`logical(1`)\cr
+    #' Multiplies the gradients with the input features.
+    #' This method is called *Gradient x Input*.\cr
     #'
     initialize = function(converter, data,
                           channels_first = TRUE,
@@ -49,7 +51,7 @@ GradientBased <- R6Class(
       super$initialize(converter, data, channels_first, output_idx,
                        ignore_last_act, TRUE, verbose, dtype)
 
-      assert_logical(times_input)
+      cli_check(checkLogical(times_input), "times_input")
       self$times_input <- times_input
     }
   ),
@@ -77,18 +79,17 @@ GradientBased <- R6Class(
 
       if (self$verbose) {
         # Define Progressbar
-        message(paste0("\nBackward pass '", method_name, "':"))
-        pb <- txtProgressBar(min = 0, max = length(unlist(self$output_idx)),
-                             style = 3)
-        n <- 1
+        pb <- cli_progress_bar(name = paste0("Backward pass '", method_name, "'"),
+                         total = length(unlist(self$output_idx)),
+                         type = "iterator",
+                         clear = FALSE)
       }
 
       # Definition of some temporary functions --------------------------------
       # Define function for calculating the gradients of one output
       calc_gradient_for_one_output <- function(idx, list_idx) {
         if (self$verbose) {
-          setTxtProgressBar(pb, n)
-          n <<- n + 1
+          cli_progress_update(id = pb, inc = 1, force = TRUE)
         }
 
         autograd_grad(out_sum[[list_idx]][idx], input, retain_graph = TRUE,
@@ -129,7 +130,7 @@ GradientBased <- R6Class(
       grads <- lapply(output_idx, calc_gradient_for_list_idx)
 
       lapply(input, function(i) i$requires_grad <- FALSE)
-      if (self$verbose) close(pb)
+      if (self$verbose) cli_progress_done(id = pb)
 
       grads
     }
@@ -154,12 +155,12 @@ boxplot.GradientBased <- function(x, ...) {
 #' @name Gradient
 #'
 #' @description
-#' This method computes the gradients (also known as 'Vanilla Gradients') of
+#' This method computes the gradients (also known as *Vanilla Gradients*) of
 #' the outputs with respect to the input variables, i.e. for all input
 #' variable \eqn{i} and output class \eqn{j}
 #' \deqn{d f(x)_j / d x_i.}
 #' If the argument `times_input` is `TRUE`, the gradients are multiplied by
-#' the respective input value ('Gradient x Input'), i.e.
+#' the respective input value (*Gradient x Input*), i.e.
 #' \deqn{x_i * d f(x)_j / d x_i.}
 #'
 #' @template examples-Gradient
@@ -179,12 +180,13 @@ Gradient <- R6Class(
   public = list(
 
     #' @description
-    #' Create a new instance of the Vanilla Gradient method. When initialized,
-    #' the method is applied to the given data and the results are stored in
-    #' the field `result`.
+    #' Create a new instance of the *Vanilla Gradient* or *Gradient x Input*
+    #' method. When initialized, the method is applied to the given data and
+    #' the results are stored in the field `result`.
     #'
-    #' @param times_input Multiplies the gradients with the input features.
-    #' This method is called 'Gradient x Input'.
+    #' @param times_input (`logical(1`))\cr
+    #' Multiplies the gradients with the input features.
+    #' This method is called *Gradient x Input*.\cr
     #'
     initialize = function(converter, data,
                           channels_first = TRUE,
@@ -209,6 +211,20 @@ Gradient <- R6Class(
       }
 
       gradients
+    },
+
+    print_method_specific = function() {
+      i <- cli_ul()
+      if (self$times_input) {
+        cli_li(paste0("{.field times_input}:  TRUE (",
+                      symbol$arrow_right,
+                      " {.emph Gradient x Input} method)"))
+      } else {
+        cli_li(paste0("{.field times_input}:  FALSE (",
+                      symbol$arrow_right,
+                      " {.emph Gradient} method)"))
+      }
+      cli_end(id = i)
     }
   )
 )
@@ -221,13 +237,13 @@ Gradient <- R6Class(
 #' @title SmoothGrad and SmoothGrad x Input
 #'
 #' @description
-#' 'SmoothGrad' was introduced by D. Smilkov et al. (2017) and is an extension
-#' to the classical Vanilla [Gradient] method. It takes the mean of the
+#' *SmoothGrad* was introduced by D. Smilkov et al. (2017) and is an extension
+#' to the classical *Vanilla [Gradient]* method. It takes the mean of the
 #' gradients for \code{n} perturbations of each data point, i.e. with
 #' \eqn{\epsilon \sim N(0,\sigma)}
 #' \deqn{1/n \sum_n d f(x+ \epsilon)_j / d x_j.}
 #' Analogous to the *Gradient x Input* method, you can also use the argument
-#' *times_input* multiply the gradients by the inputs before taking the
+#' `times_input` multiply the gradients by the inputs before taking the
 #' average (*SmoothGrad x Input*).
 #'
 #' @template examples-SmoothGrad
@@ -250,24 +266,28 @@ SmoothGrad <- R6Class(
   inherit = GradientBased,
   public = list(
 
-    #' @field n Number of perturbations of the input data (default: \eqn{50}).
-    #' @field noise_level The standard deviation of the Gaussian
-    #' perturbation, i.e. \eqn{\sigma = (max(x) - min(x)) *} `noise_level`.
+    #' @field n (`integer(1)`)\cr
+    #' Number of perturbations of the input data (default: \eqn{50}).\cr
+    #' @field noise_level (`numeric(1)`)\cr
+    #' The standard deviation of the Gaussian
+    #' perturbation, i.e. \eqn{\sigma = (max(x) - min(x)) *} `noise_level`.\cr
     #'
     n = NULL,
     noise_level = NULL,
 
     #' @description
-    #' Create a new instance of the *SmoothGrad* method. When initialized,
-    #' the method is applied to the given data and the results are stored in
-    #' the field `result`.
+    #' Create a new instance of the *SmoothGrad* or *SmoothGrad x Input*
+    #' method. When initialized, the method is applied to the given data and
+    #' the results are stored in the field `result`.
     #'
-    #' @param times_input Multiplies the gradients with the input features.
-    #' This method is called 'Gradient x Input'.
-    #' @param n Number of perturbations of the input data (default: \eqn{50}).
-    #' @param noise_level Determines the standard deviation of the Gaussian
-    #' perturbation, i.e. \eqn{\sigma = (max(x) - min(x)) *} `noise_level`.
-    #'
+    #' @param times_input (`logical(1`)\cr
+    #' Multiplies the gradients with the input features.
+    #' This method is called *SmoothGrad x Input*.\cr
+    #' @param n (`integer(1)`)\cr
+    #' Number of perturbations of the input data (default: \eqn{50}).\cr
+    #' @param noise_level (`numeric(1)`)\cr
+    #' Determines the standard deviation of the Gaussian
+    #' perturbation, i.e. \eqn{\sigma = (max(x) - min(x)) *} `noise_level`.\cr
     #'
     initialize = function(converter, data,
                           channels_first = TRUE,
@@ -281,8 +301,8 @@ SmoothGrad <- R6Class(
       super$initialize(converter, data, channels_first, output_idx,
                        ignore_last_act, times_input, verbose, dtype)
 
-      assertInt(n, lower = 1)
-      assertNumber(noise_level, lower = 0)
+      cli_check(checkInt(n, lower = 1), "n")
+      cli_check(checkNumber(noise_level, lower = 0), "noise_level")
       self$n <- n
       self$noise_level <- noise_level
 
@@ -336,6 +356,22 @@ SmoothGrad <- R6Class(
         })
 
       smoothgrads
+    },
+
+    print_method_specific = function() {
+      i <- cli_ul()
+      if (self$times_input) {
+        cli_li(paste0("{.field times_input}:  TRUE (",
+                      symbol$arrow_right,
+                      " {.emph SmoothGrad x Input} method)"))
+      } else {
+        cli_li(paste0("{.field times_input}:  FALSE (",
+                      symbol$arrow_right,
+                      " {.emph SmoothGrad} method)"))
+      }
+      cli_li(paste0("{.field n}: ", self$n))
+      cli_li(paste0("{.field noise_level}: ", self$noise_level))
+      cli_end(id = i)
     }
   )
 )

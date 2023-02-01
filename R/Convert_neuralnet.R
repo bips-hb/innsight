@@ -4,7 +4,7 @@ convert_neuralnet_model <- function(model) {
 
   # Test whether the model has been fitted yet
   if (!("result.matrix" %in% names(model))) {
-    stopf("The model hasn't been fitted yet!", call = "Converter$new(...)")
+    stopf("The {.pkg neuralnet} model hasn't been fitted yet!")
   }
 
   # Get number of best repetition
@@ -18,8 +18,7 @@ convert_neuralnet_model <- function(model) {
   weights <- model$weights[[best_rep]]
   act_name <- attributes(model$act.fct)$type
   if (act_name == "function") {
-    stopf("You can't use custom activation functions for a neuralnet model.",
-          call = "Converter$new(...)")
+    stopf("You can't use custom activation functions for a {.pkg neuralnet} model.")
   }
 
   model_as_list <- list()

@@ -2,15 +2,15 @@
 % Please edit documentation in R/GradienBased.R
 \name{GradientBased}
 \alias{GradientBased}
-\title{Super class for Gradient-based Interpretation Methods}
+\title{Super Class for Gradient-based Interpretation Methods}
 \description{
 Super class for gradient-based interpretation methods. This
 class inherits from \link{InterpretingMethod}. It summarizes all implemented
 gradient-based methods and provides a private function to calculate the
 gradients w.r.t. to the input for given data. Implemented are:
 \itemize{
-\item 'Vanilla Gradients' and 'Gradient x Input' (\link{Gradient})
-\item 'SmoothGrad' and 'SmoothGrad x Input' (\link{SmoothGrad})
+\item \emph{Vanilla Gradients} and \emph{Gradient x Input} (\link{Gradient})
+\item \emph{SmoothGrad} and \emph{SmoothGrad x Input} (\link{SmoothGrad})
 }
 }
 \section{Super class}{
@@ -19,9 +19,10 @@ gradients w.r.t. to the input for given data. Implemented are:
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{times_input}}{This logical value indicates whether the results
+\item{\code{times_input}}{(\verb{logical(1}))\cr
+This logical value indicates whether the results
 were multiplied by the provided input data or not. If \code{TRUE}, the
-method is called \emph{Gradient x Input}.}
+method is called \emph{Gradient x Input}.\cr}
 }
 \if{html}{\out{</div>}}
 }
@@ -38,6 +39,7 @@ method is called \emph{Gradient x Input}.}
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="boxplot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-boxplot'><code>innsight::InterpretingMethod$boxplot()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-get_result'><code>innsight::InterpretingMethod$get_result()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot'><code>innsight::InterpretingMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="print"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-print'><code>innsight::InterpretingMethod$print()</code></a></span></li>
 </ul>
 </details>
 }}
@@ -64,39 +66,43 @@ the field \code{result}.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{converter}}{An instance of the \code{Converter} class that includes the
+\item{\code{converter}}{(\code{\link{Converter}})\cr
+An instance of the \code{Converter} class that includes the
 torch-converted model and some other model-specific attributes. See
-\code{\link{Converter}} for details.}
+\code{\link{Converter}} for details.\cr}
 
-\item{\code{data}}{The data to which the method is to be applied. These must
+\item{\code{data}}{(\code{\link{array}}, \code{\link{data.frame}}, \code{\link{torch_tensor}} or \code{list})\cr
+The data to which the method is to be applied. These must
 have the same format as the input data of the passed model to the
 converter object. This means either
 \itemize{
 \item an \code{array}, \code{data.frame}, \code{torch_tensor} or array-like format of
 size \emph{(batch_size, dim_in)}, if e.g.the model has only one input layer, or
 \item a \code{list} with the corresponding input data (according to the
-upper point) for each of the input layers.
+upper point) for each of the input layers.\cr
 }}
 
-\item{\code{channels_first}}{The channel position of the given data (argument
+\item{\code{channels_first}}{(\code{logical(1)})\cr
+The channel position of the given data (argument
 \code{data}). If \code{TRUE}, the channel axis is placed at the second position
 between the batch size and the rest of the input axes, e.g.
 \code{c(10,3,32,32)} for a batch of ten images with three channels and a
 height and width of 32 pixels. Otherwise (\code{FALSE}), the channel axis
 is at the last position, i.e. \code{c(10,32,32,3)}. If the data
-has no channel axis, use the default value \code{TRUE}.}
+has no channel axis, use the default value \code{TRUE}.\cr}
 
-\item{\code{output_idx}}{These indices specify the output nodes for which
+\item{\code{output_idx}}{(\code{integer}, \code{list} or \code{NULL})\cr
+These indices specify the output nodes for which
 the method is to be applied. In order to allow models with multiple
 output layers, there are the following possibilities to select
 the indices of the output nodes in the individual output layers:
 \itemize{
-\item A \code{vector} of indices: If the model has only one output layer,
-the values correspond to the indices of the output nodes, e.g.
+\item An \code{integer} vector of indices: If the model has only one output
+layer, the values correspond to the indices of the output nodes, e.g.
 \code{c(1,3,4)} for the first, third and fourth output node. If there are
 multiple output layers, the indices of the output nodes from the first
 output layer are considered.
-\item A \code{list} of \code{vectors} of indices: If the method is to be
+\item A \code{list} of \code{integer} vectors of indices: If the method is to be
 applied to output nodes from different layers, a list can be passed
 that specifies the desired indices of the output nodes for each
 output layer. Unwanted output layers have the entry \code{NULL} instead of
@@ -105,24 +111,28 @@ third output node in the second output layer.
 \item \code{NULL} (default): The method is applied to all output nodes in
 the first output layer but is limited to the first ten as the
 calculations become more computationally expensive for more output
-nodes.
+nodes.\cr
 }}
 
-\item{\code{ignore_last_act}}{Set this logical value to include the last
+\item{\code{ignore_last_act}}{(\code{logical(1)})\cr
+Set this logical value to include the last
 activation functions for each output layer, or not (default: \code{TRUE}).
 In practice, the last activation (especially for softmax activation) is
-often omitted.}
+often omitted.\cr}
 
-\item{\code{times_input}}{Multiplies the gradients with the input features.
-This method is called 'Gradient x Input'.}
+\item{\code{times_input}}{(\verb{logical(1})\cr
+Multiplies the gradients with the input features.
+This method is called \emph{Gradient x Input}.\cr}
 
-\item{\code{verbose}}{This logical argument determines whether a progress bar is
+\item{\code{verbose}}{(\code{logical(1)})\cr
+This logical argument determines whether a progress bar is
 displayed for the calculation of the method or not. The default value is
-the output of the primitive R function \code{\link[=interactive]{interactive()}}.}
+the output of the primitive R function \code{\link[=interactive]{interactive()}}.\cr}
 
-\item{\code{dtype}}{The data type for the calculations. Use
-either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
-\link[torch:torch_dtype]{torch::torch_double}.}
+\item{\code{dtype}}{(\code{character(1)})\cr
+The data type for the calculations. Use
+either \code{'float'} for \link{torch_float} or \code{'double'} for
+\link{torch_double}.\cr}
 }
 \if{html}{\out{</div>}}
 }

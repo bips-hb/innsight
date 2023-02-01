@@ -174,7 +174,7 @@ InterpretingLayer <- nn_module(
       self$W <- self$W$to(torch_double())
       self$b <- self$b$to(torch_double())
     } else {
-      stop("Unknown argument for 'dtype' : '", dtype, "'. ",
+      stopf("Unknown argument for {.arg dtype} : '", dtype, "'. ",
            "Use 'float' or 'double' instead!")
     }
     self$dtype <- dtype
@@ -221,7 +221,7 @@ get_activation <- function(act_name) {
   } else if (act_name == "linear") {
     act <- function(x) x
   } else {
-    stop(sprintf(
+    stopf(sprintf(
       "Activation function '%s' is not implementet yet!",
       act_name
     ))

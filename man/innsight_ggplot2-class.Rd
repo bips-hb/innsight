@@ -79,7 +79,7 @@ individually. For example, adds \code{+ ggplot2::xlab("X")} the x-axis label
 "X" to all objects and not only to those in the last row. The generic
 function \code{\link[=[<-.innsight_ggplot2]{[<-}} allows you to replace
 a selection of objects in \code{grobs} and thus, for example, to change
-the x-axis title only in the bottom row (see examples). All available
+the x-axis title only in the bottom row. All available
 generic functions are listed below:
 \itemize{
 \item \code{\link[=+.innsight_ggplot2]{+}}
@@ -116,7 +116,3 @@ each strip the column index of \code{grobs} of the associated strip.}
 data points or a boxplot over multiple instances is displayed.}
 }}
 
-\examples{
-# To Do!
-
-}

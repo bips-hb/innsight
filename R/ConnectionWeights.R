@@ -1,4 +1,4 @@
-#' Connection Weights
+#' Connection Weights Method
 #'
 #' @description
 #' This class implements the *Connection Weights* method investigated by
@@ -13,7 +13,7 @@
 #' \deqn{W_1 * W_2 * W_3.}
 #'
 #' In this package, we extended this method to a local method inspired by the
-#' method *Gradient x Input* (see [Gradient]). Hence, the local variant is
+#' method *Gradient x Input* (see [`Gradient`]). Hence, the local variant is
 #' simply the point-wise product of the global *Connection Weights* method and
 #' the input data. You can use this variant by setting the `times_input`
 #' argument to `TRUE` and providing input data.
@@ -37,7 +37,8 @@ ConnectionWeights <- R6Class(
   classname = "ConnectionWeights",
   inherit = InterpretingMethod,
   public = list(
-    #' @field times_input This logical value indicates whether the results from
+    #' @field times_input (`logical(1)`)\cr
+    #' This logical value indicates whether the results from
     #' the *Connection Weights* method were multiplied by the provided input
     #' data or not. Thus, this value specifies whether the original global
     #' variant of the method or the local one was applied. If the value is
@@ -45,13 +46,14 @@ ConnectionWeights <- R6Class(
     times_input = NULL,
 
     #' @description
-    #' Create a new instance of the *Connection Weights* method. When
-    #' initialized, the method is applied to the given data and the results
+    #' Create a new instance of the class `ConnectionWeights`. When
+    #' initialized, the method is applied and the results
     #' are stored in the field `result`.
     #'
-    #' @param times_input Multiplies the results with the input features.
-    #' This variant tuns the global *Connection Weights* method into a local
-    #' one. Default: `FALSE`.
+    #' @param times_input (`logical(1)`)\cr
+    #' Multiplies the results with the input features.
+    #' This variant turns the global *Connection Weights* method into a local
+    #' one. Default: `FALSE`.\cr
     initialize = function(converter,
                           data = NULL,
                           output_idx = NULL,
@@ -59,19 +61,19 @@ ConnectionWeights <- R6Class(
                           times_input = FALSE,
                           verbose = interactive(),
                           dtype = "float") {
-      assertClass(converter, "Converter")
+      cli_check(checkClass(converter, "Converter"), "converter")
       self$converter <- converter
 
-      assertLogical(channels_first)
+      cli_check(checkLogical(channels_first), "channels_first")
       self$channels_first <- channels_first
 
-      assertLogical(times_input)
+      cli_check(checkLogical(times_input), "times_input")
       self$times_input <- times_input
 
-      assertLogical(verbose)
+      cli_check(checkLogical(verbose), "verbose")
       self$verbose <- verbose
 
-      assertChoice(dtype, c("float", "double"))
+      cli_check(checkChoice(dtype, c("float", "double")), "dtype")
       self$dtype <- dtype
       self$converter$model$set_dtype(dtype)
 
@@ -80,18 +82,17 @@ ConnectionWeights <- R6Class(
 
       if (times_input & is.null(data)) {
         stopf(
-          "If you want to use the ConnectionWeights method with the ",
-          "'times_input' argument, you must also specify 'data'! ",
-          call = "ConnectionWeights$new(...)"
+          "If you want to use the {.emph ConnectionWeights} method with the ",
+          "{.arg times_input} argument, you must also specify {.arg data}! "
         )
       } else if (times_input) {
         self$data <- private$test_data(data)
       } else {
         if (!is.null(data)) {
           messagef(
-            "If 'times_input' = FALSE, then the method 'ConnectionWeights' ",
+            "If {.arg times_input} = FALSE, then the method {.emph ConnectionWeights} ",
             "is a global method and independent of the data. Therefore, the ",
-            "argument 'data' will be ignored."
+            "argument {.arg data} will be ignored."
           )
         }
         # Set only a single data index
@@ -107,6 +108,21 @@ ConnectionWeights <- R6Class(
       }
 
       self$result <- result
+    }
+  ),
+  private = list(
+    print_method_specific = function() {
+      i <- cli_ul()
+      if (self$times_input) {
+        cli_li(paste0("{.field times_input}:  TRUE (",
+                      symbol$arrow_right,
+                      " local {.emph ConnectionWeights} method)"))
+      } else {
+        cli_li(paste0("{.field times_input}:  FALSE (",
+                      symbol$arrow_right,
+                      " global {.emph ConnectionWeights} method)"))
+      }
+      cli_end(id = i)
     }
   )
 )

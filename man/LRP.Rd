@@ -38,12 +38,12 @@ converter <- Converter$new(model, input_dim = c(5))
 lrp <- LRP$new(converter, data)
 
 # Print the result as an array for data point one and two
-lrp$get_result()[1:2,,]
+get_result(lrp)[1:2,,]
 
 # Plot the result for both classes
 plot(lrp, output_idx = 1:2)
 
-# Plot the boxplot of all datapoints without preprocess function
+# Plot the boxplot of all datapoints without a preprocess function
 boxplot(lrp, output_idx = 1:2, preprocess_FUN = identity)
 
 # ------------------------- Example 2: Neuralnet ---------------------------
@@ -61,10 +61,10 @@ converter <- Converter$new(nn)
 lrp <- LRP$new(converter, iris[, -5], rule_name = "simple")
 
 # get the result as an array for data point one and two
-lrp$get_result()[1:2,,]
+get_result(lrp)[1:2,,]
 
 # get the result as a torch tensor for data point one and two
-lrp$get_result(type = "torch.tensor")[1:2]
+get_result(lrp, type = "torch.tensor")[1:2]
 
 # use the alpha-beta rule with alpha = 2
 lrp <- LRP$new(converter, iris[, -5],
@@ -81,71 +81,59 @@ lrp <- LRP$new(converter, iris[, -5],
 
 # Plot the result for all classes
 plot(lrp, output_idx = 1:3)
+\dontshow{\}) # examplesIf}
+\dontshow{if (keras::is_keras_available() & torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+# ------------------------- Example 3: Keras -------------------------------
+library(keras)
 
-# Plot the Boxplot for the first class
-boxplot(lrp)
+# Make sure keras is installed properly
+is_keras_available()
 
+data <- array(rnorm(10 * 60 * 3), dim = c(10, 60, 3))
+
+model <- keras_model_sequential()
+model \%>\%
+  layer_conv_1d(
+    input_shape = c(60, 3), kernel_size = 8, filters = 8,
+    activation = "softplus", padding = "valid") \%>\%
+  layer_conv_1d(
+    kernel_size = 8, filters = 4, activation = "tanh",
+    padding = "same") \%>\%
+  layer_conv_1d(
+    kernel_size = 4, filters = 2, activation = "relu",
+    padding = "valid") \%>\%
+  layer_flatten() \%>\%
+  layer_dense(units = 64, activation = "relu") \%>\%
+  layer_dense(units = 16, activation = "relu") \%>\%
+  layer_dense(units = 3, activation = "softmax")
+
+# Convert the model
+converter <- Converter$new(model)
+
+# Apply the LRP method with the epsilon rule and eps = 0.1
+lrp_eps <- LRP$new(converter, data,
+  channels_first = FALSE,
+  rule_name = "epsilon",
+  rule_param = 0.1
+)
+
+# Plot the result for the first datapoint and all classes
+plot(lrp_eps, output_idx = 1:3)
+
+# Plot the result as boxplots for first two classes
+boxplot(lrp_eps, output_idx = 1:2)
+\dontshow{\}) # examplesIf}
+\dontshow{if (torch::torch_is_installed() & Sys.getenv("RENDER_PLOTLY", unset = 0) == 1) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+#------------------------- Plotly plots ------------------------------------
 # You can also create an interactive plot with plotly.
 # This is a suggested package, so make sure that it is installed
 library(plotly)
 
 # Result as boxplots
-boxplot(lrp, as_plotly = TRUE)
+boxplot(lrp_eps, as_plotly = TRUE)
 
 # Result of the second data point
-plot(lrp, data_idx = 2, as_plotly = TRUE)
-
-# ------------------------- Example 3: Keras -------------------------------
-library(keras)
-
-if (is_keras_available()) {
-  data <- array(rnorm(10 * 60 * 3), dim = c(10, 60, 3))
-
-  model <- keras_model_sequential()
-  model \%>\%
-    layer_conv_1d(
-      input_shape = c(60, 3), kernel_size = 8, filters = 8,
-      activation = "softplus", padding = "valid"
-    ) \%>\%
-    layer_conv_1d(
-      kernel_size = 8, filters = 4, activation = "tanh",
-      padding = "same"
-    ) \%>\%
-    layer_conv_1d(
-      kernel_size = 4, filters = 2, activation = "relu",
-      padding = "valid"
-    ) \%>\%
-    layer_flatten() \%>\%
-    layer_dense(units = 64, activation = "relu") \%>\%
-    layer_dense(units = 16, activation = "relu") \%>\%
-    layer_dense(units = 3, activation = "softmax")
-
-  # Convert the model
-  converter <- Converter$new(model)
-
-  # Apply the LRP method with the epsilon rule and eps = 0.1
-  lrp_eps <- LRP$new(converter, data,
-    channels_first = FALSE,
-    rule_name = "epsilon",
-    rule_param = 0.1
-  )
-
-  # Plot the result for the first datapoint and all classes
-  plot(lrp_eps, output_idx = 1:3)
-
-  # Plot the result as boxplots for first two classes
-  boxplot(lrp_eps, output_idx = 1:2)
-
-  # You can also create an interactive plot with plotly.
-  # This is a suggested package, so make sure that it is installed
-  library(plotly)
-
-  # Result as boxplots
-  boxplot(lrp_eps, as_plotly = TRUE)
-
-  # Result of the second data point
-  plot(lrp_eps, data_idx = 2, as_plotly = TRUE)
-}
+plot(lrp_eps, data_idx = 2, as_plotly = TRUE)
 \dontshow{\}) # examplesIf}
 }
 \references{
@@ -167,23 +155,25 @@ Other methods:
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{rule_name}}{The name of the rule with which the relevance scores
-are calculated. Implemented are \code{"simple"}, \code{"epsilon"}, \code{"alpha_beta"}.
-However, this value
+\item{\code{rule_name}}{(\code{character(1)} or \code{list})\cr
+The name of the rule with which the relevance scores
+are calculated. Implemented are \code{"simple"}, \code{"epsilon"}, \code{"alpha_beta"}
+(and \code{"pass"} but only for 'BatchNorm_Layer'). However, this value
 can also be a named list that assigns one of these three rules to each
 implemented layer type separately. e.g.
 \code{list(Dense_Layer = "simple", Conv2D_Layer = "alpha_beta")}.
 Layers not specified in this list then use the default value \code{"simple"}.
-The implemented layer types are:\cr
-\itemize{
-\item 'Dense_Layer', 'Conv1D_Layer', 'Conv2D_Layer', 'BatchNorm_Layer',
-'AvgPool1D_Layer', 'AvgPool2D_Layer', 'MaxPool1D_Layer' and
-'MaxPool2D_Layer'
+The implemented layer types are:
+\tabular{lll}{
+\eqn{\cdot} 'Dense_Layer' \tab \eqn{\cdot} 'Conv1D_Layer' \tab \eqn{\cdot} 'Conv2D_Layer'\cr
+\eqn{\cdot} 'BatchNorm_Layer' \tab \eqn{\cdot} 'AvgPool1D_Layer' \tab \eqn{\cdot} 'AvgPool2D_Layer'\cr
+\eqn{\cdot} 'MaxPool1D_Layer' \tab \eqn{\cdot} 'MaxPool2D_Layer' \tab
 }}
 
-\item{\code{rule_param}}{The parameter of the selected rule. Similar to the
+\item{\code{rule_param}}{(\code{numeric} or \code{list})\cr
+The parameter of the selected rule. Similar to the
 argument \code{rule_name}, this can also be a named list that assigns a
-rule parameter to each layer type.}
+rule parameter to each layer type.\cr}
 }
 \if{html}{\out{</div>}}
 }
@@ -200,6 +190,7 @@ rule parameter to each layer type.}
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="boxplot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-boxplot'><code>innsight::InterpretingMethod$boxplot()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-get_result'><code>innsight::InterpretingMethod$get_result()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot'><code>innsight::InterpretingMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="print"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-print'><code>innsight::InterpretingMethod$print()</code></a></span></li>
 </ul>
 </details>
 }}
@@ -228,39 +219,43 @@ the field \code{result}.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{converter}}{An instance of the \code{Converter} class that includes the
+\item{\code{converter}}{(\code{\link{Converter}})\cr
+An instance of the \code{Converter} class that includes the
 torch-converted model and some other model-specific attributes. See
-\code{\link{Converter}} for details.}
+\code{\link{Converter}} for details.\cr}
 
-\item{\code{data}}{The data to which the method is to be applied. These must
+\item{\code{data}}{(\code{\link{array}}, \code{\link{data.frame}}, \code{\link{torch_tensor}} or \code{list})\cr
+The data to which the method is to be applied. These must
 have the same format as the input data of the passed model to the
 converter object. This means either
 \itemize{
 \item an \code{array}, \code{data.frame}, \code{torch_tensor} or array-like format of
 size \emph{(batch_size, dim_in)}, if e.g.the model has only one input layer, or
 \item a \code{list} with the corresponding input data (according to the
-upper point) for each of the input layers.
+upper point) for each of the input layers.\cr
 }}
 
-\item{\code{channels_first}}{The channel position of the given data (argument
+\item{\code{channels_first}}{(\code{logical(1)})\cr
+The channel position of the given data (argument
 \code{data}). If \code{TRUE}, the channel axis is placed at the second position
 between the batch size and the rest of the input axes, e.g.
 \code{c(10,3,32,32)} for a batch of ten images with three channels and a
 height and width of 32 pixels. Otherwise (\code{FALSE}), the channel axis
 is at the last position, i.e. \code{c(10,32,32,3)}. If the data
-has no channel axis, use the default value \code{TRUE}.}
+has no channel axis, use the default value \code{TRUE}.\cr}
 
-\item{\code{output_idx}}{These indices specify the output nodes for which
+\item{\code{output_idx}}{(\code{integer}, \code{list} or \code{NULL})\cr
+These indices specify the output nodes for which
 the method is to be applied. In order to allow models with multiple
 output layers, there are the following possibilities to select
 the indices of the output nodes in the individual output layers:
 \itemize{
-\item A \code{vector} of indices: If the model has only one output layer,
-the values correspond to the indices of the output nodes, e.g.
+\item An \code{integer} vector of indices: If the model has only one output
+layer, the values correspond to the indices of the output nodes, e.g.
 \code{c(1,3,4)} for the first, third and fourth output node. If there are
 multiple output layers, the indices of the output nodes from the first
 output layer are considered.
-\item A \code{list} of \code{vectors} of indices: If the method is to be
+\item A \code{list} of \code{integer} vectors of indices: If the method is to be
 applied to output nodes from different layers, a list can be passed
 that specifies the desired indices of the output nodes for each
 output layer. Unwanted output layers have the entry \code{NULL} instead of
@@ -269,15 +264,17 @@ third output node in the second output layer.
 \item \code{NULL} (default): The method is applied to all output nodes in
 the first output layer but is limited to the first ten as the
 calculations become more computationally expensive for more output
-nodes.
+nodes.\cr
 }}
 
-\item{\code{ignore_last_act}}{Set this logical value to include the last
+\item{\code{ignore_last_act}}{(\code{logical(1)})\cr
+Set this logical value to include the last
 activation functions for each output layer, or not (default: \code{TRUE}).
 In practice, the last activation (especially for softmax activation) is
-often omitted.}
+often omitted.\cr}
 
-\item{\code{rule_name}}{The name of the rule with which the relevance scores
+\item{\code{rule_name}}{(\code{character(1)} or \code{list})\cr
+The name of the rule with which the relevance scores
 are calculated. Implemented are \code{"simple"}, \code{"epsilon"}, \code{"alpha_beta"}.
 You can pass one of the above characters to apply this rule to all
 possible layers. However, this value can also be a named list that
@@ -286,21 +283,26 @@ implemented layer type separately. e.g.
 \code{list(Dense_Layer = "simple", Conv2D_Layer = "alpha_beta")}.
 Layers not specified in this list then use the default value \code{"simple"}.
 The implemented layer types are:\cr
-\itemize{
-\item 'Dense_Layer', 'Conv1D_Layer', 'Conv2D_Layer', 'BatchNorm_Layer',
-'AvgPool1D_Layer', 'AvgPool2D_Layer', 'MaxPool1D_Layer' and
-'MaxPool2D_Layer'
-}}
+\tabular{lll}{
+\eqn{\cdot} 'Dense_Layer' \tab \eqn{\cdot} 'Conv1D_Layer' \tab \eqn{\cdot} 'Conv2D_Layer'\cr
+\eqn{\cdot} 'BatchNorm_Layer' \tab \eqn{\cdot} 'AvgPool1D_Layer' \tab \eqn{\cdot} 'AvgPool2D_Layer'\cr
+\eqn{\cdot} 'MaxPool1D_Layer' \tab \eqn{\cdot} 'MaxPool2D_Layer' \tab
+}
+\emph{Note:} For normalization layers like 'BatchNorm_Layer', the rule
+\code{"pass"} is implemented as well, which ignores such layers in the
+backward pass.\cr}
 
-\item{\code{rule_param}}{The parameter of the selected rule. Note: Only the
+\item{\code{rule_param}}{(\code{numeric(1)} or \code{list})\cr
+The parameter of the selected rule. Note: Only the
 rules \code{"epsilon"} and \code{"alpha_beta"} take use of the
 parameter. Use the default value \code{NULL} for the default parameters
 ("epsilon" : \eqn{0.01}, "alpha_beta" : \eqn{0.5}). Similar to the
 argument \code{rule_name}, this can also be a named list that assigns a
 rule parameter to each layer type. If the layer type is not specified
-in the named list, the default parameters will be used.}
+in the named list, the default parameters will be used.\cr}
 
-\item{\code{winner_takes_all}}{This logical argument is only relevant for
+\item{\code{winner_takes_all}}{(\code{logical(1)})\cr
+This logical argument is only relevant for
 models with a MaxPooling layer. Since many zeros are produced during
 the backward pass due to the selection of the maximum value in the
 pooling kernel, another variant is implemented, which treats a
@@ -308,15 +310,17 @@ MaxPooling as an AveragePooling layer in the backward pass to overcome
 the problem of too many zero relevances. With the default value \code{TRUE},
 the whole upper-layer relevance is passed to the maximum value in each
 pooling window. Otherwise, if \code{FALSE}, the relevance is distributed equally
-among all nodes in a pooling window.}
+among all nodes in a pooling window.\cr}
 
-\item{\code{verbose}}{This logical argument determines whether a progress bar is
+\item{\code{verbose}}{(\code{logical(1)})\cr
+This logical argument determines whether a progress bar is
 displayed for the calculation of the method or not. The default value is
-the output of the primitive R function \code{\link[=interactive]{interactive()}}.}
+the output of the primitive R function \code{\link[=interactive]{interactive()}}.\cr}
 
-\item{\code{dtype}}{The data type for the calculations. Use
-either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
-\link[torch:torch_dtype]{torch::torch_double}.}
+\item{\code{dtype}}{(\code{character(1)})\cr
+The data type for the calculations. Use
+either \code{'float'} for \link{torch_float} or \code{'double'} for
+\link{torch_double}.\cr}
 }
 \if{html}{\out{</div>}}
 }

@@ -90,7 +90,7 @@ NULL
 #' "X" to all objects and not only to those in the last row. The generic
 #' function \code{\link[=[<-.innsight_ggplot2]{[<-}} allows you to replace
 #' a selection of objects in `grobs` and thus, for example, to change
-#' the x-axis title only in the bottom row (see examples). All available
+#' the x-axis title only in the bottom row. All available
 #' generic functions are listed below:
 #'
 #' - \code{\link[=+.innsight_ggplot2]{+}}
@@ -105,8 +105,6 @@ NULL
 #' *Note:* Since this is not a standard visualization, the suggested packages
 #' `'grid'`, `'gridExtra'` and `'gtable'` must be installed.
 #'
-#' @examples
-#' # To Do!
 #'
 #' @name innsight_ggplot2
 #' @rdname innsight_ggplot2-class
@@ -187,17 +185,16 @@ setMethod(
 
 #' Generic add function for `innsight_ggplot2`
 #'
-#' This generic add function allows to treat an instance of [innsight_ggplot2]
-#' as an ordinary plot object of [ggplot2]. For example geoms, themes and
-#' scales can be added as usual (see [ggplot2::+.gg] for more information).
-#'
+#' This generic add function allows to treat an instance of [`innsight_ggplot2`]
+#' as an ordinary plot object of [`ggplot2`]. For example geoms, themes and
+#' scales can be added as usual (see [`ggplot2::+.gg`] for more information).\cr \cr
 #' **Note:** If `e1` represents a multiplot (i.e., `e1@mulitplot = TRUE`),
 #' `e2` is added to each individual plot. If only specific plots need to be
 #' changed, the generic assignment function should be used (see
-#' [innsight_ggplot2] for more details).
+#' [innsight_ggplot2] for details).
 #'
-#' @param e1 An instance of the s4 class [innsight_ggplot2].
-#' @param e2 An object of class [ggplot2::ggplot] or a [ggplot2::theme].
+#' @param e1 An instance of the S4 class [`innsight_ggplot2`].
+#' @param e2 An object of class [`ggplot2::ggplot`] or a [`ggplot2::theme`].
 #'
 #' @seealso [`innsight_ggplot2`],
 #' [`print.innsight_ggplot2`],
@@ -237,7 +234,7 @@ setMethod(
 
 #' Indexing plots of `innsight_ggplot2`
 #'
-#' The s4 class [`innsight_ggplot2`] visualizes the results in the form of
+#' The S4 class [`innsight_ggplot2`] visualizes the results in the form of
 #' a matrix, with the output nodes (and also the input layers) in the columns
 #' and the selected data points in the rows. With these basic generic indexing
 #' functions, the plots of individual rows and columns can be accessed,
@@ -246,7 +243,7 @@ setMethod(
 #' @param x An instance of the s4 class [`innsight_ggplot2`].
 #' @param i The numeric (or missing) index for the rows.
 #' @param j The numeric (or missing) index for the columns.
-#' @param value Another instance of the s4 class `innsight_ggplot2` but of
+#' @param value Another instance of the S4 class `innsight_ggplot2` but of
 #' shape `i` x `j`.
 #' @param drop unused argument
 #' @param ... other unused arguments
@@ -274,8 +271,8 @@ setMethod(
       # Check indices and set defaults (if necessary)
       if (missing(i)) i <- seq_len(nrow(x@grobs))
       if (missing(j)) j <- seq_len(ncol(x@grobs))
-      assertIntegerish(i, lower = 1, upper = nrow(x@grobs))
-      assertIntegerish(j, lower = 1, upper = ncol(x@grobs))
+      cli_check(checkIntegerish(i, lower = 1, upper = nrow(x@grobs)), "i")
+      cli_check(checkIntegerish(j, lower = 1, upper = ncol(x@grobs)), "j")
 
       # Get only selected grobs
       grobs <- x@grobs[i, j, drop = FALSE]
@@ -361,8 +358,8 @@ setMethod(
         upper_col <- length(unique(x@grobs[[1, 1]]$data[[facet_cols]]))
       }
     }
-    assertInt(i, lower = 1, upper = upper_row)
-    assertInt(j, lower = 1, upper = upper_col)
+    cli_check(checkInt(i, lower = 1, upper = upper_row), "i")
+    cli_check(checkInt(j, lower = 1, upper = upper_col), "j")
 
     x[i, j]@grobs[[1, 1]]
   }
@@ -375,9 +372,7 @@ setMethod(
   "[<-", list(x = "innsight_ggplot2"),
   function(x, i, j, ..., value) {
     if (!x@multiplot) {
-      stop("The method '[<-' is not implemented for single plots!",
-        call. = FALSE
-      )
+      stopf("The method '[<-' is not implemented for single plots!")
     }
 
     # If missing, set defaults
@@ -385,11 +380,12 @@ setMethod(
     if (missing(j)) j <- seq_len(ncol(x@grobs))
 
     # Check indices
-    assertIntegerish(i, lower = 1, upper = nrow(x@grobs))
-    assertIntegerish(j, lower = 1, upper = ncol(x@grobs))
+    cli_check(checkIntegerish(i, lower = 1, upper = nrow(x@grobs)), "i")
+    cli_check(checkIntegerish(j, lower = 1, upper = ncol(x@grobs)), "j")
 
     if (is(value, "innsight_ggplot2")) {
-      assertTRUE(identical(c(length(i), length(j)), dim(value@grobs)))
+      cli_check(checkTRUE(identical(c(length(i), length(j)), dim(value@grobs))),
+                "identical(c(length(i), length(j)), dim(value@grobs))")
 
       # Remove facets of 'value'
       grobs_value <-
@@ -402,10 +398,9 @@ setMethod(
       # Update facets
       grobs <- set_facets(grobs, x@boxplot)
     } else {
-      warning(paste0(
-        "Ignoring unknown object of class(es): ",
+      warningf("Ignoring unknown object of class(es): ",
         paste(class(value), collapse = ", ")
-      ))
+      )
       grobs <- x@grobs
     }
 
@@ -593,13 +588,14 @@ update_coldims_and_outstrips <- function(output_strips, col_dims, col_idx) {
 get_facet_data_idx <- function(facet_name, idx, data) {
   if (is.null(facet_name)) {
     if (!missing(idx)) {
-      assertInt(idx, lower = 1, upper = 1)
+      cli_check(checkInt(idx, lower = 1, upper = 1), "idx")
     }
     res_idx <- TRUE
   } else {
     levels_facet <- unique(data[[facet_name]])
     if (!missing(idx)) {
-      assertIntegerish(idx, lower = 1, upper = length(levels_facet))
+      cli_check(checkIntegerish(idx, lower = 1, upper = length(levels_facet)),
+                "idx")
       levels_facet <- levels_facet[idx]
     }
     res_idx <- data[[facet_name]] %in% levels_facet

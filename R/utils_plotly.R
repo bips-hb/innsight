@@ -10,8 +10,8 @@ create_plotly <- function(result_df, value_name = "Relevance",
                           include_data = TRUE, boxplot = FALSE,
                           data_idx = NULL) {
   if (!requireNamespace("plotly", quietly = FALSE)) {
-    stop(
-      "Please install the 'plotly' package if you want to create an ",
+    stopf(
+      "Please install the {.pkg plotly} package if you want to create an ",
       "interactive plot."
     )
   }

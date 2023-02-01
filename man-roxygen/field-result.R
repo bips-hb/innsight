@@ -1,4 +1,5 @@
-#' @field result The results of the method on the passed data. A unified
+#' @field result (`list`)\cr
+#' The results of the method on the passed data. A unified
 #' list structure is used regardless of the complexity of the model: The outer
 #' list contains the individual output layers and the inner list the input
 #' layers. The results for the respective output and input layer are then
@@ -18,3 +19,4 @@
 #'     ..$ : torch_tensor [batch_size, dim_in_1, channel_axis, 2]
 #'     ..$ : torch_tensor [batch_size, dim_in_2, channel_axis, 2]
 #' ```
+#'

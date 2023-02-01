@@ -42,7 +42,7 @@ convert_keras_model <- function(model) {
   for (layer in layers) {
     # Get the layer type and check whether it is implemented
     type <- layer$`__class__`$`__name__`
-    assertChoice(type, implemented_layers_keras)
+    cli_check(checkChoice(type, implemented_layers_keras), "type")
 
     # Convert the layer to a list based on its type
     # Note: It is assumed that the same data format was used for all
@@ -225,7 +225,7 @@ convert_keras_convolution <- function(layer, type) {
   }
 
   # padding differs in keras and torch
-  assertChoice(padding, c("valid", "same"))
+  cli_check(checkChoice(padding, c("valid", "same")), "padding")
   if (padding == "valid") {
     padding <- rep(c(0L, 0L), length(kernel_size))
   } else if (padding == "same") {
@@ -276,10 +276,7 @@ convert_keras_pooling <- function(layer, type) {
   strides <- unlist(layer$strides)
 
   if (layer$padding != "valid") {
-    stopf(
-      "Padding mode '", layer$padding, "' is not implemented yet!",
-      call = "Converter$new(...)"
-    )
+    stopf("Padding mode '", layer$padding, "' is not implemented yet!")
   }
 
   # in this package only 'channels_first'
@@ -374,9 +371,7 @@ convert_keras_batchnorm <- function(layer) {
   } else if (axis != 1L) { # i.e. neither first nor last axis
     stopf(
       "Only batchnormalzation on axis '1' or '-1' are accepted! ",
-      "Your axis: '", axis, "'",
-      call = "Converter$new(...)"
-    )
+      "Your axis: '", axis, "'")
   }
 
   list(
@@ -567,8 +562,7 @@ get_layers_graph <- function(layers, config) {
       } else if (length(layer_config$inbound_nodes) == 0) { # InputLayer
         in_names <- NULL
       } else { # Weight-Sharing is not supported
-        stopf("Models that share weights are not supported yet!",
-              call = "Converter$new(...)")
+        stopf("Models that share weights are not supported yet!")
       }
 
       graph[[layer$name]] <-
@@ -637,13 +631,11 @@ check_consistent_data_format <- function(current_format, given_format) {
   } else {
     # The package can not handle different data formats
     stopf(
-      "The package innsight can not handle unconsistent data formats. ",
+      "The package {.pkg innsight} can not handle unconsistent data formats. ",
       "I found the format '", given_format, "', but the data format ",
-      "of a previous layer was '", current_format, "'! \n",
+      "of a previous layer was '", current_format, "'! ",
       "Choose either only the format 'channels_first' or only ",
-      "'channels_last' for all layers.",
-      call = "Converter$new(...)"
-    )
+      "'channels_last' for all layers.")
   }
 
   data_format
@@ -663,8 +655,7 @@ combine_activations <- function(model_as_list) {
           stopf("It is not allowed to use several activation functions in ",
                "consecutive order! You used a '", model_as_list[[i]]$act_name,
                "' activation directly after a '",
-               model_as_list[[in_layer]]$activation_name, "' activation.",
-               call = "Converter$new(...)")
+               model_as_list[[in_layer]]$activation_name, "' activation.")
         } else {
           keep <- TRUE
         }

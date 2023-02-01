@@ -13,7 +13,7 @@
 #' # Convert the model (for torch models is 'input_dim' required!)
 #' converter <- Converter$new(model, input_dim = c(5))
 #'
-#' # Get the converted model
+#' # Get the converted model stored in the field 'model'
 #' converted_model <- converter$model
 #'
 #' # Test it with the original model
@@ -37,36 +37,36 @@
 #' # Print all the layers
 #' converter$model$modules_list
 #'
+#' @examplesIf keras::is_keras_available() & torch::torch_is_installed()
 #' #----------------------- Example 3: Keras ----------------------------------
 #' library(keras)
 #'
-#' if (is_keras_available()) {
-#'   # Define a keras model
-#'   model <- keras_model_sequential()
-#'   model %>%
-#'     layer_conv_2d(
-#'       input_shape = c(32, 32, 3), kernel_size = 8, filters = 8,
-#'       activation = "relu", padding = "same"
-#'     ) %>%
-#'     layer_conv_2d(
-#'       kernel_size = 8, filters = 4,
-#'       activation = "tanh", padding = "same"
-#'     ) %>%
-#'     layer_conv_2d(
-#'       kernel_size = 4, filters = 2,
-#'       activation = "relu", padding = "same"
-#'     ) %>%
-#'     layer_flatten() %>%
-#'     layer_dense(units = 64, activation = "relu") %>%
-#'     layer_dense(units = 1, activation = "sigmoid")
+#' # Make sure keras is installed properly
+#' is_keras_available()
 #'
-#'   # Convert this model and save model as list
-#'   converter <- Converter$new(model, save_model_as_list = TRUE)
+#' # Define a keras model
+#' model <- keras_model_sequential()
+#' model %>%
+#'   layer_conv_2d(
+#'     input_shape = c(32, 32, 3), kernel_size = 8, filters = 8,
+#'     activation = "relu", padding = "same") %>%
+#'   layer_conv_2d(
+#'     kernel_size = 8, filters = 4,
+#'     activation = "tanh", padding = "same") %>%
+#'   layer_conv_2d(
+#'     kernel_size = 4, filters = 2,
+#'     activation = "relu", padding = "same") %>%
+#'   layer_flatten() %>%
+#'   layer_dense(units = 64, activation = "relu") %>%
+#'   layer_dense(units = 1, activation = "sigmoid")
 #'
-#'   # Print the converted model as a named list
-#'   str(converter$model_dict)
-#' }
+#' # Convert this model and save model as list
+#' converter <- Converter$new(model, save_model_as_list = TRUE)
 #'
+#' # Print the converted model as a named list
+#' str(converter$model_dict)
+#'
+#' @examplesIf torch::torch_is_installed()
 #' #----------------------- Example 4: List  ----------------------------------
 #'
 #' # Define a model

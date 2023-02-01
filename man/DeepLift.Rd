@@ -2,9 +2,9 @@
 % Please edit documentation in R/DeepLift.R
 \name{DeepLift}
 \alias{DeepLift}
-\title{Deep Learning Important FeaTures (DeepLift)}
+\title{Deep Learning Important Features (DeepLift)}
 \description{
-This is an implementation of the \emph{Deep Learning Important FeaTures
+This is an implementation of the \emph{Deep Learning Important Features
 (DeepLift)} algorithm introduced by Shrikumar et al. (2017). It's a local
 method for interpreting a single element \eqn{x} of the dataset concerning
 a reference value \eqn{x'} and returns the contribution of each input
@@ -17,8 +17,8 @@ Compared to \emph{Layer-wise Relevance Propagation} (see \link{LRP}), the
 DeepLift method is an exact decomposition and not an approximation, so we
 get real contributions of the input features to the
 difference-from-reference prediction. There are two ways to handle
-activation functions: \emph{Rescale-rule} (\code{'rescale'}) and
-\emph{RevealCancel-rule} (\code{'reveal_cancel'}).
+activation functions: \emph{rescale} rule (\code{'rescale'}) and
+\emph{reveal-cancel} rule (\code{'reveal_cancel'}).
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -42,12 +42,12 @@ converter <- Converter$new(model, input_dim = c(5))
 deeplift <- DeepLift$new(converter, data, x_ref = ref)
 
 # Print the result as a torch tensor for first two data points
-deeplift$get_result("torch.tensor")[1:2]
+get_result(deeplift, "torch.tensor")[1:2]
 
 # Plot the result for both classes
 plot(deeplift, output_idx = 1:2)
 
-# Plot the boxplot of all datapoints
+# Plot the boxplot of all datapoints and for both classes
 boxplot(deeplift, output_idx = 1:2)
 
 # ------------------------- Example 2: Neuralnet ---------------------------
@@ -70,59 +70,61 @@ x_ref <- matrix(colMeans(iris[, c(3, 4)]), nrow = 1)
 deeplift_rescale <- DeepLift$new(converter, iris[, c(3, 4)], x_ref = x_ref)
 
 # Get the result as a dataframe and show first 5 rows
-deeplift_rescale$get_result(type = "data.frame")[1:5, ]
+get_result(deeplift_rescale, type = "data.frame")[1:5, ]
 
 # Plot the result for the first datapoint in the data
 plot(deeplift_rescale, data_idx = 1)
 
 # Plot the result as boxplots
 boxplot(deeplift_rescale)
-
+\dontshow{\}) # examplesIf}
+\dontshow{if (keras::is_keras_available() & torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # ------------------------- Example 3: Keras -------------------------------
 library(keras)
 
-if (is_keras_available()) {
-  data <- array(rnorm(10 * 32 * 32 * 3), dim = c(10, 32, 32, 3))
+# Make sure keras is installed properly
+is_keras_available()
 
-  model <- keras_model_sequential()
-  model \%>\%
-    layer_conv_2d(
-      input_shape = c(32, 32, 3), kernel_size = 8, filters = 8,
-      activation = "softplus", padding = "valid"
-    ) \%>\%
-    layer_conv_2d(
-      kernel_size = 8, filters = 4, activation = "tanh",
-      padding = "same"
-    ) \%>\%
-    layer_conv_2d(
-      kernel_size = 4, filters = 2, activation = "relu",
-      padding = "valid"
-    ) \%>\%
-    layer_flatten() \%>\%
-    layer_dense(units = 64, activation = "relu") \%>\%
-    layer_dense(units = 16, activation = "relu") \%>\%
-    layer_dense(units = 2, activation = "softmax")
+data <- array(rnorm(10 * 32 * 32 * 3), dim = c(10, 32, 32, 3))
 
-  # Convert the model
-  converter <- Converter$new(model)
+model <- keras_model_sequential()
+model \%>\%
+  layer_conv_2d(
+    input_shape = c(32, 32, 3), kernel_size = 8, filters = 8,
+    activation = "softplus", padding = "valid") \%>\%
+  layer_conv_2d(
+    kernel_size = 8, filters = 4, activation = "tanh",
+    padding = "same") \%>\%
+  layer_conv_2d(
+    kernel_size = 4, filters = 2, activation = "relu",
+    padding = "valid") \%>\%
+  layer_flatten() \%>\%
+  layer_dense(units = 64, activation = "relu") \%>\%
+  layer_dense(units = 16, activation = "relu") \%>\%
+  layer_dense(units = 2, activation = "softmax")
 
-  # Apply the DeepLift method with reveal-cancel rule
-  deeplift_revcancel <- DeepLift$new(converter, data,
-    channels_first = FALSE,
-    rule_name = "reveal_cancel"
-  )
+# Convert the model
+converter <- Converter$new(model)
 
-  # Plot the result for the first image and both classes
-  plot(deeplift_revcancel, output_idx = 1:2)
+# Apply the DeepLift method with reveal-cancel rule
+deeplift_revcancel <- DeepLift$new(converter, data,
+  channels_first = FALSE,
+  rule_name = "reveal_cancel"
+)
 
-  # Plot the result as boxplots for first class
-  boxplot(deeplift_revcancel, output_idx = 1)
+# Plot the result for the first image and both classes
+plot(deeplift_revcancel, output_idx = 1:2)
 
-  # You can also create an interactive plot with plotly.
-  # This is a suggested package, so make sure that it is installed
-  library(plotly)
-  boxplot(deeplift_revcancel, as_plotly = TRUE)
-}
+# Plot the result as boxplots for first class
+boxplot(deeplift_revcancel, output_idx = 1)
+\dontshow{\}) # examplesIf}
+\dontshow{if (torch::torch_is_installed() & Sys.getenv("RENDER_PLOTLY", unset = 0) == 1) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+#------------------------- Plotly plots ------------------------------------
+
+# You can also create an interactive plot with plotly.
+# This is a suggested package, so make sure that it is installed
+library(plotly)
+boxplot(deeplift_rescale, as_plotly = TRUE)
 \dontshow{\}) # examplesIf}
 }
 \references{
@@ -143,20 +145,13 @@ Other methods:
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{x_ref}}{The reference input for the DeepLift method. This value has the same
-format as the input data of the passed model to the converter object.
-This means either
-\itemize{
-\item an \code{array}, \code{data.frame}, \code{torch_tensor} or array-like format of
-size \emph{(1, dim_in)}, if e.g.the model has only one input layer, or
-\item a \code{list} with the corresponding input data (according to the upper point)
-for each of the input layers.
-\item It is also possible to use the default value \code{NULL} to take only
-zeros as reference input.
-}}
+\item{\code{x_ref}}{(\code{list})\cr
+The reference input for the DeepLift method. This value is stored as a list
+of \code{torch_tensor}s of shape \emph{(1, dim_in)} for each input layer.\cr}
 
-\item{\code{rule_name}}{Name of the applied rule to calculate the contributions.
-Either \code{'rescale'} or \code{'reveal_cancel'}.}
+\item{\code{rule_name}}{(\code{character(1)})\cr
+Name of the applied rule to calculate the contributions.
+Either \code{'rescale'} or \code{'reveal_cancel'}.\cr}
 }
 \if{html}{\out{</div>}}
 }
@@ -173,6 +168,7 @@ Either \code{'rescale'} or \code{'reveal_cancel'}.}
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="boxplot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-boxplot'><code>innsight::InterpretingMethod$boxplot()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-get_result'><code>innsight::InterpretingMethod$get_result()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot'><code>innsight::InterpretingMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="print"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-print'><code>innsight::InterpretingMethod$print()</code></a></span></li>
 </ul>
 </details>
 }}
@@ -201,39 +197,43 @@ the field \code{result}.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{converter}}{An instance of the \code{Converter} class that includes the
+\item{\code{converter}}{(\code{\link{Converter}})\cr
+An instance of the \code{Converter} class that includes the
 torch-converted model and some other model-specific attributes. See
-\code{\link{Converter}} for details.}
+\code{\link{Converter}} for details.\cr}
 
-\item{\code{data}}{The data to which the method is to be applied. These must
+\item{\code{data}}{(\code{\link{array}}, \code{\link{data.frame}}, \code{\link{torch_tensor}} or \code{list})\cr
+The data to which the method is to be applied. These must
 have the same format as the input data of the passed model to the
 converter object. This means either
 \itemize{
 \item an \code{array}, \code{data.frame}, \code{torch_tensor} or array-like format of
 size \emph{(batch_size, dim_in)}, if e.g.the model has only one input layer, or
 \item a \code{list} with the corresponding input data (according to the
-upper point) for each of the input layers.
+upper point) for each of the input layers.\cr
 }}
 
-\item{\code{channels_first}}{The channel position of the given data (argument
+\item{\code{channels_first}}{(\code{logical(1)})\cr
+The channel position of the given data (argument
 \code{data}). If \code{TRUE}, the channel axis is placed at the second position
 between the batch size and the rest of the input axes, e.g.
 \code{c(10,3,32,32)} for a batch of ten images with three channels and a
 height and width of 32 pixels. Otherwise (\code{FALSE}), the channel axis
 is at the last position, i.e. \code{c(10,32,32,3)}. If the data
-has no channel axis, use the default value \code{TRUE}.}
+has no channel axis, use the default value \code{TRUE}.\cr}
 
-\item{\code{output_idx}}{These indices specify the output nodes for which
+\item{\code{output_idx}}{(\code{integer}, \code{list} or \code{NULL})\cr
+These indices specify the output nodes for which
 the method is to be applied. In order to allow models with multiple
 output layers, there are the following possibilities to select
 the indices of the output nodes in the individual output layers:
 \itemize{
-\item A \code{vector} of indices: If the model has only one output layer,
-the values correspond to the indices of the output nodes, e.g.
+\item An \code{integer} vector of indices: If the model has only one output
+layer, the values correspond to the indices of the output nodes, e.g.
 \code{c(1,3,4)} for the first, third and fourth output node. If there are
 multiple output layers, the indices of the output nodes from the first
 output layer are considered.
-\item A \code{list} of \code{vectors} of indices: If the method is to be
+\item A \code{list} of \code{integer} vectors of indices: If the method is to be
 applied to output nodes from different layers, a list can be passed
 that specifies the desired indices of the output nodes for each
 output layer. Unwanted output layers have the entry \code{NULL} instead of
@@ -242,18 +242,21 @@ third output node in the second output layer.
 \item \code{NULL} (default): The method is applied to all output nodes in
 the first output layer but is limited to the first ten as the
 calculations become more computationally expensive for more output
-nodes.
+nodes.\cr
 }}
 
-\item{\code{ignore_last_act}}{Set this logical value to include the last
+\item{\code{ignore_last_act}}{(\code{logical(1)})\cr
+Set this logical value to include the last
 activation functions for each output layer, or not (default: \code{TRUE}).
 In practice, the last activation (especially for softmax activation) is
-often omitted.}
+often omitted.\cr}
 
-\item{\code{rule_name}}{Name of the applied rule to calculate the
-contributions. Use either \code{'rescale'} or \code{'reveal_cancel'}.}
+\item{\code{rule_name}}{(\code{character(1)})\cr
+Name of the applied rule to calculate the
+contributions. Use either \code{'rescale'} or \code{'reveal_cancel'}. \cr}
 
-\item{\code{x_ref}}{The reference input for the DeepLift method. This value
+\item{\code{x_ref}}{(\code{\link{array}}, \code{\link{data.frame}}, \code{\link{torch_tensor}} or \code{list})\cr
+The reference input for the DeepLift method. This value
 must have the same format as the input data of the passed model to the
 converter object. This means either
 \itemize{
@@ -262,26 +265,28 @@ size \emph{(1, dim_in)}, if e.g.the model has only one input layer, or
 \item a \code{list} with the corresponding input data (according to the upper point)
 for each of the input layers.
 \item It is also possible to use the default value \code{NULL} to take only
-zeros as reference input.
+zeros as reference input.\cr
 }}
 
-\item{\code{winner_takes_all}}{This logical argument is only relevant for
-models with a MaxPooling layer. Since many zeros are produced during
-the backward pass due to the selection of the maximum value in the
-pooling kernel, another variant is implemented, which treats a
-MaxPooling as an AveragePooling layer in the backward pass to overcome
-the problem of too many zero relevances. With the default value \code{TRUE},
-the whole upper-layer relevance is passed to the maximum value in each
-pooling window. Otherwise, if \code{FALSE}, the relevance is distributed equally
-among all nodes in a pooling window.}
+\item{\code{winner_takes_all}}{(\code{logical(1)})\cr
+This logical argument is only relevant for MaxPooling
+layers and is otherwise ignored. With this layer type, it is possible that
+the position of the maximum values in the pooling kernel of the normal input
+\eqn{x} and the reference input \eqn{x'} may not match, which leads to a
+violation of the summation-to-delta property. To overcome this problem,
+another variant is implemented, which treats a MaxPooling layer as an
+AveragePooling layer in the backward pass only leading to an equally
+distribution of the upper-layer contribution to the lower layer.\cr}
 
-\item{\code{verbose}}{This logical argument determines whether a progress bar is
+\item{\code{verbose}}{(\code{logical(1)})\cr
+This logical argument determines whether a progress bar is
 displayed for the calculation of the method or not. The default value is
-the output of the primitive R function \code{\link[=interactive]{interactive()}}.}
+the output of the primitive R function \code{\link[=interactive]{interactive()}}.\cr}
 
-\item{\code{dtype}}{The data type for the calculations. Use
-either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
-\link[torch:torch_dtype]{torch::torch_double}.}
+\item{\code{dtype}}{(\code{character(1)})\cr
+The data type for the calculations. Use
+either \code{'float'} for \link{torch_float} or \code{'double'} for
+\link{torch_double}.\cr}
 }
 \if{html}{\out{</div>}}
 }

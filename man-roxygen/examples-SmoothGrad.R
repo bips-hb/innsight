@@ -18,7 +18,7 @@
 #' smoothgrad <- SmoothGrad$new(converter, data)
 #'
 #' # Print the result as a data.frame for first 5 rows
-#' smoothgrad$get_result("data.frame")[1:5, ]
+#' head(get_result(smoothgrad, "data.frame"), 5)
 #'
 #' # Plot the result for both classes
 #' plot(smoothgrad, output_idx = 1:2)
@@ -53,50 +53,52 @@
 #' # Plot the result again
 #' plot(smoothgrad, data_idx = c(1, 60), output_idx = 1:3)
 #'
+#' @examplesIf keras::is_keras_available() & torch::torch_is_installed()
 #' # ------------------------- Example 3: Keras -------------------------------
 #' library(keras)
 #'
-#' if (is_keras_available()) {
-#'   data <- array(rnorm(64 * 60 * 3), dim = c(64, 60, 3))
+#' # Make sure keras is installed properly
+#' is_keras_available()
 #'
-#'   model <- keras_model_sequential()
-#'   model %>%
-#'     layer_conv_1d(
-#'       input_shape = c(60, 3), kernel_size = 8, filters = 8,
-#'       activation = "softplus", padding = "valid"
-#'     ) %>%
-#'     layer_conv_1d(
-#'       kernel_size = 8, filters = 4, activation = "tanh",
-#'       padding = "same"
-#'     ) %>%
-#'     layer_conv_1d(
-#'       kernel_size = 4, filters = 2, activation = "relu",
-#'       padding = "valid"
-#'     ) %>%
-#'     layer_flatten() %>%
-#'     layer_dense(units = 64, activation = "relu") %>%
-#'     layer_dense(units = 16, activation = "relu") %>%
-#'     layer_dense(units = 3, activation = "softmax")
+#' data <- array(rnorm(64 * 60 * 3), dim = c(64, 60, 3))
 #'
-#'   # Convert the model
-#'   converter <- Converter$new(model)
+#' model <- keras_model_sequential()
+#' model %>%
+#'   layer_conv_1d(
+#'     input_shape = c(60, 3), kernel_size = 8, filters = 8,
+#'     activation = "softplus", padding = "valid") %>%
+#'   layer_conv_1d(
+#'     kernel_size = 8, filters = 4, activation = "tanh",
+#'     padding = "same") %>%
+#'   layer_conv_1d(
+#'     kernel_size = 4, filters = 2, activation = "relu",
+#'     padding = "valid") %>%
+#'   layer_flatten() %>%
+#'   layer_dense(units = 64, activation = "relu") %>%
+#'   layer_dense(units = 16, activation = "relu") %>%
+#'   layer_dense(units = 3, activation = "softmax")
 #'
-#'   # Apply the SmoothGrad method
-#'   smoothgrad <- SmoothGrad$new(converter, data, channels_first = FALSE)
+#' # Convert the model
+#' converter <- Converter$new(model)
 #'
-#'   # Plot the result for the first datapoint and all classes
-#'   plot(smoothgrad, output_idx = 1:3)
+#' # Apply the SmoothGrad method
+#' smoothgrad <- SmoothGrad$new(converter, data, channels_first = FALSE)
 #'
-#'   # Plot the result as boxplots for first two classes
-#'   boxplot(smoothgrad, output_idx = 1:2)
+#' # Plot the result for the first datapoint and all classes
+#' plot(smoothgrad, output_idx = 1:3)
 #'
-#'   # You can also create an interactive plot with plotly.
-#'   # This is a suggested package, so make sure that it is installed
-#'   library(plotly)
+#' # Plot the result as boxplots for first two classes
+#' boxplot(smoothgrad, output_idx = 1:2)
 #'
-#'   # Result as boxplots
-#'   boxplot(smoothgrad, as_plotly = TRUE)
+#' @examplesIf torch::torch_is_installed() & Sys.getenv("RENDER_PLOTLY", unset = 0) == 1
+#' #------------------------- Plotly plots ------------------------------------
+#' # You can also create an interactive plot with plotly.
+#' # This is a suggested package, so make sure that it is installed
+#' library(plotly)
 #'
-#'   # Result of the second data point
-#'   plot(smoothgrad, data_idx = 2, as_plotly = TRUE)
-#' }
+#' # Result as boxplots
+#' boxplot(smoothgrad, as_plotly = TRUE)
+#'
+#' # Result of the second data point
+#' plot(smoothgrad, data_idx = 2, as_plotly = TRUE)
+#'

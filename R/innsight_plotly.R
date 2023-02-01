@@ -322,8 +322,8 @@ setMethod(
 setMethod(
   "[[", list(x = "innsight_plotly"),
   function(x, i, j, ..., drop) {
-    assertInt(i, lower = 1, upper = nrow(x@plots))
-    assertInt(j, lower = 1, upper = ncol(x@plots))
+    cli_check(checkInt(i, lower = 1, upper = nrow(x@plots)), "i")
+    cli_check(checkInt(j, lower = 1, upper = ncol(x@plots)), "j")
 
     print(x[i, j])
   }

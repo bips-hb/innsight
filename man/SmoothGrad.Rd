@@ -4,13 +4,13 @@
 \alias{SmoothGrad}
 \title{SmoothGrad and SmoothGrad x Input}
 \description{
-'SmoothGrad' was introduced by D. Smilkov et al. (2017) and is an extension
-to the classical Vanilla \link{Gradient} method. It takes the mean of the
+\emph{SmoothGrad} was introduced by D. Smilkov et al. (2017) and is an extension
+to the classical \emph{Vanilla \link{Gradient}} method. It takes the mean of the
 gradients for \code{n} perturbations of each data point, i.e. with
 \eqn{\epsilon \sim N(0,\sigma)}
 \deqn{1/n \sum_n d f(x+ \epsilon)_j / d x_j.}
 Analogous to the \emph{Gradient x Input} method, you can also use the argument
-\emph{times_input} multiply the gradients by the inputs before taking the
+\code{times_input} multiply the gradients by the inputs before taking the
 average (\emph{SmoothGrad x Input}).
 }
 \examples{
@@ -34,7 +34,7 @@ converter <- Converter$new(model, input_dim = c(5))
 smoothgrad <- SmoothGrad$new(converter, data)
 
 # Print the result as a data.frame for first 5 rows
-smoothgrad$get_result("data.frame")[1:5, ]
+head(get_result(smoothgrad, "data.frame"), 5)
 
 # Plot the result for both classes
 plot(smoothgrad, output_idx = 1:2)
@@ -68,54 +68,55 @@ smoothgrad <- SmoothGrad$new(converter, iris[, -5], ignore_last_act = FALSE)
 
 # Plot the result again
 plot(smoothgrad, data_idx = c(1, 60), output_idx = 1:3)
-
+\dontshow{\}) # examplesIf}
+\dontshow{if (keras::is_keras_available() & torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # ------------------------- Example 3: Keras -------------------------------
 library(keras)
 
-if (is_keras_available()) {
-  data <- array(rnorm(64 * 60 * 3), dim = c(64, 60, 3))
+# Make sure keras is installed properly
+is_keras_available()
 
-  model <- keras_model_sequential()
-  model \%>\%
-    layer_conv_1d(
-      input_shape = c(60, 3), kernel_size = 8, filters = 8,
-      activation = "softplus", padding = "valid"
-    ) \%>\%
-    layer_conv_1d(
-      kernel_size = 8, filters = 4, activation = "tanh",
-      padding = "same"
-    ) \%>\%
-    layer_conv_1d(
-      kernel_size = 4, filters = 2, activation = "relu",
-      padding = "valid"
-    ) \%>\%
-    layer_flatten() \%>\%
-    layer_dense(units = 64, activation = "relu") \%>\%
-    layer_dense(units = 16, activation = "relu") \%>\%
-    layer_dense(units = 3, activation = "softmax")
+data <- array(rnorm(64 * 60 * 3), dim = c(64, 60, 3))
 
-  # Convert the model
-  converter <- Converter$new(model)
+model <- keras_model_sequential()
+model \%>\%
+  layer_conv_1d(
+    input_shape = c(60, 3), kernel_size = 8, filters = 8,
+    activation = "softplus", padding = "valid") \%>\%
+  layer_conv_1d(
+    kernel_size = 8, filters = 4, activation = "tanh",
+    padding = "same") \%>\%
+  layer_conv_1d(
+    kernel_size = 4, filters = 2, activation = "relu",
+    padding = "valid") \%>\%
+  layer_flatten() \%>\%
+  layer_dense(units = 64, activation = "relu") \%>\%
+  layer_dense(units = 16, activation = "relu") \%>\%
+  layer_dense(units = 3, activation = "softmax")
 
-  # Apply the SmoothGrad method
-  smoothgrad <- SmoothGrad$new(converter, data, channels_first = FALSE)
+# Convert the model
+converter <- Converter$new(model)
 
-  # Plot the result for the first datapoint and all classes
-  plot(smoothgrad, output_idx = 1:3)
+# Apply the SmoothGrad method
+smoothgrad <- SmoothGrad$new(converter, data, channels_first = FALSE)
 
-  # Plot the result as boxplots for first two classes
-  boxplot(smoothgrad, output_idx = 1:2)
+# Plot the result for the first datapoint and all classes
+plot(smoothgrad, output_idx = 1:3)
 
-  # You can also create an interactive plot with plotly.
-  # This is a suggested package, so make sure that it is installed
-  library(plotly)
+# Plot the result as boxplots for first two classes
+boxplot(smoothgrad, output_idx = 1:2)
+\dontshow{\}) # examplesIf}
+\dontshow{if (torch::torch_is_installed() & Sys.getenv("RENDER_PLOTLY", unset = 0) == 1) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+#------------------------- Plotly plots ------------------------------------
+# You can also create an interactive plot with plotly.
+# This is a suggested package, so make sure that it is installed
+library(plotly)
 
-  # Result as boxplots
-  boxplot(smoothgrad, as_plotly = TRUE)
+# Result as boxplots
+boxplot(smoothgrad, as_plotly = TRUE)
 
-  # Result of the second data point
-  plot(smoothgrad, data_idx = 2, as_plotly = TRUE)
-}
+# Result of the second data point
+plot(smoothgrad, data_idx = 2, as_plotly = TRUE)
 \dontshow{\}) # examplesIf}
 }
 \references{
@@ -136,10 +137,12 @@ Other methods:
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{n}}{Number of perturbations of the input data (default: \eqn{50}).}
+\item{\code{n}}{(\code{integer(1)})\cr
+Number of perturbations of the input data (default: \eqn{50}).\cr}
 
-\item{\code{noise_level}}{The standard deviation of the Gaussian
-perturbation, i.e. \eqn{\sigma = (max(x) - min(x)) *} \code{noise_level}.}
+\item{\code{noise_level}}{(\code{numeric(1)})\cr
+The standard deviation of the Gaussian
+perturbation, i.e. \eqn{\sigma = (max(x) - min(x)) *} \code{noise_level}.\cr}
 }
 \if{html}{\out{</div>}}
 }
@@ -156,6 +159,7 @@ perturbation, i.e. \eqn{\sigma = (max(x) - min(x)) *} \code{noise_level}.}
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="boxplot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-boxplot'><code>innsight::InterpretingMethod$boxplot()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-get_result'><code>innsight::InterpretingMethod$get_result()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot'><code>innsight::InterpretingMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="print"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-print'><code>innsight::InterpretingMethod$print()</code></a></span></li>
 </ul>
 </details>
 }}
@@ -163,9 +167,9 @@ perturbation, i.e. \eqn{\sigma = (max(x) - min(x)) *} \code{noise_level}.}
 \if{html}{\out{<a id="method-SmoothGrad-new"></a>}}
 \if{latex}{\out{\hypertarget{method-SmoothGrad-new}{}}}
 \subsection{Method \code{new()}}{
-Create a new instance of the \emph{SmoothGrad} method. When initialized,
-the method is applied to the given data and the results are stored in
-the field \code{result}.
+Create a new instance of the \emph{SmoothGrad} or \emph{SmoothGrad x Input}
+method. When initialized, the method is applied to the given data and
+the results are stored in the field \code{result}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SmoothGrad$new(
   converter,
@@ -184,39 +188,43 @@ the field \code{result}.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{converter}}{An instance of the \code{Converter} class that includes the
+\item{\code{converter}}{(\code{\link{Converter}})\cr
+An instance of the \code{Converter} class that includes the
 torch-converted model and some other model-specific attributes. See
-\code{\link{Converter}} for details.}
+\code{\link{Converter}} for details.\cr}
 
-\item{\code{data}}{The data to which the method is to be applied. These must
+\item{\code{data}}{(\code{\link{array}}, \code{\link{data.frame}}, \code{\link{torch_tensor}} or \code{list})\cr
+The data to which the method is to be applied. These must
 have the same format as the input data of the passed model to the
 converter object. This means either
 \itemize{
 \item an \code{array}, \code{data.frame}, \code{torch_tensor} or array-like format of
 size \emph{(batch_size, dim_in)}, if e.g.the model has only one input layer, or
 \item a \code{list} with the corresponding input data (according to the
-upper point) for each of the input layers.
+upper point) for each of the input layers.\cr
 }}
 
-\item{\code{channels_first}}{The channel position of the given data (argument
+\item{\code{channels_first}}{(\code{logical(1)})\cr
+The channel position of the given data (argument
 \code{data}). If \code{TRUE}, the channel axis is placed at the second position
 between the batch size and the rest of the input axes, e.g.
 \code{c(10,3,32,32)} for a batch of ten images with three channels and a
 height and width of 32 pixels. Otherwise (\code{FALSE}), the channel axis
 is at the last position, i.e. \code{c(10,32,32,3)}. If the data
-has no channel axis, use the default value \code{TRUE}.}
+has no channel axis, use the default value \code{TRUE}.\cr}
 
-\item{\code{output_idx}}{These indices specify the output nodes for which
+\item{\code{output_idx}}{(\code{integer}, \code{list} or \code{NULL})\cr
+These indices specify the output nodes for which
 the method is to be applied. In order to allow models with multiple
 output layers, there are the following possibilities to select
 the indices of the output nodes in the individual output layers:
 \itemize{
-\item A \code{vector} of indices: If the model has only one output layer,
-the values correspond to the indices of the output nodes, e.g.
+\item An \code{integer} vector of indices: If the model has only one output
+layer, the values correspond to the indices of the output nodes, e.g.
 \code{c(1,3,4)} for the first, third and fourth output node. If there are
 multiple output layers, the indices of the output nodes from the first
 output layer are considered.
-\item A \code{list} of \code{vectors} of indices: If the method is to be
+\item A \code{list} of \code{integer} vectors of indices: If the method is to be
 applied to output nodes from different layers, a list can be passed
 that specifies the desired indices of the output nodes for each
 output layer. Unwanted output layers have the entry \code{NULL} instead of
@@ -225,29 +233,35 @@ third output node in the second output layer.
 \item \code{NULL} (default): The method is applied to all output nodes in
 the first output layer but is limited to the first ten as the
 calculations become more computationally expensive for more output
-nodes.
+nodes.\cr
 }}
 
-\item{\code{ignore_last_act}}{Set this logical value to include the last
+\item{\code{ignore_last_act}}{(\code{logical(1)})\cr
+Set this logical value to include the last
 activation functions for each output layer, or not (default: \code{TRUE}).
 In practice, the last activation (especially for softmax activation) is
-often omitted.}
+often omitted.\cr}
 
-\item{\code{times_input}}{Multiplies the gradients with the input features.
-This method is called 'Gradient x Input'.}
+\item{\code{times_input}}{(\verb{logical(1})\cr
+Multiplies the gradients with the input features.
+This method is called \emph{SmoothGrad x Input}.\cr}
 
-\item{\code{n}}{Number of perturbations of the input data (default: \eqn{50}).}
+\item{\code{n}}{(\code{integer(1)})\cr
+Number of perturbations of the input data (default: \eqn{50}).\cr}
 
-\item{\code{noise_level}}{Determines the standard deviation of the Gaussian
-perturbation, i.e. \eqn{\sigma = (max(x) - min(x)) *} \code{noise_level}.}
+\item{\code{noise_level}}{(\code{numeric(1)})\cr
+Determines the standard deviation of the Gaussian
+perturbation, i.e. \eqn{\sigma = (max(x) - min(x)) *} \code{noise_level}.\cr}
 
-\item{\code{verbose}}{This logical argument determines whether a progress bar is
+\item{\code{verbose}}{(\code{logical(1)})\cr
+This logical argument determines whether a progress bar is
 displayed for the calculation of the method or not. The default value is
-the output of the primitive R function \code{\link[=interactive]{interactive()}}.}
+the output of the primitive R function \code{\link[=interactive]{interactive()}}.\cr}
 
-\item{\code{dtype}}{The data type for the calculations. Use
-either \code{'float'} for \link[torch:torch_dtype]{torch::torch_float} or \code{'double'} for
-\link[torch:torch_dtype]{torch::torch_double}.}
+\item{\code{dtype}}{(\code{character(1)})\cr
+The data type for the calculations. Use
+either \code{'float'} for \link{torch_float} or \code{'double'} for
+\link{torch_double}.\cr}
 }
 \if{html}{\out{</div>}}
 }

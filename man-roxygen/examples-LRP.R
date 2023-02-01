@@ -18,12 +18,12 @@
 #' lrp <- LRP$new(converter, data)
 #'
 #' # Print the result as an array for data point one and two
-#' lrp$get_result()[1:2,,]
+#' get_result(lrp)[1:2,,]
 #'
 #' # Plot the result for both classes
 #' plot(lrp, output_idx = 1:2)
 #'
-#' # Plot the boxplot of all datapoints without preprocess function
+#' # Plot the boxplot of all datapoints without a preprocess function
 #' boxplot(lrp, output_idx = 1:2, preprocess_FUN = identity)
 #'
 #' # ------------------------- Example 2: Neuralnet ---------------------------
@@ -41,10 +41,10 @@
 #' lrp <- LRP$new(converter, iris[, -5], rule_name = "simple")
 #'
 #' # get the result as an array for data point one and two
-#' lrp$get_result()[1:2,,]
+#' get_result(lrp)[1:2,,]
 #'
 #' # get the result as a torch tensor for data point one and two
-#' lrp$get_result(type = "torch.tensor")[1:2]
+#' get_result(lrp, type = "torch.tensor")[1:2]
 #'
 #' # use the alpha-beta rule with alpha = 2
 #' lrp <- LRP$new(converter, iris[, -5],
@@ -62,67 +62,56 @@
 #' # Plot the result for all classes
 #' plot(lrp, output_idx = 1:3)
 #'
-#' # Plot the Boxplot for the first class
-#' boxplot(lrp)
+#' @examplesIf keras::is_keras_available() & torch::torch_is_installed()
+#' # ------------------------- Example 3: Keras -------------------------------
+#' library(keras)
 #'
+#' # Make sure keras is installed properly
+#' is_keras_available()
+#'
+#' data <- array(rnorm(10 * 60 * 3), dim = c(10, 60, 3))
+#'
+#' model <- keras_model_sequential()
+#' model %>%
+#'   layer_conv_1d(
+#'     input_shape = c(60, 3), kernel_size = 8, filters = 8,
+#'     activation = "softplus", padding = "valid") %>%
+#'   layer_conv_1d(
+#'     kernel_size = 8, filters = 4, activation = "tanh",
+#'     padding = "same") %>%
+#'   layer_conv_1d(
+#'     kernel_size = 4, filters = 2, activation = "relu",
+#'     padding = "valid") %>%
+#'   layer_flatten() %>%
+#'   layer_dense(units = 64, activation = "relu") %>%
+#'   layer_dense(units = 16, activation = "relu") %>%
+#'   layer_dense(units = 3, activation = "softmax")
+#'
+#' # Convert the model
+#' converter <- Converter$new(model)
+#'
+#' # Apply the LRP method with the epsilon rule and eps = 0.1
+#' lrp_eps <- LRP$new(converter, data,
+#'   channels_first = FALSE,
+#'   rule_name = "epsilon",
+#'   rule_param = 0.1
+#' )
+#'
+#' # Plot the result for the first datapoint and all classes
+#' plot(lrp_eps, output_idx = 1:3)
+#'
+#' # Plot the result as boxplots for first two classes
+#' boxplot(lrp_eps, output_idx = 1:2)
+#'
+#' @examplesIf torch::torch_is_installed() & Sys.getenv("RENDER_PLOTLY", unset = 0) == 1
+#' #------------------------- Plotly plots ------------------------------------
 #' # You can also create an interactive plot with plotly.
 #' # This is a suggested package, so make sure that it is installed
 #' library(plotly)
 #'
 #' # Result as boxplots
-#' boxplot(lrp, as_plotly = TRUE)
+#' boxplot(lrp_eps, as_plotly = TRUE)
 #'
 #' # Result of the second data point
-#' plot(lrp, data_idx = 2, as_plotly = TRUE)
+#' plot(lrp_eps, data_idx = 2, as_plotly = TRUE)
 #'
-#' # ------------------------- Example 3: Keras -------------------------------
-#' library(keras)
-#'
-#' if (is_keras_available()) {
-#'   data <- array(rnorm(10 * 60 * 3), dim = c(10, 60, 3))
-#'
-#'   model <- keras_model_sequential()
-#'   model %>%
-#'     layer_conv_1d(
-#'       input_shape = c(60, 3), kernel_size = 8, filters = 8,
-#'       activation = "softplus", padding = "valid"
-#'     ) %>%
-#'     layer_conv_1d(
-#'       kernel_size = 8, filters = 4, activation = "tanh",
-#'       padding = "same"
-#'     ) %>%
-#'     layer_conv_1d(
-#'       kernel_size = 4, filters = 2, activation = "relu",
-#'       padding = "valid"
-#'     ) %>%
-#'     layer_flatten() %>%
-#'     layer_dense(units = 64, activation = "relu") %>%
-#'     layer_dense(units = 16, activation = "relu") %>%
-#'     layer_dense(units = 3, activation = "softmax")
-#'
-#'   # Convert the model
-#'   converter <- Converter$new(model)
-#'
-#'   # Apply the LRP method with the epsilon rule and eps = 0.1
-#'   lrp_eps <- LRP$new(converter, data,
-#'     channels_first = FALSE,
-#'     rule_name = "epsilon",
-#'     rule_param = 0.1
-#'   )
-#'
-#'   # Plot the result for the first datapoint and all classes
-#'   plot(lrp_eps, output_idx = 1:3)
-#'
-#'   # Plot the result as boxplots for first two classes
-#'   boxplot(lrp_eps, output_idx = 1:2)
-#'
-#'   # You can also create an interactive plot with plotly.
-#'   # This is a suggested package, so make sure that it is installed
-#'   library(plotly)
-#'
-#'   # Result as boxplots
-#'   boxplot(lrp_eps, as_plotly = TRUE)
-#'
-#'   # Result of the second data point
-#'   plot(lrp_eps, data_idx = 2, as_plotly = TRUE)
-#' }

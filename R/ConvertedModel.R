@@ -4,21 +4,24 @@
 ###############################################################################
 
 
-#' Converted torch-based Model
+#' Converted `torch`-based Model
 #'
-#' This class stores all layers converted to torch in a module which can be
-#' used like the original model (but torch-based). In addition, it provides
+#' This class stores all layers converted to `torch` in a module which can be
+#' used like the original model (but `torch`-based). In addition, it provides
 #' other functions that are useful for interpreting individual predictions or
-#' explaining the entire model. This model is part of the class [Converter]
+#' explaining the entire model. This model is part of the class [`Converter`]
 #' and is the core for all the necessary calculations in the methods provided
 #' in this package.
 #'
-#' @param modules_list A list of all accepted layers created by the 'Converter'
-#' class during initialization.
-#' @param dtype The data type for all the calculations and defined tensors. Use
-#' either `'float'` for [torch::torch_float] or `'double'` for
-#' [torch::torch_double].
-#' @param graph The `graph` argument gives a way to pass an input through
+#' @param modules_list (`list`)\cr
+#' A list of all accepted layers created by the [`Converter`]
+#' class during initialization.\cr
+#' @param dtype (`character(1)`)\cr
+#' The data type for all the calculations and defined tensors. Use
+#' either `'float'` for [`torch::torch_float`] or `'double'` for
+#' [`torch::torch_double`].\cr
+#' @param graph (`list`)\cr
+#' The `graph` argument gives a way to pass an input through
 #' the model, which is especially relevant for non-sequential architectures.
 #' It can be seen as a list of steps in which order the layers from
 #' `modules_list` must be applied. The list contains the following elements:
@@ -37,11 +40,13 @@
 #' used as inputs of the current layer (`used_node`).
 #' - `$times`\cr
 #' The frequency of the output value, i.e. is the output used
-#' more than once as an input for subsequent layers?
-#' @param input_nodes A vector of layer indices describing the input layers,
-#' i.e. they are used as the starting point for the calculations.
-#' @param output_nodes A vector of layer indices describing the indices
-#' of the output layers.
+#' more than once as an input for subsequent layers?\cr
+#' @param input_nodes (`numeric`)\cr
+#' A vector of layer indices describing the input layers,
+#' i.e. they are used as the starting point for the calculations.\cr
+#' @param output_nodes (`numeric`)\cr
+#' A vector of layer indices describing the indices
+#' of the output layers.\cr
 #'
 ConvertedModel <- nn_module(
   classname = "ConvertedModel",
@@ -76,11 +81,12 @@ ConvertedModel <- nn_module(
   #'
   #' ## Usage
   #' ```
-  #' self(x, channels_first = TRUE,
-  #'         save_input = FALSE,
-  #'         save_preactivation = FALSE,
-  #'         save_output = FAlSE,
-  #'         save_last_layer = FALSE)
+  #' self(x,
+  #'      channels_first = TRUE,
+  #'      save_input = FALSE,
+  #'      save_preactivation = FALSE,
+  #'      save_output = FAlSE,
+  #'      save_last_layer = FALSE)
   #' ```
   #'
   #' ## Arguments
