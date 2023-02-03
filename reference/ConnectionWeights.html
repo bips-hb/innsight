@@ -31,7 +31,7 @@ argument to TRUE and providing input data."><meta property="og:image" content="h
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">innsight</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.0</span>
       </span>
     </div>
 
@@ -290,11 +290,11 @@ either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dty
 <span class="r-in"><span><span class="co"># Print the head of the result as a data.frame</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">cw</span>, <span class="st">"data.frame"</span><span class="op">)</span>, <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     data model_input model_output feature output_node       value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 data_1     Input_1     Output_1     Car          Y1 -0.14690568</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 data_1     Input_1     Output_1     Cat          Y1 -0.25819770</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 data_1     Input_1     Output_1     Dog          Y1 -0.01826655</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 data_1     Input_1     Output_1   Plane          Y1  0.01166022</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 data_1     Input_1     Output_1   Horse          Y1  0.07769842</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 data_1     Input_1     Output_1     Car          Y1 -0.21169671</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 data_1     Input_1     Output_1     Cat          Y1 -0.06871876</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 data_1     Input_1     Output_1     Dog          Y1 -0.07059573</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 data_1     Input_1     Output_1   Plane          Y1 -0.16694643</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 data_1     Input_1     Output_1   Horse          Y1 -0.14358859</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   input_dimension</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1               1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2               1</span>
@@ -327,8 +327,8 @@ either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dty
 <span class="r-in"><span><span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">cw</span>, type <span class="op">=</span> <span class="st">"torch.tensor"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (1,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -6.2500</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -48.3178</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -51.9181</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -37.7115</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1,2,1} ]</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the result</span></span></span>
@@ -374,11 +374,11 @@ either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dty
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4 data_1     Input_1     Output_1      H2        W1      C1          Y1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5 data_1     Input_1     Output_1      H2        W1      C2          Y1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           value input_dimension</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.0005726887               3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.0004485681               3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.0005943479               3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 -0.0015034140               3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  0.0013277258               3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -0.0012979760               3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -0.0023108600               3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  0.0011394788               3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 -0.0008987421               3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 -0.0025747307               3</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the result for all classes</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cw</span>, output_idx <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span></span>

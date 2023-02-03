@@ -31,7 +31,7 @@ reveal-cancel rule ('reveal_cancel')."><meta property="og:image" content="https:
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">innsight</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.0</span>
       </span>
     </div>
 
@@ -324,18 +324,18 @@ either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dty
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (1,.,.) = </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  0.01 *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.2276 -4.6861</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.8422 -2.8177</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    5.0797  0.4868</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   -20.2533  0.7814</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   -10.3973 -11.5657</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -8.0445 -21.9295</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -5.4952 -11.4613</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -7.7878  0.0162</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -2.0316 -8.0325</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -9.5411  9.1452</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (2,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.1153  0.0219</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0503  0.1417</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.1348 -0.0368</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.1924 -0.0179</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0390  0.3544</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0043 -0.0561</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0139  0.0430</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0199  0.0144</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0100 -0.0322</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.1760  0.1562</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{2,5,2} ]</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the result for both classes</span></span></span>
@@ -367,12 +367,12 @@ either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dty
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Get the result as a dataframe and show first 5 rows</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">deeplift_rescale</span>, type <span class="op">=</span> <span class="st">"data.frame"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     data model_input model_output      feature         output_node     value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 data_1     Input_1     Output_1 Petal.Length Species == "setosa" 0.3506279</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 data_2     Input_1     Output_1 Petal.Length Species == "setosa" 0.3506279</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 data_3     Input_1     Output_1 Petal.Length Species == "setosa" 0.3634607</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 data_4     Input_1     Output_1 Petal.Length Species == "setosa" 0.3376506</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 data_5     Input_1     Output_1 Petal.Length Species == "setosa" 0.3506279</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     data model_input model_output      feature         output_node    value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 data_1     Input_1     Output_1 Petal.Length Species == "setosa" 1.110174</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 data_2     Input_1     Output_1 Petal.Length Species == "setosa" 1.110174</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 data_3     Input_1     Output_1 Petal.Length Species == "setosa" 1.136545</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 data_4     Input_1     Output_1 Petal.Length Species == "setosa" 1.082855</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 data_5     Input_1     Output_1 Petal.Length Species == "setosa" 1.110174</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   input_dimension</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1               1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2               1</span>

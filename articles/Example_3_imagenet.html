@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">innsight</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.0</span>
       </span>
     </div>
 
@@ -109,18 +109,20 @@
     
     
 <p>This is a rather short article, just to illustrate the use of the
-<code>innsight</code> package on a few images of the <a href="https://www.image-net.org/" class="external-link">ImageNet dataset</a> and pre-trained
-<code>keras</code> models. For more detailed information about the
-package and the implemented methods we refer to <a href="https://bips-hb.github.io/innsight/vignette/detailed_overview.html">this
+<strong>innsight</strong> package on a few images of the <a href="https://www.image-net.org/" class="external-link">ImageNet dataset</a> and pre-trained
+<strong>keras</strong> models. For more detailed information about the
+package and the implemented methods we refer to <a href="https://bips-hb.github.io/innsight/articles/detailed_overview.html">this
 article</a> and for simpler but in detailed explained examples we kindly
-recommend to <a href="https://bips-hb.github.io/innsight/vignette/example_1_iris.html">Example
-1</a> and <a href="https://bips-hb.github.io/innsight/vignette/example_2_penguin.html">Example
+recommend to <a href="https://bips-hb.github.io/innsight/articles/example_1_iris.html">Example
+1</a> and <a href="https://bips-hb.github.io/innsight/articles/example_2_penguin.html">Example
 2</a>.</p>
-<p>In this example, we want to apply the <code>innsight</code> package
-on pre-trained models on the ImageNet dataset using <code>keras</code>.
-This dataset is a classification problem of images in <span class="math inline">\(1000\)</span> classes containing over <span class="math inline">\(500\)</span> images per class. We have selected
-examples of a few classes each and will analyze them with respect to
-different networks in the following.</p>
+<p>In this example, we want to apply the <strong>innsight</strong>
+package on pre-trained models on the ImageNet dataset using
+<strong>keras</strong>. This dataset is a classification problem of
+images in <span class="math inline">\(1000\)</span> classes containing
+over <span class="math inline">\(500\)</span> images per class. We have
+selected examples of a few classes each and will analyze them with
+respect to different networks in the following.</p>
 <p align="center">
 <img alt="steel bridge" src="images/image_1.png" width="200" height="200"><img alt="dog with tennis ball" src="images/image_2.png" width="200" height="200"><img alt="daisy" src="images/image_6.png" width="200" height="200"><img alt="ballon" src="images/image_13.png" width="200" height="200"></p>
 <div class="section level2">
@@ -162,7 +164,7 @@ with the <code>imagenet_decode_predictions</code> function:</p>
 want to apply to the images and the models. This is a list that contains
 the method call, method name and the corresponding method arguments. For
 more information to the methods and the method-specific arguments, we
-refer to the <a href="https://bips-hb.github.io/innsight/vignette/detailed_overview.html#step-2-apply-selected-method">in-depth
+refer to the <a href="https://bips-hb.github.io/innsight/articles/detailed_overview.html#step-2-apply-selected-method">in-depth
 vignette</a>.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">config</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -256,7 +258,7 @@ functions below, which will be used later on.</p>
 </h2>
 <p>Now let’s analyze the individual images according to the class that
 the model Vgg19 (see <code><a href="https://rdrr.io/pkg/keras/man/application_vgg.html" class="external-link">?application_vgg19</a></code> for details)
-predicts for them. In the <code>innsight</code> package these output
+predicts for them. In the <strong>innsight</strong> package these output
 classes have to be chosen by ourselves, because a calculation for all
 <span class="math inline">\(1000\)</span> classes would be too
 computationally expensive. For this reason, we first determine the
@@ -318,7 +320,7 @@ image individually.</p>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">result</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>After the results have been generated and summarized in a
 <code>data.table</code>, they can be visualized using
-<code>ggplot2</code>:</p>
+<strong>ggplot2</strong>:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
@@ -405,7 +407,7 @@ details) and get the predictions:</p>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">result</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>After the results have been generated and summarized in a
 <code>data.table</code>, they can be visualized using
-<code>ggplot2</code>:</p>
+<strong>ggplot2</strong>:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>

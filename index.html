@@ -49,7 +49,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">innsight</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.0</span>
       </span>
     </div>
 
@@ -127,12 +127,12 @@
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p><code>innsight</code> is an R package that interprets the behavior and explains individual predictions of modern neural networks. Many methods for explaining individual predictions already exist, but hardly any of them are implemented or available in R. Most of these so-called <em>Feature Attribution</em> methods are only implemented in Python and thus difficult to access or use for the R community. In this sense, the package <code>innsight</code> provides a common interface for various methods for the interpretability of neural networks and can therefore be considered as an R analogue to <a href="https://github.com/albermax/innvestigate" class="external-link">iNNvestigate</a> or <a href="https://captum.ai/" class="external-link">Captum</a> for Python.</p>
-<p>This package implements several model-specific interpretability (Feature Attribution) methods based on neural networks in R, e.g.,</p>
+<p><strong>innsight</strong> is an R package that interprets the behavior and explains individual predictions of modern neural networks. Many methods for explaining individual predictions already exist, but hardly any of them are implemented or available in R. Most of these so-called <em>feature attribution</em> methods are only implemented in Python and thus difficult to access or use for the R community. In this sense, the package <strong>innsight</strong> provides a common interface for various methods for the interpretability of neural networks and can therefore be considered as an R analogue to <a href="https://github.com/albermax/innvestigate" class="external-link">iNNvestigate</a> or <a href="https://captum.ai/" class="external-link">Captum</a> for Python.</p>
+<p>This package implements several model-specific interpretability (feature attribution) methods based on neural networks in R, e.g.,</p>
 <ul>
 <li>Layer-wise Relevance Propagation (<a href="https://doi.org/10.1371/journal.pone.0130140" class="external-link">LRP</a>)
 <ul>
-<li>Including propagation rules: <img src="https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&amp;space;%5Cbg_white&amp;space;%5Cvarepsilon" title="\varepsilon" alt="">-rule and <img src="https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&amp;space;%5Cbg_white&amp;space;%5Calpha" title="\alpha" alt="">-<img src="https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&amp;space;%5Cbg_white&amp;space;%5Cbeta" title="\beta" alt="">-rule</li>
+<li>Including propagation rules: <span class="math inline"><em>ε</em></span>-rule and <span class="math inline"><em>α</em></span>-<span class="math inline"><em>β</em></span>-rule</li>
 </ul>
 </li>
 <li>Deep Learning Important Features (<a href="https://arxiv.org/abs/1704.02685" class="external-link">DeepLift</a>)
@@ -149,8 +149,8 @@
 </li>
 <li>Connection Weights</li>
 </ul>
-<p>Example results for these methods on ImageNet with pretrained network Vgg19 ( see <a href="https://bips-hb.github.io/innsight/vignette/example_3_imagenet.html">Example 3: ImageNet with <code>keras</code></a> for details): <img src="https://github.com/bips-hb/innsight/blob/master/man/images/Vgg19_result.png?raw=true" alt="vgg16"></p>
-<p>The package <code>innsight</code> aims to be as flexible as possible and independent of a specific deep learning package in which the passed network has been learned. Basically, a neural network of the libraries <a href="https://torch.mlverse.org/" class="external-link"><code>torch</code></a>, <a href="https://keras.rstudio.com/" class="external-link"><code>keras</code></a> and <a href="https://CRAN.R-project.org/package=neuralnet" class="external-link"><code>neuralnet</code></a> can be passed, which is internally converted into a <code>torch</code> model with special insights needed for interpretation. But it is also possible to pass an arbitrary net in form of a named list (see <a href="https://bips-hb.github.io/innsight/vignette/detailed_overview.html#model-as-named-list">vignette</a> for details).</p>
+<p>Example results for these methods on ImageNet with pretrained network Vgg19 ( see <a href="https://bips-hb.github.io/innsight/articles/Example_3_imagenet.html">Example 3: ImageNet with <strong>keras</strong></a> for details): <img src="https://github.com/bips-hb/innsight/blob/master/man/images/Vgg19_result.png?raw=true" alt="vgg16"></p>
+<p>The package <strong>innsight</strong> aims to be as flexible as possible and independent of a specific deep learning package in which the passed network has been learned. Basically, a neural network of the libraries <a href="https://torch.mlverse.org/" class="external-link"><strong>torch</strong></a>, <a href="https://tensorflow.rstudio.com/" class="external-link"><strong>keras</strong></a> and <a href="https://CRAN.R-project.org/package=neuralnet" class="external-link"><strong>neuralnet</strong></a> can be passed, which is internally converted into a <strong>torch</strong> model with special insights needed for interpretation. But it is also possible to pass an arbitrary net in form of a named list (see <a href="https://bips-hb.github.io/innsight/articles/detailed_overview.html#model-as-named-list">vignette</a> for details).</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -162,15 +162,18 @@
 <span></span>
 <span><span class="co"># Development version</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"bips-hb/innsight"</span><span class="op">)</span></span></code></pre></div>
-<p>Internally, any passed model is converted to a <code>torch</code> model, thus the correct functionality of this package relies on a complete and correct installation of <code>torch</code>. For this reason, the following command must be run manually to install the missing libraries LibTorch and LibLantern:</p>
+<p>Internally, any passed model is converted to a <strong>torch</strong> model, thus the correct functionality of this package relies on a complete and correct installation of <strong>torch</strong>. For this reason, the following command must be run manually to install the missing libraries LibTorch and LibLantern:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/torch/man/install_torch.html" class="external-link">install_torch</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><strong>Note:</strong> Currently this can lead to problems under Windows if the Visual Studio runtime is not pre-installed. See the issue on GitHub <a href="https://github.com/mlverse/torch/issues/246#issuecomment-695097121" class="external-link">here</a> or for more information and other problems with installing <code>torch</code> see the official installation <a href="https://CRAN.R-project.org/package=torch/vignettes/installation.html" class="external-link">vignette</a> of <code>torch</code>.</p>
+<blockquote>
+<p><strong>📝 Note</strong><br>
+Currently this can lead to problems under Windows if the Visual Studio runtime is not pre-installed. See the issue on GitHub <a href="https://github.com/mlverse/torch/issues/246#issuecomment-695097121" class="external-link">here</a> or for more information and other problems with installing <strong>torch</strong> see the official installation <a href="https://CRAN.R-project.org/package=torch/vignettes/installation.html" class="external-link">vignette</a> of <strong>torch</strong>.</p>
+</blockquote>
 </div>
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
-<p>You have a trained neural network <code>model</code> and your model input data <code>data</code>. Now you want to interpret individual data points or the overall behavior by using the methods from the package <code>innsight</code>, then stick to the following pseudo code:</p>
+<p>You have a trained neural network <code>model</code> and your model input data <code>data</code>. Now you want to interpret individual data points or the overall behavior by using the methods from the package <strong>innsight</strong>, then stick to the following pseudo code:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --------------- Step 0: Train your model -----------------</span></span>
 <span><span class="co"># 'model' has to be an instance of either torch::nn_sequential, </span></span>
@@ -198,17 +201,17 @@
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
 <span><span class="co"># Interactive plots can also be created for both methods</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">result</span>, as_plotly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p>For a more detailed high-level introduction, see the <a href="https://bips-hb.github.io/innsight/articles/innsight.html">“Get started”</a> vignette, and for a full in-depth explanation with all the possibilities, see the <a href="https://bips-hb.github.io/innsight/vignette/detailed_overview.html">“In-depth Explanation”</a> vignette.</p>
+<p>For a more detailed high-level introduction, see the <a href="https://bips-hb.github.io/innsight/articles/innsight.html">“Get started”</a> vignette, and for a full in-depth explanation with all the possibilities, see the <a href="https://bips-hb.github.io/innsight/articles/detailed_overview.html">“In-depth Explanation”</a> vignette.</p>
 </div>
 <div class="section level2">
 <h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h2>
 <ul>
-<li>Iris dataset with <code>torch</code> model (numeric tabular data) <a href="https://bips-hb.github.io/innsight/vignette/example_1_iris.html">→ vignette</a>
+<li>Iris dataset with <strong>torch</strong> model (numeric tabular data) <a href="https://bips-hb.github.io/innsight/articles/Example_1_iris.html">→ vignette</a>
 </li>
-<li>Penguin dataset with <code>torch</code> model and trained with <code>luz</code> (numeric and categorical tabular data) <a href="https://bips-hb.github.io/innsight/vignette/example_2_penguin.html">→ vignette</a>
+<li>Penguin dataset with <strong>torch</strong> model and trained with <strong>luz</strong> (numeric and categorical tabular data) <a href="https://bips-hb.github.io/innsight/articles/Example_2_penguin.html">→ vignette</a>
 </li>
-<li>ImageNet dataset with pretrained models in <code>keras</code> (image data) <a href="https://bips-hb.github.io/innsight/vignette/example_3_imagenet.html">→ article</a>
+<li>ImageNet dataset with pretrained models in <strong>keras</strong> (image data) <a href="https://bips-hb.github.io/innsight/articles/Example_3_imagenet.html">→ article</a>
 </li>
 </ul>
 </div>
