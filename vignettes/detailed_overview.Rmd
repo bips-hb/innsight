@@ -17,8 +17,8 @@ editor_options:
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-  fig.dpi = ifelse(Sys.getenv("RENDER_PLOTLY", unset = 0) == 1, 400, 50), 
-  collapse = TRUE, 
+  fig.dpi = ifelse(Sys.getenv("RENDER_PLOTLY", unset = 0) == 1, 400, 50),
+  collapse = TRUE,
   eval = torch::torch_is_installed(),
   comment = "#>",
   fig.align = "center",
@@ -86,11 +86,12 @@ call is used:
 
 ```{r, eval = FALSE}
 converter <- Converter$new(model,
-                           input_dim = NULL,
-                           input_names = NULL,
-                           output_names = NULL,
-                           dtype = "float",
-                           save_model_as_list = FALSE)
+  input_dim = NULL,
+  input_names = NULL,
+  output_names = NULL,
+  dtype = "float",
+  save_model_as_list = FALSE
+)
 ```
 
 ## Argument `model`
@@ -146,9 +147,9 @@ available:
 library(torch)
 
 torch_model <- nn_sequential(
-  nn_conv2d(3, 5, c(2,2), stride = 2, padding = 3),
+  nn_conv2d(3, 5, c(2, 2), stride = 2, padding = 3),
   nn_relu(),
-  nn_avg_pool2d(c(2,2)),
+  nn_avg_pool2d(c(2, 2)),
   nn_flatten(),
   nn_linear(80, 32),
   nn_relu(),
@@ -225,13 +226,13 @@ converter <- Converter$new(keras_model_seq)
 ```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 library(keras)
 
-input_image <- layer_input(shape = c(10,10,3))
+input_image <- layer_input(shape = c(10, 10, 3))
 input_tab <- layer_input(shape = c(20))
 
 conv_part <- input_image %>%
-  layer_conv_2d(5, c(2,2), activation = "relu", padding = "same") %>%
+  layer_conv_2d(5, c(2, 2), activation = "relu", padding = "same") %>%
   layer_average_pooling_2d() %>%
-  layer_conv_2d(4, c(2,2)) %>%
+  layer_conv_2d(4, c(2, 2)) %>%
   layer_activation(activation = "softplus") %>%
   layer_flatten()
 
@@ -266,8 +267,9 @@ data(iris)
 set.seed(42)
 
 # Create model
-neuralnet_model <- neuralnet(Species ~ Petal.Length + Petal.Width, iris, 
-                             linear.output = FALSE)
+neuralnet_model <- neuralnet(Species ~ Petal.Length + Petal.Width, iris,
+  linear.output = FALSE
+)
 
 # Convert model
 converter <- Converter$new(neuralnet_model)
@@ -317,7 +319,7 @@ model$input_dim <- c(5)
     convolutional layer of shape $10\times10\times3$:
 
 ```{r, eval = FALSE}
-input_dim <- list(c(10), c(3,10,10)) # channels have to be first!
+input_dim <- list(c(10), c(3, 10, 10)) # channels have to be first!
 ```
 </details>
 <br>
@@ -476,12 +478,12 @@ each layer type, as described below:
 ```{r}
 # Define dense layer
 dense_layer <- list(
-  type = 'Dense',
+  type = "Dense",
   input_layers = 0, # '0' means input layer
   output_layers = 2,
   weight = matrix(rnorm(5 * 2), 2, 5),
   bias = rnorm(2),
-  activation_name = 'tanh',
+  activation_name = "tanh",
   dim_in = 5, # optional
   dim_out = 2 # optional
 )
@@ -525,29 +527,29 @@ dense_layer <- list(
 ```{r, eval = FALSE}
 # 1D convolutional layer
 conv_1D <- list(
-      type = "Conv1D",
-      input_layers = 1,
-      output_layers = 3,
-      weight = array(rnorm(8*3*2), dim = c(8,3,2)), 
-      bias = rnorm(8),
-      padding = c(2,1),
-      activation_name = "tanh",
-      dim_in = c(3, 10), # optional
-      dim_out = c(8, 9) # optional
-    )
+  type = "Conv1D",
+  input_layers = 1,
+  output_layers = 3,
+  weight = array(rnorm(8 * 3 * 2), dim = c(8, 3, 2)),
+  bias = rnorm(8),
+  padding = c(2, 1),
+  activation_name = "tanh",
+  dim_in = c(3, 10), # optional
+  dim_out = c(8, 9) # optional
+)
 
 # 2D convolutional layer
 conv_2D <- list(
-      type = "Conv2D",
-      input_layes = 3,
-      output_layers = 5,
-      weight = array(rnorm(8*3*2*4), dim = c(8,3,2,4)),
-      bias = rnorm(8),
-      padding = c(1,1,0,0),
-      dilation = c(1,2),
-      activation_name = "relu",
-      dim_in = c(3, 10, 10) # optional
-    )
+  type = "Conv2D",
+  input_layes = 3,
+  output_layers = 5,
+  weight = array(rnorm(8 * 3 * 2 * 4), dim = c(8, 3, 2, 4)),
+  bias = rnorm(8),
+  padding = c(1, 1, 0, 0),
+  dilation = c(1, 2),
+  activation_name = "relu",
+  dim_in = c(3, 10, 10) # optional
+)
 ```
 
 </details>
@@ -572,8 +574,8 @@ avg_pool2D <- list(
   type = "AveragePooling2D",
   input_layers = 1,
   output_layers = 3,
-  kernel_size = c(2,2)
-  )
+  kernel_size = c(2, 2)
+)
 ```
 
 </details>
@@ -622,7 +624,7 @@ batchnorm <- list(
   beta = c(1, -3, -1.4),
   run_mean = c(-1.9, 3, 2.3),
   run_var = c(1, 2.1, 3.5)
-  )
+)
 ```
 
 </details>
@@ -647,11 +649,11 @@ flatten <- list(
   type = "Flatten",
   input_layers = 1,
   output_layers = 3,
-  start_dim = 2,        # optional
-  end_dim = 4,          # optional
-  dim_in = c(3,10,10),  # optional
-  out_dim = c(300)      # optional
-  )
+  start_dim = 2, # optional
+  end_dim = 4, # optional
+  dim_in = c(3, 10, 10), # optional
+  out_dim = c(300) # optional
+)
 ```
 
 </details>
@@ -672,9 +674,9 @@ global_max_pool2D <- list(
   input_layers = 1,
   output_layers = 3,
   method = "max",
-  dim_in = c(3, 10, 10),  # optional
-  out_dim = c(3)          # optional
-  )
+  dim_in = c(3, 10, 10), # optional
+  out_dim = c(3) # optional
+)
 
 # global AvgPooling layer
 global_avg_pool1D <- list(
@@ -682,9 +684,9 @@ global_avg_pool1D <- list(
   input_layers = 1,
   output_layers = 3,
   method = "average",
-  dim_in = c(3, 10),  # optional
-  out_dim = c(3)      # optional
-  )
+  dim_in = c(3, 10), # optional
+  out_dim = c(3) # optional
+)
 ```
 
 </details>
@@ -712,12 +714,12 @@ padding <- list(
   type = "Padding",
   input_layers = 1,
   output_layers = 3,
-  padding = c(2,4),
+  padding = c(2, 4),
   mode = "constant",
   value = 1,
-  dim_in = c(3, 10),   # optional
-  out_dim = c(3, 16)   # optional
-  )
+  dim_in = c(3, 10), # optional
+  out_dim = c(3, 16) # optional
+)
 ```
 
 </details>
@@ -739,12 +741,12 @@ dimensions.
 # concatenation layer
 concat <- list(
   type = "Concatenation",
-  input_layers = c(1,3),
+  input_layers = c(1, 3),
   output_layers = 5,
   dim = 2,
-  dim_in = list(c(5), c(3)),  # optional
-  out_dim = c(8)              # optional
-  )
+  dim_in = list(c(5), c(3)), # optional
+  out_dim = c(8) # optional
+)
 ```
 
 </details>
@@ -763,11 +765,11 @@ dimensions.
 # adding layer
 add <- list(
   type = "Add",
-  input_layers = c(1,3),
+  input_layers = c(1, 3),
   output_layers = 5,
-  dim_in = list(c(3,10,10), c(3,10,10)),  # optional
-  out_dim = c(3,10,10)                    # optional
-  )
+  dim_in = list(c(3, 10, 10), c(3, 10, 10)), # optional
+  out_dim = c(3, 10, 10) # optional
+)
 ```
 
 </details>
@@ -841,31 +843,32 @@ can be passes as described below:
 -   **Tabular inputs:** If for example `input_dim = c(4)`, a possible
     value for the input names can be
     ```{r, eval = FALSE}
-    list(c("set", "your", "labels", "here!"))
-    # or as a factor
-    list(
-      factor(c("set", "your", "labels", "here"),
-                levels = c("labels", "set", "your", "here"))
-    )
+list(c("set", "your", "labels", "here!"))
+# or as a factor
+list(
+  factor(c("set", "your", "labels", "here"),
+    levels = c("labels", "set", "your", "here")
+  )
+)
     ```
 
 -   **Signal inputs:** If for example `input_dim = c(3, 6)`, a possible
     value for the input names can be
     ```{r, eval = FALSE}
-    list(
-      c("channels", "are", "first"), 
-      c("Length1", "Length2", "Length3", "Length4", "Length5", "Length6")
-    )
+list(
+  c("channels", "are", "first"),
+  c("Length1", "Length2", "Length3", "Length4", "Length5", "Length6")
+)
     ```
 
 -   **Image inputs:** If for example `input_dim = c(3, 4, 4)`, a
     possible value for the input names can be
     ```{r, eval = FALSE}
-    list(
-      c("channels", "are", "first"), 
-      c("then", "comes", "the", "image height"), 
-      c("and", "then", "the", "width")
-    )
+list(
+  c("channels", "are", "first"),
+  c("then", "comes", "the", "image height"),
+  c("and", "then", "the", "width")
+)
     ```
 
 -   **Multiple inputs:** If for example
@@ -873,18 +876,18 @@ can be passes as described below:
     names can be
 
     ```{r, eval = FALSE}
-    list(
-      # first input layer
-      list(
-        c("Feat_1", "Feat_2", "Feat_3", "Feat_4")
-      ),
-      # second input layer
-      list(
-        c("C1", "C2", "C3"), 
-        c("Height_1", "Height_2", "Height_3", "Height_4"),
-        c("W1", "W2", "W3", "W4")
-      )
-    )
+list(
+  # first input layer
+  list(
+    c("Feat_1", "Feat_2", "Feat_3", "Feat_4")
+  ),
+  # second input layer
+  list(
+    c("C1", "C2", "C3"),
+    c("Height_1", "Height_2", "Height_3", "Height_4"),
+    c("W1", "W2", "W3", "W4")
+  )
+)
     ```
 
 > **`r knitr::asis_output("\U1F4DD")`  Notes**  
@@ -912,7 +915,8 @@ three nodes, the following list of labels can be passed:
 c("First output node", "second one", "last output node")
 # or as a factor
 factor(c("First output node", "second one", "last output node"),
-       levels = c("last output node", "First output node", "second one", ))
+  levels = c("last output node", "First output node", "second one", )
+)
 ```
 
 For a model with two output layers (two nodes in the first and four in
@@ -951,8 +955,8 @@ We create two random $10 \times 10$ matrices $A$ and $B$:
 
 ```{r}
 torch_manual_seed(123)
-A <- torch_randn(10,10)
-B <- torch_randn(10,10)
+A <- torch_randn(10, 10)
+B <- torch_randn(10, 10)
 ```
 
 Now it can happen that the results of functions like `torch_mm` and a
@@ -960,7 +964,7 @@ manual calculation differ:
 
 ```{r}
 # result of first row and first column after matrix multiplication
-res1 <- torch_mm(A, B)[1,1]
+res1 <- torch_mm(A, B)[1, 1]
 # calculation by hand
 res2 <- sum(A[1, ] * B[, 1])
 
@@ -976,11 +980,11 @@ But you can reduce the error by using the double precision with
 
 ```{r}
 torch_manual_seed(123)
-A <- torch_randn(10,10, dtype = torch_double())
-B <- torch_randn(10,10, dtype = torch_double())
+A <- torch_randn(10, 10, dtype = torch_double())
+B <- torch_randn(10, 10, dtype = torch_double())
 
 # result of first row and first column after matrix multiplication
-res1 <- torch_mm(A, B)[1,1]
+res1 <- torch_mm(A, B)[1, 1]
 # calculation by hand
 res2 <- sum(A[1, ] * B[, 1])
 
@@ -1059,8 +1063,9 @@ converted model provides the same output as the original model:
 ```{r}
 # create input in the format "channels last"
 x <- list(
-  array(rnorm(3*10*10), dim = c(1,10,10,3)),
-  array(rnorm(20), dim = c(1,20)))
+  array(rnorm(3 * 10 * 10), dim = c(1, 10, 10, 3)),
+  array(rnorm(20), dim = c(1, 20))
+)
 
 # output of the original model
 y_true <- as.array(keras_model_concat(x))
@@ -1069,7 +1074,7 @@ y_true <- as.array(keras_model_concat(x))
 y <- as.array(converter$model(x, channels_first = FALSE)[[1]])
 
 # mean squared error
-mean((y-y_true)**2)
+mean((y - y_true)**2)
 ```
 
 Since we did not pass any arguments for the input and output names, they
@@ -1110,6 +1115,16 @@ converter$model(x, channels_first = FALSE)
 
 </details>
 
+In addition, the default `print()` function for R6 classes has been 
+overwritten so that all important properties, fields and contents of the 
+converter object can be displayed in a summarized form:
+
+```{r}
+options(width = 200)
+
+# print the Converter instance
+converter
+```
 
 
 # Step 2: Apply selected Method
@@ -1118,7 +1133,7 @@ The **innsight** package provides the most popular feature attribution
 methods in a unified framework. Besides the individual method-specific
 variations, the overall structure of each method is nevertheless the
 same. This structure with the most important arguments is shown in the
-following and internally realized by the superclass `InterpretingMethod`
+following and internally realized by the super class `InterpretingMethod`
 (see `?InterpretingMethod` for more information), whereby the
 method-specific arguments are explained further below with the
 respective methods realized as inherited R6 classes. The basic call of a 
@@ -1127,11 +1142,12 @@ method looks like this:
 ```{r, eval = FALSE}
 # Apply the selected method
 method <- Method$new(converter, data,
-                     channels_first = TRUE,
-                     output_idx = NULL,
-                     ignore_last_act = TRUE,
-                     verbose = interactive(),
-                     dtype = "float")
+  channels_first = TRUE,
+  output_idx = NULL,
+  ignore_last_act = TRUE,
+  verbose = interactive(),
+  dtype = "float"
+)
 ```
 
 ## Arguments
@@ -1224,7 +1240,7 @@ more details.
 ## Methods
 
 As described earlier, all implemented methods inherit from the
-`InterpretingMethod` superclass. But each method has method-specific
+`InterpretingMethod` super class. But each method has method-specific
 arguments and different objectives. To make them a bit more
 understandable, they are all explained with the help of the following
 simple example model with ReLU activation in the first, hyperbolic
@@ -1253,7 +1269,7 @@ model <- list(
       weight = matrix(c(1, 0.8, 2), nrow = 3),
       bias = c(0, -0.4, -1.2),
       activation_name = "relu"
-      ),
+    ),
     list(
       type = "Dense",
       input_layers = 1,
@@ -1261,7 +1277,7 @@ model <- list(
       weight = matrix(c(1, -1, 1), nrow = 1),
       bias = c(0),
       activation_name = "tanh"
-      )
+    )
   )
 )
 
@@ -1287,7 +1303,7 @@ $$
 $$
 
 As described in the introduction of this section, the corresponding 
-**innsight**-method `Gradient` inherits from the superclass 
+**innsight**-method `Gradient` inherits from the super class 
 `InterpretingMethod`, meaning that we need
 to change the term `Method` to `Gradient`. The only model-specific
 argument is `times_input`, which can be used to switch between the two
@@ -1297,8 +1313,9 @@ subsection](#gradient-x-input-and-smoothgrad-x-input).
 
 ```{r, eval = FALSE}
 grad <- Gradient$new(converter, data,
-                     times_input = FALSE,
-                     ...) # other arguments inherited from 'InterpretingMethod'
+  times_input = FALSE,
+  ...
+) # other arguments inherited from 'InterpretingMethod'
 ```
 
 <details>
@@ -1325,9 +1342,9 @@ grad_func <- function(x) {
   grad <- x
   grad <- ifelse(x <= 0, 0, grad)
   grad <- ifelse(x > 0 & x <= 0.5, 1 / cosh(x)**2, grad)
-  grad <- ifelse(x > 0.5 & x <= 0.6, 0.2 / cosh(0.2*x + 0.4)**2, grad)
+  grad <- ifelse(x > 0.5 & x <= 0.6, 0.2 / cosh(0.2 * x + 0.4)**2, grad)
   grad <- ifelse(x > 0.6, 2.2 / cosh(0.8 - 2.2 * x)**2, grad)
-  
+
   grad
 }
 
@@ -1340,17 +1357,22 @@ base <-
   geom_hline(aes(yintercept = 0)) +
   annotate("text", label = "f", x = 0.92, y = 0.95, size = 6)
 
-base + 
+base +
   geom_function(fun = func, alpha = 0.7) +
   geom_segment(aes(x = 0.45, y = -0.05, xend = 0.45, yend = 0.05), size = 0.8) +
   geom_segment(aes(x = -0.03, y = tanh(0.45), xend = 0.03, yend = tanh(0.45)), size = 0.8) +
   annotate("text", label = "x[1]", x = 0.45, y = -0.12, size = 5, parse = TRUE) +
   annotate("text", label = "f(x[1])", x = -0.13, y = tanh(0.45), size = 5, parse = TRUE) +
-  geom_segment(aes(x = 0.25, xend = 0.65, y = tanh(0.45) - 0.2 / cosh(0.45)**2, 
-                   yend = tanh(0.45) + 0.2 / cosh(0.45)**2), 
-               color = "red", alpha = 0.7, size = 1.5) +
-  geom_point(data = data.frame(x = 0.45, y = tanh(0.45)), 
-             mapping = aes(x = x, y = y))
+  geom_segment(aes(
+    x = 0.25, xend = 0.65, y = tanh(0.45) - 0.2 / cosh(0.45)**2,
+    yend = tanh(0.45) + 0.2 / cosh(0.45)**2
+  ),
+  color = "red", alpha = 0.7, size = 1.5
+  ) +
+  geom_point(
+    data = data.frame(x = 0.45, y = tanh(0.45)),
+    mapping = aes(x = x, y = y)
+  )
 ```
 
 With **innsight**, this method is applied as follows and we receive the same
@@ -1358,7 +1380,7 @@ result:
 
 
 ```{r}
-data <- matrix(c(0.45),1 ,1)
+data <- matrix(c(0.45), 1, 1)
 
 # Apply method (but don't ignore last activation)
 grad <- Gradient$new(converter, data, ignore_last_act = FALSE)
@@ -1393,7 +1415,7 @@ $$
 $$
 
 As described in the introduction of this section, the **innsight** method
-`SmoothGrad` inherits from the superclass `InterpretingMethod`, meaning
+`SmoothGrad` inherits from the super class `InterpretingMethod`, meaning
 that we need to change the term `Method` to `SmoothGrad`. In addition,
 there are the following three model-specific arguments:
 
@@ -1417,10 +1439,11 @@ there are the following three model-specific arguments:
 
 ```{r, eval = FALSE}
 smoothgrad <- SmoothGrad$new(converter, data,
-                             n = 50,
-                             noise_level = 0.1,
-                             times_input = FALSE,
-                             ...) # other arguments inherited from 'InterpretingMethod'
+  n = 50,
+  noise_level = 0.1,
+  times_input = FALSE,
+  ...
+) # other arguments inherited from 'InterpretingMethod'
 ```
 
 <details>
@@ -1457,33 +1480,44 @@ grad_mean <- mean(grad)
 norm_mean <- (1 + grad_mean**2)**0.5
 
 
-data <- data.frame(x = x - 0.4/norm, xend = x + 0.4 / norm,
-                   y = y - grad * 0.4 / norm, yend = y + grad * 0.4 / norm)
-mean_grad <- data.frame(x = x0 - 0.6/ norm_mean, xend = x0 + 0.6 / norm_mean,
-                        y = y0 - grad_mean * 0.6 / norm_mean, 
-                        yend = y0 + grad_mean * 0.6 / norm_mean)
+data <- data.frame(
+  x = x - 0.4 / norm, xend = x + 0.4 / norm,
+  y = y - grad * 0.4 / norm, yend = y + grad * 0.4 / norm
+)
+mean_grad <- data.frame(
+  x = x0 - 0.6 / norm_mean, xend = x0 + 0.6 / norm_mean,
+  y = y0 - grad_mean * 0.6 / norm_mean,
+  yend = y0 + grad_mean * 0.6 / norm_mean
+)
 
-fig + 
-  geom_segment(data = data, mapping = aes(x = x, xend = xend, y = y, yend = yend),
-                color = "darkblue", alpha = 0.3, size = 0.5) +
-  geom_segment(data = mean_grad, mapping = aes(x = x, xend = xend, y = y, yend = yend),
-                color = "red", alpha = 0.9, size = 1.25) +
+fig +
+  geom_segment(
+    data = data, mapping = aes(x = x, xend = xend, y = y, yend = yend),
+    color = "darkblue", alpha = 0.3, size = 0.5
+  ) +
+  geom_segment(
+    data = mean_grad, mapping = aes(x = x, xend = xend, y = y, yend = yend),
+    color = "red", alpha = 0.9, size = 1.25
+  ) +
   geom_function(fun = func, alpha = 0.7) +
   geom_point(mapping = aes(x = x, y = y), color = "blue", size = 0.8) +
-  geom_point(data = data.frame(x = 0.6, y = func(0.6)), 
-             mapping = aes(x = x, y = y))
+  geom_point(
+    data = data.frame(x = 0.6, y = func(0.6)),
+    mapping = aes(x = x, y = y)
+  )
 ```
 
 With **innsight**, this method is applied as follows:
 
 ```{r}
-data <- matrix(c(0.6),1 ,1)
+data <- matrix(c(0.6), 1, 1)
 
 # Apply method
-smoothgrad <- SmoothGrad$new(converter, data, 
-                             noise_level = 0.2,
-                             n = 50, 
-                             ignore_last_act = FALSE) # include the tanh activation
+smoothgrad <- SmoothGrad$new(converter, data,
+  noise_level = 0.2,
+  n = 50,
+  ignore_last_act = FALSE
+) # include the tanh activation
 # get result
 smoothgrad$get_result()
 ```
@@ -1566,13 +1600,15 @@ arguments. These variants can be chosen with the argument `times_input`:
 ```{r, eval = FALSE}
 # the "x Input" variant of method "Gradient"
 grad_x_input <- Gradient$new(converter, data,
-                             times_input = TRUE,
-                             ...) # other arguments of method "Gradient"
+  times_input = TRUE,
+  ...
+) # other arguments of method "Gradient"
 
 # the "x Input" variant of method "SmoothGrad"
 smoothgrad_x_input <- SmoothGrad$new(converter, data,
-                                     times_input = TRUE,
-                                     ...) # other arguments of method "SmoothGrad"
+  times_input = TRUE,
+  ...
+) # other arguments of method "SmoothGrad"
 ```
 
 <details>
@@ -1594,31 +1630,36 @@ only by the negative of the remainder term at position $0$.
 ```{r, echo = FALSE, fig.width=5, fig.height= 3, fig.cap= "**Fig. 4:** Gradient x Input method"}
 base +
   geom_function(fun = func, alpha = 0.7) +
-  geom_segment(aes(xend = 0, yend = 0.5*(c(func(0.49)) - grad_func(0.49) * 0.49) , x = 0.75, y = 0.25), color = "black", size = 0.25, arrow = arrow(length = unit(0.2,"cm"), type = "closed"), alpha = 0.8)  +
+  geom_segment(aes(xend = 0, yend = 0.5 * (c(func(0.49)) - grad_func(0.49) * 0.49), x = 0.75, y = 0.25), color = "black", size = 0.25, arrow = arrow(length = unit(0.2, "cm"), type = "closed"), alpha = 0.8) +
   annotate("text", label = "ε(f,0.49,0)", x = 0.85, y = 0.25) +
   geom_segment(aes(x = 0.49, y = func(0.49), xend = 0.49, yend = grad_func(0.49) * 0.49), color = "red", size = 0.3) +
-  geom_segment(aes(x = 0, y = 0 , xend = 0, yend = c(func(0.49)) - grad_func(0.49) * 0.49), color = "red", size = 0.3) +
-  geom_segment(aes(xend = 0.49, yend = c(func(0.49)) - 0.5 * (c(func(0.49)) - grad_func(0.49) * 0.49), x = 0.75, y = 0.25), color = "black", size = 0.25, arrow = arrow(length = unit(0.2,"cm"), type = "closed"), alpha = 0.8) +
-  geom_function(fun = function(x) grad_func(0.49) *(x - 0.49) + c(func(0.49)), color = "red", alpha = 0.7, xlim = c(-0.2,1.1)) +
+  geom_segment(aes(x = 0, y = 0, xend = 0, yend = c(func(0.49)) - grad_func(0.49) * 0.49), color = "red", size = 0.3) +
+  geom_segment(aes(xend = 0.49, yend = c(func(0.49)) - 0.5 * (c(func(0.49)) - grad_func(0.49) * 0.49), x = 0.75, y = 0.25), color = "black", size = 0.25, arrow = arrow(length = unit(0.2, "cm"), type = "closed"), alpha = 0.8) +
+  geom_function(fun = function(x) grad_func(0.49) * (x - 0.49) + c(func(0.49)), color = "red", alpha = 0.7, xlim = c(-0.2, 1.1)) +
   geom_segment(aes(x = 0.49, y = -0.05, xend = 0.49, yend = 0.05), size = 0.8) +
   geom_segment(aes(x = -0.03, y = func(0.49), xend = 0.03, yend = func(0.49)), size = 0.8) +
   annotate("text", label = "x[1]", x = 0.49, y = -0.12, size = 6, parse = TRUE) +
   annotate("text", label = "f(x[1])", x = -0.13, y = func(0.49), size = 6, parse = TRUE) +
-  geom_point(data = data.frame(x = 0.49, y = grad_func(0.49) * 0.49), 
-             mapping = aes(x = x, y = y), color = "red", alpha = 0.7) +
-  geom_point(data = data.frame(x = 0.49, y = func(0.49)), 
-             mapping = aes(x = x, y = y), color = "black", alpha = 0.7) 
+  geom_point(
+    data = data.frame(x = 0.49, y = grad_func(0.49) * 0.49),
+    mapping = aes(x = x, y = y), color = "red", alpha = 0.7
+  ) +
+  geom_point(
+    data = data.frame(x = 0.49, y = func(0.49)),
+    mapping = aes(x = x, y = y), color = "black", alpha = 0.7
+  )
 ```
 
 With **innsight**, this method is applied as follows:
 
 ```{r}
-data <- matrix(c(0.49),1 ,1)
+data <- matrix(c(0.49), 1, 1)
 
 # Apply method
 grad_x_input <- Gradient$new(converter, data,
-                             times_input = TRUE,
-                             ignore_last_act = FALSE) # include the tanh activation
+  times_input = TRUE,
+  ignore_last_act = FALSE
+) # include the tanh activation
 # get result
 grad_x_input$get_result()
 ```
@@ -1636,7 +1677,7 @@ method at $x_1 = 0.49$.
 ```{r, echo = FALSE, fig.width=5, fig.height= 3, fig.cap= "**Fig. 5:** SmoothGrad x Input method"}
 set.seed(111)
 
-x <- 0.49 + rnorm(10)*0.2
+x <- 0.49 + rnorm(10) * 0.2
 m <- grad_func(x)
 b <- c(func(x)) - m * x
 
@@ -1655,25 +1696,32 @@ base +
   geom_function(fun = function(z) m[7] * z + b[7], color = "blue", alpha = 0.3, na.rm = TRUE, size = 0.3) +
   geom_function(fun = function(z) m[8] * z + b[8], color = "blue", alpha = 0.3, na.rm = TRUE, size = 0.3) +
   geom_function(fun = function(z) m[9] * z + b[9], color = "blue", alpha = 0.3, na.rm = TRUE, size = 0.3) +
-  geom_function(fun = function(z) m[10] * z + b[10], color = "blue", alpha = 0.3, na.rm = TRUE, size = 0.3) + 
-  geom_point(data = data.frame(x = x, y = func(x)), mapping = aes(x = x, y = y), color = "black",
-             alpha = 0.3, size = 0.8) + 
-  geom_point(data = data.frame(x = x, y = m * x), mapping = aes(x = x, y = y), color = "blue",
-             alpha = 0.3) +
+  geom_function(fun = function(z) m[10] * z + b[10], color = "blue", alpha = 0.3, na.rm = TRUE, size = 0.3) +
+  geom_point(
+    data = data.frame(x = x, y = func(x)), mapping = aes(x = x, y = y), color = "black",
+    alpha = 0.3, size = 0.8
+  ) +
+  geom_point(
+    data = data.frame(x = x, y = m * x), mapping = aes(x = x, y = y), color = "blue",
+    alpha = 0.3
+  ) +
   geom_point(data = data.frame(x = 0.49, y = mean(m * x)), mapping = aes(x = x, y = y), color = "red") +
-  geom_point(data = data.frame(x = 0.49, y = func(0.49)), 
-             mapping = aes(x = x, y = y), color = "black", alpha = 0.7)
+  geom_point(
+    data = data.frame(x = 0.49, y = func(0.49)),
+    mapping = aes(x = x, y = y), color = "black", alpha = 0.7
+  )
 ```
 
 With **innsight**, this method is applied as follows:
 
 ```{r}
-data <- matrix(c(0.49),1 ,1)
+data <- matrix(c(0.49), 1, 1)
 
 # Apply method
 smoothgrad_x_input <- SmoothGrad$new(converter, data,
-                                     times_input = TRUE,
-                                     ignore_last_act = FALSE) # include the tanh activation
+  times_input = TRUE,
+  ignore_last_act = FALSE
+) # include the tanh activation
 # get result
 smoothgrad_x_input$get_result()
 ```
@@ -1759,7 +1807,7 @@ knitr::include_graphics("images/lrp.png")
 :::
 
 Analogous to the previous methods, the **innsight** method `LRP` inherits 
-from the `InterpretingMetod` superclass and thus all arguments. In addition,
+from the `InterpretingMetod` super class and thus all arguments. In addition,
 there are the following method-specific arguments for this method:
 
 -   `rule_name` (default: `"simple"`): This argument can be used to
@@ -1772,7 +1820,10 @@ there are the following method-specific arguments for this method:
     example, with `list(Dense_Layer = "epsilon", Conv2D_Layer = "alpha_beta")`
     the simple rule is used for all dense layers and the $\alpha$-$\beta$-rule
     is applied to all 2D convolutional layers. The other layers not mentioned 
-    use the default rule. You can set the rule for the following layer types:
+    use the default rule. In addition, for normalization layers like 
+    `'BatchNorm_Layer'`, the rule `"pass"` is implemented as well, which 
+    ignores such layers in the backward pass. You can set the rule for 
+    the following layer types:
     
     * `'Dense_Layer'`, `'Conv1D_Layer'`, `'Conv2D_Layer'`, `'BatchNorm_Layer'`, 
     `'AvgPool1D_Layer'`, `'AvgPool2D_Layer'`, `'MaxPool1D_Layer'` and 
@@ -1799,10 +1850,11 @@ there are the following method-specific arguments for this method:
 
 ```{r, eval = FALSE}
 lrp <- LRP$new(converter, data,
-               rule_name = "simple",
-               rule_param = NULL,
-               winner_takes_all = TRUE,
-               ...) # other arguments inherited from 'InterpretingMethod'
+  rule_name = "simple",
+  rule_param = NULL,
+  winner_takes_all = TRUE,
+  ...
+) # other arguments inherited from 'InterpretingMethod'
 ```
 
 <details>
@@ -1820,15 +1872,19 @@ error (for $x_2$ it's $-0.3675$) since it absorbs some of the relevance.
 See the code below:
 
 ```{r}
-# We can analyze multiple inputs simultaneously 
+# We can analyze multiple inputs simultaneously
 data <- matrix(
-  c(0.49, # only neuron without bias term is activated
-    0.6), # neuron with bias term is activated
-  ncol = 1)
+  c(
+    0.49, # only neuron without bias term is activated
+    0.6
+  ), # neuron with bias term is activated
+  ncol = 1
+)
 
 # Apply LRP with simple rule
 lrp <- LRP$new(converter, data,
-               ignore_last_act = FALSE)
+  ignore_last_act = FALSE
+)
 lrp$get_result()
 
 # get approximation error
@@ -1869,7 +1925,6 @@ ggplot() +
   geom_function(data = data.frame(label = "alpha_beta (0.5)"), mapping = aes(color = label), fun = fun_3) +
   geom_function(data = data.frame(label = "alpha_beta (1)"), mapping = aes(color = label), fun = fun_4) +
   labs(color = "Rule")
-  
 ```
 
 </details>
@@ -1897,7 +1952,7 @@ after adding the negative or positive contribution revealing dependencies
 missed by other approaches.
 
 Analogous to the previous methods, the **innsight** method `DeepLift` inherits 
-from the `InterpretingMetod` superclass and thus all arguments. In addition,
+from the `InterpretingMetod` super class and thus all arguments. In addition,
 there are the following method-specific arguments for this method:
 
 * `x_ref` (default: `NULL`): This argument describes the reference input
@@ -1926,10 +1981,11 @@ distribution of the upper-layer contribution to the lower layer.
 
 ```{r, eval = FALSE}
 deeplift <- DeepLift$new(converter, data,
-                         x_ref = NULL,
-                         rule_name = "rescale",
-                         winner_takes_all = TRUE,
-                         ...) # other arguments inherited from 'InterpretingMethod'
+  x_ref = NULL,
+  rule_name = "rescale",
+  winner_takes_all = TRUE,
+  ...
+) # other arguments inherited from 'InterpretingMethod'
 ```
 
 <details>
@@ -1961,19 +2017,21 @@ set.seed(42)
 # Crate model with package 'neuralnet'
 model <- neuralnet(Species ~ ., iris, hidden = 5, linear.output = FALSE)
 
-# Step 1: Create 'Converter' 
+# Step 1: Create 'Converter'
 conv <- Converter$new(model)
 
 # Step 2: Apply DeepLift (reveal-cancel rule)
 x_ref <- matrix(colMeans(iris[, -5]), nrow = 1) # use colmeans as reference value
-deeplift <- DeepLift$new(conv, iris[, -5], x_ref = x_ref, ignore_last_act = FALSE,
-                         rule_name = "reveal_cancel")
+deeplift <- DeepLift$new(conv, iris[, -5],
+  x_ref = x_ref, ignore_last_act = FALSE,
+  rule_name = "reveal_cancel"
+)
 
 # Verify exact decomposition
 y <- predict(model, iris[, -5])
 y_ref <- predict(model, x_ref[rep(1, 150), ])
 delta_y <- y - y_ref
-summed_decomposition <- apply(get_result(deeplift), c(1,3), FUN = sum) # dim 2 is the input feature dim
+summed_decomposition <- apply(get_result(deeplift), c(1, 3), FUN = sum) # dim 2 is the input feature dim
 
 # Show the mean squared error
 mean((delta_y - summed_decomposition)^2)
@@ -1986,7 +2044,7 @@ mean((delta_y - summed_decomposition)^2)
 One of the earliest methods specifically for neural networks was the *Connection Weights* method invented by Olden et al. in 2004, resulting in a global relevance score for each input variable. The basic idea of this approach is to multiply all path weights for each possible connection between an input variable and the output node and then calculate the sum of all of them. However, this method ignores all bias vectors and all activation functions during calculation. Since only the weights are used, this method is independent of input data and, thus, a global interpretation method. In this package, we extended this method to a local one inspired by the method *Gradient x Input* (see [here](#gradient-x-input-and-smoothgrad-x-input)). Hence, the local variant is simply the point-wise product of the global *Connection Weights* method and the input data. You can use this variant by setting the `times_input` argument to `TRUE` and providing input data.
 
 The method **innsight** method `ConnectionWeights` also inherits from the 
-superclass `InterpretingMethod`, meaning that you need to change the 
+super class `InterpretingMethod`, meaning that you need to change the 
 term `Method` to `ConnectionWeights`. The only model-specific argument is 
 `times_input`, which can be used to switch between the
 global (`FALSE`) and the local (`TRUE`) *Connection Weights* method.
@@ -1994,13 +2052,15 @@ global (`FALSE`) and the local (`TRUE`) *Connection Weights* method.
 ```{r, eval = FALSE}
 # The global variant (argument 'data' is no longer required)
 cw_global <- ConnectionWeights$new(converter,
-                                   times_input = FALSE,
-                                   ...) # other arguments inherited from 'InterpretingMethod'
+  times_input = FALSE,
+  ...
+) # other arguments inherited from 'InterpretingMethod'
 
 # The local variant (argument 'data' is required)
 cw_local <- ConnectionWeights$new(converter, data,
-                                  times_input = TRUE,
-                                  ...) # other arguments inherited from 'InterpretingMethod'
+  times_input = TRUE,
+  ...
+) # other arguments inherited from 'InterpretingMethod'
 ```
 
 <details>
@@ -2022,7 +2082,7 @@ However, the local variant requires input data `data` and returns instance-wise
 relevances:
 ```{r}
 # Create data
-data <- array(c(0.1, 0.4, 0.6), dim = c(3,1))
+data <- array(c(0.1, 0.4, 0.6), dim = c(3, 1))
 
 # Apply local Connection Weights method
 cw_local <- ConnectionWeights$new(converter, data, times_input = TRUE)
@@ -2055,35 +2115,38 @@ set.seed(45)
 
 # Model for tabular data
 # We use the iris dataset for tabular data
-tab_data <- as.matrix(iris[,-5])
+tab_data <- as.matrix(iris[, -5])
 tab_data <- t((t(tab_data) - colMeans(tab_data)) / rowMeans((t(tab_data) - colMeans(tab_data))^2))
 tab_names <- colnames(tab_data)
 out_names <- unique(iris$Species)
 
-tab_model <-neuralnet(Species ~ ., 
-                      data = data.frame(tab_data, Species = iris$Species), 
-                      linear.output = FALSE,
-                      hidden = 10)
+tab_model <- neuralnet(Species ~ .,
+  data = data.frame(tab_data, Species = iris$Species),
+  linear.output = FALSE,
+  hidden = 10
+)
 
 # Model for image data
-img_data <- array(rnorm(5 * 32 * 32* 3), dim = c(5, 3, 32,32))
+img_data <- array(rnorm(5 * 32 * 32 * 3), dim = c(5, 3, 32, 32))
 
 img_model <- nn_sequential(
-  nn_conv2d(3, 5, c(3,3)),
+  nn_conv2d(3, 5, c(3, 3)),
   nn_relu(),
-  nn_avg_pool2d(c(2,2)),
-  nn_conv2d(5, 10, c(2,2)),
+  nn_avg_pool2d(c(2, 2)),
+  nn_conv2d(5, 10, c(2, 2)),
   nn_relu(),
-  nn_avg_pool2d(c(2,2)),
+  nn_avg_pool2d(c(2, 2)),
   nn_flatten(),
   nn_linear(490, 3),
   nn_softmax(2)
 )
 
 # Create converter
-tab_conv <- Converter$new(tab_model, input_dim = c(4), 
-                          input_names = tab_names,
-                          output_names = out_names)
+tab_conv <- Converter$new(tab_model,
+  input_dim = c(4),
+  input_names = tab_names,
+  output_names = out_names
+)
 
 img_conv <- Converter$new(img_model, input_dim = c(3, 32, 32))
 
@@ -2170,15 +2233,17 @@ List of k
 <summary> **Example with a tabular model** </summary>
 ```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Apply method 'Gradient x Input' for classes 1 ('setosa')  and 3 ('virginica')
-tab_grad <- Gradient$new(tab_conv, tab_data, output_idx = c(1,3),
-                         times_input = TRUE)
+tab_grad <- Gradient$new(tab_conv, tab_data,
+  output_idx = c(1, 3),
+  times_input = TRUE
+)
 # Get result
 result_array <- tab_grad$get_result()
 # You can also use the S3 function 'get_result'
 result_array <- get_result(tab_grad)
 
 # Show the result for datapoint 1 and 10
-result_array[c(1,10),,]
+result_array[c(1, 10), , ]
 ```
 </details>
 
@@ -2186,7 +2251,7 @@ result_array[c(1,10),,]
 <summary> **Example with an image model** </summary>
 ```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Apply method 'Gradient' for outputs 1  and 2
-img_grad <- Gradient$new(img_conv, img_data, output_idx = c(1,2))
+img_grad <- Gradient$new(img_conv, img_data, output_idx = c(1, 2))
 # Get result
 result_array <- img_grad$get_result()
 # You can also use the S3 function 'get_result'
@@ -2213,29 +2278,31 @@ $\text{input_dim}_i$ the input shape of input layer `'Input_i'`:
 ```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 library(keras)
 
-first_input <- layer_input(shape = c(10,10,2))
+first_input <- layer_input(shape = c(10, 10, 2))
 second_input <- layer_input(shape = c(11))
 tmp <- first_input %>%
-  layer_conv_2d(2, c(2,2), activation = "relu") %>%
+  layer_conv_2d(2, c(2, 2), activation = "relu") %>%
   layer_flatten() %>%
   layer_dense(units = 11)
 output <- layer_add(c(tmp, second_input)) %>%
-  layer_dense(units = 5, activation = 'relu') %>%
-  layer_dense(units = 3, activation = 'softmax')
+  layer_dense(units = 5, activation = "relu") %>%
+  layer_dense(units = 3, activation = "softmax")
 model <- keras_model(
   inputs = c(first_input, second_input),
   outputs = output
 )
 
 conv <- Converter$new(model)
-data <- lapply(list(c(10,10,2), c(11)), 
-               function(x) array(rnorm(5 * prod(x)), dim = c(5, x)))
+data <- lapply(
+  list(c(10, 10, 2), c(11)),
+  function(x) array(rnorm(5 * prod(x)), dim = c(5, x))
+)
 ```
 </details>
 
 ```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Apply method 'Gradient' for outputs 1  and 2
-grad <- Gradient$new(conv, data, output_idx = c(1,2), channels_first = FALSE)
+grad <- Gradient$new(conv, data, output_idx = c(1, 2), channels_first = FALSE)
 # Get result
 result_array <- grad$get_result()
 # You can also use the S3 function 'get_result'
@@ -2260,34 +2327,38 @@ layer `'Output_j'` as specified in the argument `'output_idx'`.
 ```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 library(keras)
 
-first_input <- layer_input(shape = c(10,10,2))
+first_input <- layer_input(shape = c(10, 10, 2))
 second_input <- layer_input(shape = c(11))
 tmp <- first_input %>%
-  layer_conv_2d(2, c(2,2), activation = "relu") %>%
+  layer_conv_2d(2, c(2, 2), activation = "relu") %>%
   layer_flatten() %>%
   layer_dense(units = 11)
 first_output <- layer_add(c(tmp, second_input)) %>%
-  layer_dense(units = 20, activation = 'relu') %>%
-  layer_dense(units = 3, activation = 'softmax')
+  layer_dense(units = 20, activation = "relu") %>%
+  layer_dense(units = 3, activation = "softmax")
 second_output <- layer_concatenate(c(tmp, second_input)) %>%
-  layer_dense(units = 20, activation = 'relu') %>%
-  layer_dense(units = 3, activation = 'softmax')
+  layer_dense(units = 20, activation = "relu") %>%
+  layer_dense(units = 3, activation = "softmax")
 model <- keras_model(
   inputs = c(first_input, second_input),
   outputs = c(first_output, second_output)
 )
 
 conv <- Converter$new(model)
-data <- lapply(list(c(10,10,2), c(11)), 
-               function(x) array(rnorm(5 * prod(x)), dim = c(5, x)))
+data <- lapply(
+  list(c(10, 10, 2), c(11)),
+  function(x) array(rnorm(5 * prod(x)), dim = c(5, x))
+)
 ```
 </details>
 
 ```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Apply method 'Gradient' for outputs 1 and 2 in the first and
 # for outputs 1 and 3 in the second output layer
-grad <- Gradient$new(conv, data, output_idx = list(c(1,2), c(1,3)), 
-                     channels_first = FALSE)
+grad <- Gradient$new(conv, data,
+  output_idx = list(c(1, 2), c(1, 3)),
+  channels_first = FALSE
+)
 # Get result
 result_array <- grad$get_result()
 # You can also use the S3 function 'get_result'
@@ -2376,16 +2447,20 @@ library(neuralnet)
 # get the result from the tabular model
 df <- get_result(tab_grad, "data.frame")
 
-# calculate mean absolut gradient
-df <- aggregate(df$value, 
-                by = list(feature = df$feature, class = df$output_node),
-                FUN = function(x) mean(abs(x)))
+# calculate mean absolute gradient
+df <- aggregate(df$value,
+  by = list(feature = df$feature, class = df$output_node),
+  FUN = function(x) mean(abs(x))
+)
 
 ggplot(df) +
-  geom_bar(aes(x = feature, y = x, fill = class), stat = "identity",
-           position = "dodge") +
+  geom_bar(aes(x = feature, y = x, fill = class),
+    stat = "identity",
+    position = "dodge"
+  ) +
   ggtitle("Mean over absolut values of the gradients") +
-  xlab("Input feature") + ylab("Mean(abs(gradients))") +
+  xlab("Input feature") +
+  ylab("Mean(abs(gradients))") +
   theme_bw()
 ```
 </details>
@@ -2451,17 +2526,20 @@ an interactive plot based on the library `plotly` (see `?innsight_plotly` or
 
 ```{r, eval = FALSE}
 # Class method
-method$plot(data_idx = 1, 
-            output_idx = NULL, 
-            aggr_channels = "sum",
-            as_plotly = FALSE)
+method$plot(
+  data_idx = 1,
+  output_idx = NULL,
+  aggr_channels = "sum",
+  as_plotly = FALSE
+)
 
 # or the S3 method
-plot(method, 
-     data_idx = 1,
-     output_idx = NULL
-     aggr_channels = "sum",
-     as_plotly = FALSE)
+plot(method,
+  data_idx = 1,
+  output_idx = NULL,
+  aggr_channels = "sum",
+  as_plotly = FALSE
+)
 ```
 
 **Examples and usage:**
@@ -2469,20 +2547,20 @@ plot(method,
 ```{r, fig.width = 8, fig.height=5, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Create plot for output classes '1' (setosa) and '3' (virginica) and
 # data points '1' and '70'
-p <- plot(tab_grad, output_idx = c(1,3), data_idx = c(1,70))
+p <- plot(tab_grad, output_idx = c(1, 3), data_idx = c(1, 70))
 
 # Although it's not a ggplot2 object ...
 class(p)
 
 # ... it can be treated as one
-p + 
+p +
   ggplot2::theme_bw() +
   ggplot2::ggtitle("My first 'innsight'-plot")
 ```
 ```{r, fig.width = 8, fig.height=3, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # In addition, you can use all the options of the class 'innsight_ggplot2',
 # e.g. getting the corresponding ggplot2 object
-class(p[[1,1]])
+class(p[[1, 1]])
 
 # or creating a subplot
 p[2, 1:2]
@@ -2490,14 +2568,14 @@ p[2, 1:2]
 
 ```{r, fig.width = 8, fig.height=4, echo = TRUE, eval = FALSE}
 # You can do the same with the plotly-based plots
-p <- plot(tab_grad, output_idx = c(1,3), data_idx = c(1,70), as_plotly = TRUE)
+p <- plot(tab_grad, output_idx = c(1, 3), data_idx = c(1, 70), as_plotly = TRUE)
 
 # Show plot (it also includes a drop down menu for selecting the colorscale)
 p
 ```
 ```{r, fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available()}
 # You can do the same with the plotly-based plots
-p <- plot(tab_grad, output_idx = c(1,3), data_idx = c(1,70), as_plotly = TRUE)
+p <- plot(tab_grad, output_idx = c(1, 3), data_idx = c(1, 70), as_plotly = TRUE)
 
 # Show plot (it also includes a drop down menu for selecting the colorscale)
 plotly::config(print(p))
@@ -2506,14 +2584,16 @@ plotly::config(print(p))
 ```{r, fig.width = 8, fig.height=5, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # We can do the same for models with image data. In addition, you can define
 # the aggregation function for the channels
-p <- plot(img_grad, output_idx = c(1,2), data_idx = c(1,4),
-          aggr_channels = "norm")
+p <- plot(img_grad,
+  output_idx = c(1, 2), data_idx = c(1, 4),
+  aggr_channels = "norm"
+)
 
 # Although it's not a ggplot2 object ...
 class(p)
 
 # ... it can be treated as one
-p + 
+p +
   ggplot2::theme_bw() +
   ggplot2::scale_fill_viridis_c() +
   ggplot2::ggtitle("My first 'innsight'-plot")
@@ -2526,7 +2606,7 @@ it accordingly, and then save it back to the field `method$result` as a list of
 
 ```{r, fig.width = 8, fig.height=5, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # You can also do custom modifications of the results, e.g.
-# taking the absolute value of all results. But the 
+# taking the absolute value of all results. But the
 # shape has to be the same after the modification!
 result <- tab_grad$result
 
@@ -2538,7 +2618,7 @@ str(result)
 tab_grad$result[[1]][[1]] <- abs(result[[1]][[1]])
 
 # Show the result
-plot(tab_grad, output_idx = c(1,3), data_idx = c(1,70))
+plot(tab_grad, output_idx = c(1, 3), data_idx = c(1, 70))
 ```
 
 ## Plot summarized results (`boxplot`)
@@ -2646,25 +2726,28 @@ increase the runtime.
 
 ```{r, eval = FALSE}
 # Class method
-method$boxplot(output_idx = NULL,
-               data_idx = "all",
-               ref_data_idx = NULL,
-               aggr_channels = "sum",
-               preprocess_FUN = abs,
-               as_plotly = FALSE,
-               individual_data_idx = NULL,
-               individual_max = 20)
+method$boxplot(
+  output_idx = NULL,
+  data_idx = "all",
+  ref_data_idx = NULL,
+  aggr_channels = "sum",
+  preprocess_FUN = abs,
+  as_plotly = FALSE,
+  individual_data_idx = NULL,
+  individual_max = 20
+)
 
 # or the S3 method
-boxplot(method, 
-        output_idx = NULL,
-        data_idx = "all",
-        ref_data_idx = NULL,
-        aggr_channels = "sum",
-        preprocess_FUN = abs,
-        as_plotly = FALSE,
-        individual_data_idx = NULL,
-        individual_max = 20)
+boxplot(method,
+  output_idx = NULL,
+  data_idx = "all",
+  ref_data_idx = NULL,
+  aggr_channels = "sum",
+  preprocess_FUN = abs,
+  as_plotly = FALSE,
+  individual_data_idx = NULL,
+  individual_max = 20
+)
 ```
 
 **Examples and usage:**
@@ -2686,8 +2769,10 @@ boxplot(tab_grad, output_idx = c(1, 3), data_idx = 1:50, ref_data_idx = c(60))
 ```
 ```{r, fig.width = 8, fig.height=4, echo = TRUE, eval = FALSE}
 # You can do the same with the plotly-based plots
-p <- boxplot(tab_grad, output_idx = c(1,3), data_idx = 1:50,
-             ref_data_idx = 60, as_plotly = TRUE)
+p <- boxplot(tab_grad,
+  output_idx = c(1, 3), data_idx = 1:50,
+  ref_data_idx = 60, as_plotly = TRUE
+)
 
 # Show plot (it also includes a drop down menu for selecting the reference data
 # point and toggle the plot type 'Boxplot' or 'Violin')
@@ -2695,8 +2780,10 @@ p
 ```
 ```{r, fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available()}
 # You can do the same with the plotly-based plots
-p <- boxplot(tab_grad, output_idx = c(1,3), data_idx = 1:50,
-             ref_data_idx = 60, as_plotly = TRUE)
+p <- boxplot(tab_grad,
+  output_idx = c(1, 3), data_idx = 1:50,
+  ref_data_idx = 60, as_plotly = TRUE
+)
 
 # Show plot (it also includes a drop down menu for selecting the reference data
 # point and toggle the plot type Boxplot or Violin)
@@ -2705,21 +2792,23 @@ plotly::config(print(p))
 ```{r, fig.width=8, fig.height=4, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # We can do the same for models with image data. In addition, you can define
 # the aggregation function for the channels
-p <- boxplot(img_grad, output_idx = c(1,2), aggr_channels = "norm")
+p <- boxplot(img_grad, output_idx = c(1, 2), aggr_channels = "norm")
 
 # Although it's not a ggplot2 object ...
 class(p)
 
 # ... it can be treated as one
-p + 
+p +
   ggplot2::theme_bw() +
   ggplot2::coord_flip() +
   ggplot2::ggtitle("My first 'innsight'-boxplot")
 ```
 ```{r, fig.width = 8, fig.height=4, echo = TRUE, eval = FALSE}
 # You can do the same with the plotly-based plots
-p <- boxplot(img_grad, output_idx = c(1,2), aggr_channels = "norm", 
-             as_plotly = TRUE)
+p <- boxplot(img_grad,
+  output_idx = c(1, 2), aggr_channels = "norm",
+  as_plotly = TRUE
+)
 
 # Show plot (it also includes a drop down menu for selecting the colorscale,
 # another menu for toggling between the plot types 'Heatmap' and 'Contour'
@@ -2728,8 +2817,10 @@ p
 ```
 ```{r, fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available()}
 # You can do the same with the plotly-based plots
-p <- boxplot(img_grad, output_idx = c(1,2), aggr_channels = "norm", 
-             as_plotly = TRUE)
+p <- boxplot(img_grad,
+  output_idx = c(1, 2), aggr_channels = "norm",
+  as_plotly = TRUE
+)
 plotly::config(print(p))
 ```
 
@@ -2759,15 +2850,15 @@ model <- keras_model_sequential() %>%
 
 converter <- Converter$new(model)
 
-data <- array(rnorm(5*50), dim = c(50, 5))
+data <- array(rnorm(5 * 50), dim = c(50, 5))
 res_simple <- Gradient$new(converter, data)
 
 # Create model with images as inputs and two output layers
-input_image <- layer_input(shape = c(10,10,3))
+input_image <- layer_input(shape = c(10, 10, 3))
 conv_part <- input_image %>%
-  layer_conv_2d(5, c(2,2), activation = "relu", padding = "same") %>%
+  layer_conv_2d(5, c(2, 2), activation = "relu", padding = "same") %>%
   layer_average_pooling_2d() %>%
-  layer_conv_2d(4, c(2,2)) %>%
+  layer_conv_2d(4, c(2, 2)) %>%
   layer_activation(activation = "softplus") %>%
   layer_flatten()
 
@@ -2779,25 +2870,28 @@ output_2 <- conv_part %>%
   layer_dense(50, activation = "relu") %>%
   layer_dense(3, activation = "softmax")
 
-keras_model_concat <- keras_model(inputs = input_image, 
-                                  outputs = c(output_1, output_2))
+keras_model_concat <- keras_model(
+  inputs = input_image,
+  outputs = c(output_1, output_2)
+)
 
 converter <- Converter$new(keras_model_concat)
 
-data <- array(rnorm(10*10*3*5), dim = c(5,10,10,3))
-res_one_input <- Gradient$new(converter, data, 
-                              channels_first = FALSE,
-                              output_idx = list(1:3, 1:3))
+data <- array(rnorm(10 * 10 * 3 * 5), dim = c(5, 10, 10, 3))
+res_one_input <- Gradient$new(converter, data,
+  channels_first = FALSE,
+  output_idx = list(1:3, 1:3)
+)
 
 # Create model with images and tabular data as inputs and two
 # output layers
-input_image <- layer_input(shape = c(10,10,3))
+input_image <- layer_input(shape = c(10, 10, 3))
 input_tab <- layer_input(shape = c(10))
 
 conv_part <- input_image %>%
-  layer_conv_2d(5, c(2,2), activation = "relu", padding = "same") %>%
+  layer_conv_2d(5, c(2, 2), activation = "relu", padding = "same") %>%
   layer_average_pooling_2d() %>%
-  layer_conv_2d(4, c(2,2)) %>%
+  layer_conv_2d(4, c(2, 2)) %>%
   layer_activation(activation = "softplus") %>%
   layer_flatten()
 
@@ -2809,16 +2903,19 @@ output_1 <- layer_concatenate(list(conv_part, input_tab)) %>%
 output_2 <- layer_concatenate(list(conv_part, input_tab)) %>%
   layer_dense(3, activation = "softmax")
 
-keras_model_concat <- keras_model(inputs = list(input_image, input_tab), 
-                                  outputs = list(output_1, output_2))
+keras_model_concat <- keras_model(
+  inputs = list(input_image, input_tab),
+  outputs = list(output_1, output_2)
+)
 
 converter <- Converter$new(keras_model_concat)
 
-data <- lapply(list(c(10,10,3), c(10)), function(x) torch_randn(c(5, x)))
-res_two_inputs <- Gradient$new(converter, data, 
-                               times_input = TRUE, 
-                               channels_first = FALSE,
-                               output_idx = list(1:3, 1:3))
+data <- lapply(list(c(10, 10, 3), c(10)), function(x) torch_randn(c(5, x)))
+res_two_inputs <- Gradient$new(converter, data,
+  times_input = TRUE,
+  channels_first = FALSE,
+  output_idx = list(1:3, 1:3)
+)
 ```
 </details>
 
@@ -2861,7 +2958,7 @@ data points or a boxplot over multiple instances is displayed.
 ```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Create plot for output node 1 and 2 in the first output layer and
 # data points 1 and 3
-p <- plot(res_one_input, output_idx = c(1,2), data_idx = c(1,3))
+p <- plot(res_one_input, output_idx = c(1, 2), data_idx = c(1, 3))
 
 # It's not an ggplot2 object
 class(p)
@@ -2898,14 +2995,16 @@ However, an object of the class `innsight_ggplot2` is returned.
 <summary> Examples </summary>
 ```{r, fig.height=6, fig.width=8, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Create plot
-p <- plot(res_one_input, output_idx = c(1,2), data_idx = c(1,3))
+p <- plot(res_one_input, output_idx = c(1, 2), data_idx = c(1, 3))
 
 # Now we can add geoms, themes and scales as usual for ggplot2 objects
-df <- data.frame(x = c(0.5,  0.5, 10.5, 10.5, 0.5), 
-                 y = c(0.5, 10.5, 10.5,  0.5, 0.5))
+df <- data.frame(
+  x = c(0.5, 0.5, 10.5, 10.5, 0.5),
+  y = c(0.5, 10.5, 10.5, 0.5, 0.5)
+)
 new_p <- p +
   geom_path(df, mapping = aes(x = x, y = y), color = "red", size = 3) +
-  theme_bw() + 
+  theme_bw() +
   scale_fill_viridis_c()
 
 # This object is still an 'innsight_ggplot2' object...
@@ -2913,11 +3012,10 @@ class(new_p)
 
 # ... but all ggplot2 geoms, themes and scales are added
 new_p
-# If the respective plot allows it, you can also use the already existing 
+# If the respective plot allows it, you can also use the already existing
 # mapping function and data:
 boxplot(res_simple, output_idx = 1:2) +
   geom_jitter(width = 0.3, alpha = 0.4)
-
 ```
 </details>
 </li>
@@ -2929,7 +3027,7 @@ and columns can be accessed and is returned as an object of the class
 <summary> Example </summary>
 ```{r, fig.height=6, fig.width=8, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Create plot
-p <- plot(res_one_input, output_idx = c(1,2), data_idx = c(1,3))
+p <- plot(res_one_input, output_idx = c(1, 2), data_idx = c(1, 3))
 
 # Show the whole plot
 p
@@ -2953,13 +3051,13 @@ as a **ggplot2** object.
 <summary> Example </summary>
 ```{r, fig.height=6, fig.width=8, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Create plot
-p <- plot(res_one_input, output_idx = c(1,2), data_idx = c(1,3))
+p <- plot(res_one_input, output_idx = c(1, 2), data_idx = c(1, 3))
 
 # Show the whole plot
 p
 # Now you can select a single plot by passing the row and column index,
 # e.g. the plot for output "Y1" and data point 3
-p_new <- p[[2,1]]
+p_new <- p[[2, 1]]
 
 # This time a ggplot2 object is returned
 class(p_new)
@@ -2977,7 +3075,7 @@ results and return a **ggplot2** object invisibly.
 <summary> Examples </summary>
 ```{r, fig.height=3, fig.width=8, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Create plot
-p <- plot(res_one_input, output_idx = c(1,2), data_idx = 1)
+p <- plot(res_one_input, output_idx = c(1, 2), data_idx = 1)
 
 # All methods behave the same and return a ggplot2 object
 class(print(p))
@@ -3041,7 +3139,7 @@ needed and loaded.
 ```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Create a plot for output node 1 in the first output layer and node 2 in the
 # second output layer and data points 1 and 3
-p <- plot(res_two_inputs, output_idx = list(1, c(1,2)), data_idx = c(1, 3))
+p <- plot(res_two_inputs, output_idx = list(1, c(1, 2)), data_idx = c(1, 3))
 
 # It's not a ggplot2 object
 class(p)
@@ -3058,7 +3156,6 @@ str(p@output_strips, max.level = 1)
 
 # Slot 'col_dims' contains the number of columns for each output node
 p@col_dims
-
 ```
 
 Analogous to the other case, the generic function `+.innsight_ggplot2` 
@@ -3083,7 +3180,7 @@ also pass additional arguments forwarded to `gridExtra::arrangeGrob`.
 <summary> Examples </summary>
 ```{r, fig.height=4, fig.width=10, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Create plot
-p <- plot(res_two_inputs, output_idx = list(1,2), data_idx = 1)
+p <- plot(res_two_inputs, output_idx = list(1, 2), data_idx = 1)
 
 # All methods behave the same and return a ggplot2 object
 class(print(p))
@@ -3092,7 +3189,7 @@ class(plot(p))
 
 # You can also pass additional arguments to the method 'arrangeGrob',
 # e.g. double the width of both images
-print(p, widths = c(2,1,2,1))
+print(p, widths = c(2, 1, 2, 1))
 ```
 </details>
 </li>
@@ -3105,18 +3202,18 @@ others. Individual modifications can be made with this generic function.
 <summary> Examples </summary>
 ```{r, fig.height=7, fig.width=12, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Create plot
-p <- plot(res_two_inputs, output_idx = list(1,2), data_idx = c(1,3))
+p <- plot(res_two_inputs, output_idx = list(1, 2), data_idx = c(1, 3))
 
 # Remove colorbar in the plot for data point 3 and output 'Y1' in output
 # layer 1
-p[2,1] <- p[2,1] + guides(fill = "none")
+p[2, 1] <- p[2, 1] + guides(fill = "none")
 
 # Change colorscale in the plot for data point 1 and output 'Y2' in output
 # layer 2
 p[1, 3:4] <- p[1, 3:4] + scale_fill_gradient2()
 
 # Change the theme in all plots for data point 3
-p[2,] <- p[2, ] + theme_dark()
+p[2, ] <- p[2, ] + theme_dark()
 
 # Show the result with all changes
 p
@@ -3210,8 +3307,10 @@ corresponding output strip label (`col_label`).
 ```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Create a plot for output node 1 in the first layer and output node 2 in the
 # second layer and data point 1 and 3
-p <- plot(res_two_inputs, output_idx = list(1,2), data_idx = c(1,3), 
-          as_plotly = TRUE)
+p <- plot(res_two_inputs,
+  output_idx = list(1, 2), data_idx = c(1, 3),
+  as_plotly = TRUE
+)
 
 # Slot 'plots' is a 2x4 matrix (2 data points, 2 output nodes and 2 input layers)
 p@plots
@@ -3249,16 +3348,20 @@ rows and columns can be accessed and is returned as an object of the class
 <summary> Example </summary>
 ```{r, eval=FALSE, echo = TRUE}
 # Create plot
-p <- plot(res_two_inputs, output_idx = list(1,2), data_idx = c(1,3), 
-          as_plotly = TRUE)
+p <- plot(res_two_inputs,
+  output_idx = list(1, 2), data_idx = c(1, 3),
+  as_plotly = TRUE
+)
 
 # Show the whole plot
 p
 ```
 ```{r, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available(), echo = FALSE, fig.height=4,out.width= "100%", fig.width=20}
 # Create plot
-p <- plot(res_two_inputs, output_idx = list(1,2), data_idx = c(1,3), 
-          as_plotly = TRUE)
+p <- plot(res_two_inputs,
+  output_idx = list(1, 2), data_idx = c(1, 3),
+  as_plotly = TRUE
+)
 
 # Show the whole plot
 plotly::config(print(p))
@@ -3270,8 +3373,8 @@ p_new <- p[1:2, 3:4]
 
 # It's still an object of class 'innsight_plotly'
 class(p_new)
-#> [1] "innsight_plotly" 
-#> attr(,"package") 
+#> [1] "innsight_plotly"
+#> attr(,"package")
 #> [1] "innsight"
 
 # Show the subplot
@@ -3297,12 +3400,14 @@ plotly object.
 <summary> Example </summary>
 ```{r, eval=FALSE, echo = TRUE}
 # Create plot
-p <- plot(res_two_inputs, output_idx = list(1,2), data_idx = c(1,3), 
-          as_plotly = TRUE)
+p <- plot(res_two_inputs,
+  output_idx = list(1, 2), data_idx = c(1, 3),
+  as_plotly = TRUE
+)
 
 # Now you can select a single plot by passing the row and column index,
 # e.g. the plot for output "Y1", data point 3 and the second input layer
-p_new <- p[[2,2]]
+p_new <- p[[2, 2]]
 
 # It's a plotly object
 class(p_new)
@@ -3313,12 +3418,14 @@ p_new
 ```
 ```{r, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available(), echo = FALSE, fig.height=5, fig.width=10}
 # Create plot
-p <- plot(res_two_inputs, output_idx = list(1,2), data_idx = c(1,3), 
-          as_plotly = TRUE)
+p <- plot(res_two_inputs,
+  output_idx = list(1, 2), data_idx = c(1, 3),
+  as_plotly = TRUE
+)
 
 # Now you can select a single plot by passing the row and column index,
 # e.g. the plot for output "Y1", data point 3 and the second input layer
-p_new <- p[[2,2]]
+p_new <- p[[2, 2]]
 
 # Show the subplot
 p_new
@@ -3334,8 +3441,10 @@ also pass additional arguments forwarded to `plotly::subplot`.
 <summary> Examples </summary>
 ```{r, fig.height=4, fig.width=10, eval = FALSE}
 # Create plot
-p <- plot(res_two_inputs, output_idx = list(1,2), data_idx = 1,
-          as_plotly = TRUE)
+p <- plot(res_two_inputs,
+  output_idx = list(1, 2), data_idx = 1,
+  as_plotly = TRUE
+)
 
 # All methods behave the same and return a plotly object
 class(print(p))
@@ -3344,20 +3453,24 @@ class(show(p))
 #> [1] "plotly"     "htmlwidget"
 class(plot(p))
 #> [1] "plotly"     "htmlwidget"
-#> 
+#>
 # You can also pass additional arguments to the method 'plotly::subplot',
 # e.g. the margins
 print(p, margin = c(0.03, 0.03, 0.01, 0.01))
 ```
 ```{r, fig.height=4, fig.width=10, echo = FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available()}
 # Create plot
-p <- plot(res_two_inputs, output_idx = list(1,2), data_idx = 1,
-          as_plotly = TRUE)
+p <- plot(res_two_inputs,
+  output_idx = list(1, 2), data_idx = 1,
+  as_plotly = TRUE
+)
 
 # You can also pass additional arguments to the method 'plotly::subplot',
 # e.g. the margins
-plotly::config(print(p, margin = c(0.03, 0.03, 0.01, 0.01), 
-                     widths = c(0.35, 0.15, 0.15, 0.35)))
+plotly::config(print(p,
+  margin = c(0.03, 0.03, 0.01, 0.01),
+  widths = c(0.35, 0.15, 0.15, 0.35)
+))
 ```
 </details>
 </li>

@@ -32,8 +32,8 @@ otherwise a \link[ggplot2:ggplot]{ggplot2::ggplot} object is returned invisibly.
 }
 \description{
 The class \link{innsight_ggplot2} provides the generic visualization functions
-\link[base:print]{base::print}, \link[base:plot]{base::plot} and \link[methods:show]{methods::show}, which all behave the
-same in this case. They create the plot of the results
+\code{\link{print}}, \code{\link{plot}} and \code{\link{show}}, which all
+behave the same in this case. They create the plot of the results
 (see \link{innsight_ggplot2} for details) and return it invisibly.
 }
 \seealso{

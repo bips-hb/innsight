@@ -117,8 +117,8 @@ setClass("innsight_ggplot2", slots = list(
 #' Generic print, plot and show for `innsight_ggplot2`
 #'
 #' The class [innsight_ggplot2] provides the generic visualization functions
-#' [base::print], [base::plot] and [methods::show], which all behave the
-#' same in this case. They create the plot of the results
+#' \code{\link{print}}, \code{\link{plot}} and \code{\link{show}}, which all
+#' behave the same in this case. They create the plot of the results
 #' (see [innsight_ggplot2] for details) and return it invisibly.
 #'
 #' @param x An instance of the S4 class [innsight_ggplot2].

@@ -34,5 +34,5 @@
 #' as a named list which is described in detail in the vignette "In-depth
 #' Explanation"
 #' (see \code{vignette("detailed_overview", package = "innsight")} or the
-#' [website](https://bips-hb.github.io/innsight/vignette/detailed_overview.html#model-as-named-list)).
+#' [website](https://bips-hb.github.io/innsight/articles/detailed_overview.html#model-as-named-list)).
 #'

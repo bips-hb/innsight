@@ -14,7 +14,7 @@
 #'
 #' Furthermore, a model can be passed as a list (see
 #' \code{vignette("detailed_overview", package = "innsight")} or the
-#' [website](https://bips-hb.github.io/innsight/vignette/detailed_overview.html#model-as-named-list)).
+#' [website](https://bips-hb.github.io/innsight/articles/detailed_overview.html#model-as-named-list)).
 #'
 #' @field model ([`ConvertedModel`])\cr
 #' The converted neural network based on the torch module [ConvertedModel].\cr

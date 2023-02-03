@@ -19,7 +19,7 @@ You can use models from the following libraries:
 
 Furthermore, a model can be passed as a list (see
 \code{vignette("detailed_overview", package = "innsight")} or the
-\href{https://bips-hb.github.io/innsight/vignette/detailed_overview.html#model-as-named-list}{website}).
+\href{https://bips-hb.github.io/innsight/articles/detailed_overview.html#model-as-named-list}{website}).
 }
 \details{
 In order to better understand and analyze the prediction of a neural
@@ -58,7 +58,7 @@ can also write a wrapper for other libraries because a model can be passed
 as a named list which is described in detail in the vignette "In-depth
 Explanation"
 (see \code{vignette("detailed_overview", package = "innsight")} or the
-\href{https://bips-hb.github.io/innsight/vignette/detailed_overview.html#model-as-named-list}{website}).
+\href{https://bips-hb.github.io/innsight/articles/detailed_overview.html#model-as-named-list}{website}).
 }
 }
 \examples{

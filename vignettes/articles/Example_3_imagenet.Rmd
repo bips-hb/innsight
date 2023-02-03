@@ -10,14 +10,14 @@ knitr::opts_chunk$set(
 )
 ```
 
-This is a rather short article, just to illustrate the use of the `innsight` 
+This is a rather short article, just to illustrate the use of the **innsight** 
 package on a few images of the [ImageNet dataset](https://www.image-net.org/) 
-and pre-trained `keras` models. For more detailed information about the package 
-and the implemented methods we refer to [this article](https://bips-hb.github.io/innsight/vignette/detailed_overview.html) and for simpler but in 
-detailed explained examples we kindly recommend to [Example 1](https://bips-hb.github.io/innsight/vignette/example_1_iris.html) and [Example 2](https://bips-hb.github.io/innsight/vignette/example_2_penguin.html).
+and pre-trained **keras** models. For more detailed information about the package 
+and the implemented methods we refer to [this article](https://bips-hb.github.io/innsight/articles/detailed_overview.html) and for simpler but in 
+detailed explained examples we kindly recommend to [Example 1](https://bips-hb.github.io/innsight/articles/example_1_iris.html) and [Example 2](https://bips-hb.github.io/innsight/articles/example_2_penguin.html).
 
-In this example, we want to apply the `innsight` package on pre-trained models 
-on the ImageNet dataset using `keras`. This 
+In this example, we want to apply the **innsight** package on pre-trained models 
+on the ImageNet dataset using **keras**. This 
 dataset is a classification problem of images in $1000$ classes containing 
 over $500$ images per class. We have selected examples of a few 
 classes each and will analyze them with respect to different networks in 
@@ -69,7 +69,7 @@ Last but not least, we define the configurations for the methods we want to
 apply to the images and the models. This is a list that contains the 
 method call, method name and the corresponding method arguments. For more 
 information to the methods and the method-specific arguments, we refer to the
-[in-depth vignette](https://bips-hb.github.io/innsight/vignette/detailed_overview.html#step-2-apply-selected-method).
+[in-depth vignette](https://bips-hb.github.io/innsight/articles/detailed_overview.html#step-2-apply-selected-method).
 
 ```{r}
 config <- list(
@@ -167,7 +167,7 @@ add_original_images <- function(img_files, gg_plot, num_methods) {
 
 Now let's analyze the individual images according to the class that the model
 Vgg19 (see `?application_vgg19` for details) predicts for them. In the 
-`innsight` package these output classes have to be chosen by ourselves, because 
+**innsight** package these output classes have to be chosen by ourselves, because 
 a calculation for all $1000$ classes would be too computationally expensive.
 For this reason, we first determine the corresponding predictions from the model:
 
@@ -235,7 +235,7 @@ result <- readRDS("cache/result_vgg19.Rds")
 ```
 
 After the results have been generated and summarized in a `data.table`, they 
-can be visualized using `ggplot2`:
+can be visualized using **ggplot2**:
 
 ```{r, fig.width=12, fig.height=6, out.width="100%"}
 library(ggplot2)
@@ -339,7 +339,7 @@ result <- readRDS("cache/result_resnet50.Rds")
 ```
 
 After the results have been generated and summarized in a `data.table`, they 
-can be visualized using `ggplot2`:
+can be visualized using **ggplot2**:
 
 ```{r, fig.width=12, fig.height=6, out.width="100%"}
 library(ggplot2)

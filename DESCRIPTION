@@ -1,7 +1,7 @@
 Type: Package
 Package: innsight
 Title: Get the Insights of your Neural Network
-Version: 0.1.1
+Version: 0.2.0
 Authors@R: c(
     person("Niklas", "Koenen", , "niklas.koenen@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-4623-8271")),
