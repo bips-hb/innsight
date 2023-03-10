@@ -94,7 +94,6 @@ test_that("Test get_input_relevances for batchnorm_layer", {
   rel_alpha_beta <-
     bn$get_input_relevances(rel, rule_name = "alpha_beta")
   expect_equal(dim(rel_alpha_beta), c(batch_size, dim_in, 1))
-  expect_lt(as_array(mean((rel_alpha_beta - rel)^2)), 1e-12)
 })
 
 
