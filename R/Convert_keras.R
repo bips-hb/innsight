@@ -26,12 +26,14 @@ convert_keras_model <- function(model) {
     })
     graph[[length(graph)]]$output_layers <- -1
     names <- unlist(lapply(model$layers, FUN = function(x) x$name))
+    input_names <- names[1]
     layers <- model$layers
   } else {
     # Otherwise, we have to reconstruct the computational graph from the
     # model config
     res <- keras_reconstruct_graph(model$layers, model$get_config())
     graph <- res$graph
+    input_names <- model$input_names
     layers <- res$layers
     names <- names(layers)
   }
@@ -153,7 +155,6 @@ convert_keras_model <- function(model) {
   }
 
   # Get input and output nodes
-  input_names <- model$input_names
   if (any(grepl("_input", input_names))) {
     input_names <- c(input_names, gsub("_input", "", input_names))
   }
@@ -361,7 +362,12 @@ convert_keras_batchnorm <- function(layer) {
   else axis <- as.numeric(layer$axis[[0]])
   gamma <- as.numeric(layer$gamma$value())
   eps <- as.numeric(layer$epsilon)
-  beta <- as.numeric(layer$beta)
+  if (layer$center) {
+    beta <- as.numeric(layer$beta)
+  } else {
+    beta <- NULL
+  }
+
   run_mean <- as.numeric(layer$moving_mean)
   run_var <- as.numeric(layer$moving_variance)
 
