@@ -80,12 +80,12 @@ batchnorm_layer <- nn_module(
                              (self$run_var + self$eps)^0.5 + self$beta)$reshape(new_shape)
 
       z_plus <- torch_maximum(fact * self$input, 0.0)
-      z_plus <- z_plus + torch_eq(z_plus, 0) * eps
       z_minus <- torch_minimum(fact * self$input, 0.0)
-      z_minus <- z_minus - torch_eq(z_minus, 0) * eps
 
-      rel <- rule_param * z_plus / (z_plus + torch_maximum(bias, 0.0)) +
-        (1 - rule_param) * z_minus / (z_minus + torch_minimum(bias, 0.0))
+      rel <- rule_param * z_plus /
+        (z_plus + torch_eq(z_plus, 0) * eps + torch_maximum(bias, 0.0)) +
+        (1 - rule_param) * z_minus /
+        (z_minus - torch_eq(z_minus, 0) * eps + torch_minimum(bias, 0.0))
       rel <- rel$unsqueeze(-1) * rel_output
     } else if (rule_name == "pass") {
       rel <- rel_output
