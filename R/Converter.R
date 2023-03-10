@@ -763,6 +763,8 @@ create_batchnorm_layer <- function(layer_as_list) {
   run_mean <- layer_as_list$run_mean
   run_var <- layer_as_list$run_var
 
+  if (is.null(beta)) beta <- rep(0, num_features)
+
   # Check arguments
   cli_check(checkIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE),
             "dim_in")
