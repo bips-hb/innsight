@@ -1,4 +1,5 @@
 #' @importFrom stats ave median
+#' @importFrom utils packageVersion
 
 ###############################################################################
 #                             Plot function
@@ -78,11 +79,23 @@ plot_bar <- function(result_df, value_name = "value", facet_rows = NULL,
   # Create plot/boxplot
   if (boxplot) {
     ref_data <- result_df[result_df$individual_data, ]
-    ref_line <- geom_segment(data = ref_data,
-      aes(x = as.numeric(.data$feature) - 0.35,
-          xend = as.numeric(.data$feature) + 0.35,
-          y = .data$value, yend = .data$value, group = .data$feature),
-      col = "red", size = 1)
+
+    # In ggplot2 3.4.0 aesthetic `size` changed to `linewidth`
+    if (packageVersion("ggplot2") < '3.4.0') {
+      ref_line <- geom_segment(data = ref_data,
+                               aes(x = as.numeric(.data$feature) - 0.35,
+                                   xend = as.numeric(.data$feature) + 0.35,
+                                   y = .data$value, yend = .data$value,
+                                   group = .data$feature),
+                               col = "red", size = 1)
+    } else {
+      ref_line <- geom_segment(data = ref_data,
+                               aes(x = as.numeric(.data$feature) - 0.35,
+                                   xend = as.numeric(.data$feature) + 0.35,
+                                   y = .data$value, yend = .data$value,
+                                   group = .data$feature),
+                               col = "red", linewidth = 1)
+    }
 
     result_df <- result_df[result_df$boxplot_data, ]
     geom <- geom_boxplot(aes(group = .data$feature), fill = "gray", alpha = 0.8,
