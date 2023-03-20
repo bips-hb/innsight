@@ -215,7 +215,7 @@ InterpretingMethod <- R6Class(
     #' unnecessary argument `data_idx` will be ignored.
     #'
     #' @param data_idx (`integer`)\cr
-    #'  An integer vector containing the numbers of the data
+    #' An integer vector containing the numbers of the data
     #' points whose result is to be plotted, e.g. `c(1,3)` for the first
     #' and third data point in the given data. Default: `1`. This argument
     #' will be ignored for the global *Connection Weights* method.\cr
@@ -227,6 +227,11 @@ InterpretingMethod <- R6Class(
     #' initialization `new()` (see argument `output_idx` in method `new()` of
     #' this R6 class for details). By default (`NULL`), the smallest index
     #' of all calculated output nodes and output layers is used.\cr
+    #' @param same_scale (`logical`)\cr
+    #' A logical value that specifies whether the individual plots have the
+    #' same fill scale across multiple input layers or whether each is
+    #' scaled individually. This argument is only used if more than one input
+    #' layer results are plotted.\cr
     #'
     #' @return
     #' Returns either an [`innsight_ggplot2`] (`as_plotly = FALSE`) or an
@@ -236,7 +241,8 @@ InterpretingMethod <- R6Class(
     plot = function(data_idx = 1,
                     output_idx = NULL,
                     aggr_channels = "sum",
-                    as_plotly = FALSE) {
+                    as_plotly = FALSE,
+                    same_scale = FALSE) {
 
       if (inherits(self, "ConnectionWeights")) {
         if (!self$times_input) {
@@ -273,6 +279,7 @@ InterpretingMethod <- R6Class(
         "data_idx")
       output_idx <- check_output_idx_for_plot(output_idx, self$output_idx)
       cli_check(checkLogical(as_plotly), "as_plotly")
+      cli_check(checkLogical(same_scale), "same_scale")
 
       # Set aggregation function for channels
       aggr_channels <- get_aggr_function(aggr_channels)
@@ -305,9 +312,11 @@ InterpretingMethod <- R6Class(
 
       # Get plot
       if (as_plotly) {
-        p <- create_plotly(result_df, value_name, include_data, FALSE, NULL)
+        p <- create_plotly(result_df, value_name, include_data, FALSE, NULL,
+                           same_scale)
       } else {
-        p <- create_ggplot(result_df, value_name, include_data, FALSE)
+        p <- create_ggplot(result_df, value_name, include_data, FALSE, NULL,
+                           same_scale)
       }
 
       p
@@ -351,6 +360,11 @@ InterpretingMethod <- R6Class(
     #' used to select a subset of them by passing the indices. E.g. with
     #' `c(1:10, 25, 26)` only the first 10 data points and
     #' the 25th and 26th are used to calculate the boxplots.\cr
+    #' @param same_scale (`logical`)\cr
+    #' A logical value that specifies whether the individual plots have the
+    #' same fill scale across multiple input layers or whether each is
+    #' scaled individually. This argument is only used if more than one input
+    #' layer results are plotted.\cr
     #'
     #' @return
     #' Returns either an [`innsight_ggplot2`] (`as_plotly = FALSE`) or an
@@ -363,7 +377,8 @@ InterpretingMethod <- R6Class(
                        preprocess_FUN = abs,
                        as_plotly = FALSE,
                        individual_data_idx = NULL,
-                       individual_max = 20) {
+                       individual_max = 20,
+                       same_scale = FALSE) {
 
       if (inherits(self, "ConnectionWeights")) {
         if (!self$times_input) {
@@ -416,6 +431,7 @@ InterpretingMethod <- R6Class(
       # individual_max
       cli_check(checkInt(individual_max, lower = 1), "individual_max")
       individual_max <- min(individual_max, num_data)
+      cli_check(checkLogical(same_scale), "same_scale")
 
       # Set the individual instances for the plot
       if (!as_plotly) {
@@ -474,9 +490,11 @@ InterpretingMethod <- R6Class(
 
       # Get plot
       if (as_plotly) {
-        p <- create_plotly(result_df, value_name, FALSE, TRUE, ref_data_idx)
+        p <- create_plotly(result_df, value_name, FALSE, TRUE, ref_data_idx,
+                           same_scale)
       } else {
-        p <- create_ggplot(result_df, value_name, FALSE, TRUE, ref_data_idx)
+        p <- create_ggplot(result_df, value_name, FALSE, TRUE, ref_data_idx,
+                           same_scale)
       }
 
       p

@@ -269,7 +269,8 @@ unnecessary argument \code{data_idx} will be ignored.
   data_idx = 1,
   output_idx = NULL,
   aggr_channels = "sum",
-  as_plotly = FALSE
+  as_plotly = FALSE,
+  same_scale = FALSE
 )}\if{html}{\out{</div>}}
 }
 
@@ -305,6 +306,12 @@ create an interactive plot based on the library \code{plotly}
 (see \code{\link{innsight_plotly}} for details).\cr
 \emph{Note:} Make sure that the suggested package \code{plotly} is installed
 in your R session.\cr}
+
+\item{\code{same_scale}}{(\code{logical})\cr
+A logical value that specifies whether the individual plots have the
+same fill scale across multiple input layers or whether each is
+scaled individually. This argument is only used if more than one input
+layer results are plotted.\cr}
 }
 \if{html}{\out{</div>}}
 }
@@ -351,7 +358,8 @@ a bit more complex, therefore the suggested packages \code{'grid'},
   preprocess_FUN = abs,
   as_plotly = FALSE,
   individual_data_idx = NULL,
-  individual_max = 20
+  individual_max = 20,
+  same_scale = FALSE
 )}\if{html}{\out{</div>}}
 }
 
@@ -425,6 +433,12 @@ individual data points in the dropdown menu without counting
 \code{ref_data_idx}. This means that if \code{individual_data_idx} has more
 than \code{individual_max} indices, only the first \code{individual_max} will
 be used. A too high number can significantly increase the runtime.\cr}
+
+\item{\code{same_scale}}{(\code{logical})\cr
+A logical value that specifies whether the individual plots have the
+same fill scale across multiple input layers or whether each is
+scaled individually. This argument is only used if more than one input
+layer results are plotted.\cr}
 }
 \if{html}{\out{</div>}}
 }
