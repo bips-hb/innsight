@@ -454,8 +454,12 @@ create_dense_layer <- function(layer_as_list, dtype) {
             "dim_in")
   cli_check(checkIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE),
             "dim_out")
-  cli_check(checkArray(weight, mode = "numeric", d = 2), "weight")
-  cli_check(checkNumeric(bias, len = dim_out), "bias")
+  cli_check(c(
+    checkArray(weight, mode = "numeric", d = 2),
+    checkTensor(weight, d = 2)), "weight")
+  cli_check(c(
+    checkNumeric(bias, len = dim_out),
+    checkTensor(bias, d = 1)), "bias")
   cli_check(checkString(activation_name), "activation_name")
 
   dense_layer(weight, bias, activation_name, dim_in, dim_out,
@@ -485,8 +489,12 @@ create_conv1d_layer <- function(layer_as_list, dtype, i) {
             "dim_in")
   cli_check(checkIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE),
             "dim_out")
-  cli_check(checkArray(weight, mode = "numeric", d = 3), "weight")
-  cli_check(checkNumeric(bias, len = dim_out[1]), "bias")
+  cli_check(c(
+    checkArray(weight, mode = "numeric", d = 3),
+    checkTensor(weight, d = 3)), "weight")
+  cli_check(c(
+    checkNumeric(bias, len = dim_out[1]),
+    checkTensor(bias, d = 1)), "bias")
   cli_check(checkString(activation_name), "activation_name")
   cli_check(checkInt(stride, null.ok = TRUE), "stride")
   cli_check(checkInt(dilation, null.ok = TRUE), "dilation")
@@ -536,8 +544,12 @@ create_conv2d_layer <- function(layer_as_list, dtype, i) {
             "dim_in")
   cli_check(checkIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE),
             "dim_out")
-  cli_check(checkArray(weight, mode = "numeric", d = 4), "weight")
-  cli_check(checkNumeric(bias, len = dim_out[1]), "bias")
+  cli_check(c(
+    checkArray(weight, mode = "numeric", d = 4),
+    checkTensor(weight, d = 4)), "weight")
+  cli_check(c(
+    checkNumeric(bias, len = dim_out[1]),
+    checkTensor(bias, d = 1)), "bias")
   cli_check(checkString(activation_name), "activation_name")
   cli_check(checkNumeric(stride, null.ok = TRUE, lower = 1), "stride")
   cli_check(checkNumeric(dilation, null.ok = TRUE, lower = 1), "dilation")

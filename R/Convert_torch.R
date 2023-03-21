@@ -80,14 +80,14 @@ convert_torch_sequential <- function(model) {
 # Convert nn_linear -----------------------------------------------------------
 convert_torch_linear <- function(modul, num) {
   if (is.null(modul$bias)) {
-    bias <- rep(0, times = dim(modul$weight)[1])
+    bias <- torch_zeros(dim(modul$weight)[1])
   } else {
-    bias <- as_array(modul$bias)
+    bias <- modul$bias$detach()$to(torch_float())
   }
 
   list(
     type = "Dense",
-    weight = as_array(modul$weight),
+    weight = modul$weight$detach()$to(torch_float()),
     bias = bias,
     activation_name = "linear",
     dim_in = NULL,
@@ -105,14 +105,14 @@ convert_torch_conv1d <- function(modul, num) {
       "instead.")
   }
   if (is.null(modul$bias)) {
-    bias <- rep(0, times = dim(modul$weight)[1])
+    bias <- torch_zeros(dim(modul$weight)[1])
   } else {
-    bias <- as_array(modul$bias)
+    bias <- modul$bias$detach()$to(torch_float())
   }
 
   list(
     type = "Conv1D",
-    weight = as_array(modul$weight),
+    weight = modul$weight$detach()$to(torch_float()),
     bias = bias,
     activation_name = "linear",
     dim_in = NULL,
@@ -133,9 +133,9 @@ convert_torch_conv2d <- function(modul, num) {
       "instead.")
   }
   if (is.null(modul$bias)) {
-    bias <- rep(0, times = dim(modul$weight)[1])
+    bias <- torch_zeros(dim(modul$weight)[1])
   } else {
-    bias <- as_array(modul$bias)
+    bias <- modul$bias$detach()$to(torch_float())
   }
   if (length(modul$padding) == 1) {
     padding <- rep(modul$padding, 4)
@@ -145,7 +145,7 @@ convert_torch_conv2d <- function(modul, num) {
 
   list(
     type = "Conv2D",
-    weight = as_array(modul$weight),
+    weight = modul$weight$detach()$to(torch_float()),
     bias = bias,
     activation_name = "linear",
     dim_in = NULL,

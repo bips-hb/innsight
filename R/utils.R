@@ -36,3 +36,16 @@ cli_check <- function(check, varname) {
     }
   }
 }
+
+checkTensor <- function(x, d = NULL) {
+  if (!inherits(x, "torch_tensor")) {
+    return(paste0("Must be of type 'torch_tensor/R7', not '",
+                  paste0(class(x), collapse = "/"), "'"))
+  }
+  if (!is.null(d)) {
+    if (x$dim() != d) {
+      return(paste0("Must be a ", d,"-d tensor, but has dimension ", x$dim()))
+    }
+  }
+  return(TRUE)
+}

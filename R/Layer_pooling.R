@@ -72,11 +72,16 @@ PoolingLayer <- nn_module(
       rel_pos <- self$get_gradient(z) * input_pos
 
       # - negative part
-      z <- rel_output /
-        (out_part$neg - out_part$neg$eq(0.0) * eps +
-           out_part$neg$sgn() * eps)$unsqueeze(-1)
+      if (rule_param != 1) {
+        z <- rel_output /
+          (out_part$neg - out_part$neg$eq(0.0) * eps +
+             out_part$neg$sgn() * eps)$unsqueeze(-1)
 
-      rel_neg <- self$get_gradient(z) * input_neg
+        rel_neg <- self$get_gradient(z) * input_neg
+      } else {
+        rel_neg <- 0
+      }
+
 
       # calculate over all relevance for the lower layer
       rel_input <- rel_pos * rule_param + rel_neg * (1 - rule_param)
@@ -368,11 +373,15 @@ max_pool1d_layer <- nn_module(
         rel_pos <- self$get_gradient(z, use_avgpool = TRUE) * input_pos
 
         # - negative part
-        z <- rel_output /
-          (out_part$neg - out_part$neg$eq(0.0) * eps +
-             out_part$neg$sgn() * eps)$unsqueeze(-1)
+        if (rule_param != 1) {
+          z <- rel_output /
+            (out_part$neg - out_part$neg$eq(0.0) * eps +
+               out_part$neg$sgn() * eps)$unsqueeze(-1)
 
-        rel_neg <- self$get_gradient(z, use_avgpool = TRUE) * input_neg
+          rel_neg <- self$get_gradient(z, use_avgpool = TRUE) * input_neg
+        } else {
+          rel_neg <- 0
+        }
 
         # calculate over all relevance for the lower layer
         rel_input <- rel_pos * rule_param + rel_neg * (1 - rule_param)
@@ -524,11 +533,15 @@ max_pool2d_layer <- nn_module(
         rel_pos <- self$get_gradient(z, use_avgpool = TRUE) * input_pos
 
         # - negative part
-        z <- rel_output /
-          (out_part$neg - out_part$neg$eq(0.0) * eps +
-             out_part$neg$sgn() * eps)$unsqueeze(-1)
+        if (rule_param != 1) {
+          z <- rel_output /
+            (out_part$neg - out_part$neg$eq(0.0) * eps +
+               out_part$neg$sgn() * eps)$unsqueeze(-1)
 
-        rel_neg <- self$get_gradient(z, use_avgpool = TRUE) * input_neg
+          rel_neg <- self$get_gradient(z, use_avgpool = TRUE) * input_neg
+        } else {
+          rel_neg <- 0
+        }
 
         # calculate over all relevance for the lower layer
         rel_input <- rel_pos * rule_param + rel_neg * (1 - rule_param)

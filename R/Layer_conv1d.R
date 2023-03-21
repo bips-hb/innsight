@@ -55,7 +55,9 @@ conv1d_layer <- nn_module(
       self$input <- x
     }
     # Pad the input
-    x <- nnf_pad(x, pad = self$padding)
+    if (any(self$padding != 0)) {
+      x <- nnf_pad(x, pad = self$padding)
+    }
     # Apply conv1d
     preactivation <- nnf_conv1d(x, self$W,
       bias = self$b,
@@ -84,7 +86,9 @@ conv1d_layer <- nn_module(
       self$input_ref <- x_ref
     }
     # Apply padding
-    x_ref <- nnf_pad(x_ref, pad = self$padding)
+    if (any(self$padding != 0)) {
+      x_ref <- nnf_pad(x_ref, pad = self$padding)
+    }
     # Apply conv1d
     preactivation_ref <- nnf_conv1d(x_ref, self$W,
       bias = self$b,
@@ -123,15 +127,19 @@ conv1d_layer <- nn_module(
     # padding (out) lost some dimensions, because multiple input shapes are
     # mapped to the same output shape. Therefore, we use padding with zeros to
     # fill in the missing irrelevant input values.
-    lost_length <-
-      self$input_dim[2] + self$padding[1] + self$padding[2] - dim(out)[3]
+    if (any(self$stride > 1)) {
+      lost_length <-
+        self$input_dim[2] + self$padding[1] + self$padding[2] - dim(out)[3]
 
-    out <- nnf_pad(out, pad = c(0, 0, 0, lost_length))
-    # Now we have added the missing values such that
-    # dim(out) = dim(padded_input)
+      out <- nnf_pad(out, pad = c(0, 0, 0, lost_length))
+      # Now we have added the missing values such that
+      # dim(out) = dim(padded_input)
+    }
 
     # Apply the inverse padding to obtain dim(out) = dim(input)
-    out <- out[, , (self$padding[1] + 1):(dim(out)[3] - self$padding[2]), ]
+    if (any(self$padding != 0)) {
+      out <- out[, , (self$padding[1] + 1):(dim(out)[3] - self$padding[2]), ]
+    }
 
     out
   },
@@ -150,7 +158,9 @@ conv1d_layer <- nn_module(
     }
 
     conv1d <- function(x, W, b) {
-      x <- nnf_pad(x, pad = self$padding)
+      if (any(self$padding != 0)) {
+        x <- nnf_pad(x, pad = self$padding)
+      }
       out <- nnf_conv1d(x, W,
         bias = b,
         stride = self$stride,

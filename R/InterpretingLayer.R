@@ -69,13 +69,17 @@ InterpretingLayer <- nn_module(
         self$get_gradient(z, W_neg) * input_neg
 
       # - negative part
-      z <- rel_output /
-        (out_part$neg - out_part$neg$eq(0.0) * eps +
-           out_part$neg$sgn() * eps)$unsqueeze(-1)
+      if (rule_param != 1) {
+        z <- rel_output /
+          (out_part$neg - out_part$neg$eq(0.0) * eps +
+             out_part$neg$sgn() * eps)$unsqueeze(-1)
 
-      rel_neg <-
-        self$get_gradient(z, W_pos) * input_neg +
-        self$get_gradient(z, W_neg) * input_pos
+        rel_neg <-
+          self$get_gradient(z, W_pos) * input_neg +
+          self$get_gradient(z, W_neg) * input_pos
+      } else {
+        rel_neg <- 0
+      }
 
       # calculate over all relevance for the lower layer
       rel_input <- rel_pos * rule_param + rel_neg * (1 - rule_param)

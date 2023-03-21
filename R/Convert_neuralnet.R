@@ -26,8 +26,8 @@ convert_neuralnet_model <- function(model) {
     name <- sprintf("Dense_%s", i)
 
     # the first row is the bias vector and the rest the weight matrix
-    b <- as.vector(weights[[i]][1, ])
-    w <- t(matrix(weights[[i]][-1, ], ncol = length(b)))
+    b <- torch_tensor(as.vector(weights[[i]][1, ]))
+    w <- torch_tensor(t(matrix(weights[[i]][-1, ], ncol = length(b))))
 
     # consider the activation of the last layer
     if (i == length(weights) && model$linear.output == TRUE) {

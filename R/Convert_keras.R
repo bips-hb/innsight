@@ -186,12 +186,12 @@ convert_keras_model <- function(model) {
 
 convert_keras_dense <- function(layer) {
   act_name <- layer$activation$`__name__`
-  weights <- as.array(t(layer$get_weights()[[1]]))
+  weights <- torch_tensor(as.array(t(layer$get_weights()[[1]])))
 
   if (layer$use_bias) {
-    bias <- as.vector(layer$get_weights()[[2]])
+    bias <- torch_tensor(as.vector(layer$get_weights()[[2]]))
   } else {
-    bias <- rep(0, times = dim(weights)[1])
+    bias <- torch_zeros(dim(weights)[1])
   }
 
   list(
@@ -233,12 +233,12 @@ convert_keras_convolution <- function(layer, type) {
     padding <- get_same_padding(input_dim, kernel_size, dilation, stride)
   }
 
-  weight <- as.array(layer$get_weights()[[1]])
+  weight <- torch_tensor(as.array(layer$get_weights()[[1]]))
 
   if (layer$use_bias) {
-    bias <- as.vector(layer$get_weights()[[2]])
+    bias <- torch_tensor(as.vector(layer$get_weights()[[2]]))
   } else {
-    bias <- rep(0, times = dim(weight)[length(dim(weight))])
+    bias <- torch_zeros(dim(weight)[length(dim(weight))])
   }
 
   # Conv1D
@@ -250,9 +250,9 @@ convert_keras_convolution <- function(layer, type) {
   # torch weight format:
   #   [out_channels, in_channels, kernel_height, kernel_width]
   if (length(dim(weight)) == 3) {
-    weight <- aperm(weight, c(3, 2, 1))
+    weight <- weight$movedim(c(2,3), c(2,1))
   } else {
-    weight <- aperm(weight, c(4, 3, 1, 2))
+    weight <- weight$movedim(c(3,4), c(2,1))
   }
 
   list(
