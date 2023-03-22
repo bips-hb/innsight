@@ -101,6 +101,7 @@ NULL
 #' - \code{\link[=[.innsight_ggplot2]{[}}
 #' - \code{\link[=[[.innsight_ggplot2]{[[}}
 #' - \code{\link[=[<-.innsight_ggplot2]{[<-}}
+#' - \code{\link[=[<-.innsight_ggplot2]{[[<-}}
 #'
 #' *Note:* Since this is not a standard visualization, the suggested packages
 #' `'grid'`, `'gridExtra'` and `'gtable'` must be installed.
@@ -135,7 +136,7 @@ setClass("innsight_ggplot2", slots = list(
 #' [`+.innsight_ggplot2`],
 #' \code{\link{[.innsight_ggplot2}},
 #' \code{\link{[[.innsight_ggplot2}},
-#' \code{\link{[<-.innsight_ggplot2}}
+#' \code{\link{[<-.innsight_ggplot2}}, \code{\link{[[<-.innsight_ggplot2}}
 #'
 #' @rdname innsight_ggplot2-print
 #' @aliases print,innsight_ggplot2-method print.innsight_ggplot2
@@ -200,7 +201,8 @@ setMethod(
 #' [`print.innsight_ggplot2`],
 #' \code{\link{[.innsight_ggplot2}},
 #' \code{\link{[[.innsight_ggplot2}},
-#' \code{\link{[<-.innsight_ggplot2}}
+#' \code{\link{[<-.innsight_ggplot2}},
+#' \code{\link{[[<-.innsight_ggplot2}}
 #'
 #' @rdname innsight_ggplot2-plus
 #' @aliases +,innsight_ggplot2,ANY-method +.innsight_ggplot2
@@ -245,16 +247,26 @@ setMethod(
 #' @param j The numeric (or missing) index for the columns.
 #' @param value Another instance of the S4 class `innsight_ggplot2` but of
 #' shape `i` x `j`.
+#' @param restyle This logical value determines whether the labels and facet
+#' stripes remain as they were in the original plot or are adjusted to the
+#' subplot accordingly. Default `TRUE`
 #' @param drop unused argument
 #' @param ... other unused arguments
 #'
 #' @return
-#' * `[.innsight_ggplot2`: Selects only the plots from the `i`-th row and
-#' `j`-th column and returns them as a new instance of [`innsight_ggplot2`].
-#' * `[[.innsight_ggplot2`: Selects only the single plot in the `i`-th row and
-#' `j`-th column and returns it an [ggplot2::ggplot] object.
-#' * `[<-.innsight_ggplot2`: Replaces the plots from the `i`-th row and `j`-th
-#' column with those from `value` and returns the modified instance of
+#' * `[.innsight_ggplot2`: Selects only the plots from the `i`-th rows and
+#' `j`-th columns and returns them as a new instance of [`innsight_ggplot2`].
+#' If `restyle = TRUE` the facet stripes and axis labels of the original
+#' plot are transferred to the subplot, otherwise they are returned as they are.
+#' * `[[.innsight_ggplot2`: Selects only the subplot in rows `i` and columns
+#' `j` and returns it an [ggplot2::ggplot] object. If `restyle = TRUE` the
+#' facet stripes and axis labels of the original plot are transferred to
+#' the subplot, otherwise they are returned as they are.
+#' * `[<-.innsight_ggplot2`: Replaces the plots in the rows `i` and columns `j`
+#' with those from `value` and returns the modified instance of
+#' [`innsight_ggplot2`].
+#' * `[[<-.innsight_ggplot2`: Replaces the plot from the `i`-th row and `j`-th
+#' column with the plot from `value` and returns the modified instance of
 #' [`innsight_ggplot2`].
 #'
 #' @seealso [`innsight_ggplot2`], [`print.innsight_ggplot2`],
@@ -265,7 +277,7 @@ setMethod(
 #' @export
 setMethod(
   "[", list(x = "innsight_ggplot2"),
-  function(x, i, j, ..., drop = TRUE) {
+  function(x, i, j, ...,restyle = TRUE,  drop = TRUE) {
     #----- Multiplot -----------------------------------------------------------
     if (x@multiplot) {
       # Check indices and set defaults (if necessary)
@@ -277,13 +289,15 @@ setMethod(
       # Get only selected grobs
       grobs <- x@grobs[i, j, drop = FALSE]
 
-      # Set the facets
-      grobs <- set_facets(grobs, x@boxplot)
+      if (restyle) {
+        # Set the facets
+        grobs <- set_facets(grobs, x@boxplot)
 
-      # Set labels, ticks and theme
-      grobs <- set_theme(grobs, x@output_strips$theme,
-        orig_grobs = x@grobs, i = i, j = j, labels = TRUE
-      )
+        # Set labels, ticks and theme
+        grobs <- set_theme(grobs, x@output_strips$theme,
+          orig_grobs = x@grobs, i = i, j = j, labels = TRUE
+        )
+      }
 
       # Update the arguments 'output_strips' and 'col_dims'
       res <- update_coldims_and_outstrips(x@output_strips, x@col_dims, j)
@@ -337,7 +351,7 @@ setMethod(
 #' @export
 setMethod(
   "[[", list(x = "innsight_ggplot2"),
-  function(x, i, j, ...) {
+  function(x, i, j, ..., restyle = TRUE) {
     # Check indices
     if (x@multiplot) {
       upper_row <- nrow(x@grobs)
@@ -361,7 +375,7 @@ setMethod(
     cli_check(checkInt(i, lower = 1, upper = upper_row), "i")
     cli_check(checkInt(j, lower = 1, upper = upper_col), "j")
 
-    x[i, j]@grobs[[1, 1]]
+    x[i, j, restyle = restyle]@grobs[[1, 1]]
   }
 )
 
@@ -387,16 +401,10 @@ setMethod(
       cli_check(checkTRUE(identical(c(length(i), length(j)), dim(value@grobs))),
                 "identical(c(length(i), length(j)), dim(value@grobs))")
 
-      # Remove facets of 'value'
-      grobs_value <-
-        apply(value@grobs, 1:2, function(grob) grob[[1]] + facet_grid())
-
       # Insert grobs from value
       grobs <- x@grobs
-      grobs[i, j] <- grobs_value
+      grobs[i, j] <- value@grobs
 
-      # Update facets
-      grobs <- set_facets(grobs, x@boxplot)
     } else {
       warningf("Ignoring unknown object of class(es): ",
         paste(class(value), collapse = ", ")
@@ -412,6 +420,35 @@ setMethod(
   }
 )
 
+#' @rdname innsight_ggplot2-indexing
+#' @aliases [[<-,innsight_ggplot2-method [[<-.innsight_ggplot2
+#' @export
+setMethod(
+  "[[<-", list(x = "innsight_ggplot2"),
+  function(x, i, j, ..., value) {
+    if (!x@multiplot) {
+      stopf("The method '[[<-' is not implemented for single plots!")
+    }
+
+    # Check indices
+    cli_check(checkInt(i, lower = 1, upper = nrow(x@grobs)), "i")
+    cli_check(checkInt(j, lower = 1, upper = ncol(x@grobs)), "j")
+
+    grobs <- x@grobs
+    if (is(value, "ggplot")) {
+      grobs[[i,j]] <- value
+    } else {
+      warningf("Ignoring unknown object of class(es): ",
+               paste(class(value), collapse = ", "))
+    }
+
+    new("innsight_ggplot2",
+        grobs = grobs,
+        multiplot = x@multiplot, output_strips = x@output_strips,
+        col_dims = x@col_dims, boxplot = x@boxplot
+    )
+  }
+)
 
 ###############################################################################
 #                              Utility functions

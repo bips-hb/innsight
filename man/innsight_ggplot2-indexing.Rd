@@ -7,13 +7,17 @@
 \alias{[[.innsight_ggplot2}
 \alias{[<-,innsight_ggplot2-method}
 \alias{[<-.innsight_ggplot2}
+\alias{[[<-,innsight_ggplot2-method}
+\alias{[[<-.innsight_ggplot2}
 \title{Indexing plots of \code{innsight_ggplot2}}
 \usage{
-\S4method{[}{innsight_ggplot2}(x, i, j, ..., drop = TRUE)
+\S4method{[}{innsight_ggplot2}(x, i, j, ..., restyle = TRUE, drop = TRUE)
 
-\S4method{[[}{innsight_ggplot2}(x, i, j, ...)
+\S4method{[[}{innsight_ggplot2}(x, i, j, ..., restyle = TRUE)
 
 \S4method{[}{innsight_ggplot2}(x, i, j, ...) <- value
+
+\S4method{[[}{innsight_ggplot2}(x, i, j, ...) <- value
 }
 \arguments{
 \item{x}{An instance of the s4 class \code{\link{innsight_ggplot2}}.}
