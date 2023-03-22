@@ -186,32 +186,35 @@ convert_keras_model <- function(model) {
 
 convert_keras_dense <- function(layer) {
   act_name <- layer$activation$`__name__`
-  weights <- torch_tensor(as.array(t(layer$get_weights()[[1]])))
+  weights <- layer$get_weights()
+  w <- torch_tensor(as.array(weights[[1]]))$transpose(1,2)
 
   if (layer$use_bias) {
-    bias <- torch_tensor(as.vector(layer$get_weights()[[2]]))
+    bias <- torch_tensor(as.vector(weights[[2]]))
   } else {
-    bias <- torch_zeros(dim(weights)[1])
+    bias <- torch_zeros(dim(w)[1])
   }
+  rm(weights)
 
   list(
     type = "Dense",
-    weight = weights,
+    weight = w,
     bias = bias,
     activation_name = act_name,
-    dim_in = dim(weights)[2],
-    dim_out = dim(weights)[1]
+    dim_in = dim(w)[2],
+    dim_out = dim(w)[1]
   )
 }
 
 # Convolution Layer -----------------------------------------------------------
 
 convert_keras_convolution <- function(layer, type) {
-  act_name <- layer$get_config()$activation
-  kernel_size <- as.integer(unlist(layer$get_config()$kernel_size))
-  stride <- as.integer(unlist(layer$get_config()$strides))
-  padding <- layer$get_config()$padding
-  dilation <- as.integer(unlist(layer$get_config()$dilation_rate))
+  config <- layer$get_config()
+  act_name <- config$activation
+  kernel_size <- as.integer(unlist(config$kernel_size))
+  stride <- as.integer(unlist(config$strides))
+  padding <- config$padding
+  dilation <- as.integer(unlist(config$dilation_rate))
 
   # input_shape:
   #     channels_first:  [batch_size, in_channels, in_length]
@@ -233,10 +236,11 @@ convert_keras_convolution <- function(layer, type) {
     padding <- get_same_padding(input_dim, kernel_size, dilation, stride)
   }
 
-  weight <- torch_tensor(as.array(layer$get_weights()[[1]]))
+  weights <- layer$get_weights()
+  weight <- torch_tensor(as.array(weights[[1]]))
 
   if (layer$use_bias) {
-    bias <- torch_tensor(as.vector(layer$get_weights()[[2]]))
+    bias <- torch_tensor(as.vector(weights[[2]]))
   } else {
     bias <- torch_zeros(dim(weight)[length(dim(weight))])
   }
