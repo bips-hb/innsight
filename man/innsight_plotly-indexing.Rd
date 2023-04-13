@@ -24,8 +24,8 @@
 }
 \value{
 \itemize{
-\item \verb{[.innsight_plotly}: Selects the plots from the i-th row and j-th
-column and returns them as a new instance of \code{innsight_plotly}.
+\item \verb{[.innsight_plotly}: Selects the plots from the i-th rows and j-th
+columns and returns them as a new instance of \code{innsight_plotly}.
 \item \verb{[[.innisght_plotly}: Selects only the single plot in the i-th row and
 j-th column and returns it as a plotly object.
 }

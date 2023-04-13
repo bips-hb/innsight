@@ -13,97 +13,57 @@ convert_torch_sequential <- function(model) {
     stopf("You passed an empty {.pkg torch} model!")
   }
 
-  activation_possible <- FALSE
+  include_act <- FALSE
+  impl_acts <- c("relu", "leaky_relu", "softplus", "sigmoid", "softmax", "tanh")
 
   for (modul in modules_list) {
-    classes <- class(modul)
-
-    if ("nn_flatten" %in% classes) {
+    if (inherits(modul, "nn_flatten")) {
       model_as_list$layers[[num]] <- convert_torch_flatten(num)
-      activation_possible <- FALSE
-      num <- num + 1
-    } else if ("nn_linear" %in% classes) {
+      include_act <- TRUE
+    } else if (inherits(modul, "nn_linear")) {
       model_as_list$layers[[num]] <- convert_torch_linear(modul, num)
-      activation_possible <- TRUE
-      num <- num + 1
-    } else if ("nn_conv1d" %in% classes) {
+      include_act <- TRUE
+    } else if (inherits(modul, "nn_conv1d")) {
       model_as_list$layers[[num]] <- convert_torch_conv1d(modul, num)
-      activation_possible <- TRUE
-      num <- num + 1
-    } else if ("nn_conv2d" %in% classes) {
+      include_act <- TRUE
+    } else if (inherits(modul, "nn_conv2d")) {
       model_as_list$layers[[num]] <- convert_torch_conv2d(modul, num)
-      activation_possible <- TRUE
-      num <- num + 1
-    } else if ("nn_avg_pool1d" %in% classes) {
-      activation_possible <- TRUE
+      include_act <- TRUE
+    } else if (inherits(modul, "nn_avg_pool1d")) {
       model_as_list$layers[[num]] <- convert_torch_avg_pool1d(modul, num)
-      num <- num + 1
-    } else if ("nn_avg_pool2d" %in% classes) {
-      activation_possible <- TRUE
+      include_act <- TRUE
+    } else if (inherits(modul, "nn_avg_pool2d")) {
       model_as_list$layers[[num]] <- convert_torch_avg_pool2d(modul, num)
-      num <- num + 1
-    } else if ("nn_max_pool1d" %in% classes) {
-      activation_possible <- TRUE
+      include_act <- TRUE
+    } else if (inherits(modul, "nn_max_pool1d")) {
       model_as_list$layers[[num]] <- convert_torch_max_pool1d(modul, num)
-      num <- num + 1
-    } else if ("nn_max_pool2d" %in% classes) {
-      activation_possible <- TRUE
+      include_act <- TRUE
+    } else if (inherits(modul, "nn_max_pool2d")) {
       model_as_list$layers[[num]] <- convert_torch_max_pool2d(modul, num)
-      num <- num + 1
-    } else if ("nn_dropout" %in% classes) {
-      activation_possible <- FALSE
+      include_act <- TRUE
+    } else if (inherits(modul, "nn_dropout")) {
       model_as_list$layers[[num]] <- convert_torch_skipping("nn_dropout", num)
-      num <- num + 1
-    } else if ("nn_relu" %in% classes) {
-      if (activation_possible) {
-        model_as_list$layers[[num - 1]]$activation_name <- "relu"
-        activation_possible <- FALSE
+      include_act <- FALSE
+    } else if (inherits(modul, paste0("nn_", impl_acts))) {
+      idx <-
+        which(inherits(modul, paste0("nn_", impl_acts),  which = TRUE) == 1)
+      act_name <- impl_acts[idx]
+      if (include_act) {
+        num <- num - 1
+        model_as_list$layers[[num]]$activation_name <- act_name
       } else {
-        activation_error("relu", num, model_as_list$layers)
+        model_as_list$layers[[num]] <- convert_torch_activation(act_name, num)
       }
-    } else if ("nn_leaky_relu" %in% classes) {
-      if (activation_possible) {
-        model_as_list$layers[[num - 1]]$activation_name <- "leaky_relu"
-        activation_possible <- FALSE
-      } else {
-        activation_error("leaky_relu", num, model_as_list$layers)
-      }
-    } else if ("nn_softplus" %in% classes) {
-      if (activation_possible) {
-        model_as_list$layers[[num - 1]]$activation_name <- "softplus"
-        activation_possible <- FALSE
-      } else {
-        activation_error("softplus", num, model_as_list$layers)
-      }
-    } else if ("nn_sigmoid" %in% classes) {
-      if (activation_possible) {
-        model_as_list$layers[[num - 1]]$activation_name <- "sigmoid"
-        activation_possible <- FALSE
-      } else {
-        activation_error("sigmoid", num, model_as_list$layers)
-      }
-    } else if ("nn_softmax" %in% classes) {
-      if (activation_possible) {
-        model_as_list$layers[[num - 1]]$activation_name <- "softmax"
-        activation_possible <- FALSE
-      } else {
-        activation_error("softmax", num, model_as_list$layers)
-      }
-    } else if ("nn_tanh" %in% classes) {
-      if (activation_possible) {
-        model_as_list$layers[[num - 1]]$activation_name <- "tanh"
-        activation_possible <- FALSE
-      } else {
-        activation_error("tanh", num, model_as_list$layers)
-      }
-    } else if (any(c("nn_batch_norm1d", "nn_batch_norm2d") %in% classes)) {
+      include_act <- FALSE
+    } else if (inherits(modul, c("nn_batch_norm1d", "nn_batch_norm2d"))) {
       model_as_list$layers[[num]] <- convert_torch_batchnorm(modul, num)
-      activation_possible <- FALSE
-      num <- num + 1
+      include_act <- FALSE
     } else {
       stopf("Unknown module of class(es): '",
-            paste(classes, collapse = "', '"), "'!")
+            paste(class(modul), collapse = "', '"), "'!")
     }
+
+    num <- num + 1
   }
   model_as_list$layers[[num - 1]]$output_layers <- -1
   model_as_list$input_nodes <- c(1)
@@ -120,14 +80,14 @@ convert_torch_sequential <- function(model) {
 # Convert nn_linear -----------------------------------------------------------
 convert_torch_linear <- function(modul, num) {
   if (is.null(modul$bias)) {
-    bias <- rep(0, times = dim(modul$weight)[1])
+    bias <- torch_zeros(dim(modul$weight)[1])
   } else {
-    bias <- as_array(modul$bias)
+    bias <- modul$bias$detach()$to(torch_float())
   }
 
   list(
     type = "Dense",
-    weight = as_array(modul$weight),
+    weight = modul$weight$detach()$to(torch_float()),
     bias = bias,
     activation_name = "linear",
     dim_in = NULL,
@@ -145,14 +105,14 @@ convert_torch_conv1d <- function(modul, num) {
       "instead.")
   }
   if (is.null(modul$bias)) {
-    bias <- rep(0, times = dim(modul$weight)[1])
+    bias <- torch_zeros(dim(modul$weight)[1])
   } else {
-    bias <- as_array(modul$bias)
+    bias <- modul$bias$detach()$to(torch_float())
   }
 
   list(
     type = "Conv1D",
-    weight = as_array(modul$weight),
+    weight = modul$weight$detach()$to(torch_float()),
     bias = bias,
     activation_name = "linear",
     dim_in = NULL,
@@ -173,9 +133,9 @@ convert_torch_conv2d <- function(modul, num) {
       "instead.")
   }
   if (is.null(modul$bias)) {
-    bias <- rep(0, times = dim(modul$weight)[1])
+    bias <- torch_zeros(dim(modul$weight)[1])
   } else {
-    bias <- as_array(modul$bias)
+    bias <- modul$bias$detach()$to(torch_float())
   }
   if (length(modul$padding) == 1) {
     padding <- rep(modul$padding, 4)
@@ -185,7 +145,7 @@ convert_torch_conv2d <- function(modul, num) {
 
   list(
     type = "Conv2D",
-    weight = as_array(modul$weight),
+    weight = modul$weight$detach()$to(torch_float()),
     bias = bias,
     activation_name = "linear",
     dim_in = NULL,
@@ -279,16 +239,35 @@ convert_torch_flatten <- function(num) {
 
 # Convert nn_batch_norm* ------------------------------------------------------
 convert_torch_batchnorm <- function(modul, num) {
+  if (modul$affine) {
+    gamma <- as_array(modul$weight)
+    beta <- as_array(modul$bias)
+  } else {
+    gamma <- rep(1, modul$num_features)
+    beta <- rep(0, modul$num_features)
+  }
   list(
     type = "BatchNorm",
     dim_in = NULL,
     dim_out = NULL,
     num_features = modul$num_features,
-    gamma = as_array(modul$weight),
+    gamma = gamma,
     eps = modul$eps,
-    beta = as_array(modul$bias),
+    beta = beta,
     run_mean = as_array(modul$running_mean),
     run_var = as_array(modul$running_var),
+    input_layers = num - 1,
+    output_layers = num + 1
+  )
+}
+
+# Convert activation ----------------------------------------------------------
+convert_torch_activation <- function(act_name, num) {
+  list(
+    type = "Activation",
+    dim_in = NULL,
+    dim_out = NULL,
+    act_name = act_name,
     input_layers = num - 1,
     output_layers = num + 1
   )
@@ -303,26 +282,4 @@ convert_torch_skipping <- function(type, num) {
     input_layers = num - 1,
     output_layers = num + 1
   )
-}
-
-
-###############################################################################
-#                                 Utils
-###############################################################################
-
-activation_error <- function(type, num, layers) {
-  if (num == 1) {
-    stopf(
-      "In this package, it is not allowed to start with an activation",
-      " function. Your activation function: '", type, "'")
-  } else if (layers[[num - 1]]$type %in% c("Skipping", "Flatten", "BatchNorm")) {
-    stopf(
-      "In this package, it is not allowed to use an activation function",
-      " ('", type, "') after a dropout, flatten or batchnormalization layer.")
-  } else {
-    stopf(
-      "In this package, it is not allowed to apply several activation",
-      " functions in a row (..., '", layers[[num - 1]]$activation_name,
-      "' ,'", type, "').")
-  }
 }

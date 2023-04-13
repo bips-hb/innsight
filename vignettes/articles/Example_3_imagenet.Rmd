@@ -1,5 +1,5 @@
 ---
-title: "Example 3: ImageNet with `keras`"
+title: "Example 3: ImageNet with keras"
 ---
 
 ```{r, include = FALSE}
@@ -14,7 +14,7 @@ This is a rather short article, just to illustrate the use of the **innsight**
 package on a few images of the [ImageNet dataset](https://www.image-net.org/) 
 and pre-trained **keras** models. For more detailed information about the package 
 and the implemented methods we refer to [this article](https://bips-hb.github.io/innsight/articles/detailed_overview.html) and for simpler but in 
-detailed explained examples we kindly recommend to [Example 1](https://bips-hb.github.io/innsight/articles/example_1_iris.html) and [Example 2](https://bips-hb.github.io/innsight/articles/example_2_penguin.html).
+detailed explained examples we kindly recommend to [Example 1](https://bips-hb.github.io/innsight/articles/Example_1_iris.html) and [Example 2](https://bips-hb.github.io/innsight/articles/Example_2_penguin.html).
 
 In this example, we want to apply the **innsight** package on pre-trained models 
 on the ImageNet dataset using **keras**. This 
@@ -26,13 +26,13 @@ the following.
 <p align="center">
   <img alt="steel bridge" src="images/image_1.png" width="200" height = "200">
   <img alt="dog with tennis ball" src="images/image_2.png" width="200" height = "200">
-  <img alt="daisy" src="images/image_6.png" width="200" height = "200">
-  <img alt="ballon" src="images/image_13.png" width="200" height = "200">
+  <img alt="daisy" src="images/image_3.png" width="200" height = "200">
+  <img alt="ballon" src="images/image_4.png" width="200" height = "200">
 </p>
 
-## Preprocess Images
+## Preprocess images
 
-The original images all have a different sizes and the pre-trained models all 
+The original images all have different sizes and the pre-trained models all 
 require an input size of $224 \times 224 \times 3$ and the channels are 
 zero-centered according to the channel mean of the whole dataset; hence, we need
 to pre-process the images accordingly, which we will do in the following steps:
@@ -43,7 +43,7 @@ library(keras)
 library(innsight)
 
 # Load images
-img_files <- paste0("images/", c("image_1.png", "image_2.png", "image_6.png", "image_13.png"))
+img_files <- paste0("images/", c("image_1.png", "image_2.png", "image_3.png", "image_4.png"))
 images <- k_stack(lapply(img_files, 
                  function(path) image_to_array(image_load(path, target_size = c(224, 224)))))
 
@@ -163,11 +163,11 @@ add_original_images <- function(img_files, gg_plot, num_methods) {
 ```
 </details>
 
-## Pretrained Model Vgg19
+## Pre-trained model VGG19
 
 Now let's analyze the individual images according to the class that the model
-Vgg19 (see `?application_vgg19` for details) predicts for them. In the 
-**innsight** package these output classes have to be chosen by ourselves, because 
+VGG19 (see `?application_vgg19` for details) predicts for them. In the 
+**innsight** package, these output classes have to be chosen by ourselves because 
 a calculation for all $1000$ classes would be too computationally expensive.
 For this reason, we first determine the corresponding predictions from the model:
 
@@ -189,7 +189,7 @@ pred_df <- cbind(pred_df, index = apply(pred, 1, which.max))
 pred_df
 ```
 
-Afterwards, we apply all the methods from the configuration `config` to the model 
+Afterward, we apply all the methods from the configuration `config` to the model 
 by first putting it into a `Converter` object and then applying the methods to 
 each image individually.
 
@@ -270,7 +270,7 @@ res <- add_original_images(img_files, p, length(unique(result$method)))
 gridExtra::grid.arrange(grobs = res$grobs, layout_matrix = res$layout_matrix)
 ```
 
-## Pretrained Model ResNet50
+## Pre-trained model ResNet50
 
 We can execute these steps to another model analogously:
 

@@ -1,4 +1,4 @@
-#' Converter of an Artificial Neural Network
+#' Converter of an artificial neural network
 #'
 #' @description
 #' This class analyzes a passed neural network and stores its internal
@@ -20,9 +20,9 @@
 #' The converted neural network based on the torch module [ConvertedModel].\cr
 #' @field input_dim (`list`)\cr
 #' A list of the input dimensions of each input layer. Since
-#' internally the channels-first format is used for all calculations, the
+#' internally the "channels first" format is used for all calculations, the
 #' input shapes are already in this format. In addition, the batch
-#' dimension isn't included, e.g. for an input layer of shape `c(*,32,32,3)`
+#' dimension isn't included, e.g., for an input layer of shape `c(*,32,32,3)`
 #' with channels in the last axis you get `list(c(3,32,32))`.\cr
 #' @field input_names (`list`)\cr
 #' A list with the names as factors for each input
@@ -64,7 +64,7 @@ Converter <- R6Class("Converter",
 
     ### -----------------------------Initialize--------------------------------
     #' @description
-    #' Create a new Converter for a given neural network. When initialized,
+    #' Create a new [Converter] object for a given neural network. When initialized,
     #' the model is inspected, converted as a list and then the a
     #' torch-converted model ([ConvertedModel]) is created and stored in
     #' the field `model`.
@@ -77,7 +77,7 @@ Converter <- R6Class("Converter",
     #' \code{\link[keras]{keras_model}},
     #' \code{\link[keras]{keras_model_sequential}},
     #' \code{\link[neuralnet]{neuralnet}} or a named list (see details).
-    #' @param input_dim (`integer`)\cr
+    #' @param input_dim (`integer` or `list`)\cr
     #' The model input dimension excluding the batch
     #' dimension. If there is only one input layer it can be specified as
     #' a vector, otherwise use a list of the shapes of the
@@ -85,23 +85,28 @@ Converter <- R6Class("Converter",
     #' *Note:* This argument is only necessary for `torch::nn_sequential`,
     #' for all others it is automatically extracted from the passed model
     #' and used for internal checks. In addition, the input dimension
-    #' `input_dim` has to be in the format channels first.\cr
-    #' @param input_names (`list`)\cr
-    #' A list with the names for each input
-    #' dimension excluding the batch dimension, e.g. for a dense layer
-    #' with `3` input features use `list(c("X1", "X2", "X3"))` or for a
-    #' 1D convolutional layer with signal length `5` and `2` channels use
-    #' `list(c("C1", "C2"), c("L1","L2","L3","L4","L5"))`. Instead of character
-    #' vectors you can also use factors to set an order for the plots.\cr
+    #' `input_dim` has to be in the format "channels first".\cr
+    #' @param input_names (`character`, `factor` or `list`)\cr
+    #' The input names of the model excluding the batch dimension. For a model
+    #' with a single input layer and input axis (e.g., for tabular data), the
+    #' input names can be specified as a character vector or factor, e.g.,
+    #' for a dense layer with 3 input features use `c("X1", "X2", "X3")`. If
+    #' the model input consists of multiple axes (e.g., for signal and
+    #' image data), use a list of character vectors or factors for each axis
+    #' in the format "channels first", e.g., use
+    #' `list(c("C1", "C2"), c("L1","L2","L3","L4","L5"))` for a 1D
+    #' convolutional input layer with signal length 4 and 2 channels. For
+    #' models with multiple input layers, use a list of the upper ones for each
+    #' layer.\cr
     #' *Note:* This argument is optional and otherwise the names are
     #' generated automatically. But if this argument is set, all found
     #' input names in the passed model will be disregarded.\cr
-    #' @param output_names (`character` or `list`)\cr
-    #' A list with the names for the output
-    #' dimensions excluding the batch dimension,
-    #' e.g. for a model with `3` output nodes use
-    #' `list(c("Y1", "Y2", "Y3"))`. Instead of a character
-    #' vector you can also use a factor to set an order for the plots.\cr
+    #' @param output_names (`character`, `factor` or `list`)\cr
+    #' A character vector with the names for the output dimensions
+    #' excluding the batch dimension, e.g., for a model with 3 output nodes use
+    #' `c("Y1", "Y2", "Y3")`. Instead of a character
+    #' vector you can also use a factor to set an order for the plots. If the
+    #' model has multiple output layers, use a list of the upper ones.\cr
     #' *Note:* This argument is optional and otherwise the names are
     #' generated automatically. But if this argument is set, all found
     #' output names in the passed model will be disregarded.\cr
@@ -115,7 +120,7 @@ Converter <- R6Class("Converter",
     #' either `'float'` for [torch::torch_float] or `'double'` for
     #' [torch::torch_double].\cr
     #'
-    #' @return A new instance of the R6 class \code{'Converter'}.
+    #' @return A new instance of the R6 class \code{Converter}.
     #'
     initialize = function(model, input_dim = NULL, input_names = NULL,
                           output_names = NULL, dtype = "float",
@@ -175,11 +180,11 @@ Converter <- R6Class("Converter",
     },
 
     #' @description
-    #' Print a summary of the Converter object. This summary contains the
+    #' Print a summary of the `Converter` object. This summary contains the
     #' individual fields and in particular the torch-converted model
     #' ([ConvertedModel]) with the layers.
     #'
-    #' @return Returns the Converter object invisibly via [`base::invisible`].
+    #' @return Returns the `Converter` object invisibly via [`base::invisible`].
     #'
     print = function() {
       print_converter(self)
@@ -454,8 +459,12 @@ create_dense_layer <- function(layer_as_list, dtype) {
             "dim_in")
   cli_check(checkIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE),
             "dim_out")
-  cli_check(checkArray(weight, mode = "numeric", d = 2), "weight")
-  cli_check(checkNumeric(bias, len = dim_out), "bias")
+  cli_check(c(
+    checkArray(weight, mode = "numeric", d = 2),
+    checkTensor(weight, d = 2)), "weight")
+  cli_check(c(
+    checkNumeric(bias, len = dim_out),
+    checkTensor(bias, d = 1)), "bias")
   cli_check(checkString(activation_name), "activation_name")
 
   dense_layer(weight, bias, activation_name, dim_in, dim_out,
@@ -485,8 +494,12 @@ create_conv1d_layer <- function(layer_as_list, dtype, i) {
             "dim_in")
   cli_check(checkIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE),
             "dim_out")
-  cli_check(checkArray(weight, mode = "numeric", d = 3), "weight")
-  cli_check(checkNumeric(bias, len = dim_out[1]), "bias")
+  cli_check(c(
+    checkArray(weight, mode = "numeric", d = 3),
+    checkTensor(weight, d = 3)), "weight")
+  cli_check(c(
+    checkNumeric(bias, len = dim_out[1]),
+    checkTensor(bias, d = 1)), "bias")
   cli_check(checkString(activation_name), "activation_name")
   cli_check(checkInt(stride, null.ok = TRUE), "stride")
   cli_check(checkInt(dilation, null.ok = TRUE), "dilation")
@@ -536,8 +549,12 @@ create_conv2d_layer <- function(layer_as_list, dtype, i) {
             "dim_in")
   cli_check(checkIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE),
             "dim_out")
-  cli_check(checkArray(weight, mode = "numeric", d = 4), "weight")
-  cli_check(checkNumeric(bias, len = dim_out[1]), "bias")
+  cli_check(c(
+    checkArray(weight, mode = "numeric", d = 4),
+    checkTensor(weight, d = 4)), "weight")
+  cli_check(c(
+    checkNumeric(bias, len = dim_out[1]),
+    checkTensor(bias, d = 1)), "bias")
   cli_check(checkString(activation_name), "activation_name")
   cli_check(checkNumeric(stride, null.ok = TRUE, lower = 1), "stride")
   cli_check(checkNumeric(dilation, null.ok = TRUE, lower = 1), "dilation")
@@ -762,6 +779,8 @@ create_batchnorm_layer <- function(layer_as_list) {
   beta <- layer_as_list$beta
   run_mean <- layer_as_list$run_mean
   run_var <- layer_as_list$run_var
+
+  if (is.null(beta)) beta <- rep(0, num_features)
 
   # Check arguments
   cli_check(checkIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE),

@@ -26,12 +26,14 @@ convert_keras_model <- function(model) {
     })
     graph[[length(graph)]]$output_layers <- -1
     names <- unlist(lapply(model$layers, FUN = function(x) x$name))
+    input_names <- names[1]
     layers <- model$layers
   } else {
     # Otherwise, we have to reconstruct the computational graph from the
     # model config
     res <- keras_reconstruct_graph(model$layers, model$get_config())
     graph <- res$graph
+    input_names <- model$input_names
     layers <- res$layers
     names <- names(layers)
   }
@@ -153,7 +155,6 @@ convert_keras_model <- function(model) {
   }
 
   # Get input and output nodes
-  input_names <- model$input_names
   if (any(grepl("_input", input_names))) {
     input_names <- c(input_names, gsub("_input", "", input_names))
   }
@@ -185,32 +186,35 @@ convert_keras_model <- function(model) {
 
 convert_keras_dense <- function(layer) {
   act_name <- layer$activation$`__name__`
-  weights <- as.array(t(layer$get_weights()[[1]]))
+  weights <- layer$get_weights()
+  w <- torch_tensor(as.array(weights[[1]]))$transpose(1,2)
 
   if (layer$use_bias) {
-    bias <- as.vector(layer$get_weights()[[2]])
+    bias <- torch_tensor(as.vector(weights[[2]]))
   } else {
-    bias <- rep(0, times = dim(weights)[1])
+    bias <- torch_zeros(dim(w)[1])
   }
+  rm(weights)
 
   list(
     type = "Dense",
-    weight = weights,
+    weight = w,
     bias = bias,
     activation_name = act_name,
-    dim_in = dim(weights)[2],
-    dim_out = dim(weights)[1]
+    dim_in = dim(w)[2],
+    dim_out = dim(w)[1]
   )
 }
 
 # Convolution Layer -----------------------------------------------------------
 
 convert_keras_convolution <- function(layer, type) {
-  act_name <- layer$get_config()$activation
-  kernel_size <- as.integer(unlist(layer$get_config()$kernel_size))
-  stride <- as.integer(unlist(layer$get_config()$strides))
-  padding <- layer$get_config()$padding
-  dilation <- as.integer(unlist(layer$get_config()$dilation_rate))
+  config <- layer$get_config()
+  act_name <- config$activation
+  kernel_size <- as.integer(unlist(config$kernel_size))
+  stride <- as.integer(unlist(config$strides))
+  padding <- config$padding
+  dilation <- as.integer(unlist(config$dilation_rate))
 
   # input_shape:
   #     channels_first:  [batch_size, in_channels, in_length]
@@ -232,12 +236,13 @@ convert_keras_convolution <- function(layer, type) {
     padding <- get_same_padding(input_dim, kernel_size, dilation, stride)
   }
 
-  weight <- as.array(layer$get_weights()[[1]])
+  weights <- layer$get_weights()
+  weight <- torch_tensor(as.array(weights[[1]]))
 
   if (layer$use_bias) {
-    bias <- as.vector(layer$get_weights()[[2]])
+    bias <- torch_tensor(as.vector(weights[[2]]))
   } else {
-    bias <- rep(0, times = dim(weight)[length(dim(weight))])
+    bias <- torch_zeros(dim(weight)[length(dim(weight))])
   }
 
   # Conv1D
@@ -249,9 +254,9 @@ convert_keras_convolution <- function(layer, type) {
   # torch weight format:
   #   [out_channels, in_channels, kernel_height, kernel_width]
   if (length(dim(weight)) == 3) {
-    weight <- aperm(weight, c(3, 2, 1))
+    weight <- weight$movedim(c(2,3), c(2,1))
   } else {
-    weight <- aperm(weight, c(4, 3, 1, 2))
+    weight <- weight$movedim(c(3,4), c(2,1))
   }
 
   list(
@@ -361,7 +366,12 @@ convert_keras_batchnorm <- function(layer) {
   else axis <- as.numeric(layer$axis[[0]])
   gamma <- as.numeric(layer$gamma$value())
   eps <- as.numeric(layer$epsilon)
-  beta <- as.numeric(layer$beta)
+  if (layer$center) {
+    beta <- as.numeric(layer$beta)
+  } else {
+    beta <- NULL
+  }
+
   run_mean <- as.numeric(layer$moving_mean)
   run_var <- as.numeric(layer$moving_variance)
 

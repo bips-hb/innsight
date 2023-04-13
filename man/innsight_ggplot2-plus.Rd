@@ -26,5 +26,6 @@ changed, the generic assignment function should be used (see
 \code{\link{print.innsight_ggplot2}},
 \code{\link{[.innsight_ggplot2}},
 \code{\link{[[.innsight_ggplot2}},
-\code{\link{[<-.innsight_ggplot2}}
+\code{\link{[<-.innsight_ggplot2}},
+\code{\link{[[<-.innsight_ggplot2}}
 }

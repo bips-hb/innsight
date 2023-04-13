@@ -4,7 +4,7 @@
 ###############################################################################
 
 
-#' Converted `torch`-based Model
+#' Converted `torch`-based model
 #'
 #' This class stores all layers converted to `torch` in a module which can be
 #' used like the original model (but `torch`-based). In addition, it provides
@@ -39,11 +39,11 @@
 #' The indices of the outputs from `current_nodes`, which are
 #' used as inputs of the current layer (`used_node`).
 #' - `$times`\cr
-#' The frequency of the output value, i.e. is the output used
+#' The frequency of the output value, i.e., is the output used
 #' more than once as an input for subsequent layers?\cr
 #' @param input_nodes (`numeric`)\cr
 #' A vector of layer indices describing the input layers,
-#' i.e. they are used as the starting point for the calculations.\cr
+#' i.e., they are used as the starting point for the calculations.\cr
 #' @param output_nodes (`numeric`)\cr
 #' A vector of layer indices describing the indices
 #' of the output layers.\cr
@@ -75,7 +75,7 @@ ConvertedModel <- nn_module(
   ### -------------------------forward and update------------------------------
   #' @section Method `forward()`:
   #'
-  #' The forward method of the whole model, i.e. it calculates the output
+  #' The forward method of the whole model, i.e., it calculates the output
   #' \eqn{y=f(x)} of a given input \eqn{x}. In doing so, all intermediate
   #' values are stored in the individual torch modules from `modules_list`.
   #'
@@ -93,7 +93,7 @@ ConvertedModel <- nn_module(
   #' \describe{
   #'   \item{`x`}{The input torch tensor for this model.}
   #'   \item{`channels_first`}{If the input tensor `x` is given in the format
-  #'   'channels first' use `TRUE`. Otherwise, if the channels are last,
+  #'   'channels first', use `TRUE`. Otherwise, if the channels are last,
   #'   use `FALSE` and the input will be transformed into the format 'channels
   #'   first'. Default: `TRUE`.}
   #'   \item{`save_input`}{Logical value whether the inputs from each layer
@@ -172,8 +172,9 @@ ConvertedModel <- nn_module(
 
   #' @section Method `update_ref()`:
   #'
-  #' This method updates the stored intermediate values in each module from the
-  #' list `modules_list` when the reference input `x_ref` has changed.
+  #' This method updates the intermediate values in each module from the
+  #' list `modules_list` for the reference input `x_ref` and returns the
+  #' output from it in the same way as in the `forward` method.
   #'
   #' ## Usage
   #' ```

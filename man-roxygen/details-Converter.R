@@ -15,24 +15,25 @@
 #' used as a passed model for the class `Converter`, which will be described
 #' in more detail in the section 'Implemented Libraries'.
 #'
-#' ## Implemented Methods
+#' ## Implemented methods
 #'
 #' An object of the Converter class can be applied to the
 #' following methods:
 #'   * *Layerwise Relevance Propagation* ([LRP]), Bach et al. (2015)
 #'   * *Deep Learning Important Features* ([DeepLift]), Shrikumar et al. (2017)
-#'   * *[SmoothGrad]* including *SmoothGrad x Input*, Smilkov et al. (2017)
-#'   * *Vanilla [Gradient]* including *Gradient x Input*
+#'   * *[SmoothGrad]* including *SmoothGrad\eqn{\times}Input*, Smilkov et al. (2017)
+#'   * *Vanilla [Gradient]* including *Gradient\eqn{\times}Input*
 #'   * *[ConnectionWeights]*, Olden et al. (2004)
 #'
 #'
-#' ## Implemented Libraries
+#' ## Implemented libraries
+#'
 #' The converter is implemented for models from the libraries
 #' \code{\link[torch]{nn_sequential}},
 #' \code{\link[neuralnet]{neuralnet}} and \code{\link[keras]{keras}}. But you
 #' can also write a wrapper for other libraries because a model can be passed
 #' as a named list which is described in detail in the vignette "In-depth
-#' Explanation"
+#' explanation" \cr
 #' (see \code{vignette("detailed_overview", package = "innsight")} or the
 #' [website](https://bips-hb.github.io/innsight/articles/detailed_overview.html#model-as-named-list)).
 #'

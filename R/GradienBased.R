@@ -3,14 +3,14 @@
 ###############################################################################
 
 #'
-#' @title Super Class for Gradient-based Interpretation Methods
+#' @title Super class for gradient-based interpretation methods
 #' @description Super class for gradient-based interpretation methods. This
-#' class inherits from [InterpretingMethod]. It summarizes all implemented
+#' class inherits from [`InterpretingMethod`]. It summarizes all implemented
 #' gradient-based methods and provides a private function to calculate the
 #' gradients w.r.t. to the input for given data. Implemented are:
 #'
-#' - *Vanilla Gradients* and *Gradient x Input* ([Gradient])
-#' - *SmoothGrad* and *SmoothGrad x Input* ([SmoothGrad])
+#' - *Vanilla Gradients* and *Gradient\eqn{\times}Input* ([`Gradient`])
+#' - *SmoothGrad* and *SmoothGrad\eqn{\times}Input* ([`SmoothGrad`])
 #'
 #' @template param-converter
 #' @template param-data
@@ -27,8 +27,7 @@ GradientBased <- R6Class(
 
     #' @field times_input (`logical(1`))\cr
     #' This logical value indicates whether the results
-    #' were multiplied by the provided input data or not. If `TRUE`, the
-    #' method is called *Gradient x Input*.\cr
+    #' were multiplied by the provided input data or not.\cr
     times_input = NULL,
 
     #' @description
@@ -38,7 +37,7 @@ GradientBased <- R6Class(
     #'
     #' @param times_input (`logical(1`)\cr
     #' Multiplies the gradients with the input features.
-    #' This method is called *Gradient x Input*.\cr
+    #' This method is called *Gradient\eqn{\times}Input*.\cr
     #'
     initialize = function(converter, data,
                           channels_first = TRUE,
@@ -151,16 +150,16 @@ boxplot.GradientBased <- function(x, ...) {
 #                               Vanilla Gradient
 ###############################################################################
 
-#' @title Vanilla Gradient and Gradient x Input
+#' @title Vanilla Gradient and Gradient\eqn{\times}Input
 #' @name Gradient
 #'
 #' @description
 #' This method computes the gradients (also known as *Vanilla Gradients*) of
-#' the outputs with respect to the input variables, i.e. for all input
+#' the outputs with respect to the input variables, i.e., for all input
 #' variable \eqn{i} and output class \eqn{j}
 #' \deqn{d f(x)_j / d x_i.}
 #' If the argument `times_input` is `TRUE`, the gradients are multiplied by
-#' the respective input value (*Gradient x Input*), i.e.
+#' the respective input value (*Gradient\eqn{\times}Input*), i.e.,
 #' \deqn{x_i * d f(x)_j / d x_i.}
 #'
 #' @template examples-Gradient
@@ -180,13 +179,13 @@ Gradient <- R6Class(
   public = list(
 
     #' @description
-    #' Create a new instance of the *Vanilla Gradient* or *Gradient x Input*
-    #' method. When initialized, the method is applied to the given data and
-    #' the results are stored in the field `result`.
+    #' Create a new instance of the `Gradient` R6 class. When initialized,
+    #' the method *Gradient* or *Gradient\eqn{\times}Input* is applied to the
+    #' given data and the results are stored in the field `result`.
     #'
     #' @param times_input (`logical(1`))\cr
     #' Multiplies the gradients with the input features.
-    #' This method is called *Gradient x Input*.\cr
+    #' This method is called *Gradient\eqn{\times}Input*.\cr
     #'
     initialize = function(converter, data,
                           channels_first = TRUE,
@@ -234,17 +233,17 @@ Gradient <- R6Class(
 #                                 SmoothGrad
 ###############################################################################
 
-#' @title SmoothGrad and SmoothGrad x Input
+#' @title SmoothGrad and SmoothGrad\eqn{\times}Input
 #'
 #' @description
 #' *SmoothGrad* was introduced by D. Smilkov et al. (2017) and is an extension
 #' to the classical *Vanilla [Gradient]* method. It takes the mean of the
-#' gradients for \code{n} perturbations of each data point, i.e. with
+#' gradients for \code{n} perturbations of each data point, i.e., with
 #' \eqn{\epsilon \sim N(0,\sigma)}
 #' \deqn{1/n \sum_n d f(x+ \epsilon)_j / d x_j.}
-#' Analogous to the *Gradient x Input* method, you can also use the argument
-#' `times_input` multiply the gradients by the inputs before taking the
-#' average (*SmoothGrad x Input*).
+#' Analogous to the *Gradient\eqn{\times}Input* method, you can also use the argument
+#' `times_input` to multiply the gradients by the inputs before taking the
+#' average (*SmoothGrad\eqn{\times}Input*).
 #'
 #' @template examples-SmoothGrad
 #' @template param-converter
@@ -270,24 +269,24 @@ SmoothGrad <- R6Class(
     #' Number of perturbations of the input data (default: \eqn{50}).\cr
     #' @field noise_level (`numeric(1)`)\cr
     #' The standard deviation of the Gaussian
-    #' perturbation, i.e. \eqn{\sigma = (max(x) - min(x)) *} `noise_level`.\cr
+    #' perturbation, i.e., \eqn{\sigma = (max(x) - min(x)) *} `noise_level`.\cr
     #'
     n = NULL,
     noise_level = NULL,
 
     #' @description
-    #' Create a new instance of the *SmoothGrad* or *SmoothGrad x Input*
-    #' method. When initialized, the method is applied to the given data and
-    #' the results are stored in the field `result`.
+    #' Create a new instance of the `SmoothGrad` R6 class. When initialized,
+    #' the method *SmoothGrad* or *SmoothGrad\eqn{\times}Input* is applied to
+    #' the given data and the results are stored in the field `result`.
     #'
     #' @param times_input (`logical(1`)\cr
     #' Multiplies the gradients with the input features.
-    #' This method is called *SmoothGrad x Input*.\cr
+    #' This method is called *SmoothGrad\eqn{\times}Input*.\cr
     #' @param n (`integer(1)`)\cr
     #' Number of perturbations of the input data (default: \eqn{50}).\cr
     #' @param noise_level (`numeric(1)`)\cr
     #' Determines the standard deviation of the Gaussian
-    #' perturbation, i.e. \eqn{\sigma = (max(x) - min(x)) *} `noise_level`.\cr
+    #' perturbation, i.e., \eqn{\sigma = (max(x) - min(x)) *} `noise_level`.\cr
     #'
     initialize = function(converter, data,
                           channels_first = TRUE,

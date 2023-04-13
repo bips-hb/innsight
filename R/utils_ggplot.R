@@ -1,4 +1,5 @@
 #' @importFrom stats ave median
+#' @importFrom utils packageVersion
 
 ###############################################################################
 #                             Plot function
@@ -6,7 +7,8 @@
 
 #----- Main plot function -----------------------------------------------------
 create_ggplot <- function(result_df, value_name = "Relevance",
-                      include_data = TRUE, boxplot = FALSE, data_idx = NULL) {
+                      include_data = TRUE, boxplot = FALSE, data_idx = NULL,
+                      same_scale = TRUE) {
 
   num_inputs <- length(unique(result_df$model_input))
   num_outputs <- length(unique(result_df$model_output))
@@ -36,7 +38,8 @@ create_ggplot <- function(result_df, value_name = "Relevance",
              multiplot = FALSE)
   } else {
     # This is for models with multiple input and/or output layers
-    p <- plot_extended(result_df, value_name, include_data, boxplot, data_idx)
+    p <- plot_extended(result_df, value_name, include_data, boxplot, data_idx,
+                       same_scale)
   }
 
   p
@@ -78,11 +81,23 @@ plot_bar <- function(result_df, value_name = "value", facet_rows = NULL,
   # Create plot/boxplot
   if (boxplot) {
     ref_data <- result_df[result_df$individual_data, ]
-    ref_line <- geom_segment(data = ref_data,
-      aes(x = as.numeric(.data$feature) - 0.35,
-          xend = as.numeric(.data$feature) + 0.35,
-          y = .data$value, yend = .data$value, group = .data$feature),
-      col = "red", size = 1)
+
+    # In ggplot2 3.4.0 aesthetic `size` changed to `linewidth`
+    if (packageVersion("ggplot2") < '3.4.0') {
+      ref_line <- geom_segment(data = ref_data,
+                               aes(x = as.numeric(.data$feature) - 0.35,
+                                   xend = as.numeric(.data$feature) + 0.35,
+                                   y = .data$value, yend = .data$value,
+                                   group = .data$feature),
+                               col = "red", size = 1)
+    } else {
+      ref_line <- geom_segment(data = ref_data,
+                               aes(x = as.numeric(.data$feature) - 0.35,
+                                   xend = as.numeric(.data$feature) + 0.35,
+                                   y = .data$value, yend = .data$value,
+                                   group = .data$feature),
+                               col = "red", linewidth = 1)
+    }
 
     result_df <- result_df[result_df$boxplot_data, ]
     geom <- geom_boxplot(aes(group = .data$feature), fill = "gray", alpha = 0.8,
@@ -236,7 +251,7 @@ plot_image <- function(result_df, value_name = "value", facet_rows = NULL,
 
 #----- Plot function for multimodal data --------------------------------------
 plot_extended <- function(result_df, value_name, include_data, boxplot,
-                          data_idx = NULL) {
+                          data_idx = NULL, same_scale) {
   # Load required packages
   for (pkg in c("grid", "gtable", "gridExtra")) {
     if (!requireNamespace(pkg, quietly = FALSE)) {
@@ -273,19 +288,24 @@ plot_extended <- function(result_df, value_name, include_data, boxplot,
       # Create temporary dataset and create 'fill' value
       temp_df <- result_df[result_df$data == level_data[j] &
                              result_df$output_node == level_outnodes[i], ]
-      if (boxplot) {
-        temp_df$fill <- ave(temp_df$value,
-                            temp_df$boxplot_data,
-                            as.character(temp_df$output_node),
-                            as.character(temp_df$feature),
-                            as.character(temp_df$feature_2),
-                            FUN = median)
-        max_value <- max(temp_df$fill[temp_df$boxplot_data])
-        min_value <- min(temp_df$fill[temp_df$boxplot_data])
-      } else {
-        max_value <- max(temp_df$value)
-        min_value <- min(temp_df$value)
-        temp_df$fill <- temp_df$value / max(abs(max_value), abs(min_value))
+
+      # Only calculate 'fill' if we want the same scale for all inputs, i.e.
+      # if argument 'same_scale' is TRUE
+      if (same_scale) {
+        if (boxplot) {
+          temp_df$fill <- ave(temp_df$value,
+                              temp_df$boxplot_data,
+                              as.character(temp_df$output_node),
+                              as.character(temp_df$feature),
+                              as.character(temp_df$feature_2),
+                              FUN = median)
+          max_value <- max(temp_df$fill[temp_df$boxplot_data])
+          min_value <- min(temp_df$fill[temp_df$boxplot_data])
+        } else {
+          max_value <- max(temp_df$value)
+          min_value <- min(temp_df$value)
+          temp_df$fill <- temp_df$value / max(abs(max_value), abs(min_value))
+        }
       }
 
       for (k in seq_along(level_inputs)) {
@@ -300,22 +320,27 @@ plot_extended <- function(result_df, value_name, include_data, boxplot,
                              length(level_data),
                              length(level_inputs))
 
+        if (same_scale) {
+          legend_labels = signif(c(min_value, 0, max_value), 2)
+        } else {
+          legend_labels = signif(c(min(data$value), 0, max(data$value)), 2)
+        }
+
         # Create the plot
         if (unique(data$input_dimension) == 3) {
           p <- plot_image(data, value_name,
                           facet_rows = facets$facet_rows,
                           facet_cols = facets$facet_cols,
-                          calc_fill = FALSE,
+                          calc_fill = !same_scale,
                           xticks = labels$xticks,
                           yticks = labels$yticks,
-                          legend_labels =
-                            signif(c(min_value, 0, max_value), 2),
+                          legend_labels = legend_labels,
                           boxplot = boxplot)
         } else {
           p <- plot_bar(data, value_name,
                         facet_rows = facets$facet_rows,
                         facet_cols = facets$facet_cols,
-                        calc_fill = FALSE,
+                        calc_fill = !same_scale,
                         xticks = labels$xticks,
                         yticks = labels$yticks,
                         boxplot = boxplot,

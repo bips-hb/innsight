@@ -8,7 +8,7 @@ NULL
 
 create_plotly <- function(result_df, value_name = "Relevance",
                           include_data = TRUE, boxplot = FALSE,
-                          data_idx = NULL) {
+                          data_idx = NULL, same_scale = TRUE) {
   if (!requireNamespace("plotly", quietly = FALSE)) {
     stopf(
       "Please install the {.pkg plotly} package if you want to create an ",
@@ -34,15 +34,28 @@ create_plotly <- function(result_df, value_name = "Relevance",
 
   # Create normalized fill value
   if (boxplot) {
-    result_df <- result_df %>%
-      plotly::group_by(.data$output_node) %>%
-      plotly::mutate(fill = safe_div(.data$value, max(abs(.data$value)))) %>%
-      plotly::group_by(.data$output_node, .data$model_input)
+    if (same_scale) {
+      result_df <- result_df %>%
+        plotly::group_by(.data$output_node) %>%
+        plotly::mutate(fill = safe_div(.data$value, max(abs(.data$value)))) %>%
+        plotly::group_by(.data$output_node, .data$model_input)
+    } else {
+      result_df <- result_df %>%
+        plotly::group_by(.data$output_node, .data$model_input) %>%
+        plotly::mutate(fill = safe_div(.data$value, max(abs(.data$value))))
+    }
   } else {
-    result_df <- result_df %>%
-      plotly::group_by(.data$data, .data$output_node) %>%
-      plotly::mutate(fill = safe_div(.data$value, max(abs(.data$value)))) %>%
-      plotly::group_by(.data$data, .data$output_node, .data$model_input)
+    if (same_scale) {
+      result_df <- result_df %>%
+        plotly::group_by(.data$data, .data$output_node) %>%
+        plotly::mutate(fill = safe_div(.data$value, max(abs(.data$value)))) %>%
+        plotly::group_by(.data$data, .data$output_node, .data$model_input)
+    } else {
+      result_df <- result_df %>%
+        plotly::group_by(.data$data, .data$output_node, .data$model_input) %>%
+        plotly::mutate(fill = safe_div(.data$value, max(abs(.data$value))))
+    }
+
   }
 
   #---- Generate plots --------------------------------------------------------

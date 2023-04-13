@@ -90,18 +90,19 @@
 #' # Convert the model
 #' converter <- Converter$new(model)
 #'
-#' # Apply the LRP method with the epsilon rule and eps = 0.1
-#' lrp_eps <- LRP$new(converter, data,
+#' # Apply the LRP method with the epsilon rule for the dense layers and
+#' # the alpha-beta rule for the convolutional layers
+#' lrp_comp <- LRP$new(converter, data,
 #'   channels_first = FALSE,
-#'   rule_name = "epsilon",
-#'   rule_param = 0.1
+#'   rule_name = list(Dense_Layer = "epsilon", Conv1D_Layer = "alpha_beta"),
+#'   rule_param = list(Dense_Layer = 0.1, Conv1D_Layer = 1)
 #' )
 #'
 #' # Plot the result for the first datapoint and all classes
-#' plot(lrp_eps, output_idx = 1:3)
+#' plot(lrp_comp, output_idx = 1:3)
 #'
 #' # Plot the result as boxplots for first two classes
-#' boxplot(lrp_eps, output_idx = 1:2)
+#' boxplot(lrp_comp, output_idx = 1:2)
 #'
 #' @examplesIf torch::torch_is_installed() & Sys.getenv("RENDER_PLOTLY", unset = 0) == 1
 #' #------------------------- Plotly plots ------------------------------------

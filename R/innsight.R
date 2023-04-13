@@ -1,11 +1,11 @@
-#' Get the Insight of your Neural Network
+#' Get the insight of your neural network
 #'
 #' `innsight` is an R package that interprets the behavior and explains
 #' individual predictions of modern neural networks. Many methods for
 #' explaining individual predictions already exist, but hardly any of them
 #' are implemented or available in R. Most of these so-called
-#' *feature attribution* methods are only implemented in Python and
-#' thus difficult to access or use for the R community. In this sense,
+#' *feature attribution* methods are only implemented in Python and,
+#' thus, difficult to access or use for the R community. In this sense,
 #' the package `innsight` provides a common interface for various methods
 #' for the interpretability of neural networks and can therefore be considered
 #' as an R analogue to 'iNNvestigate' or 'Captum' for Python.
@@ -17,11 +17,11 @@
 #'   * Including propagation rules: \eqn{\epsilon}-rule and
 #'   \eqn{\alpha}-\eqn{\beta}-rule
 #' * *Deep Learning Important Features ([DeepLift])*
-#'   * Including propagation rules for non-linearities: *rescale* rule and
-#'  *reveal-cancel* rule
+#'   * Including propagation rules for non-linearities: *Rescale* rule and
+#'  *RevealCancel* rule
 #' * Gradient-based methods:
-#'   * *Vanilla [Gradient]*, including *Gradient x Input*
-#'   * Smoothed gradients *([SmoothGrad])*, including *SmoothGrad x Input*
+#'   * *Vanilla [Gradient]*, including *Gradient\eqn{\times}Input*
+#'   * Smoothed gradients *([SmoothGrad])*, including *SmoothGrad\eqn{\times}Input*
 #' * *[ConnectionWeights]*
 #'
 #' The package `innsight` aims to be as flexible as possible and independent

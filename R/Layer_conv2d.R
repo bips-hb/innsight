@@ -61,7 +61,9 @@ conv2d_layer <- nn_module(
     }
 
     # Apply padding
-    x <- nnf_pad(x, pad = self$padding)
+    if (any(self$padding != 0)) {
+      x <- nnf_pad(x, pad = self$padding)
+    }
     # Apply convolution (2D)
     preactivation <- nnf_conv2d(x, self$W,
       bias = self$b,
@@ -90,7 +92,9 @@ conv2d_layer <- nn_module(
       self$input_ref <- x_ref
     }
     # Apply padding
-    x_ref <- nnf_pad(x_ref, pad = self$padding)
+    if (any(self$padding != 0)) {
+      x_ref <- nnf_pad(x_ref, pad = self$padding)
+    }
     # Apply convolution (2D)
     preactivation_ref <- nnf_conv2d(x_ref, self$W,
       bias = self$b,
@@ -145,24 +149,27 @@ conv2d_layer <- nn_module(
     # padding (out) lost some dimensions, because multiple input shapes are
     # mapped to the same output shape. Therefore, we use padding with zeros to
     # fill in the missing irrelevant input values.
-    lost_h <-
-      self$input_dim[2] + self$padding[3] + self$padding[4] - dim(out)[3]
-    lost_w <-
-      self$input_dim[3] + self$padding[1] + self$padding[2] - dim(out)[4]
+    if (any(self$stride > 1)) {
+      lost_h <-
+        self$input_dim[2] + self$padding[3] + self$padding[4] - dim(out)[3]
+      lost_w <-
+        self$input_dim[3] + self$padding[1] + self$padding[2] - dim(out)[4]
 
-    # (begin last axis, end last axis, begin 2nd to last axis, end 2nd to last
-    # axis, begin 3rd to last axis, etc.)
-    out <- nnf_pad(out, pad = c(0, 0, 0, lost_w, 0, lost_h))
-    # Now we have added the missing values such that
-    # dim(out) = dim(padded_input)
+      # (begin last axis, end last axis, begin 2nd to last axis, end 2nd to last
+      # axis, begin 3rd to last axis, etc.)
+      out <- nnf_pad(out, pad = c(0, 0, 0, lost_w, 0, lost_h))
+      # Now we have added the missing values such that
+      # dim(out) = dim(padded_input)
+    }
 
     # Apply the inverse padding to obtain dim(out) = dim(input)
-    dim_out <- dim(out)
-    out <- out[
-      , , (self$padding[3] + 1):(dim_out[3] - self$padding[4]),
-      (self$padding[1] + 1):(dim_out[4] - self$padding[2]),
-    ]
-
+    if (any(self$padding != 0)) {
+      dim_out <- dim(out)
+      out <- out[
+        , , (self$padding[3] + 1):(dim_out[3] - self$padding[4]),
+        (self$padding[1] + 1):(dim_out[4] - self$padding[2]),
+      ]
+    }
 
     out
   },
@@ -183,7 +190,9 @@ conv2d_layer <- nn_module(
     }
 
     conv2d <- function(x, W, b) {
-      x <- nnf_pad(x, pad = self$padding)
+      if (any(self$padding != 0)) {
+        x <- nnf_pad(x, pad = self$padding)
+      }
       out <- nnf_conv2d(x, W,
         bias = b,
         stride = self$stride,

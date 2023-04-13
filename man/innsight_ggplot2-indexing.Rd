@@ -7,22 +7,31 @@
 \alias{[[.innsight_ggplot2}
 \alias{[<-,innsight_ggplot2-method}
 \alias{[<-.innsight_ggplot2}
+\alias{[[<-,innsight_ggplot2-method}
+\alias{[[<-.innsight_ggplot2}
 \title{Indexing plots of \code{innsight_ggplot2}}
 \usage{
-\S4method{[}{innsight_ggplot2}(x, i, j, ..., drop = TRUE)
+\S4method{[}{innsight_ggplot2}(x, i, j, ..., restyle = TRUE, drop = TRUE)
 
-\S4method{[[}{innsight_ggplot2}(x, i, j, ...)
+\S4method{[[}{innsight_ggplot2}(x, i, j, ..., restyle = TRUE)
 
 \S4method{[}{innsight_ggplot2}(x, i, j, ...) <- value
+
+\S4method{[[}{innsight_ggplot2}(x, i, j, ...) <- value
 }
 \arguments{
-\item{x}{An instance of the s4 class \code{\link{innsight_ggplot2}}.}
+\item{x}{An instance of the S4 class \code{\link{innsight_ggplot2}}.}
 
 \item{i}{The numeric (or missing) index for the rows.}
 
 \item{j}{The numeric (or missing) index for the columns.}
 
 \item{...}{other unused arguments}
+
+\item{restyle}{This logical value determines whether the labels and facet
+stripes remain as they were in the original plot or are adjusted to the
+subplot accordingly. However, this argument is only used if the \code{innsight_ggplot2}
+instance is a multiplot, i.e., \code{x@multiplot} is \code{TRUE}.}
 
 \item{drop}{unused argument}
 
@@ -31,12 +40,19 @@ shape \code{i} x \code{j}.}
 }
 \value{
 \itemize{
-\item \verb{[.innsight_ggplot2}: Selects only the plots from the \code{i}-th row and
-\code{j}-th column and returns them as a new instance of \code{\link{innsight_ggplot2}}.
-\item \verb{[[.innsight_ggplot2}: Selects only the single plot in the \code{i}-th row and
-\code{j}-th column and returns it an \link[ggplot2:ggplot]{ggplot2::ggplot} object.
-\item \verb{[<-.innsight_ggplot2}: Replaces the plots from the \code{i}-th row and \code{j}-th
-column with those from \code{value} and returns the modified instance of
+\item \verb{[.innsight_ggplot2}: Selects only the plots from the \code{i}-th rows and
+\code{j}-th columns and returns them as a new instance of \code{\link{innsight_ggplot2}}.
+If \code{restyle = TRUE} the facet stripes and axis labels of the original
+plot are transferred to the subplot, otherwise they are returned as they are.
+\item \verb{[[.innsight_ggplot2}: Selects only the subplot in row \code{i} and column
+\code{j} and returns it as a \link[ggplot2:ggplot]{ggplot2::ggplot} object. If \code{restyle = TRUE} the
+facet stripes and axis labels of the original plot are transferred to
+the subplot, otherwise they are returned as they are.
+\item \verb{[<-.innsight_ggplot2}: Replaces the plots in the rows \code{i} and columns \code{j}
+with those from \code{value} and returns the modified instance of
+\code{\link{innsight_ggplot2}}.
+\item \verb{[[<-.innsight_ggplot2}: Replaces the plot from the \code{i}-th row and \code{j}-th
+column with the plot from \code{value} and returns the modified instance of
 \code{\link{innsight_ggplot2}}.
 }
 }

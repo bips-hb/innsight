@@ -6,7 +6,7 @@
 #' interpreting a single element of the dataset and calculates the relevance
 #' scores for each input feature to the model output. The basic idea of this
 #' method is to decompose the prediction score of the model with respect to
-#' the input features, i.e.
+#' the input features, i.e.,
 #' \deqn{f(x) = \sum_i R(x_i).}
 #' Because of the bias vector that absorbs some relevance, this decomposition
 #' is generally an approximation. There exist several propagation rules to
@@ -41,7 +41,7 @@ LRP <- R6Class(
     #' are calculated. Implemented are `"simple"`, `"epsilon"`, `"alpha_beta"`
     #' (and `"pass"` but only for 'BatchNorm_Layer'). However, this value
     #' can also be a named list that assigns one of these three rules to each
-    #' implemented layer type separately. e.g.
+    #' implemented layer type separately, e.g.,
     #' `list(Dense_Layer = "simple", Conv2D_Layer = "alpha_beta")`.
     #' Layers not specified in this list then use the default value `"simple"`.
     #' The implemented layer types are:
@@ -59,8 +59,8 @@ LRP <- R6Class(
 
 
     #' @description
-    #' Create a new instance of the *LRP* method. When initialized,
-    #' the method is applied to the given data and the results are stored in
+    #' Create a new instance of the `LRP` R6 class. When initialized,
+    #' the method *LRP* is applied to the given data and the results are stored in
     #' the field `result`.
     #'
     #' @param rule_name (`character(1)` or `list`)\cr
@@ -69,7 +69,7 @@ LRP <- R6Class(
     #' You can pass one of the above characters to apply this rule to all
     #' possible layers. However, this value can also be a named list that
     #' assigns one of these three rules to each
-    #' implemented layer type separately. e.g.
+    #' implemented layer type separately, e.g.,
     #' `list(Dense_Layer = "simple", Conv2D_Layer = "alpha_beta")`.
     #' Layers not specified in this list then use the default value `"simple"`.
     #' The implemented layer types are:\cr
@@ -90,7 +90,7 @@ LRP <- R6Class(
     #' rule parameter to each layer type. If the layer type is not specified
     #' in the named list, the default parameters will be used.\cr
     #'
-    #' @return A new instance of the R6 class `'LRP'`.
+    #' @return A new instance of the R6 class `LRP`.
     initialize = function(converter, data,
                           channels_first = TRUE,
                           output_idx = NULL,
