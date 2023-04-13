@@ -2,12 +2,18 @@ url: https://bips-hb.github.io/innsight
 
 
 reference:
-- title: Converter and converted Model
+- title: Converter and converted model
+  desc: >
+      R6 class for converting a passed model into a **torch**-based model with
+      all methods pre-implemented in each layer
   contents:
   - Converter
   - ConvertedModel
 
-- title: Feature Attribution Methods
+- title: Feature attribution methods
+  desc: >
+      All implemented feature attribution methods as R6 classes applying
+      the corresponding method to the converted model during initialization
   contents:
     - Gradient
     - SmoothGrad
@@ -15,13 +21,17 @@ reference:
     - DeepLift
     - ConnectionWeights
 
-- title: Visualization and getting Results
+- title: Visualization and getting results
+  desc: >
+      Functions and S4 classes for getting and visualizing the results
   contents:
   - get_result
   - innsight_ggplot2
   - innsight_plotly
 
 - subtitle: "`innsight_ggplot2`"
+  desc: >
+      Generic functions for the S4 class `innsight_ggplot2`
   contents:
   - plot.innsight_ggplot2
   - print.innsight_ggplot2
@@ -32,6 +42,8 @@ reference:
   - "+.innsight_ggplot2"
 
 - subtitle: "`innsight_plotly`"
+  desc: >
+      Generic functions for the S4 class `innsight_plotly`
   contents:
   - plot.innsight_plotly
   - print.innsight_plotly
@@ -39,7 +51,9 @@ reference:
   - "[.innsight_plotly"
   - "[[.innsight_plotly"
 
-- title: Superclasses and Package information
+- title: Superclasses and package information
+  desc: >
+      Super classes intended only for the user's information
   contents:
   - innsight-package
   - GradientBased

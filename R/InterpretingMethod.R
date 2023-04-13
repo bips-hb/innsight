@@ -3,16 +3,16 @@
 #                         Interpreting Method
 ###############################################################################
 
-#' @title Super Class for Interpreting Methods
+#' @title Super class for interpreting methods
 #' @description This is a super class for all interpreting methods in the
 #' `innsight` package. Implemented are the following methods:
 #'
-#' - *Deep Learning Important Features* ([DeepLift])
-#' - *Layer-wise Relevance Propagation* ([LRP])
+#' - *Deep Learning Important Features* ([`DeepLift`])
+#' - *Layer-wise Relevance Propagation* ([`LRP`])
 #' - Gradient-based methods:
-#'    - *Vanilla gradients* including *Gradients x Input* ([Gradient])
-#'    - Smoothed gradients including *SmoothGrad x Input* ([SmoothGrad])
-#' - *Connection Weights* (global and local) ([ConnectionWeights])
+#'    - *Vanilla gradients* including *Gradient\eqn{\times}Input* ([`Gradient`])
+#'    - Smoothed gradients including *SmoothGrad\eqn{\times}Input* ([`SmoothGrad`])
+#' - *Connection Weights* (global and local) ([`ConnectionWeights`])
 #'
 #' @template param-converter
 #' @template param-data
@@ -112,7 +112,9 @@ InterpretingMethod <- R6Class(
     #' either as an array (`'array'`), a torch tensor (`'torch.tensor'`,
     #' or `'torch_tensor'`) of size *(batch_size, dim_in, dim_out)* or as a
     #' data.frame (`'data.frame'`). This method is also implemented as a
-    #' generic S3 function [`get_result`].
+    #' generic S3 function [`get_result`]. For a detailed description, we refer
+    #' to our in-depth vignette (`vignette("detailed_overview", package = "innsight")`)
+    #' or our [website](https://bips-hb.github.io/innsight/articles/detailed_overview.html#get-results).
     #'
     #' @param type (`character(1)`)\cr
     #' The data type of the result. Use one of `'array'`,
@@ -216,14 +218,14 @@ InterpretingMethod <- R6Class(
     #'
     #' @param data_idx (`integer`)\cr
     #' An integer vector containing the numbers of the data
-    #' points whose result is to be plotted, e.g. `c(1,3)` for the first
+    #' points whose result is to be plotted, e.g., `c(1,3)` for the first
     #' and third data point in the given data. Default: `1`. This argument
     #' will be ignored for the global *Connection Weights* method.\cr
     #' @param output_idx (`integer`, `list` or `NULL`)\cr
     #' The indices of the output nodes for which the results
     #' is to be plotted. This can be either a `integer` vector of indices or a
     #' `list` of `integer` vectors of indices but must be a subset of the indices for
-    #' which the results were calculated, i.e. a subset of `output_idx` from the
+    #' which the results were calculated, i.e., a subset of `output_idx` from the
     #' initialization `new()` (see argument `output_idx` in method `new()` of
     #' this R6 class for details). By default (`NULL`), the smallest index
     #' of all calculated output nodes and output layers is used.\cr
@@ -339,7 +341,7 @@ InterpretingMethod <- R6Class(
     #' [`innsight_ggplot2`] and [`innsight_plotly`].\cr \cr
     #' **Notes:**
     #' 1. This method can only be used for the local *Connection Weights*
-    #' method, i.e. if `times_input` is `TRUE` and `data` is provided.
+    #' method, i.e., if `times_input` is `TRUE` and `data` is provided.
     #' 2. For the interactive plotly-based plots, the suggested package
     #' `plotly` is required.
     #' 3. The ggplot2-based plots for models with multiple input layers are
@@ -350,21 +352,16 @@ InterpretingMethod <- R6Class(
     #' The indices of the output nodes for which the
     #' results is to be plotted. This can be either a `vector` of indices or
     #' a `list` of vectors of indices but must be a subset of the indices for
-    #' which the results were calculated, i.e. a subset of `output_idx` from
+    #' which the results were calculated, i.e., a subset of `output_idx` from
     #' the initialization `new()` (see argument `output_idx` in method `new()`
     #' of this R6 class for details). By default (`NULL`), the smallest index
     #' of all calculated output nodes and output layers is used.\cr
     #' @param data_idx (`integer`)\cr
     #' By default, all available data points are used
     #' to calculate the boxplot information. However, this parameter can be
-    #' used to select a subset of them by passing the indices. E.g. with
+    #' used to select a subset of them by passing the indices. For example, with
     #' `c(1:10, 25, 26)` only the first 10 data points and
     #' the 25th and 26th are used to calculate the boxplots.\cr
-    #' @param same_scale (`logical`)\cr
-    #' A logical value that specifies whether the individual plots have the
-    #' same fill scale across multiple input layers or whether each is
-    #' scaled individually. This argument is only used if more than one input
-    #' layer results are plotted.\cr
     #'
     #' @return
     #' Returns either an [`innsight_ggplot2`] (`as_plotly = FALSE`) or an
@@ -377,8 +374,7 @@ InterpretingMethod <- R6Class(
                        preprocess_FUN = abs,
                        as_plotly = FALSE,
                        individual_data_idx = NULL,
-                       individual_max = 20,
-                       same_scale = FALSE) {
+                       individual_max = 20) {
 
       if (inherits(self, "ConnectionWeights")) {
         if (!self$times_input) {
@@ -431,7 +427,6 @@ InterpretingMethod <- R6Class(
       # individual_max
       cli_check(checkInt(individual_max, lower = 1), "individual_max")
       individual_max <- min(individual_max, num_data)
-      cli_check(checkLogical(same_scale), "same_scale")
 
       # Set the individual instances for the plot
       if (!as_plotly) {
@@ -491,10 +486,10 @@ InterpretingMethod <- R6Class(
       # Get plot
       if (as_plotly) {
         p <- create_plotly(result_df, value_name, FALSE, TRUE, ref_data_idx,
-                           same_scale)
+                           TRUE)
       } else {
         p <- create_ggplot(result_df, value_name, FALSE, TRUE, ref_data_idx,
-                           same_scale)
+                           TRUE)
       }
 
       p
@@ -796,17 +791,17 @@ InterpretingMethod <- R6Class(
 )
 
 
-#' Get the result of an Interpretation Method
+#' Get the result of an interpretation method
 #'
 #' This is a generic S3 method for the R6 method
 #' `InterpretingMethod$get_result()`. See the respective method described in
-#' [InterpretingMethod] for details.
+#' [`InterpretingMethod`] for details.
 #'
-#' @param x An object of the class [InterpretingMethod] including the
-#' subclasses [Gradient], [SmoothGrad], [LRP], [DeepLift] and
-#' [ConnectionWeights].
+#' @param x An object of the class [`InterpretingMethod`] including the
+#' subclasses [`Gradient`], [`SmoothGrad`], [`LRP`], [`DeepLift`] and
+#' [`ConnectionWeights`].
 #' @param ... Other arguments specified in the R6 method
-#' `InterpretingMethod$get_result()`. See [InterpretingMethod] for details.
+#' `InterpretingMethod$get_result()`. See [`InterpretingMethod`] for details.
 #'
 #' @export
 get_result <- function(x, ...) UseMethod("get_result", x)

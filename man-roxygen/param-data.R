@@ -4,7 +4,7 @@
 #' converter object. This means either
 #' \itemize{
 #'   \item an `array`, `data.frame`, `torch_tensor` or array-like format of
-#'   size *(batch_size, dim_in)*, if e.g.the model has only one input layer, or
+#'   size *(batch_size, dim_in)*, if e.g., the model has only one input layer, or
 #'   \item a `list` with the corresponding input data (according to the
 #'   upper point) for each of the input layers.\cr
 #' }

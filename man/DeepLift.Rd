@@ -11,14 +11,14 @@ a reference value \eqn{x'} and returns the contribution of each input
 feature from the difference of the output (\eqn{y=f(x)}) and reference
 output (\eqn{y'=f(x')}) prediction. The basic idea of this method is to
 decompose the difference-from-reference prediction with respect to the
-input features, i.e.
+input features, i.e.,
 \deqn{\Delta y = y - y'  = \sum_i C(x_i).}
 Compared to \emph{Layer-wise Relevance Propagation} (see \link{LRP}), the
 DeepLift method is an exact decomposition and not an approximation, so we
 get real contributions of the input features to the
 difference-from-reference prediction. There are two ways to handle
-activation functions: \emph{rescale} rule (\code{'rescale'}) and
-\emph{reveal-cancel} rule (\code{'reveal_cancel'}).
+activation functions: the \emph{Rescale} rule (\code{'rescale'}) and
+\emph{RevealCancel} rule (\code{'reveal_cancel'}).
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -176,8 +176,8 @@ Either \code{'rescale'} or \code{'reveal_cancel'}.\cr}
 \if{html}{\out{<a id="method-DeepLift-new"></a>}}
 \if{latex}{\out{\hypertarget{method-DeepLift-new}{}}}
 \subsection{Method \code{new()}}{
-Create a new instance of the \emph{DeepLift} method. When initialized,
-the method is applied to the given data and the results are stored in
+Create a new instance of the \code{DeepLift} R6 class. When initialized,
+the method \emph{DeepLift} is applied to the given data and the results are stored in
 the field \code{result}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DeepLift$new(
@@ -208,7 +208,7 @@ have the same format as the input data of the passed model to the
 converter object. This means either
 \itemize{
 \item an \code{array}, \code{data.frame}, \code{torch_tensor} or array-like format of
-size \emph{(batch_size, dim_in)}, if e.g.the model has only one input layer, or
+size \emph{(batch_size, dim_in)}, if e.g., the model has only one input layer, or
 \item a \code{list} with the corresponding input data (according to the
 upper point) for each of the input layers.\cr
 }}
@@ -216,10 +216,10 @@ upper point) for each of the input layers.\cr
 \item{\code{channels_first}}{(\code{logical(1)})\cr
 The channel position of the given data (argument
 \code{data}). If \code{TRUE}, the channel axis is placed at the second position
-between the batch size and the rest of the input axes, e.g.
+between the batch size and the rest of the input axes, e.g.,
 \code{c(10,3,32,32)} for a batch of ten images with three channels and a
 height and width of 32 pixels. Otherwise (\code{FALSE}), the channel axis
-is at the last position, i.e. \code{c(10,32,32,3)}. If the data
+is at the last position, i.e., \code{c(10,32,32,3)}. If the data
 has no channel axis, use the default value \code{TRUE}.\cr}
 
 \item{\code{output_idx}}{(\code{integer}, \code{list} or \code{NULL})\cr
@@ -229,7 +229,7 @@ output layers, there are the following possibilities to select
 the indices of the output nodes in the individual output layers:
 \itemize{
 \item An \code{integer} vector of indices: If the model has only one output
-layer, the values correspond to the indices of the output nodes, e.g.
+layer, the values correspond to the indices of the output nodes, e.g.,
 \code{c(1,3,4)} for the first, third and fourth output node. If there are
 multiple output layers, the indices of the output nodes from the first
 output layer are considered.
@@ -237,7 +237,7 @@ output layer are considered.
 applied to output nodes from different layers, a list can be passed
 that specifies the desired indices of the output nodes for each
 output layer. Unwanted output layers have the entry \code{NULL} instead of
-a vector of indices, e.g. \code{list(NULL, c(1,3))} for the first and
+a vector of indices, e.g., \code{list(NULL, c(1,3))} for the first and
 third output node in the second output layer.
 \item \code{NULL} (default): The method is applied to all output nodes in
 the first output layer but is limited to the first ten as the
@@ -261,7 +261,7 @@ must have the same format as the input data of the passed model to the
 converter object. This means either
 \itemize{
 \item an \code{array}, \code{data.frame}, \code{torch_tensor} or array-like format of
-size \emph{(1, dim_in)}, if e.g.the model has only one input layer, or
+size \emph{(1, dim_in)}, if e.g., the model has only one input layer, or
 \item a \code{list} with the corresponding input data (according to the upper point)
 for each of the input layers.
 \item It is also possible to use the default value \code{NULL} to take only
@@ -275,7 +275,7 @@ the position of the maximum values in the pooling kernel of the normal input
 \eqn{x} and the reference input \eqn{x'} may not match, which leads to a
 violation of the summation-to-delta property. To overcome this problem,
 another variant is implemented, which treats a MaxPooling layer as an
-AveragePooling layer in the backward pass only leading to an equally
+AveragePooling layer in the backward pass only, leading to an uniform
 distribution of the upper-layer contribution to the lower layer.\cr}
 
 \item{\code{verbose}}{(\code{logical(1)})\cr

@@ -3,7 +3,7 @@
 \docType{class}
 \name{innsight_ggplot2}
 \alias{innsight_ggplot2}
-\title{S4-Class for ggplot2-based plots}
+\title{S4 class for ggplot2-based plots}
 \description{
 The S4 class \code{innsight_ggplot2} visualizes the results of the methods
 provided from the package \code{innsight} using \link{ggplot2}. In addition, it
@@ -90,6 +90,7 @@ generic functions are listed below:
 \item \code{\link[=[.innsight_ggplot2]{[}}
 \item \code{\link[=[[.innsight_ggplot2]{[[}}
 \item \code{\link[=[<-.innsight_ggplot2]{[<-}}
+\item \code{\link[=[<-.innsight_ggplot2]{[[<-}}
 }
 
 \emph{Note:} Since this is not a standard visualization, the suggested packages

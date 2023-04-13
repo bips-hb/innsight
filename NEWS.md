@@ -13,16 +13,16 @@ There are no user-facing changes that are not handled with default values
 or noted by throwing warnings.
 
 * When converting a model to a list, two necessary entries are added, 
-containing the indices of the layers from the sublist `layers` indicating 
+containing the indices of the layers from the sub-list `layers` indicating 
 the input (`input_nodes`) and output (`output_nodes`) layers of the passed 
 model. If one of these values is not set, a warning is raised and it is 
-assumed that the model is sequential, i.e. the first layer is the only 
+assumed that the model is sequential, i.e., the first layer is the only 
 input layer and the last layer is the only output layer.
 
-* Similarly, for each layer in the sublist `layers` the entries 
+* Similarly, for each layer in the sub-list `layers` the entries 
 `input_layers` and `output_layers` are added containing the indices of the 
-input and output layers for this layer. If these values are not set, a warning
-is raised and it is assumed that the model is sequential, i.e. the 
+preceding and following layers for this layer. If these values are not set, a 
+warning is thrown and it is assumed that the model is sequential, i.e., the 
 previous entry is the only preceding and the next entry is the only 
 succeeding layer. The values `0` and `-1` indicate the input and output 
 layers of the model, respectively.
@@ -38,7 +38,7 @@ input and output layers are very complex, the suggested packages
 
 * Add **cli** dependency:  
 
-  * Error messages, warnings, messages, and progress bars have been 
+  * Errors, warnings, messages, and progress bars have been 
   revised and unified, and now use the package **cli**.
   
   * Overwrite the default `print()` function for the R6 classes `Converter` and 
@@ -81,7 +81,7 @@ arguments to define them for multiple input or output layers.
 methods.
 
 * Add the S3 function `get_result()` for instances of the R6 class 
-`InterpretingMethod` (i.e. also for all inherited methods) that forwards to the
+`InterpretingMethod` (i.e., also for all inherited methods) that forwards to the
 corresponding class method `$get_result()`.
 
 * In the method `LRP` it is now possible to set the rule and the parameter 
@@ -102,17 +102,17 @@ all fields and arguments. These are stored in the folder `man-roxygen`.
 
 * Revise the introduction vignette `innsight` (`vignette("innsight")`).
 
-* Add vignette "Example 1: Iris Dataset with `torch`" describing the basic
+* Add vignette "Example 1: Iris dataset with torch" describing the basic
 usage of the package with tabular data and only numeric features.
 
-* Add vignette "Example 2: Penguin Dataset with `torch` and `luz`" describing
+* Add vignette "Example 2: Penguin dataset with torch and luz" describing
 a more advanced usage with tabular data containing numerical and categorical
 features.
 
-* Add article "Example 3: ImageNet with `keras`" describing the usage of the
-package with predefined models in `keras` on the ImageNet dataset.
+* Add article "Example 3: ImageNet with keras" describing the usage of the
+package with predefined models in **keras** on the ImageNet dataset.
 
-* Add the vignette "In-depth Explanation" explaining all methods, arguments 
+* Add the vignette "In-depth explanation" explaining all methods, arguments 
 and possibilities of the package in great detail. This vignette also includes 
 the depreciated vignette "Custom Model Definition".
 
@@ -120,7 +120,7 @@ the depreciated vignette "Custom Model Definition".
 
 ### Minor improvements and bug fixes
 
-* Small speed improvements by using more **torch** functions, e.g. 
+* Small speed improvements by using more **torch** functions, e.g.,
 `torch_clip(x, min = 0)` instead of `(x > 0) * x`
 
 * Some smaller bug fixes

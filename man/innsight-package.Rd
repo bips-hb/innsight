@@ -4,14 +4,14 @@
 \name{innsight-package}
 \alias{innsight}
 \alias{innsight-package}
-\title{Get the Insight of your Neural Network}
+\title{Get the insight of your neural network}
 \description{
 \code{innsight} is an R package that interprets the behavior and explains
 individual predictions of modern neural networks. Many methods for
 explaining individual predictions already exist, but hardly any of them
 are implemented or available in R. Most of these so-called
-\emph{feature attribution} methods are only implemented in Python and
-thus difficult to access or use for the R community. In this sense,
+\emph{feature attribution} methods are only implemented in Python and,
+thus, difficult to access or use for the R community. In this sense,
 the package \code{innsight} provides a common interface for various methods
 for the interpretability of neural networks and can therefore be considered
 as an R analogue to 'iNNvestigate' or 'Captum' for Python.
@@ -27,13 +27,13 @@ This package implements several model-specific interpretability
 }
 \item \emph{Deep Learning Important Features (\link{DeepLift})}
 \itemize{
-\item Including propagation rules for non-linearities: \emph{rescale} rule and
-\emph{reveal-cancel} rule
+\item Including propagation rules for non-linearities: \emph{Rescale} rule and
+\emph{RevealCancel} rule
 }
 \item Gradient-based methods:
 \itemize{
-\item \emph{Vanilla \link{Gradient}}, including \emph{Gradient x Input}
-\item Smoothed gradients \emph{(\link{SmoothGrad})}, including \emph{SmoothGrad x Input}
+\item \emph{Vanilla \link{Gradient}}, including \emph{Gradient\eqn{\times}Input}
+\item Smoothed gradients \emph{(\link{SmoothGrad})}, including \emph{SmoothGrad\eqn{\times}Input}
 }
 \item \emph{\link{ConnectionWeights}}
 }

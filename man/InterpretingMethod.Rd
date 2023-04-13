@@ -2,19 +2,19 @@
 % Please edit documentation in R/InterpretingMethod.R
 \name{InterpretingMethod}
 \alias{InterpretingMethod}
-\title{Super Class for Interpreting Methods}
+\title{Super class for interpreting methods}
 \description{
 This is a super class for all interpreting methods in the
 \code{innsight} package. Implemented are the following methods:
 \itemize{
-\item \emph{Deep Learning Important Features} (\link{DeepLift})
-\item \emph{Layer-wise Relevance Propagation} (\link{LRP})
+\item \emph{Deep Learning Important Features} (\code{\link{DeepLift}})
+\item \emph{Layer-wise Relevance Propagation} (\code{\link{LRP}})
 \item Gradient-based methods:
 \itemize{
-\item \emph{Vanilla gradients} including \emph{Gradients x Input} (\link{Gradient})
-\item Smoothed gradients including \emph{SmoothGrad x Input} (\link{SmoothGrad})
+\item \emph{Vanilla gradients} including \emph{Gradient\eqn{\times}Input} (\code{\link{Gradient}})
+\item Smoothed gradients including \emph{SmoothGrad\eqn{\times}Input} (\code{\link{SmoothGrad}})
 }
-\item \emph{Connection Weights} (global and local) (\link{ConnectionWeights})
+\item \emph{Connection Weights} (global and local) (\code{\link{ConnectionWeights}})
 }
 }
 \section{Public fields}{
@@ -35,12 +35,12 @@ torch-converted model and some other model-specific attributes. See
 \item{\code{channels_first}}{(\code{logical(1)})\cr
 The channel position of the given data. If \code{TRUE}, the
 channel axis is placed at the second position between the batch size and
-the rest of the input axes, e.g. \code{c(10,3,32,32)} for a batch of ten images
+the rest of the input axes, e.g., \code{c(10,3,32,32)} for a batch of ten images
 with three channels and a height and width of 32 pixels. Otherwise (\code{FALSE}),
-the channel axis is at the last position, i.e. \code{c(10,32,32,3)}. This is
+the channel axis is at the last position, i.e., \code{c(10,32,32,3)}. This is
 especially important for layers like flatten, where the order is crucial
 and therefore the channels have to be moved from the internal
-format 'channels_first' back to the original format before the layer
+format "channels first" back to the original format before the layer
 is calculated.\cr}
 
 \item{\code{dtype}}{(\code{character(1)})\cr
@@ -78,7 +78,7 @@ This list of indices specifies the output nodes to which
 the method is to be applied. In the order of the output layers, the list
 contains the respective output nodes indices and unwanted output layers
 have the entry \code{NULL} instead of a vector of indices,
-e.g. \code{list(NULL, c(1,3))} for the first and third output node in the
+e.g., \code{list(NULL, c(1,3))} for the first and third output node in the
 second output layer.\cr}
 
 \item{\code{verbose}}{(\code{logical(1)})\cr
@@ -142,7 +142,7 @@ have the same format as the input data of the passed model to the
 converter object. This means either
 \itemize{
 \item an \code{array}, \code{data.frame}, \code{torch_tensor} or array-like format of
-size \emph{(batch_size, dim_in)}, if e.g.the model has only one input layer, or
+size \emph{(batch_size, dim_in)}, if e.g., the model has only one input layer, or
 \item a \code{list} with the corresponding input data (according to the
 upper point) for each of the input layers.\cr
 }}
@@ -150,10 +150,10 @@ upper point) for each of the input layers.\cr
 \item{\code{channels_first}}{(\code{logical(1)})\cr
 The channel position of the given data (argument
 \code{data}). If \code{TRUE}, the channel axis is placed at the second position
-between the batch size and the rest of the input axes, e.g.
+between the batch size and the rest of the input axes, e.g.,
 \code{c(10,3,32,32)} for a batch of ten images with three channels and a
 height and width of 32 pixels. Otherwise (\code{FALSE}), the channel axis
-is at the last position, i.e. \code{c(10,32,32,3)}. If the data
+is at the last position, i.e., \code{c(10,32,32,3)}. If the data
 has no channel axis, use the default value \code{TRUE}.\cr}
 
 \item{\code{output_idx}}{(\code{integer}, \code{list} or \code{NULL})\cr
@@ -217,7 +217,9 @@ This function returns the result of this method for the given data
 either as an array (\code{'array'}), a torch tensor (\code{'torch.tensor'},
 or \code{'torch_tensor'}) of size \emph{(batch_size, dim_in, dim_out)} or as a
 data.frame (\code{'data.frame'}). This method is also implemented as a
-generic S3 function \code{\link{get_result}}.
+generic S3 function \code{\link{get_result}}. For a detailed description, we refer
+to our in-depth vignette (\code{vignette("detailed_overview", package = "innsight")})
+or our \href{https://bips-hb.github.io/innsight/articles/detailed_overview.html#get-results}{website}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{InterpretingMethod$get_result(type = "array")}\if{html}{\out{</div>}}
 }
@@ -279,7 +281,7 @@ unnecessary argument \code{data_idx} will be ignored.
 \describe{
 \item{\code{data_idx}}{(\code{integer})\cr
 An integer vector containing the numbers of the data
-points whose result is to be plotted, e.g. \code{c(1,3)} for the first
+points whose result is to be plotted, e.g., \code{c(1,3)} for the first
 and third data point in the given data. Default: \code{1}. This argument
 will be ignored for the global \emph{Connection Weights} method.\cr}
 
@@ -287,14 +289,14 @@ will be ignored for the global \emph{Connection Weights} method.\cr}
 The indices of the output nodes for which the results
 is to be plotted. This can be either a \code{integer} vector of indices or a
 \code{list} of \code{integer} vectors of indices but must be a subset of the indices for
-which the results were calculated, i.e. a subset of \code{output_idx} from the
+which the results were calculated, i.e., a subset of \code{output_idx} from the
 initialization \code{new()} (see argument \code{output_idx} in method \code{new()} of
 this R6 class for details). By default (\code{NULL}), the smallest index
 of all calculated output nodes and output layers is used.\cr}
 
 \item{\code{aggr_channels}}{(\code{character(1)} or \code{\link{function}})\cr
 Pass one of \code{'norm'}, \code{'sum'}, \code{'mean'} or a
-custom function to aggregate the channels, e.g. the maximum
+custom function to aggregate the channels, e.g., the maximum
 (\link[base:Extremes]{base::max}) or minimum (\link[base:Extremes]{base::min}) over the channels or only
 individual channels with \code{function(x) x[1]}. By default (\code{'sum'}),
 the sum of all channels is used.\cr
@@ -342,7 +344,7 @@ more information and the whole bunch of possibilities, see
 \strong{Notes:}
 \enumerate{
 \item This method can only be used for the local \emph{Connection Weights}
-method, i.e. if \code{times_input} is \code{TRUE} and \code{data} is provided.
+method, i.e., if \code{times_input} is \code{TRUE} and \code{data} is provided.
 \item For the interactive plotly-based plots, the suggested package
 \code{plotly} is required.
 \item The ggplot2-based plots for models with multiple input layers are
@@ -358,8 +360,7 @@ a bit more complex, therefore the suggested packages \code{'grid'},
   preprocess_FUN = abs,
   as_plotly = FALSE,
   individual_data_idx = NULL,
-  individual_max = 20,
-  same_scale = FALSE
+  individual_max = 20
 )}\if{html}{\out{</div>}}
 }
 
@@ -370,7 +371,7 @@ a bit more complex, therefore the suggested packages \code{'grid'},
 The indices of the output nodes for which the
 results is to be plotted. This can be either a \code{vector} of indices or
 a \code{list} of vectors of indices but must be a subset of the indices for
-which the results were calculated, i.e. a subset of \code{output_idx} from
+which the results were calculated, i.e., a subset of \code{output_idx} from
 the initialization \code{new()} (see argument \code{output_idx} in method \code{new()}
 of this R6 class for details). By default (\code{NULL}), the smallest index
 of all calculated output nodes and output layers is used.\cr}
@@ -378,7 +379,7 @@ of all calculated output nodes and output layers is used.\cr}
 \item{\code{data_idx}}{(\code{integer})\cr
 By default, all available data points are used
 to calculate the boxplot information. However, this parameter can be
-used to select a subset of them by passing the indices. E.g. with
+used to select a subset of them by passing the indices. For example, with
 \code{c(1:10, 25, 26)} only the first 10 data points and
 the 25th and 26th are used to calculate the boxplots.\cr}
 
@@ -386,7 +387,7 @@ the 25th and 26th are used to calculate the boxplots.\cr}
 This integer number determines the index for the
 reference data point. In addition to the boxplots, it is displayed in
 red color and is used to compare an individual result with the summary
-statistics provided by the boxplot. With the default value (\code{NULL})
+statistics provided by the boxplot. With the default value (\code{NULL}),
 no individual data point is plotted. This index can be chosen with
 respect to all available data, even if only a subset is selected with
 argument \code{data_idx}.\cr
@@ -395,7 +396,7 @@ only for tabular and 1D inputs and disregarded for 2D inputs.\cr}
 
 \item{\code{aggr_channels}}{(\code{character(1)} or \code{\link{function}})\cr
 Pass one of \code{'norm'}, \code{'sum'}, \code{'mean'} or a
-custom function to aggregate the channels, e.g. the maximum
+custom function to aggregate the channels, e.g., the maximum
 (\link[base:Extremes]{base::max}) or minimum (\link[base:Extremes]{base::min}) over the channels or only
 individual channels with \code{function(x) x[1]}. By default (\code{'sum'}),
 the sum of all channels is used.\cr
@@ -419,9 +420,9 @@ in your R session.\cr}
 \item{\code{individual_data_idx}}{(\code{integer} or \code{NULL})\cr
 Only relevant for a \code{plotly} plot with tabular
 or 1D inputs! This integer vector of data indices determines
-the available data points in a dropdown menu, which are drawn in
+the available data points in a dropdown menu, which are drawn
 individually analogous to \code{ref_data_idx} only for more data points.
-With the default value \code{NULL} the first \code{individual_max} data points
+With the default value \code{NULL}, the first \code{individual_max} data points
 are used.\cr
 \emph{Note:} If \code{ref_data_idx} is specified, this data point will be
 added to those from \code{individual_data_idx} in the dropdown menu.\cr}
@@ -433,12 +434,6 @@ individual data points in the dropdown menu without counting
 \code{ref_data_idx}. This means that if \code{individual_data_idx} has more
 than \code{individual_max} indices, only the first \code{individual_max} will
 be used. A too high number can significantly increase the runtime.\cr}
-
-\item{\code{same_scale}}{(\code{logical})\cr
-A logical value that specifies whether the individual plots have the
-same fill scale across multiple input layers or whether each is
-scaled individually. This argument is only used if more than one input
-layer results are plotted.\cr}
 }
 \if{html}{\out{</div>}}
 }

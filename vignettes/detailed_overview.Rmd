@@ -1,5 +1,5 @@
 ---
-title: "In-depth Explanation"
+title: "In-depth explanation"
 output: 
   rmarkdown::html_vignette:
     toc: true
@@ -7,7 +7,7 @@ output:
 header-includes:
    - \usepackage{bbm}
 vignette: >
-  %\VignetteIndexEntry{In-depth Explanation}
+  %\VignetteIndexEntry{In-depth explanation}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
@@ -61,7 +61,10 @@ details[open] {
 ```
 
 > **`r knitr::asis_output("\U1F4DD")`  Note**  
-> Since the **innsight** package relies on the **torch** package for each method and this requires a successful installation of LibTorch and other dependencies (`torch::install_torch()`), no examples can be run in the R vignette for memory reasons. For the executed codechunks we refer to [our website](https://bips-hb.github.io/innsight/articles/detailed_overview.html).
+> Since the **innsight** package relies on the **torch** package for each method 
+and this requires a successful installation of LibTorch and other dependencies 
+(`torch::install_torch()`), no examples can be run in the R vignette for 
+memory reasons. For the executed code chunks, we refer to [our website](https://bips-hb.github.io/innsight/articles/detailed_overview.html).
 
 As described in the [introduction](https://bips-hb.github.io/innsight/articles/innsight.html), 
 **innsight** is a package that aims to
@@ -73,11 +76,11 @@ methods and how to create a visualization of the results.
 # Step 1: The `Converter`
 
 The R6 class `Converter` is the heart of the package and makes it to a
-*Deep-Learning-Model-agnostic* approach, i.e., it accepts models not
-only from a single Deep Learning library but from many different
-libraries. This property makes the package outstanding and extreme
-flexible. Internally, each layer is analyzed and the relevant parameters
-and components are extracted into a list. Afterwards, a customized 
+*deep-learning-model-agnostic* approach, i.e., it accepts models not
+only from a single deep learning library but from many different
+libraries. This property makes the package outstanding and highly
+flexible. Internally, each layer is analyzed, and the relevant parameters
+and components are extracted into a list. Afterward, a customized 
 model based on the library **torch** is generated from this list, with the 
 interpretation methods pre-implemented in each of the accepted layers and
 modules. On this baseline, different methods can be implemented and applied 
@@ -96,7 +99,7 @@ converter <- Converter$new(model,
 
 ## Argument `model`
 
-This is the passed trained model. Currently it can be a sequential
+This is the passed trained model. Currently, it can be a sequential
 [**torch**](https://torch.mlverse.org/) model (`nn_sequential`), a 
 [**tensorflow/keras**](https://tensorflow.rstudio.com/) model (`keras_model` or
 `keras_model_sequential`), a **neuralnet** model or a model as a list. All
@@ -104,7 +107,7 @@ these options are explained in detail in the following subsections.
 
 ### Package torch
 
-Currently, only models created by `torch::nn_sequential` are accepted.
+Currently, only models created by [`torch::nn_sequential`](https://torch.mlverse.org/docs/reference/nn_sequential.html) are accepted.
 However, the most popular standard layers and activation functions are
 available:
 
@@ -121,7 +124,7 @@ available:
     with default arguments for `padding = 0`, `return_indices = FALSE`
     and `ceil_mode = FALSE`)
     
--   Batch-Normalization layers: `nn_batch_norm1d`, `nn_batch_norm2d`
+-   Batch-normalization layers: `nn_batch_norm1d`, `nn_batch_norm2d`
 
 -   Flatten layer: `nn_flatten` 
 
@@ -132,12 +135,9 @@ available:
 
 > **`r knitr::asis_output("\U1F4DD")`  Notes**  
 >
-> -   In a **torch** model, the shape of the inputs is not stored; hence it
-    must be specified with argument `input_dim` within the
+>   In a **torch** model, the shape of the inputs is not stored; hence it
+    must be specified with the argument `input_dim` within the
     initialization of the `Converter` object.
->    
-> -   An activation function can only occur directly after a linear,
-     convolutional or pooling layer and not at arbitrary positions.
 
 <details>
 
@@ -166,7 +166,8 @@ converter <- Converter$new(torch_model, input_dim = c(3, 10, 10))
 
 ### Package keras {#package-keras}
 
-**Keras** models created by `keras_model_sequential` or `keras_model` are
+**Keras** models created by [`keras_model_sequential`](https://tensorflow.rstudio.com/reference/keras/keras_model_sequential)
+or [`keras_model`](https://tensorflow.rstudio.com/reference/keras/keras_model) are
 accepted. Within these functions, the following layers are allowed to be
 used:
 
@@ -181,7 +182,7 @@ used:
     `layer_global_average_pooling_1d`, `layer_global_average_pooling_2d`,
     `layer_global_max_pooling_1d`, `layer_global_max_pooling_2d`
 
--   Batch-Normalization layer: `layer_batch_normalization`
+-   Batch-normalization layer: `layer_batch_normalization`
 
 -   Flatten layer: `layer_flatten`
 
@@ -250,11 +251,11 @@ converter <- Converter$new(keras_model_concat)
 
 ### Package neuralnet
 
-The usage with nets from the package **neuralnet** is very simple and
+Using nets from the package **neuralnet** is very simple and
 straightforward, because the package offers much fewer options than
 **torch** or **keras**. The only thing to note is that no custom activation
 function can be used. However, the package saves the names of the inputs
-and outputs, which can of course be overwritten with the arguments
+and outputs, which can, of course, be overwritten with the arguments
 `input_names` and `output_names` when creating the converter object.
 
 <details>
@@ -284,14 +285,14 @@ converter$output_names
 ### Model as named list {#model-as-named-list}
 
 Besides models from the packages **keras**, **torch** and **neuralnet** it is
-also possible to pass a self defined model in form of a named list to
+also possible to pass a self-defined model in the form of a named list to
 the `Converter` class. This enables the interpretation of networks from
 other libraries with all available methods provided by the **innsight**
 package.
 
-If you want to create a custom model, your list (e.g. `model <- list()`)
+If you want to create a custom model, your list (e.g., `model <- list()`)
 needs at least the keys `model$input_dim` and `model$layers`. However,
-there are other optional keys that can be used to name the input
+other optional keys that can be used to name the input
 features and output nodes or to test the model for correctness. In
 summary:
 
@@ -301,8 +302,8 @@ summary:
 
 **`input_dim`**\
 The model input dimension excluding the batch dimension in the format
-*"channels first"*. If there is only one input layer it can be specified
-as a vector, otherwise use a list of the shapes of the individual input
+*"channels first"*. If there is only one input layer, it can be specified
+as a vector. Otherwise, use a list of the shapes of the individual input
 layers in the correct order.
 
 <details>
@@ -337,9 +338,9 @@ input layer.<br> <br></li>
 
 **`input_names`** (optional)\
 The names for each input dimension excluding the batch axis in the
-format *"channels first"*. If there is only one input layer it can be
-specified as a list of character vectors or factors for each input axis, 
-otherwise use a list of those for each input layer in the correct order.
+format *"channels first"*. If there is only one input layer, it can be
+specified as a list of character vectors or factors for each input axis.
+Otherwise, use a list of those for each input layer in the correct order.
 
 <details>
 
@@ -378,7 +379,7 @@ model$input_names <- list(
     dimension without the batch dimension analogous to `input_dim`. This
     value does not need to be specified and will be calculated
     otherwise. However, if it is set, the calculated value will be
-    compared with it to avoid errors during converting the model.
+    compared with it to avoid errors while converting the model.
 
 -   **`output_nodes`**\
     An integer vector specifying the indices of the output layers from
@@ -398,7 +399,7 @@ model$input_names <- list(
 
 > **`r knitr::asis_output("\U1F4DD")`  Notes**  
 The arguments for the input and output names are optional. By default
-(`NULL`), they are generated, i.e.
+(`NULL`), they are generated, i.e.,
 >
 > -   the output names are `c("Y1", "Y2", "Y3", ... )` for each output layer.
   -   the input names are  
@@ -413,37 +414,37 @@ The arguments for the input and output names are optional. By default
 The list entry `layers` contains a list with all accepted layers of the
 model. In general, each element has the following three arguments:
 
--   **`type`:** The type of the layer, e.g. `"Dense"`, `"Conv2D"`,
-    `"MaxPooling1D"`, etc. (see blow for all accepted types)
+-   **`type`:** The type of the layer, e.g., `"Dense"`, `"Conv2D"`,
+    `"MaxPooling1D"`, etc. (see blow for all accepted types).
 
 -   **`input_layers`:** The list indices from the `layers` list going
-    into this layer, i.e. the previous layers. If this argument is not
+    into this layer, i.e., the previous layers. If this argument is not
     set, a warning is printed and it is assumed that the previous list
-    index in `layers` is the only input layer. If this layer is an input layer,
+    index in `layers` is the only preceding layer. If this layer is an input layer,
     use the value `0`.
 
 -   **`output_layers`:** The list indices from the `layers` list that
     follow this layer. If this argument is not set, a warning is printed
     and it is assumed that the next list index in `layers` is the only
-    output layer. If this layer is an output layer, use the value `-1`.
+    following layer. If this layer is an output layer, use the value `-1`.
 
 -   **`dim_in`** (optional): The input dimension of this layer excluding
     the batch axis according to the format
 
     <ul>
 
-    <li>$\left( \text{feat}_\text{in} \right)$ for tabular data, e.g. `c(3)` for $3$
+    <li>$\left( \text{feat}_\text{in} \right)$ for tabular data, e.g., `c(3)` for $3$
     features,</li>
 
     <li>$\left(\text{channels}_\text{in}, \text{length}_\text{in} \right)$
-    for 1D signal data, e.g. `c(3,10)` for signals with length $10$ and $3$ 
+    for 1D signal data, e.g., `c(3,10)` for signals with length $10$ and $3$ 
     channels or</li>
 
     <li>$\left(\text{channels}_\text{in}, \text{height}_\text{in}, \text{width}_\text{in} \right)$
-    for 2D image data, e.g. `c(3,10,10)` for images of shape $10\times10$ with $3$
+    for 2D image data, e.g., `c(3,10,10)` for images of shape $10\times10$ with $3$
     channels.</li>
 
-    <li>For merging layers a list of the above formats is required,
+    <li>For merging layers, a list of the above formats is required,
     but this is described in more detail in the corresponding types
     below.</li>
 
@@ -471,7 +472,7 @@ each layer type, as described below:
     `dim_out`.
 
 -   **`activation_name`**: The name of the activation function for this
-    dense layer, e.g. `'linear'`, `'relu'`, `'tanh'` or `'softmax'`.
+    dense layer, e.g., `'linear'`, `'relu'`, `'tanh'` or `'softmax'`.
 
 **Example for a dense layer**
 
@@ -503,7 +504,7 @@ dense_layer <- list(
 -   **`bias`**: The bias vector of the layer with length $\text{channels}_\text{out}$.
 
 -   **`activation_name`**: The name of the activation function for this
-    layer, e.g. `'linear'`, `'relu'`, `'tanh'` or `'softmax'`.
+    layer, e.g., `'linear'`, `'relu'`, `'tanh'` or `'softmax'`.
 
 -   **`stride`** (optional): The stride of the convolution (single
     integer for 1D and tuple of two integers for 2D data). If this value is
@@ -587,7 +588,7 @@ avg_pool2D <- list(
 
 During inference, the layer normalizes its output using a moving average 
 of the mean and standard deviation of the batches it has seen during training,
-i.e.
+i.e.,
 $$
 y = \gamma \cdot \frac{x - \mu}{\sqrt{\sigma + \varepsilon}} + \beta
 $$
@@ -599,16 +600,16 @@ $$
     stability.
     
 -   **`gamma`**: The vector of scaling factors $\gamma$ for each feature to be 
-    normalized, i.e. a numerical vector of length `num_features`.
+    normalized, i.e., a numerical vector of length `num_features`.
     
 -   **`beta`**: The vector of offset values $\beta$ for each feature to be 
-    normalized, i.e. a numerical vector of length `num_features`.
+    normalized, i.e., a numerical vector of length `num_features`.
     
 -   **`run_mean`**: The vector of running means $\mu$ for each feature to be
-    normalized, i.e. a numerical vector of length `num_features`.
+    normalized, i.e., a numerical vector of length `num_features`.
     
 -   **`run_var`**: The vector of running variances $\sigma$ for each feature 
-    to be normalized, i.e. a numerical vector of length `num_features`.
+    to be normalized, i.e., a numerical vector of length `num_features`.
 
 **Example for a batch normalization layer**
 
@@ -635,11 +636,11 @@ batchnorm <- list(
 
 -   **`start_dim`** (optional): An integer value that describes the axis
     from which the dimension is flattened. By default (`NULL`) the axis
-    following the batch axis is selected, i.e. `2`.
+    following the batch axis is selected, i.e., `2`.
 
 -   **`end_dim`** (optional): An integer value that describes the axis
     to which the dimension is flattened. By default (`NULL`) the last
-    axis is selected, i.e. `-1`.
+    axis is selected, i.e., `-1`.
 
 **Example for a flatten layer**
 
@@ -776,11 +777,11 @@ add <- list(
 
 ## Argument `input_dim`
 
-With the argument `input_dim` the size of the input excluding the batch
+With the argument `input_dim`, input size excluding the batch
 dimension is passed. For many packages, this information is already
 included in the given `model`. In this case, this argument only acts as
 a check and throws an error in case of inconsistency. However, if the
-input size is not included in the model, which is for example the case
+input size is not included in the model, which is, for example, the case
 for models from the package **torch**, it becomes a necessary argument and
 the correct size must be passed. All in all, four different forms of
 input shapes are accepted, whereby all shapes with channels must always
@@ -788,26 +789,26 @@ be in the *"channels first"* format for internal reasons:
 
 -   **Tabular inputs:** If the model has no channels and is only
     one-dimensional, the input size can be passed as a single integer or
-    vector with a single integer, e.g. a dense layer with five features
+    vector with a single integer, e.g., a dense layer with five features
     would have an input shape of `5` or `c(5)`.
 
 -   **Signal inputs:** If the model has signals consisting of a channel
     and another dimension as input, the input size can be passed as a
     vector composed of the number of channels $C$ and the
-    signal length $L$ in the channels first format, i.e.
+    signal length $L$ in the channels first format, i.e.,
     $\left(C, L\right)$. For example, for a 1D
     convolutional layer with three channels and a signal length of $10$
-    (both formats $3 \times 10$ and $10 \times 3$) the shape `c(3, 10)`
+    (both formats $3 \times 10$ and $10 \times 3$), the shape `c(3, 10)`
     must be passed.
 
 -   **Image inputs:** If the model has images consisting of a channel
     and two other dimensions as input, the input size can be passed as a
     vector composed of the number of channels $C$, the
     image height $H$ and width $W$ in the channels
-    first format, i.e. $\left(C, H, W\right)$. For
+    first format, i.e., $\left(C, H, W\right)$. For
     example, for a 2D convolutional layer with three channels, image
     height of $32$ and width of $20$ (both formats
-    $3 \times 32 \times 20$ and $32 \times 20 \times 3$) the shape
+    $3 \times 32 \times 20$ and $32 \times 20 \times 3$), the shape
     `c(3, 32, 20)` must be passed.
 
 <ul>
@@ -830,69 +831,68 @@ the `input_names` argument.
 
 ## Argument `input_names`
 
-According to the shapes from the argument [`input_dim`](#argument-input_dim) the input names
-for each layer and dimension can be passed with the optional argument
-`input_names`. This means that for each integer in `input_dim` a vector
-of this length is passed with the labels, which is then summarized for
-all dimensions in a list. The labels can be provided both as normal character 
-vectors and as factors and they will be used for the visualizations in Step 3. 
-Factors can be used to specify the order of the labels as they will be 
-visualized later in Step 3. For the individual input formats, the input names
+According to the shapes from the argument [`input_dim`](#argument-input_dim),
+the input names for each layer and dimension can be passed with the optional
+argument `input_names`. This means that for each integer in `input_dim` a vector
+of this length is passed with the labels, which is then summarized for all
+dimensions in a list. The labels can be provided both as normal character
+vectors and as factors and they will be used for the visualizations in Step 3.
+Factors can be used to specify the order of the labels as they will be
+visualized later in [Step 3](#step-3-show-and-plot-the-results). For the 
+individual input formats, the input names
 can be passes as described below:
 
--   **Tabular inputs:** If for example `input_dim = c(4)`, a possible
+-   **Tabular inputs:** If, for example, `input_dim = c(4)`, a possible
     value for the input names can be
     ```{r, eval = FALSE}
-list(c("set", "your", "labels", "here!"))
-# or as a factor
-list(
-  factor(c("set", "your", "labels", "here"),
-    levels = c("labels", "set", "your", "here")
-  )
-)
+    list(c("set", "your", "labels", "here!"))
+    # or as a factor
+    list(
+      factor(c("set", "your", "labels", "here"),
+        levels = c("labels", "set", "your", "here")
+      )
+    )
     ```
 
--   **Signal inputs:** If for example `input_dim = c(3, 6)`, a possible
+-   **Signal inputs:** If, for example, `input_dim = c(3, 6)`, a possible
     value for the input names can be
     ```{r, eval = FALSE}
-list(
-  c("channels", "are", "first"),
-  c("Length1", "Length2", "Length3", "Length4", "Length5", "Length6")
-)
+    list(
+      c("channels", "are", "first"),
+      c("Length1", "Length2", "Length3", "Length4", "Length5", "Length6")
+    )
     ```
 
--   **Image inputs:** If for example `input_dim = c(3, 4, 4)`, a
+-   **Image inputs:** If, for example, `input_dim = c(3, 4, 4)`, a
     possible value for the input names can be
     ```{r, eval = FALSE}
-list(
-  c("channels", "are", "first"),
-  c("then", "comes", "the", "image height"),
-  c("and", "then", "the", "width")
-)
+    list(
+      c("channels", "are", "first"),
+      c("then", "comes", "the", "image height"),
+      c("and", "then", "the", "width")
+    )
     ```
 
--   **Multiple inputs:** If for example
+-   **Multiple inputs:** If, for example,
     `input_dim = list(c(4), c(3, 4, 4))`, a possible value for the input
     names can be
 
     ```{r, eval = FALSE}
-list(
-  # first input layer
-  list(
-    c("Feat_1", "Feat_2", "Feat_3", "Feat_4")
-  ),
-  # second input layer
-  list(
-    c("C1", "C2", "C3"),
-    c("Height_1", "Height_2", "Height_3", "Height_4"),
-    c("W1", "W2", "W3", "W4")
-  )
-)
+    list(
+      # first input layer
+      list(c("Feat_1", "Feat_2", "Feat_3", "Feat_4")),
+      # second input layer
+      list(
+        c("C1", "C2", "C3"),
+        c("Height_1", "Height_2", "Height_3", "Height_4"),
+        c("W1", "W2", "W3", "W4")
+      )
+    )
     ```
 
 > **`r knitr::asis_output("\U1F4DD")`  Notes**  
 > The argument for the input names is optional. By default (`NULL`) they
-are generated, i.e. the input names are
+are generated, i.e., the input names are
 >
 > -   `list(c("X1", "X2", "X3", ...))` for tabular input layers
 > -   `list(c("C1", "C2", ...), c("L1", "L2", ...))` for 1D input layers
@@ -907,7 +907,7 @@ inputs. During the initialization of the `Converter` instance, the
 output size is calculated and stored in the field `output_dim`, which is
 structured in the same way as the argument `input_dim`. This results in
 the structure of the argument `output_names` analogous to the argument
-`input_names`, i.e. a vector of labels, a factor or, in case of several output
+`input_names`, i.e., a vector of labels, a factor or, in case of several output
 layers, a list of label vectors or factors. For example, for an output layer with
 three nodes, the following list of labels can be passed:
 
@@ -936,14 +936,14 @@ are generated with the default value `NULL` for each output layer.
 
 ### Argument `dtype` {#argument-dtype}
 
-This argument defines the numerical precision with which all internal
-calculations are performed. Accepted are currently the 32-bit floating
-point (`"float"` the default value) and 64-bit floating point numbers
-(`"double"`). All weights, constants and inputs are then converted
-accordingly into the data format `torch_float` or `torch_double`.
+This argument defines the numerical floating-point number's precision with which
+all internal calculations are performed. Accepted are currently 32-bit
+floating point (`"float"` the default value) and 64-bit floating point numbers
+(`"double"`). All weights, constants and inputs are then converted accordingly
+into the data format `torch_float()` or `torch_double()`.
 
 > **`r knitr::asis_output("\U1F4DD")`  Note**  
-At this point we want to note that this decision is especially crucial
+At this point, this decision is especially crucial
 for exact comparisons, and if the precision is too inaccurate, errors
 could occur. See the following example:
 
@@ -976,7 +976,7 @@ This is an expected behavior, which is explained in detail in the
 PyTorch documentation
 [here](https://pytorch.org/docs/stable/notes/numerical_accuracy.html#batched-computations-or-slice-computations).
 But you can reduce the error by using the double precision with
-`torch_double`:
+`torch_double()`:
 
 ```{r}
 torch_manual_seed(123)
@@ -996,9 +996,8 @@ res1 - res2
 
 ### Argument `save_model_as_list` {#argument-save_model_as_list}
 
-As already described in the [Get started
-vignette](https://bips-hb.github.io/innsight/articles/innsight.html), a
-given model is first converted to a list and then the torch model is
+As already described in the [introduction vignette](https://bips-hb.github.io/innsight/articles/innsight.html), a
+given model is first converted to a list and then the **torch** model is
 created from it. By default, however, this list is not stored in the
 `Converter` object, since this requires a lot of memory for large models
 and is otherwise not used further. With the logical argument
@@ -1015,17 +1014,18 @@ the following:
 
 -   `model`: This field contains the **torch**-converted model based on
     the module `ConvertedModel` (see `?ConvertedModel` for more
-    information).
+    information) containing the model with pre-implemented feature
+    attribution methods.
     
 -   `input_dim`: This field is more or less a copy of the argument
-    `input_dim`, only unified that it is always a list of the input
-    shapes for each input layer, i.e. the argument `input_dim = c(4)`
-    turns into `list(c(4))`.
+    `input_dim` of the `Converter` object, only unified that it is 
+    always a list of the input shapes for each input layer, i.e., 
+    the argument `input_dim = c(4)` turns into `list(c(4))`.
     
 -   `input_names`: Analog to the field `input_dim`, the field
-    `input_names` contains the input labels of the argument
-    `input_names`, but as a list of the label lists for each input
-    layer, i.e. the argument
+    `input_names` contains the input labels of the `Converter` 
+    argument `input_names`, but as a list of the label lists for each input
+    layer, i.e., the argument
     `input_names = list(c("C1", "C2"), c("A", "B"))` turns into
     `list(list(c("C1", "C2"), c("A", "B")))`.
     
@@ -1079,7 +1079,7 @@ mean((y - y_true)**2)
 
 Since we did not pass any arguments for the input and output names, they
 were generated and stored in the list format in the `input_names` and
-`output_names` field. Remember that in these fields, regardless of the
+`output_names` fields. Remember that in these fields, regardless of the
 number of input or output layers, there is always an outer list for the 
 layers and then inner lists for the layer's dimensions.
 
@@ -1127,7 +1127,7 @@ converter
 ```
 
 
-# Step 2: Apply selected Method
+# Step 2: Apply selected method
 
 The **innsight** package provides the most popular feature attribution
 methods in a unified framework. Besides the individual method-specific
@@ -1155,7 +1155,7 @@ method <- Method$new(converter, data,
 ### Argument `converter`
 
 The `Converter` object from the [first step](#step-1-the-converter) is one of 
-the crucial elements for the application of a selected method, because it 
+the crucial elements for the application of a selected method because it 
 converted the original model into a **torch** structure necessary for 
 **innsight** in which the methods are pre-implemented in each layer.
 
@@ -1170,7 +1170,7 @@ Accepted are data as:
     $\left(\text{batch_size}, \text{input_dim}\right)$. These formats can
     be used mainly when the model has only one input layer. Internally,
     the data is converted to an array using the `as.array` function and
-    stored as a `torch_tensor` in the given `dtype` afterwards.
+    stored as a `torch_tensor` in the given `dtype` afterward.
     
 -   `torch_tensor`: The converting process described in the last point
     can also be skipped by directly passing the data as a `torch_tensor`
@@ -1181,7 +1181,7 @@ Accepted are data as:
 
 > **`r knitr::asis_output("\U1F4DD")`  Note**  
 The argument data is a necessary argument only for the local
-interpretation methods. Otherwise, it is unnecessary, e.g. the global
+interpretation methods. Otherwise, it is unnecessary, e.g., the global
 variant of the [Connection Weights](#connection-weights) method can be used 
 without data.
 
@@ -1190,9 +1190,9 @@ without data.
 This argument tells the package where the channel axis for images and
 signals is located in the input data. Internally, all calculations are
 performed with the channels in the second position after the batch
-dimension (*"channels first"*), e.g. `c(10,3,32,32)` for a batch of ten
+dimension (*"channels first"*), e.g., `c(10,3,32,32)` for a batch of ten
 images with three channels and a height and width of $32$ pixels. Thus
-input data in the format *"channels last"* (i.e. `c(10,32,32,3)` for the
+input data in the format *"channels last"* (i.e., `c(10,32,32,3)` for the
 previous example) must be transformed accordingly. If the given `data`
 has no channel axis, use the default value `TRUE`.
 
@@ -1204,7 +1204,7 @@ method object gives the following possibilities to select the indices of
 the output nodes in the individual output layers:
 
 -   A vector of indices: If the model has only one output layer, the
-    values correspond to the indices of the output nodes, e.g.
+    values correspond to the indices of the output nodes, e.g.,
     `c(1,3,4)` for the first, third and fourth output node. If there are
     multiple output layers, the indices of the output nodes from the
     first output layer are considered.
@@ -1213,7 +1213,7 @@ the output nodes in the individual output layers:
     nodes from different layers, a list can be passed that specifies the
     desired indices of the output nodes for each output layer. Unwanted
     output layers have the entry `NULL` instead of a vector of indices,
-    e.g. `list(NULL, c(1,3))` for the first and third output node in the
+    e.g., `list(NULL, c(1,3))` for the first and third output node in the
     second output layer.
     
 -   `NULL` (default): The method is applied to all output nodes in the
@@ -1230,10 +1230,10 @@ output layer, or not (default: `TRUE`). In practice, the last activation
 ### Argument `dtype`
 
 This argument defines the numerical precision with which all internal
-calculations are performed. Accepted are currently the 32-bit floating
+calculations are performed. Accepted are currently 32-bit floating
 point (`"float"` the default value) and 64-bit floating point numbers
 (`"double"`). All weights, constants and inputs are then converted
-accordingly into the data format `torch_float` or `torch_double`. See
+accordingly into the data format `torch_float()` or `torch_double()`. See
 the [argument `dtype`](#argument-dtype) in the `Converter` object for
 more details.
 
@@ -1289,8 +1289,8 @@ converter <- Converter$new(model)
 ### Vanilla Gradient {#method-vanilla-gradient}
 
 One of the first and most intuitive methods for interpreting neural
-networks is the *Gradients* method introduced by Simonyan et al. (2013),
-also known as *Vanilla Gradients* or *Silency maps*. This method
+networks is the *Gradients* method introduced by [Simonyan et al. (2013)](https://arxiv.org/abs/1312.6034),
+also known as *Vanilla Gradients* or *Saliency maps*. This method
 computes the gradients of the selected output with respect to the input
 variables. Therefore the resulting relevance values indicate those
 variables that can be locally perturbed the least to change the outcome
@@ -1307,15 +1307,15 @@ As described in the introduction of this section, the corresponding
 `InterpretingMethod`, meaning that we need
 to change the term `Method` to `Gradient`. The only model-specific
 argument is `times_input`, which can be used to switch between the two
-methods `Gradient` (default `FALSE`) and `GradxInput` (`TRUE`). For more
-information on the method `GradxInput` see [this
-subsection](#gradient-x-input-and-smoothgrad-x-input).
+methods *Gradient* (default `FALSE`) and *Gradient$\times$Input* (`TRUE`). For more
+information on the method *Gradient$\times$Input* see [this
+subsection](#gradienttimesinput-and-smoothgradtimesinput).
 
 ```{r, eval = FALSE}
 grad <- Gradient$new(converter, data,
   times_input = FALSE,
-  ...
-) # other arguments inherited from 'InterpretingMethod'
+  ... # other arguments inherited from 'InterpretingMethod'
+)
 ```
 
 <details>
@@ -1323,12 +1323,12 @@ grad <- Gradient$new(converter, data,
 <summary>Example with visualization</summary>
 
 In this example, we want to describe the data point $x_1 = 0.45$ with
-the gradient method. In principle, the slope of the tangent in $x_1$ is
+the Gradient method. In principle, the slope of the tangent in $x_1$ is
 calculated and thus the local rate of change, which in this case is
 $\tanh'(x_1) = \frac{1}{\cosh(x_1)^2} = 0.822$ (see the red line in Fig.
 2). Assuming that the function behaves linearly overall, increasing $x$
 by one raises the output by $0.822$. In general, however, neural
-networks are highly non-linear, so this interpretation is only valid for
+networks are highly nonlinear, so this interpretation is only valid for
 very small changes of $x_1$ as you can see in Fig. 2.
 
 ```{r, echo = FALSE, fig.width=5, fig.height= 3, fig.cap= "**Fig. 2:** Gradient method"}
@@ -1359,15 +1359,16 @@ base <-
 
 base +
   geom_function(fun = func, alpha = 0.7) +
-  geom_segment(aes(x = 0.45, y = -0.05, xend = 0.45, yend = 0.05), size = 0.8) +
-  geom_segment(aes(x = -0.03, y = tanh(0.45), xend = 0.03, yend = tanh(0.45)), size = 0.8) +
+  geom_segment(aes(x = 0.45, y = -0.05, xend = 0.45, yend = 0.05), linewidth = 0.8) +
+  geom_segment(aes(x = -0.03, y = tanh(0.45), xend = 0.03, yend = tanh(0.45)), 
+               linewidth = 0.8) +
   annotate("text", label = "x[1]", x = 0.45, y = -0.12, size = 5, parse = TRUE) +
   annotate("text", label = "f(x[1])", x = -0.13, y = tanh(0.45), size = 5, parse = TRUE) +
   geom_segment(aes(
     x = 0.25, xend = 0.65, y = tanh(0.45) - 0.2 / cosh(0.45)**2,
     yend = tanh(0.45) + 0.2 / cosh(0.45)**2
   ),
-  color = "red", alpha = 0.7, size = 1.5
+  color = "red", alpha = 0.7, linewidth = 1.5
   ) +
   geom_point(
     data = data.frame(x = 0.45, y = tanh(0.45)),
@@ -1392,8 +1393,8 @@ grad$get_result()
 
 ### SmoothGrad {#method-smoothgrad}
 
-The *SmoothGrad* method, introduced by Smilkov et al. 2017, addresses a
-significant problem of the basic gradient method. As described in the
+The *SmoothGrad* method, introduced by [Smilkov et al. (2017)](https://arxiv.org/abs/1706.03825), addresses a
+significant problem of the basic Gradient method. As described in the
 previous subsection, gradients locally assume a linear behavior, but
 this is generally no longer the case for deep neural networks. These
 have large fluctuations and abruptly change their gradients, making the
@@ -1405,7 +1406,7 @@ obtain relevance values for the individual components
 $x_i \in \mathbb{R}$ of an instance $x \in \mathbb{R^n}$, we first
 generate $K \in \mathbb{N}$ realizations of a multivariate Gaussian
 distribution $p = \mathcal{N}(0, \sigma^2)$ describing the random
-perturbations, i.e. $\varepsilon^1, \ldots, \varepsilon^K \sim p$. Then
+perturbations, i.e., $\varepsilon^1, \ldots, \varepsilon^K \sim p$. Then
 the empirical mean of the gradients for variable $x_i$ and output index
 $c$ can be calculated as follows:
 
@@ -1420,30 +1421,30 @@ that we need to change the term `Method` to `SmoothGrad`. In addition,
 there are the following three model-specific arguments:
 
 -   `n` (default: `50`): This integer value specifies how many
-    perturbations will be used to calculate the mean gradient, i.e. the
+    perturbations will be used to calculate the mean gradient, i.e., the
     $K$ from the formula above. However, it must be noted that the
     computational effort increases by a factor of `n` compared to the
-    gradient method since the simple gradient method is used `n` times
-    instead of once. In return the accuracy of the estimator increases
-    with larger `n`.
+    Gradient method since the simple Gradient method is used `n` times
+    instead of once. In return, the accuracy of the estimator increases
+    with a larger `n`.
 
 -   `noise_level` (default: `0.1`): With this argument, the strength of
     the spread of the Gaussian distribution can be given as a
-    percentage, i.e. `noise_level` $=\frac{\sigma}{\max(x)-\min(x)}$.
+    percentage, i.e., `noise_level` $=\frac{\sigma}{\max(x)-\min(x)}$.
 
 -   `times_input` (default: `FALSE`): Similar to the `Gradient` method,
     this argument can be used to switch between the two methods
-    `SmoothGrad` (`FALSE`) and `SmoothGradxInput` (`TRUE`). For more
-    information on the method `SmoothGradxInput` see [this
-    subsection](#gradient-x-input-and-smoothgrad-x-input).
+    SmoothGrad (`FALSE`) and *SmoothGrad$\times$Input* (`TRUE`). For more
+    information on the method *SmoothGrad$\times$Input* see [this
+    subsection](#gradienttimesinput-and-smoothgradtimesinput).
 
 ```{r, eval = FALSE}
 smoothgrad <- SmoothGrad$new(converter, data,
   n = 50,
   noise_level = 0.1,
   times_input = FALSE,
-  ...
-) # other arguments inherited from 'InterpretingMethod'
+  ... # other arguments inherited from 'InterpretingMethod'
+) 
 ```
 
 <details>
@@ -1451,9 +1452,9 @@ smoothgrad <- SmoothGrad$new(converter, data,
 <summary>Example with visualization</summary>
 
 We want to describe the data point $x_1 = 0.6$ with the method
-`SmoothGrad`. As you can see in Figure 3, this point does not have a
+*SmoothGrad*. As you can see in Figure 3, this point does not have a
 unique gradient because it is something around $0.15$ from the left and
-something around $1.66$ from the right. In such situations, `SmoothGrad`
+something around $1.66$ from the right. In such situations, SmoothGrad
 comes in handy. As described before, the input $x_1$ is slightly
 perturbed by a Gaussian distribution and then the mean gradient is
 calculated. The individual gradients of the perturbed copies are
@@ -1464,8 +1465,8 @@ gradient.
 set.seed(111)
 fig <- base +
   geom_function(fun = func, alpha = 0.7) +
-  geom_segment(aes(x = 0.6, y = -0.05, xend = 0.6, yend = 0.05), size = 0.8) +
-  geom_segment(aes(x = -0.03, y = func(0.6), xend = 0.03, yend = func(0.6)), size = 0.8) +
+  geom_segment(aes(x = 0.6, y = -0.05, xend = 0.6, yend = 0.05), linewidth = 0.8) +
+  geom_segment(aes(x = -0.03, y = func(0.6), xend = 0.03, yend = func(0.6)), linewidth = 0.8) +
   annotate("text", label = "x[1]", x = 0.6, y = -0.12, size = 6, parse = TRUE) +
   annotate("text", label = "f(x[1])", x = -0.13, y = func(0.6), size = 6, parse = TRUE)
 
@@ -1493,11 +1494,11 @@ mean_grad <- data.frame(
 fig +
   geom_segment(
     data = data, mapping = aes(x = x, xend = xend, y = y, yend = yend),
-    color = "darkblue", alpha = 0.3, size = 0.5
+    color = "darkblue", alpha = 0.3, linewidth = 0.5
   ) +
   geom_segment(
     data = mean_grad, mapping = aes(x = x, xend = xend, y = y, yend = yend),
-    color = "red", alpha = 0.9, size = 1.25
+    color = "red", alpha = 0.9, linewidth = 1.25
   ) +
   geom_function(fun = func, alpha = 0.7) +
   geom_point(mapping = aes(x = x, y = y), color = "blue", size = 0.8) +
@@ -1516,32 +1517,36 @@ data <- matrix(c(0.6), 1, 1)
 smoothgrad <- SmoothGrad$new(converter, data,
   noise_level = 0.2,
   n = 50,
-  ignore_last_act = FALSE
-) # include the tanh activation
+  ignore_last_act = FALSE # include the tanh activation
+) 
 # get result
 smoothgrad$get_result()
 ```
 
 </details>
 
-### Gradient x Input and SmoothGrad x Input
+### Gradient$\times$Input and SmoothGrad$\times$Input
 
-The methods *Gradient x Input* and *SmoothGrad x Input* are as simple as
-they sound: the gradients are calculated as in the [gradient
-section](#method-vanilla-gradient) and then multiplied by the respective
-input. They were introduced by Shrikumar et al. 2016 and have a
-well-grounded mathematical background despite their simple idea. The basic
-idea is to decompose the output according to its relevance to each input
-variable, i.e. we get variable-wise additive effects 
+The methods *Gradient$\times$Input* and *SmoothGrad$\times$Input* are as simple
+as they sound: the gradients are calculated as in the [gradient
+section](#method-vanilla-gradient) and then multiplied by the respective input.
+They were introduced by [Shrikumar et al.
+(2016)](https://arxiv.org/abs/1605.01713) and have a well-grounded mathematical
+background despite their simple idea. The basic idea is to decompose the output
+according to its relevance to each input variable, i.e., we get variable-wise
+additive effects
+
 $$
 \tag{1}
 f(x)_c = \sum_{i = 1}^n R_i.
 $$ 
+
 Mathematically, this method is based on the first-order Taylor
 decomposition. Assuming that the function $f$ is continuously
 differentiable in $x \in \mathbb{R}^n$, a remainder term
 $\varepsilon(f,z,x):\mathbb{R}^n \to \mathbb{R}$ with
-$\lim_{z \to x} \varepsilon(f, z, x) = 0$ exists such that 
+$\lim_{z \to x} \varepsilon(f, z, x) = 0$ exists such that
+
 $$
 \begin{align}
 f(z) &= f(x) + \nabla_x\ f(x)(z-x)^T + \varepsilon(f, z, x)\\
@@ -1553,14 +1558,14 @@ of the function $f$ at the point $x$ since only the first derivatives
 are considered. Consequently, a highly nonlinear function $f$ is well
 approximated in a small neighborhood around $x$. For larger
 distances from $x$, sufficient small values of the residual term are not
-guaranteed anymore. The *Gradient x Input* method now considers the data
+guaranteed anymore. The *Gradient$\times$Input* method now considers the data
 point $x$ and sets $z = 0$. In addition, the residual term and the
-summand $f(0)$ are ignored, which then results in the following
-approximation of $f(x)$ in variable-wise relevances
+summand $f(0)_c$ are ignored, which then results in the following
+approximation of $f(x)_c$ in variable-wise relevances
 
 $$
 f(x)_c \approx \sum_{i = 1}^n \frac{\partial\ f(x)_c}{\partial\ x_i} \cdot x_i, \quad \text{hence}\\
-\text{Grad x Input}(x)_i^c = \frac{\partial\ f(x)_c}{\partial\ x_i} \cdot x_i.
+\text{Gradient$\times$Input}(x)_i^c = \frac{\partial\ f(x)_c}{\partial\ x_i} \cdot x_i.
 $$
 
 <details>
@@ -1569,17 +1574,17 @@ $$
 
 $$
 \begin{align}
-&f(z) = f(x) + \sum_{i = 1}^n \frac{\partial\ f(x)}{\partial\ x_i} (z_i - x_i) + \varepsilon(f, z, x)\\
-\Leftrightarrow\quad & f(x) = f(z) - \sum_{i = 1}^n \frac{\partial\ f(x)}{\partial\ x_i} (z_i - x_i) - \varepsilon(f, z, x)\\
-\Leftrightarrow\quad & f(x) = f(z) + \sum_{i = 1}^n \frac{\partial\ f(x)}{\partial\ x_i} (x_i - z_i) - \varepsilon(f, z, x)
+&f(z)_c = f(x)_c + \sum_{i = 1}^n \frac{\partial\ f(x)_c}{\partial\ x_i} (z_i - x_i) + \varepsilon(f, z, x)\\
+\Leftrightarrow\quad & f(x)_c = f(z)_c - \sum_{i = 1}^n \frac{\partial\ f(x)_c}{\partial\ x_i} (z_i - x_i) - \varepsilon(f, z, x)\\
+\Leftrightarrow\quad & f(x)_c = f(z)_c + \sum_{i = 1}^n \frac{\partial\ f(x)_c}{\partial\ x_i} (x_i - z_i) - \varepsilon(f, z, x)
 \end{align}
 $$ 
 Hence, we get for $z = 0$ and after ignoring the remainder term and
-the value $f(0)$ 
+the value $f(0)_c$ 
 $$
 \begin{align}
-f(x) &= f(0) + \sum_{i = 1}^n \frac{\partial\ f(x)}{\partial\ x_i} x_i - \varepsilon(f, z, x) \tag{3}\\
-&\approx \sum_{i = 1}^n \frac{\partial\ f(x)}{\partial\ x_i} x_i
+f(x)_c &= f(0)_c + \sum_{i = 1}^n \frac{\partial\ f(x)_c}{\partial\ x_i} x_i - \varepsilon(f, z, x) \tag{3}\\
+&\approx \sum_{i = 1}^n \frac{\partial\ f(x)_c}{\partial\ x_i} x_i
 \end{align}
 $$
 
@@ -1590,7 +1595,7 @@ Analogously, this multiplication is also applied to the
 [*SmoothGrad*](#method-smoothgrad) method in order to compensate for
 local fluctuations: 
 $$
-\text{SmoothGrad x Input}(x)_i^c = \frac{1}{K} \sum_{j = 1}^K \frac{\partial\ f(x + \varepsilon^j)_c}{\partial\ x_i + \varepsilon_i^j} \cdot (x_i + \varepsilon_i^j),\quad \varepsilon^1, \ldots, \varepsilon^K \sim \mathcal{N}(0,\sigma^2).
+\text{SmoothGrad$\times$Input}(x)_i^c = \frac{1}{K} \sum_{j = 1}^K \frac{\partial\ f(x + \varepsilon^j)_c}{\partial\ x_i + \varepsilon_i^j} \cdot (x_i + \varepsilon_i^j),\quad \varepsilon^1, \ldots, \varepsilon^K \sim \mathcal{N}(0,\sigma^2).
 $$
 
 Both methods are variants of the respective gradient methods `Gradient`
@@ -1601,21 +1606,21 @@ arguments. These variants can be chosen with the argument `times_input`:
 # the "x Input" variant of method "Gradient"
 grad_x_input <- Gradient$new(converter, data,
   times_input = TRUE,
-  ...
-) # other arguments of method "Gradient"
+  ... # other arguments of method "Gradient"
+) 
 
 # the "x Input" variant of method "SmoothGrad"
 smoothgrad_x_input <- SmoothGrad$new(converter, data,
   times_input = TRUE,
-  ...
-) # other arguments of method "SmoothGrad"
+  ... # other arguments of method "SmoothGrad"
+) 
 ```
 
 <details>
 
 <summary>Example with visualization</summary>
 
-**Gradient x Input:**  
+**Gradient$\times$Input:**  
 
 Now let us describe the data point $x_1 = 0.49$ using the model defined
 in this chapter's introduction. For this model holds the equation
@@ -1624,20 +1629,20 @@ value of the remainder term at $0$ (as seen in Eq. 3). In Figure 4, the
 Taylor approximation is drawn in red and at position $0$, you can also
 see the value of the remainder term (because all other summands are
 zero). At the same time, the red dot describes the result of the
-*Gradient x Input* method, which indeed deviates from the actual value
+*Gradient$\times$Input* method, which indeed deviates from the actual value
 only by the negative of the remainder term at position $0$.
 
-```{r, echo = FALSE, fig.width=5, fig.height= 3, fig.cap= "**Fig. 4:** Gradient x Input method"}
+```{r, echo = FALSE, fig.width=5, fig.height= 3, fig.cap= "**Fig. 4:** Gradient$\\times$Input method"}
 base +
   geom_function(fun = func, alpha = 0.7) +
-  geom_segment(aes(xend = 0, yend = 0.5 * (c(func(0.49)) - grad_func(0.49) * 0.49), x = 0.75, y = 0.25), color = "black", size = 0.25, arrow = arrow(length = unit(0.2, "cm"), type = "closed"), alpha = 0.8) +
+  geom_segment(aes(xend = 0, yend = 0.5 * (c(func(0.49)) - grad_func(0.49) * 0.49), x = 0.75, y = 0.25), color = "black", linewidth = 0.25, arrow = arrow(length = unit(0.2, "cm"), type = "closed"), alpha = 0.8) +
   annotate("text", label = "ε(f,0.49,0)", x = 0.85, y = 0.25) +
-  geom_segment(aes(x = 0.49, y = func(0.49), xend = 0.49, yend = grad_func(0.49) * 0.49), color = "red", size = 0.3) +
-  geom_segment(aes(x = 0, y = 0, xend = 0, yend = c(func(0.49)) - grad_func(0.49) * 0.49), color = "red", size = 0.3) +
-  geom_segment(aes(xend = 0.49, yend = c(func(0.49)) - 0.5 * (c(func(0.49)) - grad_func(0.49) * 0.49), x = 0.75, y = 0.25), color = "black", size = 0.25, arrow = arrow(length = unit(0.2, "cm"), type = "closed"), alpha = 0.8) +
+  geom_segment(aes(x = 0.49, y = func(0.49), xend = 0.49, yend = grad_func(0.49) * 0.49), color = "red", linewidth = 0.3) +
+  geom_segment(aes(x = 0, y = 0, xend = 0, yend = c(func(0.49)) - grad_func(0.49) * 0.49), color = "red", linewidth = 0.3) +
+  geom_segment(aes(xend = 0.49, yend = c(func(0.49)) - 0.5 * (c(func(0.49)) - grad_func(0.49) * 0.49), x = 0.75, y = 0.25), color = "black", linewidth = 0.25, arrow = arrow(length = unit(0.2, "cm"), type = "closed"), alpha = 0.8) +
   geom_function(fun = function(x) grad_func(0.49) * (x - 0.49) + c(func(0.49)), color = "red", alpha = 0.7, xlim = c(-0.2, 1.1)) +
-  geom_segment(aes(x = 0.49, y = -0.05, xend = 0.49, yend = 0.05), size = 0.8) +
-  geom_segment(aes(x = -0.03, y = func(0.49), xend = 0.03, yend = func(0.49)), size = 0.8) +
+  geom_segment(aes(x = 0.49, y = -0.05, xend = 0.49, yend = 0.05), linewidth = 0.8) +
+  geom_segment(aes(x = -0.03, y = func(0.49), xend = 0.03, yend = func(0.49)), linewidth = 0.8) +
   annotate("text", label = "x[1]", x = 0.49, y = -0.12, size = 6, parse = TRUE) +
   annotate("text", label = "f(x[1])", x = -0.13, y = func(0.49), size = 6, parse = TRUE) +
   geom_point(
@@ -1658,23 +1663,22 @@ data <- matrix(c(0.49), 1, 1)
 # Apply method
 grad_x_input <- Gradient$new(converter, data,
   times_input = TRUE,
-  ignore_last_act = FALSE
-) # include the tanh activation
+  ignore_last_act = FALSE # include the tanh activation
+) 
 # get result
 grad_x_input$get_result()
 ```
 
-**SmoothGrad x Input:**  
+**SmoothGrad$\times$Input:**  
 
-It is also possible to use the **SmoothGrad** method to perturb the input
-$x_1 = 0.49$ a bit and return an average value of the *Gradient x Input*
-method. Figure 5 shows the individual linear approximations of the
-first-order Taylors for the Gaussian perturbed copies of $x_1$, and the
-blue dots describe the respective Gradient x Input values. The red dot
-represents the mean value, i.e. the value of the *SmoothGrad x Input*
-method at $x_1 = 0.49$. 
+It is also possible to use the *SmoothGrad$\times$Input* method to perturb the
+input $x_1 = 0.49$ a bit and return an average value of the individual
+*Gradient$\times$Input* results. Figure 5 shows the individual linear approximations of the
+first-order Taylors for the Gaussian perturbed copies of $x_1$, and the blue
+dots describe the respective Gradient$\times$Input values. The red dot represents the
+mean value, i.e., the value of the *SmoothGrad$\times$Input* method at $x_1 = 0.49$.
 
-```{r, echo = FALSE, fig.width=5, fig.height= 3, fig.cap= "**Fig. 5:** SmoothGrad x Input method"}
+```{r, echo = FALSE, fig.width=5, fig.height= 3, fig.cap= "**Fig. 5:** SmoothGrad$\\times$Input method"}
 set.seed(111)
 
 x <- 0.49 + rnorm(10) * 0.2
@@ -1683,20 +1687,21 @@ b <- c(func(x)) - m * x
 
 base +
   geom_function(fun = func, alpha = 0.7) +
-  geom_segment(aes(x = 0.49, y = -0.05, xend = 0.49, yend = 0.05), size = 0.8) +
-  geom_segment(aes(x = -0.03, y = func(0.49), xend = 0.03, yend = func(0.49)), size = 0.8) +
+  geom_segment(aes(x = 0.49, y = -0.05, xend = 0.49, yend = 0.05), linewidth = 0.8) +
+  geom_segment(aes(x = -0.03, y = func(0.49), xend = 0.03, yend = func(0.49)), linewidth = 0.8) +
   annotate("text", label = "x[1]", x = 0.49, y = -0.12, size = 6, parse = TRUE) +
   annotate("text", label = "f(x[1])", x = -0.13, y = func(0.49), size = 6, parse = TRUE) +
-  geom_function(fun = function(z) m[1] * z + b[1], color = "blue", alpha = 0.3, na.rm = TRUE, size = 0.3) +
-  geom_function(fun = function(z) m[2] * z + b[2], color = "blue", alpha = 0.3, na.rm = TRUE, size = 0.3) +
-  geom_function(fun = function(z) m[3] * z + b[3], color = "blue", alpha = 0.3, na.rm = TRUE, size = 0.3) +
-  geom_function(fun = function(z) m[4] * z + b[4], color = "blue", alpha = 0.3, na.rm = TRUE, size = 0.3) +
-  geom_function(fun = function(z) m[5] * z + b[5], color = "blue", alpha = 0.3, na.rm = TRUE, size = 0.3) +
-  geom_function(fun = function(z) m[6] * z + b[6], color = "blue", alpha = 0.3, na.rm = TRUE, size = 0.3) +
-  geom_function(fun = function(z) m[7] * z + b[7], color = "blue", alpha = 0.3, na.rm = TRUE, size = 0.3) +
-  geom_function(fun = function(z) m[8] * z + b[8], color = "blue", alpha = 0.3, na.rm = TRUE, size = 0.3) +
-  geom_function(fun = function(z) m[9] * z + b[9], color = "blue", alpha = 0.3, na.rm = TRUE, size = 0.3) +
-  geom_function(fun = function(z) m[10] * z + b[10], color = "blue", alpha = 0.3, na.rm = TRUE, size = 0.3) +
+  geom_function(fun = function(z) m[1] * z + b[1], color = "blue", alpha = 0.3, na.rm = TRUE, 
+                linewidth = 0.3) +
+  geom_function(fun = function(z) m[2] * z + b[2], color = "blue", alpha = 0.3, na.rm = TRUE, linewidth = 0.3) +
+  geom_function(fun = function(z) m[3] * z + b[3], color = "blue", alpha = 0.3, na.rm = TRUE, linewidth = 0.3) +
+  geom_function(fun = function(z) m[4] * z + b[4], color = "blue", alpha = 0.3, na.rm = TRUE, linewidth = 0.3) +
+  geom_function(fun = function(z) m[5] * z + b[5], color = "blue", alpha = 0.3, na.rm = TRUE, linewidth = 0.3) +
+  geom_function(fun = function(z) m[6] * z + b[6], color = "blue", alpha = 0.3, na.rm = TRUE, linewidth = 0.3) +
+  geom_function(fun = function(z) m[7] * z + b[7], color = "blue", alpha = 0.3, na.rm = TRUE, linewidth = 0.3) +
+  geom_function(fun = function(z) m[8] * z + b[8], color = "blue", alpha = 0.3, na.rm = TRUE, linewidth = 0.3) +
+  geom_function(fun = function(z) m[9] * z + b[9], color = "blue", alpha = 0.3, na.rm = TRUE, linewidth = 0.3) +
+  geom_function(fun = function(z) m[10] * z + b[10], color = "blue", alpha = 0.3, na.rm = TRUE, linewidth = 0.3) +
   geom_point(
     data = data.frame(x = x, y = func(x)), mapping = aes(x = x, y = y), color = "black",
     alpha = 0.3, size = 0.8
@@ -1720,18 +1725,18 @@ data <- matrix(c(0.49), 1, 1)
 # Apply method
 smoothgrad_x_input <- SmoothGrad$new(converter, data,
   times_input = TRUE,
-  ignore_last_act = FALSE
-) # include the tanh activation
+  ignore_last_act = FALSE # include the tanh activation
+) 
 # get result
 smoothgrad_x_input$get_result()
 ```
 
 </details>
 
-### Layerwise Relevance Propagation (LRP)
+### Layer-wise Relevance Propagation (LRP)
 
-The *LRP* method was first introduced by Bach et al. 2015 and has a
-similar goal to the *Gradient x Input* method explained in the last
+The *LRP* method was first introduced by [Bach et al. (2015)](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0130140) and has a
+similar goal to the *Gradient$\times$Input* approach explained in the last
 section: decompose the output into variable-wise relevances according to
 Eq. 1. The difference is that the prediction $f(x)_c = y_c$ is
 redistributed layer by layer from the output node back to the inputs
@@ -1739,7 +1744,7 @@ according to the weights and pre-activations. This is done by so-called
 relevance messages $r_{i \leftarrow j}^{(l, l+1)}$, which can be defined
 by a rule on redistributing the upper-layer relevance $R_j^{l +1}$ to
 the lower-layer $R_i^{l}$. In the package **innsight**, the following
-frequently used rules are defined ($i$ is an index of a node in layer
+commonly used rules are defined ($i$ is an index of a node in layer
 $l$ and $j$ an index of a node in layer $l+1$):
 
 -   **The simple rule** (also known as *LRP-0*)\
@@ -1758,7 +1763,7 @@ $l$ and $j$ an index of a node in layer $l+1$):
     when the global pre-activation $z_j$ vanishes and causes a division
     by zero. This problem is solved in the $\varepsilon$-rule by adding
     a stabilizer $\varepsilon > 0$ that moves the denominator away from
-    zero, i.e. 
+    zero, i.e., 
     $$
     r_{i \leftarrow j}^{(l, l+1)} = \frac{x_i\, w_{i,j}}{z_j + \text{sign}(z_j)\, \varepsilon}\, R_j^{l +1}.
     $$
@@ -1766,7 +1771,7 @@ $l$ and $j$ an index of a node in layer $l+1$):
 -   **The $\alpha$-$\beta$-rule** (also known as *LRP-$\alpha \beta$*)\
     Another way to avoid this numerical instability is by treating the
     positive and negative pre-activations separately. In this case,
-    positive and negative values cannot cancel each other out, i.e. a
+    positive and negative values cannot cancel each other out, i.e., a
     vanishing denominator also results in a vanishing numerator.
     Moreover, this rule allows choosing a weighting for the positive and
     negative relevances, which is done with the parameters
@@ -1775,13 +1780,13 @@ $l$ and $j$ an index of a node in layer $l+1$):
     $$
     r_{i \leftarrow j}^{(l, l+1)} = \left(\alpha \frac{(x_i\, w_{i,j})^+}{z_j^+} + \beta \frac{(x_i\, w_{i,j})^-}{z_j^-}\right)\, R_j^{l +1}\\
     \text{with}\quad z_j^\pm = (b_j)^\pm + \sum_k (x_k\, w_{k,j})^\pm,\quad (\cdot)^+ = \max(\cdot, 0),\quad
-    (\cdot)^- = \min(\cdot, 0)
+    (\cdot)^- = \min(\cdot, 0).
     $$
 
 For any of the rules described above, the relevance of the lower-layer
 nodes $R_i^{l}$ is determined by summing up all incoming relevance
 messages $r_{i \leftarrow j}^{(l, l +1)}$ into the respective node of
-index $i$, i.e. 
+index $i$, i.e., 
 $$
 R_i^{l} = \sum_j r_{i \leftarrow j}^{(l, l +1)}.
 $$
@@ -1812,7 +1817,7 @@ there are the following method-specific arguments for this method:
 
 -   `rule_name` (default: `"simple"`): This argument can be used to
     select the rule for the relevance messages. Implemented are the
-    three rules described above, i.e. simple rule (`"simple"`),
+    three rules described above, i.e., simple rule (`"simple"`),
     $\varepsilon$-rule (`"epsilon"`) and $\alpha$-$\beta$-rule
     (`"alpha_beta"`). However, a named list can also be passed to assign one of
     these three rules to each implemented layer type individually. Layers
@@ -1835,8 +1840,8 @@ there are the following method-specific arguments for this method:
     the $\varepsilon$-rule and the value of $\alpha$ for the
     $\alpha$-$\beta$-rule (remember: $\beta = 1 - \alpha$). Passing
     `NULL` defaults to `0.01` for $\varepsilon$ or `0.5` for $\alpha$. Similar
-    to the argument `rule_name`, this can also be a named list that assigns 
-    a rule parameter to each layer type.
+    to the argument `rule_name`, this can also be a named list that individually 
+    assigns a rule parameter to each layer type.
     
 -   `winner_takes_all`: This logical argument is only relevant for models with 
     a MaxPooling layer. Since many zeros are produced during the backward pass 
@@ -1853,8 +1858,8 @@ lrp <- LRP$new(converter, data,
   rule_name = "simple",
   rule_param = NULL,
   winner_takes_all = TRUE,
-  ...
-) # other arguments inherited from 'InterpretingMethod'
+  ... # other arguments inherited from 'InterpretingMethod'
+) 
 ```
 
 <details>
@@ -1862,8 +1867,8 @@ lrp <- LRP$new(converter, data,
 <summary>Example</summary>
 
 First, let's look again at the result at the point $x_1 = 0.49$, which
-was about $0.3889$ when approximated with the *Gradient x Input* method. For
-LRP with the simple rule we get $0.4542$ which exactly matches the
+was about $0.3889$ when approximated with the *Gradient$\times$Input* method. For
+LRP with the simple rule, we get $0.4542$ which exactly matches the
 actual value of $f(x_1)$. This is mainly due to the fact that for an
 input of $x_1$, only the top neuron from Fig. 1 is activated and it does
 not have a bias term. However, if we now use an input that activates a
@@ -1876,8 +1881,8 @@ See the code below:
 data <- matrix(
   c(
     0.49, # only neuron without bias term is activated
-    0.6
-  ), # neuron with bias term is activated
+    0.6   # neuron with bias term is activated
+  ), 
   ncol = 1
 )
 
@@ -1933,23 +1938,22 @@ ggplot() +
 
 One method that, to some extent, echoes the idea of *LRP* is the so-called
 *Deep Learning Important Features (DeepLift)* method introduced by
-Shrikumar et al. in 2017. It behaves similarly to *LRP* in a
-layer-by-layer backpropagation fashion from a selected output node back
-to the input variables. However, it incorporates a reference value
-$\tilde{x}$ to compare the relevances with each other. Hence, the
-relevances of *DeepLift* represent the relative effect of the outputs of
-the instance to be explained $f(x)_c$ and the output of the reference
-value $f(\tilde{x})_c$, i.e. $f(x)_c - f(\tilde{x})_c$. This difference
-eliminates the bias term in the relevance messages so that no more
-relevance is absorbed and we have an exact variable-wise decomposition
-of $\Delta y = f(x)_c - f(\tilde{x})_c$. In addition, the authors presented
-two rules to propagate relevances through the activation part of the
-individual layers, namely **rescale** and **reveal-cancel** rule.
-The rescale rule simply scales the contribution to the difference from 
-reference output according to the value of the
-activation function. The reveal-cancel rule considers the average impact 
-after adding the negative or positive contribution revealing dependencies 
-missed by other approaches.
+[Shrikumar et al.](https://dl.acm.org/doi/10.5555/3305890.3306006) in 2017. It
+behaves similarly to *LRP* in a layer-by-layer backpropagation fashion from a
+selected output node back to the input variables. However, it incorporates a
+reference value $\tilde{x}$ to compare the relevances with each other. Hence,
+the relevances of *DeepLift* represent the relative effect of the outputs of the
+instance to be explained $f(x)_c$ and the output of the reference value
+$f(\tilde{x})_c$, i.e., $f(x)_c - f(\tilde{x})_c$. This difference eliminates the
+bias term in the relevance messages so that no more relevance is absorbed and we
+have an exact variable-wise decomposition of $\Delta y = f(x)_c -
+f(\tilde{x})_c$. In addition, the authors presented two rules to propagate
+relevances through the activation part of the individual layers, namely
+**Rescale** and **RevealCancel** rule. The Rescale rule simply scales the
+contribution to the difference from reference output according to the value of
+the activation function. The RevealCancel rule considers the average impact
+after adding the negative or positive contribution revealing dependencies missed
+by other approaches.
 
 Analogous to the previous methods, the **innsight** method `DeepLift` inherits 
 from the `InterpretingMetod` super class and thus all arguments. In addition,
@@ -1957,7 +1961,7 @@ there are the following method-specific arguments for this method:
 
 * `x_ref` (default: `NULL`): This argument describes the reference input
 $\tilde{x}$ for the DeepLift method. This value must have the same format as
-the input data of the passed model to the converter class, i.e.
+the input data of the passed model to the converter class, i.e.,
 
   * an `array`, `data.frame`, `torch_tensor` or array-like format of size
   $\left(1, \text{input_dim}\right)$ or
@@ -1975,7 +1979,7 @@ the position of the maximum values in the pooling kernel of the normal input
 $x$ and the reference input $\tilde{x}$ may not match, which leads to a 
 violation of the summation-to-delta property. To overcome this problem, 
 another variant is implemented, which treats a MaxPooling layer as an
-AveragePooling layer in the backward pass only leading to an equally 
+AveragePooling layer in the backward pass only, leading to a uniform 
 distribution of the upper-layer contribution to the lower layer.
 
 
@@ -1984,8 +1988,8 @@ deeplift <- DeepLift$new(converter, data,
   x_ref = NULL,
   rule_name = "rescale",
   winner_takes_all = TRUE,
-  ...
-) # other arguments inherited from 'InterpretingMethod'
+  ... # other arguments inherited from 'InterpretingMethod'
+) 
 ```
 
 <details>
@@ -2009,7 +2013,7 @@ deeplift <- DeepLift$new(converter, x, x_ref = x_ref, ignore_last_act = FALSE)
 get_result(deeplift)
 ```
 This example is an extremely simple model, so we will test this method on a 
-slightly larger model and the iris dataset (see `?iris`):
+slightly larger model and the Iris dataset (see `?iris`):
 ```{r}
 library(neuralnet)
 set.seed(42)
@@ -2041,9 +2045,21 @@ mean((delta_y - summed_decomposition)^2)
 
 ### Connection Weights
 
-One of the earliest methods specifically for neural networks was the *Connection Weights* method invented by Olden et al. in 2004, resulting in a global relevance score for each input variable. The basic idea of this approach is to multiply all path weights for each possible connection between an input variable and the output node and then calculate the sum of all of them. However, this method ignores all bias vectors and all activation functions during calculation. Since only the weights are used, this method is independent of input data and, thus, a global interpretation method. In this package, we extended this method to a local one inspired by the method *Gradient x Input* (see [here](#gradient-x-input-and-smoothgrad-x-input)). Hence, the local variant is simply the point-wise product of the global *Connection Weights* method and the input data. You can use this variant by setting the `times_input` argument to `TRUE` and providing input data.
+One of the earliest methods specifically for neural networks was the *Connection
+Weights* method invented by [Olden et al.](https://doi.org/10.1016/j.ecolmodel.2004.03.013) in 2004, resulting in a global
+relevance score for each input variable. The basic idea of this approach is to
+multiply all path weights for each possible connection between an input variable
+and the output node and then calculate the sum of all of them. However, this
+method ignores all bias vectors and all activation functions during calculation.
+Since only the weights are used, this method is independent of input data and,
+thus, a global interpretation method. In this package, we extended this method
+to a local one inspired by the method *Gradient$\times$Input* (see
+[here](#gradienttimesinput-and-smoothgradtimesinput)). Hence, the local variant
+is simply the point-wise product of the global *Connection Weights* method and
+the input data. You can use this variant by setting the `times_input` argument
+to `TRUE` and providing input data.
 
-The method **innsight** method `ConnectionWeights` also inherits from the 
+The **innsight** method `ConnectionWeights` also inherits from the 
 super class `InterpretingMethod`, meaning that you need to change the 
 term `Method` to `ConnectionWeights`. The only model-specific argument is 
 `times_input`, which can be used to switch between the
@@ -2053,14 +2069,14 @@ global (`FALSE`) and the local (`TRUE`) *Connection Weights* method.
 # The global variant (argument 'data' is no longer required)
 cw_global <- ConnectionWeights$new(converter,
   times_input = FALSE,
-  ...
-) # other arguments inherited from 'InterpretingMethod'
+  ... # other arguments inherited from 'InterpretingMethod'
+) 
 
 # The local variant (argument 'data' is required)
 cw_local <- ConnectionWeights$new(converter, data,
   times_input = TRUE,
-  ...
-) # other arguments inherited from 'InterpretingMethod'
+  ... # other arguments inherited from 'InterpretingMethod'
+) 
 ```
 
 <details>
@@ -2150,7 +2166,7 @@ tab_conv <- Converter$new(tab_model,
 
 img_conv <- Converter$new(img_model, input_dim = c(3, 32, 32))
 
-# Apply gradient x input
+# Apply Gradient x Input
 tab_grad <- Gradient$new(tab_conv, tab_data, times_input = TRUE)
 img_grad <- Gradient$new(img_conv, img_data, times_input = TRUE)
 ```
@@ -2158,10 +2174,10 @@ img_grad <- Gradient$new(img_conv, img_data, times_input = TRUE)
 
 ## Get results
 
-Each instance of the interpretability methods have the class method 
-`get_result`, which is used to return the results. You can choose between 
+Each instance of the presented interpretability methods has the class method 
+`get_result()`, which is used to return the results. You can choose between 
 the data formats `array`, `data.frame` or `torch_tensor` by passing the
-name as an character for argument `type`. As mentioned before, there is also
+name as a character in the argument `type`. As mentioned before, there is also
 a S3 function `get_result()` for this class method.
 
 ```{r, eval = FALSE}
@@ -2181,7 +2197,7 @@ number of elements from the argument `output_idx`. In addition, the passed
 or generated input and output names are added to the array.
 
 However, this method behaves differently if the passed model has multiple 
-input and/or output layers. In these cases, a list (or a list of lists) with 
+input and/or output layers. In these cases, a list (or a nested list) with 
 the corresponding input and output layers with the associated results is 
 generated as in the simple case from before:
 
@@ -2267,7 +2283,7 @@ str(result_array)
 
 **Multiple inputs and one output layer**
 
-First, we consider a model with two input layers. In this case we have a list 
+First, we consider a model with two input layers. In this case, we have a list 
 of the length of the input layers `'Input_1'`, `'Input_2'`, ... `'Input_n'` and
 each entry contains an named array of shape 
 $\left(\text{batch_size}, \text{input_dim}_i, \text{outputs} \right)$ with 
@@ -2314,13 +2330,13 @@ str(result_array)
 
 **Multiple input and output layer**
 
-In this case we have an outer list describing the output layers `'Output_1'`,
+In this case, we have an outer list describing the output layers `'Output_1'`,
 `'Output_2'`, ..., `'Output_k'` and an inner list for the input layers 
 `'Input_1'`, `'Input_2'`, ... `'Input_n'`. Each entry contains an named array of shape 
 $\left(\text{batch_size}, \text{input_dim}_i, \text{outputs}_j \right)$ with 
 $\text{input_dim}_i$ the input shape of input
 layer `'Input_i'` and $\text{outputs}_j$ the output indices of the output 
-layer `'Output_j'` as specified in the argument `'output_idx'`.
+layer `'Output_j'` as specified in the argument `output_idx`.
 
 <details>
 <summary> Create model and data </summary>
@@ -2372,13 +2388,13 @@ str(result_array)
 
 ### Torch Tensor (`type = 'torch_tensor'`)
 
-Internally all calculations are performed with the package *torch*, therefore 
+Internally all calculations are performed with the package **torch**. Therefore 
 the results can also be returned as `torch_tensor` instead of an `array` 
 analogous to the case above.
 
 ### Data.Frame (`type = 'data.frame'`)
 
-Another practical way to output the results, for example to visualize them 
+Another convenient way to output the results, for example, to visualize them 
 directly in your own **ggplot2** object, is to return them as a `data.frame`.
 The following columns are generated:
 
@@ -2394,7 +2410,7 @@ the number of input layers.
 given model and creates the labels `'Output_1'`, `'Output_2'`, ... according to 
 the number of output layers.
 
-* `'feature'`: Feature represents the input names of the corresponding input 
+* `'feature'`: This column represents the input names of the corresponding input 
 layer and is determined by the values from `input_names` passed the 
 converter object. For image data, this column corresponds to the height 
 of the image.
@@ -2431,15 +2447,15 @@ head(get_result(tab_grad, "data.frame"), 5)
 ```
 
 Analogously, you can also output the results for the model with image data. 
-As already mentioned, the columns for the channel and for the image width 
-are then added:
+As already mentioned, the columns for the channel (`"channel"`) and the 
+image width (`"feature_2"`) are then added:
 
 ```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 head(get_result(img_grad, "data.frame"), 5)
 ```
 
 <details>
-<summary> Example usage with `ggplot2` </summary>
+<summary> Example usage with **ggplot2** </summary>
 ```{r, fig.width= 8, fig.height=6, eval = torch::torch_is_installed() & keras::is_keras_available()}
 library(ggplot2)
 library(neuralnet)
@@ -2466,16 +2482,16 @@ ggplot(df) +
 </details>
 
 
-## Plot single results (`plot`)
+## Plot single results `plot()`
 
-This method visualizes the result of the selected method and enables a visual 
-in-depth investigation with the help of the S4 classes `innsight_ggplot2` and
+This method visualizes the result of the selected method and enables a in-depth 
+visual investigation with the help of the S4 classes `innsight_ggplot2` and
 `innsight_plotly`. You can use the argument `data_idx` to select the data 
-points in the given data for the plot. In addition, the individual output 
-nodes or classes for the plot can be selected with the argument `output_idx`. 
+points in the given data for the plot. In addition, the individual plot's output 
+nodes or classes can be selected with the argument `output_idx`. 
 But this has to be a subset of the [argument `output_idx`](#argument-output_idx) 
-passed to the respective method previously, because only for these outputs were
-the results calculated. The different results for the selected data points and 
+passed to the respective method previously because the results were only 
+calculated for these outputs. The different results for the selected data points and 
 outputs are visualized using the **ggplot2**-based S4 class `innsight_ggplot2`. 
 You can also use the `as_plotly` argument to generate an interactive plot with
 `innsight_plotly` based on the plot function `plotly::plot_ly`. For more 
@@ -2486,7 +2502,7 @@ information and the whole bunch of possibilities, see the R documentation
 <ul>
 <li>
 `data_idx`: An integer vector containing the numbers of the data points whose 
-result is to be plotted, e.g. `c(1,3)` for the first and third data point in 
+result is to be plotted, e.g., `c(1,3)` for the first and third data point in 
 the given data.  
 
 > **`r knitr::asis_output("\U1F4DD")`  Note**  
@@ -2498,7 +2514,7 @@ the given data.
 `output_idx`: The indices of the output nodes for which the results is to 
 be plotted. This can be either a vector of indices or a list of vectors of 
 indices but must be a subset of the indices for which the results were 
-calculated, i.e. a subset of the [argument `output_idx`](#argument-output_idx) 
+calculated, i.e., a subset of the [argument `output_idx`](#argument-output_idx) 
 passed to the respective method previously. By default (`NULL`), the smallest 
 index of all calculated output nodes and output layers is used.
 </li>
@@ -2522,6 +2538,22 @@ an interactive plot based on the library `plotly` (see `?innsight_plotly` or
 > Make sure that the suggested package **plotly** is installed in your R session.
 
 </li>
+
+<li>
+`same_scale`: A logical value that specifies whether the individual plots have 
+the same fill scale across multiple input layers or whether each is scaled 
+individually. This argument is only used if more than one input layer's result 
+is plotted. This is especially relevant when plotting explanations of images 
+and tabular data simultaneously since the relevances are usually from different 
+scales.  
+
+> **`r knitr::asis_output("\U1F4DD")`  Note**  
+> By default, the relevances within each output class, data point, and, if
+available, input layer are scaled and highlighted separately with the colors red for
+positive, blue for negative, and white for the absence of relevance so that the
+different intensities of the relevances can be distinguished by their colors.
+
+</li>
 </ul>
 
 ```{r, eval = FALSE}
@@ -2530,7 +2562,8 @@ method$plot(
   data_idx = 1,
   output_idx = NULL,
   aggr_channels = "sum",
-  as_plotly = FALSE
+  as_plotly = FALSE,
+  same_scale = FALSE
 )
 
 # or the S3 method
@@ -2538,7 +2571,8 @@ plot(method,
   data_idx = 1,
   output_idx = NULL,
   aggr_channels = "sum",
-  as_plotly = FALSE
+  as_plotly = FALSE,
+  same_scale = FALSE
 )
 ```
 
@@ -2621,16 +2655,16 @@ tab_grad$result[[1]][[1]] <- abs(result[[1]][[1]])
 plot(tab_grad, output_idx = c(1, 3), data_idx = c(1, 70))
 ```
 
-## Plot summarized results (`boxplot`)
+## Plot summarized results `boxplot()`
 
 This method visualizes summarized results of the selected method over all data
-points (or a subset) and enables a visual in-depth investigation with the help 
+points (or a subset) and enables an in-depth visual investigation with the help 
 of the S4 classes `innsight_ggplot2` and `innsight_plotly` similar to the 
 previous [`plot` function](#plot-single-results-plot). You can use the argument 
 `output_idx` to select the individual output nodes for the plot. But this 
 has to be a subset of the [argument `output_idx`](#argument-output_idx) 
-passed to the respective method previously, because only for these outputs were
-the results calculated. For tabular and 1D signal data, boxplots are created in 
+passed to the respective method previously because the results were only 
+calculated for these outputs. For tabular and 1D signal data, boxplots are created in 
 which a reference value can be selected from the data using the 
 `ref_data_idx` argument. For images, only the pixel-wise median is visualized 
 due to the complexity. The different results for the selected outputs are 
@@ -2639,14 +2673,16 @@ You can also use the `as_plotly` argument to generate an interactive plot with
 `innsight_plotly` based on the plot function `plotly::plot_ly`. For more 
 information and the whole bunch of possibilities, see the R documentation 
 (`?innsight_ggplot2` and `?innsight_plotly`) or in 
-[this section](#advanced-plotting). There are the following arguments:
+[this section](#advanced-plotting). 
+
+There are the following arguments:
 
 <ul>
 <li>
 `output_idx`: The indices of the output nodes for which the results is to 
 be plotted. This can be either a vector of indices or a list of vectors of 
 indices but must be a subset of the indices for which the results were 
-calculated, i.e. a subset of the [argument `output_idx`](#argument-output_idx) 
+calculated, i.e., a subset of the [argument `output_idx`](#argument-output_idx) 
 passed to the respective method previously. By default (`NULL`), the smallest 
 index of all calculated output nodes and output layers is used.
 </li>
@@ -2654,7 +2690,7 @@ index of all calculated output nodes and output layers is used.
 <li>
 `data_idx`: By default, all available data points are used to calculate 
 the boxplot information. However, this parameter can be used to select a 
-subset of them by passing the indices. E.g. with `c(1:10, 25, 26)` only the 
+subset of them by passing the indices. For example, with `c(1:10, 25, 26)` only the 
 first 10 data points and the 25th and 26th are used to calculate the boxplots.
 </li>
 
@@ -2667,8 +2703,8 @@ plotted. This index can be chosen with respect to all available data, even
 if only a subset is selected with argument `data_idx`.  
 
 > **`r knitr::asis_output("\U1F4DD")`  Note**  
-> Because of the complexity of 2D inputs, this argument is used only 
-for tabular and 1D signal inputs and disregarded for 2D image inputs.
+> Because of the complexity of 2D image inputs, this argument is used only 
+for tabular and 1D signal data and disregarded for images.
 
 </li>
 
@@ -2702,10 +2738,10 @@ or [here](#plots-based-on-plotly) for details).
 </li>
 
 <li>
-`individual_data_idx` (Only relevant for a plotly plot with tabular or 
+`individual_data_idx` (only relevant for a **plotly** plot with tabular or 
 1D signal inputs!): This integer vector of data indices determines the available 
-data points in a dropdown menu, which are drawn in individually analogous to 
-`ref_data_idx` only for more data points. With the default value `NULL` the 
+data points in a dropdown menu, which are drawn individually analogous to 
+`ref_data_idx` only for more data points. With the default value `NULL`, the 
 first `individual_max` data points are used.  
 
 > **`r knitr::asis_output("\U1F4DD")`  Note**  
@@ -2715,7 +2751,7 @@ those from `individual_data_idx` in the dropdown menu.
 </li>
 
 <li>
-`individual_max` (Only relevant for a plotly plot with tabular or 1D signal
+`individual_max` (only relevant for a **plotly** plot with tabular or 1D signal
 inputs!): This integer determines the maximum number of individual data points
 in the dropdown menu without counting `ref_data_idx`. This means that if 
 `individual_data_idx` has more than `individual_max` indices, only the 
@@ -2826,14 +2862,14 @@ plotly::config(print(p))
 
 ## Advanced plotting
 
-In the proceeding two sections, the basic `plot` and `boxplot` functions have 
+In the preceding two sections, the basic `plot()` and `boxplot()` functions have 
 already been explained. As mentioned there, these functions create either an 
 object of the S4 class `innsight_ggplot2` (if `as_plotly = FALSE`) or one of 
 the S4 class `innsight_plotly` (if `as_plotly = TRUE`). These are intended 
 as a generalization of the usual **ggplot2** or **plotly** objects since, with 
 these packages, one quickly reaches their limits of clear visualization 
 possibilities for models with multiple input and/or output layers. For 
-example, two plots with different scales for each output node need to be 
+example, two plots with different x-axis scales for each output node need to be 
 generated in a model with images and tabular data as inputs.
 
 <details>
@@ -2921,22 +2957,22 @@ res_two_inputs <- Gradient$new(converter, data,
 
 ### Plots based on ggplot2
 
-All **ggplot2**-based plots generated by the **innsight** package are object of the
-S4 class `innsight_ggplto2`, which is a simple extension of a ggplot2 object
-enabling a more detailed analysis and comparison of the results. In addition,
-it provides a way to visualize the results of models with multiple 
-input or output layers with different scales, e.g. images and tabular data. The values 
-in the slots of this class depend very much on whether results for multiple input or output
-layers (`multiplot = TRUE`) or for only a single input and output layer 
-(`multiplot = FALSE`) are visualized, which is described in the following. But 
-in general, however, we would like to point out that the slots are only explained here for 
-internal purposes and should not be changed in standard use cases. 
+All **ggplot2**-based plots generated by the **innsight** package are an object
+of the S4 class `innsight_ggplto2`, a simple extension of a **ggplot2** object
+that enables more detailed analysis and comparison of the results. In addition,
+it provides a way to visualize the results of models with multiple input or
+output layers with different scales, e.g., images and tabular data. The values
+in the slots of this class depend very much on whether results for multiple
+input or output layers (`multiplot = TRUE`), or for only a single input and
+output layer (`multiplot = FALSE`) are visualized as described in the following.
+But in general, however, the slots are only explained here for internal purposes
+and should not be changed in standard use cases.
 
 #### Results for a single input and output layer
 
 If the model passed to a method from the **innsight** package has only one 
-input layer or the results to be plotted are only from a single output layer 
-(i.e. slot `multiplot = FALSE`), the S4 class `innsight_ggplot2` is just a 
+input layer, or the results to be plotted are only from a single output layer 
+(i.e., slot `multiplot = FALSE`), the S4 class `innsight_ggplot2` is just a 
 wrapper of a single **ggplot2** object.  This object is stored as a 1x1 matrix 
 in the slot `grobs` and the slots `output_strips` and `col_dims` contain 
 only empty lists because no second line of stripes describing the input or 
@@ -3032,8 +3068,8 @@ p <- plot(res_one_input, output_idx = c(1, 2), data_idx = c(1, 3))
 # Show the whole plot
 p
 # Now you can select specific rows and columns for in-depth investigation,
-# e.g. only the result for output "Y2"
-p_new <- p[1:2, 2]
+# e.g. only the result for output "Y1"
+p_new <- p[1:2, 1]
 
 # It's still an obeject of class 'innsight_ggplot2'
 class(p_new)
@@ -3090,14 +3126,14 @@ class(plot(p))
 
 If the passed model has multiple input layers or results for multiple output
 layers are to be plotted, a **ggplot2** object is created for each data point, 
-input layer and output node and then stored as a matrix in the slot `grobs`. 
+input layer, and output node and then stored as a matrix in the slot `grobs`. 
 During visualization, these are combined using the function 
 `gridExtra::arrangeGrob` (see `?gridExtra::arrangeGrob` for details) and 
 corresponding strips for the output layer/node names are added at the top. 
 The labels, column indices and theme for the extra row of strips are stored 
 in the slots `output_strips` and `col_dims`. The strips for the input
 layer and the data points (if not a boxplot) are created using
-`ggplot2::facet_grid` in the individual ggplot2 objects of the grob matrix.
+`ggplot2::facet_grid` in the individual **ggplot2** objects of the `grobs` matrix.
 An example structure is shown below:
 
 ```
@@ -3121,7 +3157,7 @@ $\left(\text{N}_\text{datapoints}, \text{N}_\text{outputnodes} \cdot \text{N}_\t
 * `multiplot`: In this case, this logical value is always `TRUE`.
 
 * `output_strips`: This slot is a list containing the labels and themes of the 
-strips for the output nodes, i.e. the additional strips at the top of the 
+strips for the output nodes, i.e., the additional strips at the top of the 
 overall plot.
 
 * `col_dims`: A list of the length of slot `output_strips$labels` assigning to 
@@ -3144,7 +3180,7 @@ p <- plot(res_two_inputs, output_idx = list(1, c(1, 2)), data_idx = c(1, 3))
 # It's not a ggplot2 object
 class(p)
 
-# In this case, 'grobs' is a 2x4 matrix
+# In this case, 'grobs' is a 2x6 matrix
 p@grobs
 
 # It's a multiplot
@@ -3169,7 +3205,25 @@ in more detail. All available generic functions are listed below:
 <ul>
 <li>
 `+`, `[` and `[[` : These generic functions have the same behavior as in the
-upper case (see there for details and examples).
+upper case (see there for details and examples). Except for one additional
+argument in the indexing function `[[`, namely `restyle`. This argument can be used
+to decide whether the subplots are formatted according to the whole plot (i.e.,
+labels, facet strips, etc., are transferred) or whether the subplot is extracted
+in the same way as it is shown in the whole plot.
+<details>
+<summary> Example </summary>
+```{r, fig.height=4, fig.width=10, eval = torch::torch_is_installed() & keras::is_keras_available()}
+# Create plot
+p <- plot(res_two_inputs, output_idx = list(1, 2), data_idx = c(1,2))
+
+# Show the whole plot
+p
+# Select a restyled subplot (default)
+p[1, 1:2]
+# The same plot as shown in the whole plot
+p[1, 1:2, restyle = FALSE]
+```
+</details>
 </li>
 <li>
 `plot`, `print` and `show` : These methods provide generic visualization 
@@ -3194,10 +3248,10 @@ print(p, widths = c(2, 1, 2, 1))
 </details>
 </li>
 <li>
-`[<-` : Since in this case each individual plot from the slot `grobs` 
-represents an independent plot and these are joined with `arrageGrob`, 
-each of the plots can also be changed individually and is independent of the 
-others. Individual modifications can be made with this generic function.
+`[<-` : Since, in this case, each plot from the slot `grobs` represents an 
+independent plot, which are joined with `arrageGrob`, each plot can also be 
+changed individually and is independent of the others. Individual modifications 
+can be made with this generic function.
 <details>
 <summary> Examples </summary>
 ```{r, fig.height=7, fig.width=12, eval = torch::torch_is_installed() & keras::is_keras_available()}
@@ -3205,15 +3259,15 @@ others. Individual modifications can be made with this generic function.
 p <- plot(res_two_inputs, output_idx = list(1, 2), data_idx = c(1, 3))
 
 # Remove colorbar in the plot for data point 3 and output 'Y1' in output
-# layer 1
-p[2, 1] <- p[2, 1] + guides(fill = "none")
+# layer 1 (in such situations the `restyle` argument is useful)
+p[2, 1] <- p[2, 1, restyle = FALSE] + guides(fill = "none")
 
 # Change colorscale in the plot for data point 1 and output 'Y2' in output
 # layer 2
-p[1, 3:4] <- p[1, 3:4] + scale_fill_gradient2()
+p[1, 3:4] <- p[1, 3:4, restyle = FALSE] + scale_fill_gradient2(limit = c(-1, 1))
 
 # Change the theme in all plots for data point 3
-p[2, ] <- p[2, ] + theme_dark()
+p[2, ] <- p[2, , restyle = FALSE] + theme_dark()
 
 # Show the result with all changes
 p
@@ -3267,38 +3321,38 @@ An example structure of the plot with multiple input layers is shown below:
 > **`r knitr::asis_output("\U1F4DD")`  Notes**  
 >
 > * The **plotly** package is not a required package for **innsight**, so when 
-creating interactive plotly-based plots, users should have it installed in 
+creating interactive **plotly**-based plots, users should have it installed in 
 their R environment on their own.
 >
 > * The slots already mentioned and explained below, are for internal use only 
 and generally should not be touched by users applying standard use cases.
 >
-> * Due to the size of interactive plots, the following ploty-based plots are 
+> * Due to the size of interactive plots, the following **plotly**-based plots are 
 only rendered in the vignette at the [pkdown website](https://bips-hb.github.io/innsight/articles/detailed_overview.html#plots-based-on-plotly) and not in the base R vignette!
 
 **Slots:**
 
-* `plots` : The individual plotly objects arranged as a matrix of size 
-*(num_datapoints, num_outputnodes $\cdot$ num_inputs)*.
+* `plots` : The individual **plotly** objects arranged as a matrix of size 
+$(N_\text{datapoints}, N_\text{outputnodes} \cdot N_\text{inputlayers})$*.
 
 * `shapes` : A list of two lists with the names `shapes_strips` and 
 `shapes_other`. The list `shapes_strips` contains the shapes for the 
 strips and may not be manipulated. The other list `shapes_other` contains a 
-matrix of the same size as `plots` and each entry contains the shapes of the corresponding plot. For more details to shapes in plotly, we refer to the
-[plotly website](https://plotly.com/r/shapes/).
+matrix of the same size as `plots` and each entry contains the shapes of the corresponding plot. For more details to shapes in **plotly**, we refer to the
+[**plotly** website](https://plotly.com/r/shapes/).
 
 * `annotations` : A list of two lists with the names `annotations_strips` and 
 `annotations_other`. The list `annotations_strips` contains the annotations for
 the strips and may not be manipulated. The other list `annotations_other` 
 contains a matrix of the same size as `plots` and each entry contains the 
 annotations of the corresponding plot. For more details to annotations in
-plotly, see `?plotly::add_annotations` or the [plotly website](https://plotly.com/r/text-and-annotations/).
+**plotly**, see `?plotly::add_annotations` or the [**plotly** website](https://plotly.com/r/text-and-annotations/).
 
 * `multiplot` : A logical value that indicates whether there are multiple 
 input layers and thus whether another layer of strips should be created at 
 the top of the plot.
 
-* `layout` : This list contains all global layout options, e.g. update buttons,
+* `layout` : This list contains all global layout options, e.g., update buttons,
 sliders, margins etc. (see `?plotly::layout` for more details).
 
 * `col_dims` : A list of two lists assigning a column index (`col_idx`) the
@@ -3331,16 +3385,16 @@ str(p@layout, max.level = 1)
 p@col_dims
 ```
 
-As described earlier, this S4 class generates a plotly object created by
+As described earlier, this S4 class generates a **plotly** object created by
 `plotly::subplot`, which can be treated and modified according to the syntax 
-of the [plotly package](https://plotly.com/r/). Additionally, some generic 
+of the [**plotly** package](https://plotly.com/r/). Additionally, some generic 
 functions are implemented to visualize individual aspects of the overall plot 
 or to examine them in more detail. All available generic functions are 
 listed below:
 
 <ul>
 <li>
-`[` : With this basic generic indexing functions, the plots of individual 
+`[` : With this basic generic indexing function, the plots of individual 
 rows and columns can be accessed and is returned as an object of the class 
 `innsight_plotly`.
 
@@ -3392,9 +3446,9 @@ plotly::config(print(p_new))
 </li>
 
 <li>
-`[[` : With this basic generic indexing functions, you can select a single plot 
+`[[` : With this basic generic indexing function, you can select a single plot 
 by passing the respective row and column index. This plot is returned as a 
-plotly object.
+**plotly** object.
 
 <details>
 <summary> Example </summary>
@@ -3435,7 +3489,7 @@ p_new
 <li>
 `plot`, `print` and `show` : These methods provide generic visualization 
 functions, which all behave the same in this case. They create the plot of the
-results and return a `plotly` object invisibly. For `plot` and `print`, you can
+results and return a **plotly** object invisibly. For `plot` and `print`, you can
 also pass additional arguments forwarded to `plotly::subplot`.
 <details>
 <summary> Examples </summary>

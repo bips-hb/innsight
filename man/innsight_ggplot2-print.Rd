@@ -41,5 +41,5 @@ behave the same in this case. They create the plot of the results
 \code{\link{+.innsight_ggplot2}},
 \code{\link{[.innsight_ggplot2}},
 \code{\link{[[.innsight_ggplot2}},
-\code{\link{[<-.innsight_ggplot2}}
+\code{\link{[<-.innsight_ggplot2}}, \code{\link{[[<-.innsight_ggplot2}}
 }

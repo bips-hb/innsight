@@ -2,7 +2,7 @@
 % Please edit documentation in R/ConnectionWeights.R
 \name{ConnectionWeights}
 \alias{ConnectionWeights}
-\title{Connection Weights Method}
+\title{Connection Weights method}
 \description{
 This class implements the \emph{Connection Weights} method investigated by
 Olden et al. (2004), which results in a relevance score for each input
@@ -16,7 +16,7 @@ multiplication independent of the activation functions in between:
 \deqn{W_1 * W_2 * W_3.}
 
 In this package, we extended this method to a local method inspired by the
-method \emph{Gradient x Input} (see \code{\link{Gradient}}). Hence, the local variant is
+method \emph{Gradient\eqn{\times}Input} (see \code{\link{Gradient}}). Hence, the local variant is
 simply the point-wise product of the global \emph{Connection Weights} method and
 the input data. You can use this variant by setting the \code{times_input}
 argument to \code{TRUE} and providing input data.
@@ -214,7 +214,7 @@ output layers, there are the following possibilities to select
 the indices of the output nodes in the individual output layers:
 \itemize{
 \item An \code{integer} vector of indices: If the model has only one output
-layer, the values correspond to the indices of the output nodes, e.g.
+layer, the values correspond to the indices of the output nodes, e.g.,
 \code{c(1,3,4)} for the first, third and fourth output node. If there are
 multiple output layers, the indices of the output nodes from the first
 output layer are considered.
@@ -222,7 +222,7 @@ output layer are considered.
 applied to output nodes from different layers, a list can be passed
 that specifies the desired indices of the output nodes for each
 output layer. Unwanted output layers have the entry \code{NULL} instead of
-a vector of indices, e.g. \code{list(NULL, c(1,3))} for the first and
+a vector of indices, e.g., \code{list(NULL, c(1,3))} for the first and
 third output node in the second output layer.
 \item \code{NULL} (default): The method is applied to all output nodes in
 the first output layer but is limited to the first ten as the
@@ -233,10 +233,10 @@ nodes.\cr
 \item{\code{channels_first}}{(\code{logical(1)})\cr
 The channel position of the given data (argument
 \code{data}). If \code{TRUE}, the channel axis is placed at the second position
-between the batch size and the rest of the input axes, e.g.
+between the batch size and the rest of the input axes, e.g.,
 \code{c(10,3,32,32)} for a batch of ten images with three channels and a
 height and width of 32 pixels. Otherwise (\code{FALSE}), the channel axis
-is at the last position, i.e. \code{c(10,32,32,3)}. If the data
+is at the last position, i.e., \code{c(10,32,32,3)}. If the data
 has no channel axis, use the default value \code{TRUE}.\cr}
 
 \item{\code{times_input}}{(\code{logical(1)})\cr

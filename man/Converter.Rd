@@ -2,7 +2,7 @@
 % Please edit documentation in R/Converter.R
 \name{Converter}
 \alias{Converter}
-\title{Converter of an Artificial Neural Network}
+\title{Converter of an artificial neural network}
 \description{
 This class analyzes a passed neural network and stores its internal
 structure and the individual layers by converting the entire network into an
@@ -36,27 +36,27 @@ in complete form in the \code{model_as_list} field with the argument
 networks and is not done by default. Also, this named list can again be
 used as a passed model for the class \code{Converter}, which will be described
 in more detail in the section 'Implemented Libraries'.
-\subsection{Implemented Methods}{
+\subsection{Implemented methods}{
 
 An object of the Converter class can be applied to the
 following methods:
 \itemize{
 \item \emph{Layerwise Relevance Propagation} (\link{LRP}), Bach et al. (2015)
 \item \emph{Deep Learning Important Features} (\link{DeepLift}), Shrikumar et al. (2017)
-\item \emph{\link{SmoothGrad}} including \emph{SmoothGrad x Input}, Smilkov et al. (2017)
-\item \emph{Vanilla \link{Gradient}} including \emph{Gradient x Input}
+\item \emph{\link{SmoothGrad}} including \emph{SmoothGrad\eqn{\times}Input}, Smilkov et al. (2017)
+\item \emph{Vanilla \link{Gradient}} including \emph{Gradient\eqn{\times}Input}
 \item \emph{\link{ConnectionWeights}}, Olden et al. (2004)
 }
 }
 
-\subsection{Implemented Libraries}{
+\subsection{Implemented libraries}{
 
 The converter is implemented for models from the libraries
 \code{\link[torch]{nn_sequential}},
 \code{\link[neuralnet]{neuralnet}} and \code{\link[keras]{keras}}. But you
 can also write a wrapper for other libraries because a model can be passed
 as a named list which is described in detail in the vignette "In-depth
-Explanation"
+explanation" \cr
 (see \code{vignette("detailed_overview", package = "innsight")} or the
 \href{https://bips-hb.github.io/innsight/articles/detailed_overview.html#model-as-named-list}{website}).
 }
@@ -192,9 +192,9 @@ The converted neural network based on the torch module \link{ConvertedModel}.\cr
 
 \item{\code{input_dim}}{(\code{list})\cr
 A list of the input dimensions of each input layer. Since
-internally the channels-first format is used for all calculations, the
+internally the "channels first" format is used for all calculations, the
 input shapes are already in this format. In addition, the batch
-dimension isn't included, e.g. for an input layer of shape \verb{c(*,32,32,3)}
+dimension isn't included, e.g., for an input layer of shape \verb{c(*,32,32,3)}
 with channels in the last axis you get \code{list(c(3,32,32))}.\cr}
 
 \item{\code{input_names}}{(\code{list})\cr
@@ -227,7 +227,7 @@ the argument \code{save_model_as_list} this can be saved anyway.\cr}
 \if{html}{\out{<a id="method-Converter-new"></a>}}
 \if{latex}{\out{\hypertarget{method-Converter-new}{}}}
 \subsection{Method \code{new()}}{
-Create a new Converter for a given neural network. When initialized,
+Create a new \link{Converter} object for a given neural network. When initialized,
 the model is inspected, converted as a list and then the a
 torch-converted model (\link{ConvertedModel}) is created and stored in
 the field \code{model}.
@@ -254,7 +254,7 @@ packages are allowed: \code{\link[torch]{nn_sequential}},
 \code{\link[keras]{keras_model_sequential}},
 \code{\link[neuralnet]{neuralnet}} or a named list (see details).}
 
-\item{\code{input_dim}}{(\code{integer})\cr
+\item{\code{input_dim}}{(\code{integer} or \code{list})\cr
 The model input dimension excluding the batch
 dimension. If there is only one input layer it can be specified as
 a vector, otherwise use a list of the shapes of the
@@ -262,25 +262,30 @@ individual input layers.\cr
 \emph{Note:} This argument is only necessary for \code{torch::nn_sequential},
 for all others it is automatically extracted from the passed model
 and used for internal checks. In addition, the input dimension
-\code{input_dim} has to be in the format channels first.\cr}
+\code{input_dim} has to be in the format "channels first".\cr}
 
-\item{\code{input_names}}{(\code{list})\cr
-A list with the names for each input
-dimension excluding the batch dimension, e.g. for a dense layer
-with \code{3} input features use \code{list(c("X1", "X2", "X3"))} or for a
-1D convolutional layer with signal length \code{5} and \code{2} channels use
-\code{list(c("C1", "C2"), c("L1","L2","L3","L4","L5"))}. Instead of character
-vectors you can also use factors to set an order for the plots.\cr
+\item{\code{input_names}}{(\code{character}, \code{factor} or \code{list})\cr
+The input names of the model excluding the batch dimension. For a model
+with a single input layer and input axis (e.g., for tabular data), the
+input names can be specified as a character vector or factor, e.g.,
+for a dense layer with 3 input features use \code{c("X1", "X2", "X3")}. If
+the model input consists of multiple axes (e.g., for signal and
+image data), use a list of character vectors or factors for each axis
+in the format "channels first", e.g., use
+\code{list(c("C1", "C2"), c("L1","L2","L3","L4","L5"))} for a 1D
+convolutional input layer with signal length 4 and 2 channels. For
+models with multiple input layers, use a list of the upper ones for each
+layer.\cr
 \emph{Note:} This argument is optional and otherwise the names are
 generated automatically. But if this argument is set, all found
 input names in the passed model will be disregarded.\cr}
 
-\item{\code{output_names}}{(\code{character} or \code{list})\cr
-A list with the names for the output
-dimensions excluding the batch dimension,
-e.g. for a model with \code{3} output nodes use
-\code{list(c("Y1", "Y2", "Y3"))}. Instead of a character
-vector you can also use a factor to set an order for the plots.\cr
+\item{\code{output_names}}{(\code{character}, \code{factor} or \code{list})\cr
+A character vector with the names for the output dimensions
+excluding the batch dimension, e.g., for a model with 3 output nodes use
+\code{c("Y1", "Y2", "Y3")}. Instead of a character
+vector you can also use a factor to set an order for the plots. If the
+model has multiple output layers, use a list of the upper ones.\cr
 \emph{Note:} This argument is optional and otherwise the names are
 generated automatically. But if this argument is set, all found
 output names in the passed model will be disregarded.\cr}
@@ -299,14 +304,14 @@ stored as a list (\code{FALSE}).\cr}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A new instance of the R6 class \code{'Converter'}.
+A new instance of the R6 class \code{Converter}.
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Converter-print"></a>}}
 \if{latex}{\out{\hypertarget{method-Converter-print}{}}}
 \subsection{Method \code{print()}}{
-Print a summary of the Converter object. This summary contains the
+Print a summary of the \code{Converter} object. This summary contains the
 individual fields and in particular the torch-converted model
 (\link{ConvertedModel}) with the layers.
 \subsection{Usage}{
@@ -314,7 +319,7 @@ individual fields and in particular the torch-converted model
 }
 
 \subsection{Returns}{
-Returns the Converter object invisibly via \code{\link[base:invisible]{base::invisible}}.
+Returns the \code{Converter} object invisibly via \code{\link[base:invisible]{base::invisible}}.
 }
 }
 \if{html}{\out{<hr>}}

@@ -8,14 +8,14 @@
 #' feature from the difference of the output (\eqn{y=f(x)}) and reference
 #' output (\eqn{y'=f(x')}) prediction. The basic idea of this method is to
 #' decompose the difference-from-reference prediction with respect to the
-#' input features, i.e.
+#' input features, i.e.,
 #' \deqn{\Delta y = y - y'  = \sum_i C(x_i).}
 #' Compared to \emph{Layer-wise Relevance Propagation} (see [LRP]), the
 #' DeepLift method is an exact decomposition and not an approximation, so we
 #' get real contributions of the input features to the
 #' difference-from-reference prediction. There are two ways to handle
-#' activation functions: *rescale* rule (`'rescale'`) and
-#' *reveal-cancel* rule (`'reveal_cancel'`).
+#' activation functions: the *Rescale* rule (`'rescale'`) and
+#' *RevealCancel* rule (`'reveal_cancel'`).
 #'
 #' @template param-converter
 #' @template param-data
@@ -46,8 +46,8 @@ DeepLift <- R6Class(
     x_ref = NULL,
 
     #' @description
-    #' Create a new instance of the *DeepLift* method. When initialized,
-    #' the method is applied to the given data and the results are stored in
+    #' Create a new instance of the `DeepLift` R6 class. When initialized,
+    #' the method *DeepLift* is applied to the given data and the results are stored in
     #' the field `result`.
     #'
     #' @param rule_name (`character(1)`)\cr
@@ -60,7 +60,7 @@ DeepLift <- R6Class(
     #' \eqn{x} and the reference input \eqn{x'} may not match, which leads to a
     #' violation of the summation-to-delta property. To overcome this problem,
     #' another variant is implemented, which treats a MaxPooling layer as an
-    #' AveragePooling layer in the backward pass only leading to an equally
+    #' AveragePooling layer in the backward pass only, leading to an uniform
     #' distribution of the upper-layer contribution to the lower layer.\cr
     initialize = function(converter, data,
                           channels_first = TRUE,

@@ -2,7 +2,7 @@
 % Please edit documentation in R/ConvertedModel.R
 \name{ConvertedModel}
 \alias{ConvertedModel}
-\title{Converted \code{torch}-based Model}
+\title{Converted \code{torch}-based model}
 \usage{
 ConvertedModel(modules_list, graph, input_nodes, output_nodes, dtype = "float")
 }
@@ -31,13 +31,13 @@ which will be applied in this step.
 The indices of the outputs from \code{current_nodes}, which are
 used as inputs of the current layer (\code{used_node}).
 \item \verb{$times}\cr
-The frequency of the output value, i.e. is the output used
+The frequency of the output value, i.e., is the output used
 more than once as an input for subsequent layers?\cr
 }}
 
 \item{input_nodes}{(\code{numeric})\cr
 A vector of layer indices describing the input layers,
-i.e. they are used as the starting point for the calculations.\cr}
+i.e., they are used as the starting point for the calculations.\cr}
 
 \item{output_nodes}{(\code{numeric})\cr
 A vector of layer indices describing the indices
@@ -59,7 +59,7 @@ in this package.
 \section{Method \code{forward()}}{
 
 
-The forward method of the whole model, i.e. it calculates the output
+The forward method of the whole model, i.e., it calculates the output
 \eqn{y=f(x)} of a given input \eqn{x}. In doing so, all intermediate
 values are stored in the individual torch modules from \code{modules_list}.
 \subsection{Usage}{
@@ -78,7 +78,7 @@ values are stored in the individual torch modules from \code{modules_list}.
 \describe{
 \item{\code{x}}{The input torch tensor for this model.}
 \item{\code{channels_first}}{If the input tensor \code{x} is given in the format
-'channels first' use \code{TRUE}. Otherwise, if the channels are last,
+'channels first', use \code{TRUE}. Otherwise, if the channels are last,
 use \code{FALSE} and the input will be transformed into the format 'channels
 first'. Default: \code{TRUE}.}
 \item{\code{save_input}}{Logical value whether the inputs from each layer
@@ -103,8 +103,9 @@ given inputs.
 \section{Method \code{update_ref()}}{
 
 
-This method updates the stored intermediate values in each module from the
-list \code{modules_list} when the reference input \code{x_ref} has changed.
+This method updates the intermediate values in each module from the
+list \code{modules_list} for the reference input \code{x_ref} and returns the
+output from it in the same way as in the \code{forward} method.
 \subsection{Usage}{
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{self$update_ref(x_ref,

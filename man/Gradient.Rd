@@ -2,14 +2,14 @@
 % Please edit documentation in R/GradienBased.R
 \name{Gradient}
 \alias{Gradient}
-\title{Vanilla Gradient and Gradient x Input}
+\title{Vanilla Gradient and Gradient\eqn{\times}Input}
 \description{
 This method computes the gradients (also known as \emph{Vanilla Gradients}) of
-the outputs with respect to the input variables, i.e. for all input
+the outputs with respect to the input variables, i.e., for all input
 variable \eqn{i} and output class \eqn{j}
 \deqn{d f(x)_j / d x_i.}
 If the argument \code{times_input} is \code{TRUE}, the gradients are multiplied by
-the respective input value (\emph{Gradient x Input}), i.e.
+the respective input value (\emph{Gradient\eqn{\times}Input}), i.e.,
 \deqn{x_i * d f(x)_j / d x_i.}
 }
 \examples{
@@ -156,9 +156,9 @@ Other methods:
 \if{html}{\out{<a id="method-Gradient-new"></a>}}
 \if{latex}{\out{\hypertarget{method-Gradient-new}{}}}
 \subsection{Method \code{new()}}{
-Create a new instance of the \emph{Vanilla Gradient} or \emph{Gradient x Input}
-method. When initialized, the method is applied to the given data and
-the results are stored in the field \code{result}.
+Create a new instance of the \code{Gradient} R6 class. When initialized,
+the method \emph{Gradient} or \emph{Gradient\eqn{\times}Input} is applied to the
+given data and the results are stored in the field \code{result}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Gradient$new(
   converter,
@@ -186,7 +186,7 @@ have the same format as the input data of the passed model to the
 converter object. This means either
 \itemize{
 \item an \code{array}, \code{data.frame}, \code{torch_tensor} or array-like format of
-size \emph{(batch_size, dim_in)}, if e.g.the model has only one input layer, or
+size \emph{(batch_size, dim_in)}, if e.g., the model has only one input layer, or
 \item a \code{list} with the corresponding input data (according to the
 upper point) for each of the input layers.\cr
 }}
@@ -194,10 +194,10 @@ upper point) for each of the input layers.\cr
 \item{\code{channels_first}}{(\code{logical(1)})\cr
 The channel position of the given data (argument
 \code{data}). If \code{TRUE}, the channel axis is placed at the second position
-between the batch size and the rest of the input axes, e.g.
+between the batch size and the rest of the input axes, e.g.,
 \code{c(10,3,32,32)} for a batch of ten images with three channels and a
 height and width of 32 pixels. Otherwise (\code{FALSE}), the channel axis
-is at the last position, i.e. \code{c(10,32,32,3)}. If the data
+is at the last position, i.e., \code{c(10,32,32,3)}. If the data
 has no channel axis, use the default value \code{TRUE}.\cr}
 
 \item{\code{output_idx}}{(\code{integer}, \code{list} or \code{NULL})\cr
@@ -207,7 +207,7 @@ output layers, there are the following possibilities to select
 the indices of the output nodes in the individual output layers:
 \itemize{
 \item An \code{integer} vector of indices: If the model has only one output
-layer, the values correspond to the indices of the output nodes, e.g.
+layer, the values correspond to the indices of the output nodes, e.g.,
 \code{c(1,3,4)} for the first, third and fourth output node. If there are
 multiple output layers, the indices of the output nodes from the first
 output layer are considered.
@@ -215,7 +215,7 @@ output layer are considered.
 applied to output nodes from different layers, a list can be passed
 that specifies the desired indices of the output nodes for each
 output layer. Unwanted output layers have the entry \code{NULL} instead of
-a vector of indices, e.g. \code{list(NULL, c(1,3))} for the first and
+a vector of indices, e.g., \code{list(NULL, c(1,3))} for the first and
 third output node in the second output layer.
 \item \code{NULL} (default): The method is applied to all output nodes in
 the first output layer but is limited to the first ten as the
@@ -231,7 +231,7 @@ often omitted.\cr}
 
 \item{\code{times_input}}{(\verb{logical(1}))\cr
 Multiplies the gradients with the input features.
-This method is called \emph{Gradient x Input}.\cr}
+This method is called \emph{Gradient\eqn{\times}Input}.\cr}
 
 \item{\code{verbose}}{(\code{logical(1)})\cr
 This logical argument determines whether a progress bar is

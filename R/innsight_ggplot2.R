@@ -1,7 +1,7 @@
 #' @importFrom methods is new show
 NULL
 
-#' S4-Class for ggplot2-based plots
+#' S4 class for ggplot2-based plots
 #'
 #' The S4 class `innsight_ggplot2` visualizes the results of the methods
 #' provided from the package `innsight` using [ggplot2]. In addition, it
@@ -242,14 +242,15 @@ setMethod(
 #' functions, the plots of individual rows and columns can be accessed,
 #' modified and the overall plot can be adjusted accordingly.
 #'
-#' @param x An instance of the s4 class [`innsight_ggplot2`].
+#' @param x An instance of the S4 class [`innsight_ggplot2`].
 #' @param i The numeric (or missing) index for the rows.
 #' @param j The numeric (or missing) index for the columns.
 #' @param value Another instance of the S4 class `innsight_ggplot2` but of
 #' shape `i` x `j`.
 #' @param restyle This logical value determines whether the labels and facet
 #' stripes remain as they were in the original plot or are adjusted to the
-#' subplot accordingly. Default `TRUE`
+#' subplot accordingly. However, this argument is only used if the `innsight_ggplot2`
+#' instance is a multiplot, i.e., `x@multiplot` is `TRUE`.
 #' @param drop unused argument
 #' @param ... other unused arguments
 #'
@@ -258,8 +259,8 @@ setMethod(
 #' `j`-th columns and returns them as a new instance of [`innsight_ggplot2`].
 #' If `restyle = TRUE` the facet stripes and axis labels of the original
 #' plot are transferred to the subplot, otherwise they are returned as they are.
-#' * `[[.innsight_ggplot2`: Selects only the subplot in rows `i` and columns
-#' `j` and returns it an [ggplot2::ggplot] object. If `restyle = TRUE` the
+#' * `[[.innsight_ggplot2`: Selects only the subplot in row `i` and column
+#' `j` and returns it as a [ggplot2::ggplot] object. If `restyle = TRUE` the
 #' facet stripes and axis labels of the original plot are transferred to
 #' the subplot, otherwise they are returned as they are.
 #' * `[<-.innsight_ggplot2`: Replaces the plots in the rows `i` and columns `j`

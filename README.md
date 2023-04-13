@@ -1,5 +1,5 @@
 
-# `innsight` - Get the Insights of your Neural Network
+# **innsight** - Get the insights of your neural network
 
 <a href='https://bips-hb.github.io/innsight/'><img src='man/figures/logo.png' align="right" width="200" /></a>
 
@@ -14,13 +14,13 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 coverage](https://codecov.io/gh/bips-hb/innsight/branch/master/graph/badge.svg)](https://app.codecov.io/gh/bips-hb/innsight?branch=master)
 <!-- badges: end -->
 
-## Table of Contents
+## Table of contents
 
 - [Introduction](#introduction)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Examples](#examples)
-- [Contributing and Future Work](#contributing-and-future-work)
+- [Contributing and future work](#contributing-and-future-work)
 - [Funding](#funding)
 
 ## Introduction
@@ -46,8 +46,8 @@ attribution) methods based on neural networks in R, e.g.,
     $\alpha$-$\beta$-rule
 - Deep Learning Important Features
   ([DeepLift](https://arxiv.org/abs/1704.02685))
-  - Including propagation rules for non-linearities: rescale rule and
-    reveal-cancel rule
+  - Including propagation rules for non-linearities: Rescale rule and
+    RevealCancel rule
 - Gradient-based methods:
   - Vanilla Gradient, including [Gradient x
     Input](https://www.jmlr.org/papers/v11/baehrens10a.html)
@@ -56,7 +56,7 @@ attribution) methods based on neural networks in R, e.g.,
 - Connection Weights
 
 Example results for these methods on ImageNet with pretrained network
-Vgg19 ( see [Example 3: ImageNet with
+VGG19 (see [Example 3: ImageNet with
 **keras**](https://bips-hb.github.io/innsight/articles/Example_3_imagenet.html)
 for details):
 ![vgg16](https://github.com/bips-hb/innsight/blob/master/man/images/Vgg19_result.png?raw=true)
@@ -143,11 +143,11 @@ boxplot(result)
 plot(result, as_plotly = TRUE)
 ```
 
-For a more detailed high-level introduction, see the [“Get
-started”](https://bips-hb.github.io/innsight/articles/innsight.html)
+For a more detailed high-level introduction, see the
+[introduction](https://bips-hb.github.io/innsight/articles/innsight.html)
 vignette, and for a full in-depth explanation with all the
 possibilities, see the [“In-depth
-Explanation”](https://bips-hb.github.io/innsight/articles/detailed_overview.html)
+explanation”](https://bips-hb.github.io/innsight/articles/detailed_overview.html)
 vignette.
 
 ## Examples
@@ -157,10 +157,10 @@ vignette.
 - Penguin dataset with **torch** model and trained with **luz** (numeric
   and categorical tabular data) [→
   vignette](https://bips-hb.github.io/innsight/articles/Example_2_penguin.html)
-- ImageNet dataset with pretrained models in **keras** (image data) [→
+- ImageNet dataset with pre-trained models in **keras** (image data) [→
   article](https://bips-hb.github.io/innsight/articles/Example_3_imagenet.html)
 
-## Contributing and Future Work
+## Contributing and future work
 
 If you would like to contribute, please open an issue or submit a pull
 request.
@@ -171,8 +171,7 @@ for their analyses. Therefore, don’t hesitate to write me
 missing something for your analyses or have great ideas for extending
 this package. Currently, we are working on the following:
 
-- [x] Extension to non-sequential models in `keras` with multiple in-
-  and outputs, e.g. for mixed data of tabular and image data
+- [ ] GPU support
 - [ ] More methods, e.g. Grad-CAM, integrated gradients, etc.
 - [ ] More examples and documentation (contact me if you have a
   non-trivial application for me)

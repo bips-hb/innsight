@@ -2,15 +2,15 @@
 % Please edit documentation in R/GradienBased.R
 \name{GradientBased}
 \alias{GradientBased}
-\title{Super Class for Gradient-based Interpretation Methods}
+\title{Super class for gradient-based interpretation methods}
 \description{
 Super class for gradient-based interpretation methods. This
-class inherits from \link{InterpretingMethod}. It summarizes all implemented
+class inherits from \code{\link{InterpretingMethod}}. It summarizes all implemented
 gradient-based methods and provides a private function to calculate the
 gradients w.r.t. to the input for given data. Implemented are:
 \itemize{
-\item \emph{Vanilla Gradients} and \emph{Gradient x Input} (\link{Gradient})
-\item \emph{SmoothGrad} and \emph{SmoothGrad x Input} (\link{SmoothGrad})
+\item \emph{Vanilla Gradients} and \emph{Gradient\eqn{\times}Input} (\code{\link{Gradient}})
+\item \emph{SmoothGrad} and \emph{SmoothGrad\eqn{\times}Input} (\code{\link{SmoothGrad}})
 }
 }
 \section{Super class}{
@@ -21,8 +21,7 @@ gradients w.r.t. to the input for given data. Implemented are:
 \describe{
 \item{\code{times_input}}{(\verb{logical(1}))\cr
 This logical value indicates whether the results
-were multiplied by the provided input data or not. If \code{TRUE}, the
-method is called \emph{Gradient x Input}.\cr}
+were multiplied by the provided input data or not.\cr}
 }
 \if{html}{\out{</div>}}
 }
@@ -77,7 +76,7 @@ have the same format as the input data of the passed model to the
 converter object. This means either
 \itemize{
 \item an \code{array}, \code{data.frame}, \code{torch_tensor} or array-like format of
-size \emph{(batch_size, dim_in)}, if e.g.the model has only one input layer, or
+size \emph{(batch_size, dim_in)}, if e.g., the model has only one input layer, or
 \item a \code{list} with the corresponding input data (according to the
 upper point) for each of the input layers.\cr
 }}
@@ -85,10 +84,10 @@ upper point) for each of the input layers.\cr
 \item{\code{channels_first}}{(\code{logical(1)})\cr
 The channel position of the given data (argument
 \code{data}). If \code{TRUE}, the channel axis is placed at the second position
-between the batch size and the rest of the input axes, e.g.
+between the batch size and the rest of the input axes, e.g.,
 \code{c(10,3,32,32)} for a batch of ten images with three channels and a
 height and width of 32 pixels. Otherwise (\code{FALSE}), the channel axis
-is at the last position, i.e. \code{c(10,32,32,3)}. If the data
+is at the last position, i.e., \code{c(10,32,32,3)}. If the data
 has no channel axis, use the default value \code{TRUE}.\cr}
 
 \item{\code{output_idx}}{(\code{integer}, \code{list} or \code{NULL})\cr
@@ -98,7 +97,7 @@ output layers, there are the following possibilities to select
 the indices of the output nodes in the individual output layers:
 \itemize{
 \item An \code{integer} vector of indices: If the model has only one output
-layer, the values correspond to the indices of the output nodes, e.g.
+layer, the values correspond to the indices of the output nodes, e.g.,
 \code{c(1,3,4)} for the first, third and fourth output node. If there are
 multiple output layers, the indices of the output nodes from the first
 output layer are considered.
@@ -106,7 +105,7 @@ output layer are considered.
 applied to output nodes from different layers, a list can be passed
 that specifies the desired indices of the output nodes for each
 output layer. Unwanted output layers have the entry \code{NULL} instead of
-a vector of indices, e.g. \code{list(NULL, c(1,3))} for the first and
+a vector of indices, e.g., \code{list(NULL, c(1,3))} for the first and
 third output node in the second output layer.
 \item \code{NULL} (default): The method is applied to all output nodes in
 the first output layer but is limited to the first ten as the
@@ -122,7 +121,7 @@ often omitted.\cr}
 
 \item{\code{times_input}}{(\verb{logical(1})\cr
 Multiplies the gradients with the input features.
-This method is called \emph{Gradient x Input}.\cr}
+This method is called \emph{Gradient\eqn{\times}Input}.\cr}
 
 \item{\code{verbose}}{(\code{logical(1)})\cr
 This logical argument determines whether a progress bar is

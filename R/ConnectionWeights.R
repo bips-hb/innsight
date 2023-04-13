@@ -1,4 +1,4 @@
-#' Connection Weights Method
+#' Connection Weights method
 #'
 #' @description
 #' This class implements the *Connection Weights* method investigated by
@@ -13,7 +13,7 @@
 #' \deqn{W_1 * W_2 * W_3.}
 #'
 #' In this package, we extended this method to a local method inspired by the
-#' method *Gradient x Input* (see [`Gradient`]). Hence, the local variant is
+#' method *Gradient\eqn{\times}Input* (see [`Gradient`]). Hence, the local variant is
 #' simply the point-wise product of the global *Connection Weights* method and
 #' the input data. You can use this variant by setting the `times_input`
 #' argument to `TRUE` and providing input data.
