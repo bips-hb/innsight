@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Example 3: ImageNet with `keras` • innsight</title>
+<title>Example 3: ImageNet with keras • innsight</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
@@ -17,7 +17,7 @@
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Example 3: ImageNet with `keras`">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Example 3: ImageNet with keras">
 <meta property="og:description" content="innsight">
 <meta property="og:image" content="https://bips-hb.github.io/innsight/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -60,16 +60,16 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/Example_1_iris.html">Example 1: Iris Dataset with `torch`</a>
+      <a href="../articles/Example_1_iris.html">Example 1: Iris dataset with torch</a>
     </li>
     <li>
-      <a href="../articles/Example_2_penguin.html">Example 2: Penguin Dataset with `torch` and `luz`</a>
+      <a href="../articles/Example_2_penguin.html">Example 2: Penguin dataset with torch and luz</a>
     </li>
     <li>
-      <a href="../articles/Example_3_imagenet.html">Example 3: ImageNet with `keras`</a>
+      <a href="../articles/Example_3_imagenet.html">Example 3: ImageNet with keras</a>
     </li>
     <li>
-      <a href="../articles/detailed_overview.html">In-depth Explanation</a>
+      <a href="../articles/detailed_overview.html">In-depth explanation</a>
     </li>
   </ul>
 </li>
@@ -97,8 +97,7 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Example 3: ImageNet with <code>keras</code>
-</h1>
+      <h1 data-toc-skip>Example 3: ImageNet with keras</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/HEAD/vignettes/articles/Example_3_imagenet.Rmd" class="external-link"><code>vignettes/articles/Example_3_imagenet.Rmd</code></a></small>
@@ -113,8 +112,8 @@
 <strong>keras</strong> models. For more detailed information about the
 package and the implemented methods we refer to <a href="https://bips-hb.github.io/innsight/articles/detailed_overview.html">this
 article</a> and for simpler but in detailed explained examples we kindly
-recommend to <a href="https://bips-hb.github.io/innsight/articles/example_1_iris.html">Example
-1</a> and <a href="https://bips-hb.github.io/innsight/articles/example_2_penguin.html">Example
+recommend to <a href="https://bips-hb.github.io/innsight/articles/Example_1_iris.html">Example
+1</a> and <a href="https://bips-hb.github.io/innsight/articles/Example_2_penguin.html">Example
 2</a>.</p>
 <p>In this example, we want to apply the <strong>innsight</strong>
 package on pre-trained models on the ImageNet dataset using
@@ -124,11 +123,11 @@ over <span class="math inline">\(500\)</span> images per class. We have
 selected examples of a few classes each and will analyze them with
 respect to different networks in the following.</p>
 <p align="center">
-<img alt="steel bridge" src="images/image_1.png" width="200" height="200"><img alt="dog with tennis ball" src="images/image_2.png" width="200" height="200"><img alt="daisy" src="images/image_6.png" width="200" height="200"><img alt="ballon" src="images/image_13.png" width="200" height="200"></p>
+<img alt="steel bridge" src="images/image_1.png" width="200" height="200"><img alt="dog with tennis ball" src="images/image_2.png" width="200" height="200"><img alt="daisy" src="images/image_3.png" width="200" height="200"><img alt="ballon" src="images/image_4.png" width="200" height="200"></p>
 <div class="section level2">
-<h2 id="preprocess-images">Preprocess Images<a class="anchor" aria-label="anchor" href="#preprocess-images"></a>
+<h2 id="preprocess-images">Preprocess images<a class="anchor" aria-label="anchor" href="#preprocess-images"></a>
 </h2>
-<p>The original images all have a different sizes and the pre-trained
+<p>The original images all have different sizes and the pre-trained
 models all require an input size of <span class="math inline">\(224
 \times 224 \times 3\)</span> and the channels are zero-centered
 according to the channel mean of the whole dataset; hence, we need to
@@ -140,7 +139,7 @@ steps:</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bips-hb.github.io/innsight/">innsight</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Load images</span></span>
-<span><span class="va">img_files</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"images/"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"image_1.png"</span>, <span class="st">"image_2.png"</span>, <span class="st">"image_6.png"</span>, <span class="st">"image_13.png"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">img_files</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"images/"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"image_1.png"</span>, <span class="st">"image_2.png"</span>, <span class="st">"image_3.png"</span>, <span class="st">"image_4.png"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">images</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/keras/man/k_stack.html" class="external-link">k_stack</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">img_files</span>, </span>
 <span>                 <span class="kw">function</span><span class="op">(</span><span class="va">path</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/pkg/keras/man/image_to_array.html" class="external-link">image_to_array</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/keras/man/image_load.html" class="external-link">image_load</a></span><span class="op">(</span><span class="va">path</span>, target_size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">224</span>, <span class="fl">224</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -254,13 +253,13 @@ functions below, which will be used later on.</p>
 </details>
 </div>
 <div class="section level2">
-<h2 id="pretrained-model-vgg19">Pretrained Model Vgg19<a class="anchor" aria-label="anchor" href="#pretrained-model-vgg19"></a>
+<h2 id="pre-trained-model-vgg19">Pre-trained model VGG19<a class="anchor" aria-label="anchor" href="#pre-trained-model-vgg19"></a>
 </h2>
 <p>Now let’s analyze the individual images according to the class that
-the model Vgg19 (see <code><a href="https://rdrr.io/pkg/keras/man/application_vgg.html" class="external-link">?application_vgg19</a></code> for details)
-predicts for them. In the <strong>innsight</strong> package these output
-classes have to be chosen by ourselves, because a calculation for all
-<span class="math inline">\(1000\)</span> classes would be too
+the model VGG19 (see <code><a href="https://rdrr.io/pkg/keras/man/application_vgg.html" class="external-link">?application_vgg19</a></code> for details)
+predicts for them. In the <strong>innsight</strong> package, these
+output classes have to be chosen by ourselves because a calculation for
+all <span class="math inline">\(1000\)</span> classes would be too
 computationally expensive. For this reason, we first determine the
 corresponding predictions from the model:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -284,7 +283,7 @@ corresponding predictions from the model:</p>
 <span><span class="co">#&gt; 2  n02108422      bull_mastiff 0.4107324   244</span></span>
 <span><span class="co">#&gt; 3  n11939491             daisy 0.2913896   986</span></span>
 <span><span class="co">#&gt; 4  n02782093           balloon 0.9997583   418</span></span></code></pre></div>
-<p>Afterwards, we apply all the methods from the configuration
+<p>Afterward, we apply all the methods from the configuration
 <code>config</code> to the model by first putting it into a
 <code>Converter</code> object and then applying the methods to each
 image individually.</p>
@@ -355,7 +354,7 @@ image individually.</p>
 <p><img src="Example_3_imagenet_files/figure-html/unnamed-chunk-10-1.png" width="100%"></p>
 </div>
 <div class="section level2">
-<h2 id="pretrained-model-resnet50">Pretrained Model ResNet50<a class="anchor" aria-label="anchor" href="#pretrained-model-resnet50"></a>
+<h2 id="pre-trained-model-resnet50">Pre-trained model ResNet50<a class="anchor" aria-label="anchor" href="#pre-trained-model-resnet50"></a>
 </h2>
 <p>We can execute these steps to another model analogously:</p>
 <details><summary><strong>The exact same steps as in the last section</strong>

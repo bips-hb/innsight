@@ -4,7 +4,7 @@
 interpreting a single element of the dataset and calculates the relevance
 scores for each input feature to the model output. The basic idea of this
 method is to decompose the prediction score of the model with respect to
-the input features, i.e.
+the input features, i.e.,
 $$f(x) = \sum_i R(x_i).$$
 Because of the bias vector that absorbs some relevance, this decomposition
 is generally an approximation. There exist several propagation rules to
@@ -46,16 +46,16 @@ rule (&quot;simple&quot;), \(\varepsilon\)-rule (&quot;epsilon&quot;) and
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/Example_1_iris.html">Example 1: Iris Dataset with `torch`</a>
+      <a href="../articles/Example_1_iris.html">Example 1: Iris dataset with torch</a>
     </li>
     <li>
-      <a href="../articles/Example_2_penguin.html">Example 2: Penguin Dataset with `torch` and `luz`</a>
+      <a href="../articles/Example_2_penguin.html">Example 2: Penguin dataset with torch and luz</a>
     </li>
     <li>
-      <a href="../articles/Example_3_imagenet.html">Example 3: ImageNet with `keras`</a>
+      <a href="../articles/Example_3_imagenet.html">Example 3: ImageNet with keras</a>
     </li>
     <li>
-      <a href="../articles/detailed_overview.html">In-depth Explanation</a>
+      <a href="../articles/detailed_overview.html">In-depth explanation</a>
     </li>
   </ul></li>
 <li>
@@ -87,7 +87,7 @@ rule (&quot;simple&quot;), \(\varepsilon\)-rule (&quot;epsilon&quot;) and
 interpreting a single element of the dataset and calculates the relevance
 scores for each input feature to the model output. The basic idea of this
 method is to decompose the prediction score of the model with respect to
-the input features, i.e.
+the input features, i.e.,
 $$f(x) = \sum_i R(x_i).$$
 Because of the bias vector that absorbs some relevance, this decomposition
 is generally an approximation. There exist several propagation rules to
@@ -123,7 +123,7 @@ The name of the rule with which the relevance scores
 are calculated. Implemented are <code>"simple"</code>, <code>"epsilon"</code>, <code>"alpha_beta"</code>
 (and <code>"pass"</code> but only for 'BatchNorm_Layer'). However, this value
 can also be a named list that assigns one of these three rules to each
-implemented layer type separately. e.g.
+implemented layer type separately, e.g.,
 <code>list(Dense_Layer = "simple", Conv2D_Layer = "alpha_beta")</code>.
 Layers not specified in this list then use the default value <code>"simple"</code>.
 The implemented layer types are:</p><table class="table table"><tr><td>\(\cdot\) 'Dense_Layer'</td><td>\(\cdot\) 'Conv1D_Layer'</td><td>\(\cdot\) 'Conv2D_Layer'</td></tr><tr><td>\(\cdot\) 'BatchNorm_Layer'</td><td>\(\cdot\) 'AvgPool1D_Layer'</td><td>\(\cdot\) 'AvgPool2D_Layer'</td></tr><tr><td>\(\cdot\) 'MaxPool1D_Layer'</td><td>\(\cdot\) 'MaxPool2D_Layer'</td><td></td></tr></table></dd>
@@ -152,8 +152,8 @@ rule parameter to each layer type.<br></p></dd>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="print"><a href="InterpretingMethod.html#method-print"><code>innsight::InterpretingMethod$print()</code></a></span></li>
 </ul></details></p><hr><a id="method-LRP-new"></a><div class="section">
 <h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
-<p>Create a new instance of the <em>LRP</em> method. When initialized,
-the method is applied to the given data and the results are stored in
+<p>Create a new instance of the <code>LRP</code> R6 class. When initialized,
+the method <em>LRP</em> is applied to the given data and the results are stored in
 the field <code>result</code>.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/LRP.html">LRP</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -184,7 +184,7 @@ torch-converted model and some other model-specific attributes. See
 The data to which the method is to be applied. These must
 have the same format as the input data of the passed model to the
 converter object. This means either</p><ul><li><p>an <code>array</code>, <code>data.frame</code>, <code>torch_tensor</code> or array-like format of
-size <em>(batch_size, dim_in)</em>, if e.g.the model has only one input layer, or</p></li>
+size <em>(batch_size, dim_in)</em>, if e.g., the model has only one input layer, or</p></li>
 <li><p>a <code>list</code> with the corresponding input data (according to the
 upper point) for each of the input layers.<br></p></li>
 </ul></dd>
@@ -194,10 +194,10 @@ upper point) for each of the input layers.<br></p></li>
 <dd><p>(<code>logical(1)</code>)<br>
 The channel position of the given data (argument
 <code>data</code>). If <code>TRUE</code>, the channel axis is placed at the second position
-between the batch size and the rest of the input axes, e.g.
+between the batch size and the rest of the input axes, e.g.,
 <code>c(10,3,32,32)</code> for a batch of ten images with three channels and a
 height and width of 32 pixels. Otherwise (<code>FALSE</code>), the channel axis
-is at the last position, i.e. <code>c(10,32,32,3)</code>. If the data
+is at the last position, i.e., <code>c(10,32,32,3)</code>. If the data
 has no channel axis, use the default value <code>TRUE</code>.<br></p></dd>
 
 
@@ -207,7 +207,7 @@ These indices specify the output nodes for which
 the method is to be applied. In order to allow models with multiple
 output layers, there are the following possibilities to select
 the indices of the output nodes in the individual output layers:</p><ul><li><p>An <code>integer</code> vector of indices: If the model has only one output
-layer, the values correspond to the indices of the output nodes, e.g.
+layer, the values correspond to the indices of the output nodes, e.g.,
 <code>c(1,3,4)</code> for the first, third and fourth output node. If there are
 multiple output layers, the indices of the output nodes from the first
 output layer are considered.</p></li>
@@ -215,7 +215,7 @@ output layer are considered.</p></li>
 applied to output nodes from different layers, a list can be passed
 that specifies the desired indices of the output nodes for each
 output layer. Unwanted output layers have the entry <code>NULL</code> instead of
-a vector of indices, e.g. <code>list(NULL, c(1,3))</code> for the first and
+a vector of indices, e.g., <code>list(NULL, c(1,3))</code> for the first and
 third output node in the second output layer.</p></li>
 <li><p><code>NULL</code> (default): The method is applied to all output nodes in
 the first output layer but is limited to the first ten as the
@@ -239,7 +239,7 @@ are calculated. Implemented are <code>"simple"</code>, <code>"epsilon"</code>, <
 You can pass one of the above characters to apply this rule to all
 possible layers. However, this value can also be a named list that
 assigns one of these three rules to each
-implemented layer type separately. e.g.
+implemented layer type separately, e.g.,
 <code>list(Dense_Layer = "simple", Conv2D_Layer = "alpha_beta")</code>.
 Layers not specified in this list then use the default value <code>"simple"</code>.
 The implemented layer types are:<br></p><table class="table table"><tr><td>\(\cdot\) 'Dense_Layer'</td><td>\(\cdot\) 'Conv1D_Layer'</td><td>\(\cdot\) 'Conv2D_Layer'</td></tr><tr><td>\(\cdot\) 'BatchNorm_Layer'</td><td>\(\cdot\) 'AvgPool1D_Layer'</td><td>\(\cdot\) 'AvgPool2D_Layer'</td></tr><tr><td>\(\cdot\) 'MaxPool1D_Layer'</td><td>\(\cdot\) 'MaxPool2D_Layer'</td><td></td></tr></table><p><em>Note:</em> For normalization layers like 'BatchNorm_Layer', the rule
@@ -289,7 +289,7 @@ either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dty
 </div>
 <div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
-<p>A new instance of the R6 class <code>'LRP'</code>.</p>
+<p>A new instance of the R6 class <code>LRP</code>.</p>
 </div>
 
 </div><p></p><hr><a id="method-LRP-clone"></a><div class="section">
@@ -336,15 +336,15 @@ either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dty
 <span class="r-in"><span><span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">lrp</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,,<span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , Y1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               X1           X2         X3          X4          X5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] -0.01982472 -0.007425811 0.11174691 -0.02287319 -0.06756029</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]  0.14955112  0.283500880 0.06975868 -0.04515771  0.02763857</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              X1           X2          X3         X4          X5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.23052034 -0.001999352 -0.62828279  0.2417674 -0.10831421</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0.01674905  0.175973743 -0.05272345 -0.3269133 -0.04974912</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , Y2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              X1           X2           X3         X4          X5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.06618191 -0.010424748 -0.001184692 0.21850336 -0.03994026</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0.01527524  0.002309427 -0.064960450 0.06073051  0.01475902</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                X1          X2          X3         X4          X5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]  0.386314452 0.006582273 -0.08492304 0.29311749 -0.04995049</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] -0.002584497 0.070540830  0.13177775 0.01919362 -0.03590592</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the result for both classes</span></span></span>
@@ -374,36 +374,36 @@ either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dty
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , setosa</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      Sepal.Length Sepal.Width Petal.Length Petal.Width</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]    -4.971915    5.387081    -1.617888 0.011401079</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]    -5.231597    5.489947    -1.921194 0.006409913</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]     5.352360  -1.6640763    -2.469784   0.1962192</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]     3.777406  -0.3217585    -2.703612   0.1542027</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , versicolor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      Sepal.Length Sepal.Width Petal.Length Petal.Width</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]    -2.922211   -0.453476     2.600404  0.06156377</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]    -1.799307   -1.840533     3.033095  0.04797494</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]   -0.1474092  -0.1847457     1.851530  -0.1975731</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]    0.1798696  -0.9411673     2.404248  -0.1753674</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , virginica</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      Sepal.Length Sepal.Width Petal.Length Petal.Width</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]    -2.123916    1.230718     2.544384 -0.06688093</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]    -3.512017    2.098170     3.024125 -0.06806268</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]    -4.989193    3.396092    0.6147677  -0.1545376</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]    -3.546299    2.232702    0.6000908  -0.1165616</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># get the result as a torch tensor for data point one and two</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">lrp</span>, type <span class="op">=</span> <span class="st">"torch.tensor"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (1,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -4.9719 -2.9222 -2.1239</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   5.3871 -0.4535  1.2307</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -1.6179  2.6004  2.5444</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0114  0.0616 -0.0669</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   5.3524 -0.1474 -4.9892</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -1.6641 -0.1847  3.3961</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -2.4698  1.8515  0.6148</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.1962 -0.1976 -0.1545</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (2,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -5.2316 -1.7993 -3.5120</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   5.4899 -1.8405  2.0982</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -1.9212  3.0331  3.0241</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0064  0.0480 -0.0681</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3.7774  0.1799 -3.5463</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.3218 -0.9412  2.2327</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -2.7036  2.4042  0.6001</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.1542 -0.1754 -0.1166</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{2,4,3} ]</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># use the alpha-beta rule with alpha = 2</span></span></span>
@@ -450,19 +450,20 @@ either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dty
 <span class="r-in"><span><span class="co"># Convert the model</span></span></span>
 <span class="r-in"><span><span class="va">converter</span> <span class="op">&lt;-</span> <span class="va"><a href="Converter.html">Converter</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Apply the LRP method with the epsilon rule and eps = 0.1</span></span></span>
-<span class="r-in"><span><span class="va">lrp_eps</span> <span class="op">&lt;-</span> <span class="va">LRP</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">converter</span>, <span class="va">data</span>,</span></span>
+<span class="r-in"><span><span class="co"># Apply the LRP method with the epsilon rule for the dense layers and</span></span></span>
+<span class="r-in"><span><span class="co"># the alpha-beta rule for the convolutional layers</span></span></span>
+<span class="r-in"><span><span class="va">lrp_comp</span> <span class="op">&lt;-</span> <span class="va">LRP</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">converter</span>, <span class="va">data</span>,</span></span>
 <span class="r-in"><span>  channels_first <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
-<span class="r-in"><span>  rule_name <span class="op">=</span> <span class="st">"epsilon"</span>,</span></span>
-<span class="r-in"><span>  rule_param <span class="op">=</span> <span class="fl">0.1</span></span></span>
+<span class="r-in"><span>  rule_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Dense_Layer <span class="op">=</span> <span class="st">"epsilon"</span>, Conv1D_Layer <span class="op">=</span> <span class="st">"alpha_beta"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  rule_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Dense_Layer <span class="op">=</span> <span class="fl">0.1</span>, Conv1D_Layer <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the result for the first datapoint and all classes</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lrp_eps</span>, output_idx <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lrp_comp</span>, output_idx <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="LRP-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the result as boxplots for first two classes</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">lrp_eps</span>, output_idx <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">lrp_comp</span>, output_idx <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="LRP-5.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="co">#------------------------- Plotly plots ------------------------------------</span></span></span>
 <span class="r-in"><span><span class="co"># You can also create an interactive plot with plotly.</span></span></span>
@@ -471,9 +472,11 @@ either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dty
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Result as boxplots</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">lrp_eps</span>, as_plotly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in boxplot(lrp_eps, as_plotly = TRUE):</span> object 'lrp_eps' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Result of the second data point</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lrp_eps</span>, data_idx <span class="op">=</span> <span class="fl">2</span>, as_plotly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'plot': object 'lrp_eps' not found</span>
 </code></pre></div>
     </div>
   </div>

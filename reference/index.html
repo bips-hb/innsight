@@ -35,16 +35,16 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/Example_1_iris.html">Example 1: Iris Dataset with `torch`</a>
+      <a href="../articles/Example_1_iris.html">Example 1: Iris dataset with torch</a>
     </li>
     <li>
-      <a href="../articles/Example_2_penguin.html">Example 2: Penguin Dataset with `torch` and `luz`</a>
+      <a href="../articles/Example_2_penguin.html">Example 2: Penguin dataset with torch and luz</a>
     </li>
     <li>
-      <a href="../articles/Example_3_imagenet.html">Example 3: ImageNet with `keras`</a>
+      <a href="../articles/Example_3_imagenet.html">Example 3: ImageNet with keras</a>
     </li>
     <li>
-      <a href="../articles/detailed_overview.html">In-depth Explanation</a>
+      <a href="../articles/detailed_overview.html">In-depth explanation</a>
     </li>
   </ul></li>
 <li>
@@ -69,29 +69,29 @@
     </div>
 
     <table class="ref-index"><colgroup><col class="alias"><col class="title"></colgroup><tbody><tr><th colspan="2">
-          <h2 id="converter-and-converted-model">Converter and converted Model <a href="#converter-and-converted-model" class="anchor" aria-hidden="true"></a></h2>
-          <p class="section-desc"></p>
+          <h2 id="converter-and-converted-model">Converter and converted model <a href="#converter-and-converted-model" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p><p>R6 class for converting a passed model into a <strong>torch</strong>-based model with all methods pre-implemented in each layer</p>
         </th>
       </tr></tbody><tbody><tr><td>
           <p><code><a href="Converter.html">Converter</a></code> </p>
         </td>
-        <td><p>Converter of an Artificial Neural Network</p></td>
+        <td><p>Converter of an artificial neural network</p></td>
       </tr><tr><td>
           <p><code><a href="ConvertedModel.html">ConvertedModel()</a></code> </p>
         </td>
-        <td><p>Converted <code>torch</code>-based Model</p></td>
+        <td><p>Converted <code>torch</code>-based model</p></td>
       </tr></tbody><tbody><tr><th colspan="2">
-          <h2 id="feature-attribution-methods">Feature Attribution Methods <a href="#feature-attribution-methods" class="anchor" aria-hidden="true"></a></h2>
-          <p class="section-desc"></p>
+          <h2 id="feature-attribution-methods">Feature attribution methods <a href="#feature-attribution-methods" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p><p>All implemented feature attribution methods as R6 classes applying the corresponding method to the converted model during initialization</p>
         </th>
       </tr></tbody><tbody><tr><td>
           <p><code><a href="Gradient.html">Gradient</a></code> </p>
         </td>
-        <td><p>Vanilla Gradient and Gradient x Input</p></td>
+        <td><p>Vanilla Gradient and Gradient\(\times\)Input</p></td>
       </tr><tr><td>
           <p><code><a href="SmoothGrad.html">SmoothGrad</a></code> </p>
         </td>
-        <td><p>SmoothGrad and SmoothGrad x Input</p></td>
+        <td><p>SmoothGrad and SmoothGrad\(\times\)Input</p></td>
       </tr><tr><td>
           <p><code><a href="LRP.html">LRP</a></code> </p>
         </td>
@@ -103,33 +103,33 @@
       </tr><tr><td>
           <p><code><a href="ConnectionWeights.html">ConnectionWeights</a></code> </p>
         </td>
-        <td><p>Connection Weights Method</p></td>
+        <td><p>Connection Weights method</p></td>
       </tr></tbody><tbody><tr><th colspan="2">
-          <h2 id="visualization-and-getting-results">Visualization and getting Results <a href="#visualization-and-getting-results" class="anchor" aria-hidden="true"></a></h2>
-          <p class="section-desc"></p>
+          <h2 id="visualization-and-getting-results">Visualization and getting results <a href="#visualization-and-getting-results" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p><p>Functions and S4 classes for getting and visualizing the results</p>
         </th>
       </tr></tbody><tbody><tr><td>
           <p><code><a href="get_result.html">get_result()</a></code> </p>
         </td>
-        <td><p>Get the result of an Interpretation Method</p></td>
+        <td><p>Get the result of an interpretation method</p></td>
       </tr><tr><td>
           <p><code><a href="innsight_ggplot2-class.html">innsight_ggplot2</a></code> </p>
         </td>
-        <td><p>S4-Class for ggplot2-based plots</p></td>
+        <td><p>S4 class for ggplot2-based plots</p></td>
       </tr><tr><td>
           <p><code><a href="innsight_plotly-class.html">innsight_plotly</a></code> </p>
         </td>
         <td><p>S4 class for plotly-based plots</p></td>
       </tr></tbody><tbody><tr><th colspan="2">
           <h3 id="-innsight-ggplot-"><code>innsight_ggplot2</code> <a href="#-innsight-ggplot-" class="anchor" aria-hidden="true"></a></h3>
-          <p class="section-desc"></p>
+          <p class="section-desc"></p><p>Generic functions for the S4 class <code>innsight_ggplot2</code></p>
         </th>
       </tr></tbody><tbody><tr><td>
           <p><code><a href="innsight_ggplot2-print.html">print(<i>&lt;innsight_ggplot2&gt;</i>)</a></code> <code><a href="innsight_ggplot2-print.html">show(<i>&lt;innsight_ggplot2&gt;</i>)</a></code> <code><a href="innsight_ggplot2-print.html">plot(<i>&lt;innsight_ggplot2&gt;</i>)</a></code> </p>
         </td>
         <td><p>Generic print, plot and show for <code>innsight_ggplot2</code></p></td>
       </tr><tr><td>
-          <p><code><a href="innsight_ggplot2-indexing.html">`[`(<i>&lt;innsight_ggplot2&gt;</i>)</a></code> <code><a href="innsight_ggplot2-indexing.html">`[[`(<i>&lt;innsight_ggplot2&gt;</i>)</a></code> <code><a href="innsight_ggplot2-indexing.html">`[&lt;-`(<i>&lt;innsight_ggplot2&gt;</i>)</a></code> </p>
+          <p><code><a href="innsight_ggplot2-indexing.html">`[`(<i>&lt;innsight_ggplot2&gt;</i>)</a></code> <code><a href="innsight_ggplot2-indexing.html">`[[`(<i>&lt;innsight_ggplot2&gt;</i>)</a></code> <code><a href="innsight_ggplot2-indexing.html">`[&lt;-`(<i>&lt;innsight_ggplot2&gt;</i>)</a></code> <code><a href="innsight_ggplot2-indexing.html">`[[&lt;-`(<i>&lt;innsight_ggplot2&gt;</i>)</a></code> </p>
         </td>
         <td><p>Indexing plots of <code>innsight_ggplot2</code></p></td>
       </tr><tr><td>
@@ -138,7 +138,7 @@
         <td><p>Generic add function for <code>innsight_ggplot2</code></p></td>
       </tr></tbody><tbody><tr><th colspan="2">
           <h3 id="-innsight-plotly-"><code>innsight_plotly</code> <a href="#-innsight-plotly-" class="anchor" aria-hidden="true"></a></h3>
-          <p class="section-desc"></p>
+          <p class="section-desc"></p><p>Generic functions for the S4 class <code>innsight_plotly</code></p>
         </th>
       </tr></tbody><tbody><tr><td>
           <p><code><a href="innsight_plotly-print.html">print(<i>&lt;innsight_plotly&gt;</i>)</a></code> <code><a href="innsight_plotly-print.html">show(<i>&lt;innsight_plotly&gt;</i>)</a></code> <code><a href="innsight_plotly-print.html">plot(<i>&lt;innsight_plotly&gt;</i>)</a></code> </p>
@@ -149,21 +149,21 @@
         </td>
         <td><p>Indexing plots of <code>innsight_plotly</code></p></td>
       </tr></tbody><tbody><tr><th colspan="2">
-          <h2 id="superclasses-and-package-information">Superclasses and Package information <a href="#superclasses-and-package-information" class="anchor" aria-hidden="true"></a></h2>
-          <p class="section-desc"></p>
+          <h2 id="superclasses-and-package-information">Superclasses and package information <a href="#superclasses-and-package-information" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p><p>Super classes intended only for the user’s information</p>
         </th>
       </tr></tbody><tbody><tr><td>
           <p><code><a href="innsight-package.html">innsight</a></code> <code><a href="innsight-package.html">innsight-package</a></code> </p>
         </td>
-        <td><p>Get the Insight of your Neural Network</p></td>
+        <td><p>Get the insight of your neural network</p></td>
       </tr><tr><td>
           <p><code><a href="GradientBased.html">GradientBased</a></code> </p>
         </td>
-        <td><p>Super Class for Gradient-based Interpretation Methods</p></td>
+        <td><p>Super class for gradient-based interpretation methods</p></td>
       </tr><tr><td>
           <p><code><a href="InterpretingMethod.html">InterpretingMethod</a></code> </p>
         </td>
-        <td><p>Super Class for Interpreting Methods</p></td>
+        <td><p>Super class for interpreting methods</p></td>
       </tr></tbody></table></div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

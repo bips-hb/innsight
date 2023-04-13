@@ -39,16 +39,16 @@ modified and the overall plot can be adjusted accordingly."><meta property="og:i
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/Example_1_iris.html">Example 1: Iris Dataset with `torch`</a>
+      <a href="../articles/Example_1_iris.html">Example 1: Iris dataset with torch</a>
     </li>
     <li>
-      <a href="../articles/Example_2_penguin.html">Example 2: Penguin Dataset with `torch` and `luz`</a>
+      <a href="../articles/Example_2_penguin.html">Example 2: Penguin dataset with torch and luz</a>
     </li>
     <li>
-      <a href="../articles/Example_3_imagenet.html">Example 3: ImageNet with `keras`</a>
+      <a href="../articles/Example_3_imagenet.html">Example 3: ImageNet with keras</a>
     </li>
     <li>
-      <a href="../articles/detailed_overview.html">In-depth Explanation</a>
+      <a href="../articles/detailed_overview.html">In-depth explanation</a>
     </li>
   </ul></li>
 <li>
@@ -84,19 +84,22 @@ modified and the overall plot can be adjusted accordingly.</p>
 
     <div id="ref-usage">
     <div class="sourceCode"><pre><code># S4 method for innsight_ggplot2
-[(x, i, j, ..., drop = TRUE)
+[(x, i, j, ..., restyle = TRUE, drop = TRUE)
 
 # S4 method for innsight_ggplot2
-[[(x, i, j, ...)
+[[(x, i, j, ..., restyle = TRUE)
 
 # S4 method for innsight_ggplot2
-[(x, i, j, ...) &lt;- value</code></pre></div>
+[(x, i, j, ...) &lt;- value
+
+# S4 method for innsight_ggplot2
+[[(x, i, j, ...) &lt;- value</code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>x</dt>
-<dd><p>An instance of the s4 class <code><a href="innsight_ggplot2-class.html">innsight_ggplot2</a></code>.</p></dd>
+<dd><p>An instance of the S4 class <code><a href="innsight_ggplot2-class.html">innsight_ggplot2</a></code>.</p></dd>
 
 
 <dt>i</dt>
@@ -109,6 +112,13 @@ modified and the overall plot can be adjusted accordingly.</p>
 
 <dt>...</dt>
 <dd><p>other unused arguments</p></dd>
+
+
+<dt>restyle</dt>
+<dd><p>This logical value determines whether the labels and facet
+stripes remain as they were in the original plot or are adjusted to the
+subplot accordingly. However, this argument is only used if the <code>innsight_ggplot2</code>
+instance is a multiplot, i.e., <code>x@multiplot</code> is <code>TRUE</code>.</p></dd>
 
 
 <dt>drop</dt>
@@ -124,12 +134,19 @@ shape <code>i</code> x <code>j</code>.</p></dd>
     <h2>Value</h2>
     
 
-<ul><li><p><code>[.innsight_ggplot2</code>: Selects only the plots from the <code>i</code>-th row and
-<code>j</code>-th column and returns them as a new instance of <code><a href="innsight_ggplot2-class.html">innsight_ggplot2</a></code>.</p></li>
-<li><p><code>[[.innsight_ggplot2</code>: Selects only the single plot in the <code>i</code>-th row and
-<code>j</code>-th column and returns it an <a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot2::ggplot</a> object.</p></li>
-<li><p><code>[&lt;-.innsight_ggplot2</code>: Replaces the plots from the <code>i</code>-th row and <code>j</code>-th
-column with those from <code>value</code> and returns the modified instance of
+<ul><li><p><code>[.innsight_ggplot2</code>: Selects only the plots from the <code>i</code>-th rows and
+<code>j</code>-th columns and returns them as a new instance of <code><a href="innsight_ggplot2-class.html">innsight_ggplot2</a></code>.
+If <code>restyle = TRUE</code> the facet stripes and axis labels of the original
+plot are transferred to the subplot, otherwise they are returned as they are.</p></li>
+<li><p><code>[[.innsight_ggplot2</code>: Selects only the subplot in row <code>i</code> and column
+<code>j</code> and returns it as a <a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot2::ggplot</a> object. If <code>restyle = TRUE</code> the
+facet stripes and axis labels of the original plot are transferred to
+the subplot, otherwise they are returned as they are.</p></li>
+<li><p><code>[&lt;-.innsight_ggplot2</code>: Replaces the plots in the rows <code>i</code> and columns <code>j</code>
+with those from <code>value</code> and returns the modified instance of
+<code><a href="innsight_ggplot2-class.html">innsight_ggplot2</a></code>.</p></li>
+<li><p><code>[[&lt;-.innsight_ggplot2</code>: Replaces the plot from the <code>i</code>-th row and <code>j</code>-th
+column with the plot from <code>value</code> and returns the modified instance of
 <code><a href="innsight_ggplot2-class.html">innsight_ggplot2</a></code>.</p></li>
 </ul></div>
     <div id="see-also">

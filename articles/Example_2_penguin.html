@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Example 2: Penguin Dataset with `torch` and `luz` • innsight</title>
+<title>Example 2: Penguin dataset with torch and luz • innsight</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
@@ -17,7 +17,7 @@
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Example 2: Penguin Dataset with `torch` and `luz`">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Example 2: Penguin dataset with torch and luz">
 <meta property="og:description" content="innsight">
 <meta property="og:image" content="https://bips-hb.github.io/innsight/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -60,16 +60,16 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/Example_1_iris.html">Example 1: Iris Dataset with `torch`</a>
+      <a href="../articles/Example_1_iris.html">Example 1: Iris dataset with torch</a>
     </li>
     <li>
-      <a href="../articles/Example_2_penguin.html">Example 2: Penguin Dataset with `torch` and `luz`</a>
+      <a href="../articles/Example_2_penguin.html">Example 2: Penguin dataset with torch and luz</a>
     </li>
     <li>
-      <a href="../articles/Example_3_imagenet.html">Example 3: ImageNet with `keras`</a>
+      <a href="../articles/Example_3_imagenet.html">Example 3: ImageNet with keras</a>
     </li>
     <li>
-      <a href="../articles/detailed_overview.html">In-depth Explanation</a>
+      <a href="../articles/detailed_overview.html">In-depth explanation</a>
     </li>
   </ul>
 </li>
@@ -97,9 +97,8 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Example 2: Penguin Dataset with
-<code>torch</code> and <code>luz</code>
-</h1>
+      <h1 data-toc-skip>Example 2: Penguin dataset with torch and
+luz</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/HEAD/vignettes/Example_2_penguin.Rmd" class="external-link"><code>vignettes/Example_2_penguin.Rmd</code></a></small>
@@ -112,29 +111,30 @@
 <blockquote>
 <p><strong>📝 Note</strong><br>
 Since the <strong>innsight</strong> package relies on the
-<strong>torch</strong> package for each method and this requires a
-successful installation of LibTorch and other dependencies
+<strong>torch</strong> package for each method and requires a successful
+installation of LibTorch and other dependencies
 (<code><a href="https://rdrr.io/pkg/torch/man/install_torch.html" class="external-link">torch::install_torch()</a></code>), no examples can be run in the R
-vignette for memory reasons. For the executed codechunks we refer to <a href="https://bips-hb.github.io/innsight/articles/Example_2_penguin.html">our
+vignette for memory reasons. For the executed code chunks, we refer to
+<a href="https://bips-hb.github.io/innsight/articles/Example_2_penguin.html">our
 website</a>.</p>
 </blockquote>
-<p>This example is even a little more complex than the first because we
-are using the <a href="https://allisonhorst.github.io/palmerpenguins/" class="external-link">penguin
+<p>This example is even slightly more complex than the <a href="https://bips-hb.github.io/innsight/articles/Example_1_iris.html">first
+one</a>, considering the Iris dataset, because we are using the <a href="https://allisonhorst.github.io/palmerpenguins/" class="external-link">penguin
 dataset</a>, which has both numeric and categorical variables. Since our
 package <strong>innsight</strong> currently only accepts numeric values
 as inputs, you have to keep a few points in mind and use little tricks.
 But in the future, it should be possible to use categorical variables
-directly with the package. In addition, we want to show in this example
-how to use <strong>torch</strong> models trained with the higher level
-API <a href="https://mlverse.github.io/luz/" class="external-link"><strong>luz</strong></a>.</p>
+directly with the package. In addition, we want to show how to use
+<strong>torch</strong> models trained with the higher level API <a href="https://mlverse.github.io/luz/" class="external-link"><strong>luz</strong></a> in this
+example.</p>
 <div class="section level2">
 <h2 id="explore-the-dataset">Explore the dataset<a class="anchor" aria-label="anchor" href="#explore-the-dataset"></a>
 </h2>
 <p>The dataset includes measurements of penguin species Adelie (<span class="math inline">\(162\)</span>), Chinstrap (<span class="math inline">\(68\)</span>), and Gentoo (<span class="math inline">\(124\)</span>) collected near Palmer Station,
 Antarctica. For each of the <span class="math inline">\(344\)</span>
-penguins, numerical values bill length/depth, flipper length, body mass,
-and study year were measured, and additional the categorical
-characteristics sex and island were recorded. To give you a brief
+penguins, numerical values of bill length/depth, flipper length, body
+mass, and study year were measured, and additional categorical
+characteristics like sex and island were recorded. To give you a brief
 overview of the data, let’s create a pair plot of some variables using
 <strong>GGally</strong>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -149,34 +149,35 @@ overview of the data, let’s create a pair plot of some variables using
 <span>  progress <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="Example_2_penguin_files/figure-html/unnamed-chunk-3-1.png" width="90%" style="display: block; margin: auto;"></p>
-<p>Based on this graphic, we can already make some hypothesis as to
-which characteristics might be relevant for the individual classes. For
-example, it is visible that the Gentoo species (blue) is much heavier
-and has longer flippers and thinner bills than the other species. On the
-other hand, for the species Adelie (red) the bill length could be a
+<p>Based on this graphic, we can already hypothesize which
+characteristics might be relevant for the individual classes. For
+example, it is visible that the Gentoo species (blue) is much heavier,
+has longer flippers and thinner bills than the other species. On the
+other hand, for the species Adelie (red), the bill length could be a
 decisive feature for the classification. In the following, we will see
-if these hypothesis match the results of the feature attribution
+if these hypotheses match the results of the feature attribution
 methods.</p>
 </div>
 <div class="section level2">
 <h2 id="step-0-train-a-model">Step 0: Train a model<a class="anchor" aria-label="anchor" href="#step-0-train-a-model"></a>
 </h2>
 <p>The package <strong>luz</strong> makes things much easier for
-training a torch model, e.g.  by doing the for-loop over the epochs for
-you. However, the model must be defined as <code>nn_module</code> and
-the data as a <code><a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">torch::dataset</a></code>, but currently
-<strong>innsight</strong> only works with torch models of class
-<code>nn_sequential</code>. Therefore a data preparation step and a few
-tricks are necessary to use sequential models trained in
-<strong>luz</strong> with the package <strong>innsight</strong>.</p>
+training a <strong>torch</strong> model, e.g., by doing the for-loop
+over the epochs for you. However, the model must be defined as <a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link"><code>nn_module</code></a>
+and the data as a <a href="https://torch.mlverse.org/docs/reference/dataset.html" class="external-link"><code>torch::dataset</code></a>,
+but currently, <strong>innsight</strong> only works with
+<strong>torch</strong> models of class <a href="https://torch.mlverse.org/docs/reference/nn_sequential.html" class="external-link"><code>nn_sequential</code></a>.
+Therefore a data preparation step and a few tricks are necessary to use
+sequential models trained in <strong>luz</strong> with the package
+<strong>innsight</strong>.</p>
 <div class="section level3">
 <h3 id="data-preparation">Data preparation<a class="anchor" aria-label="anchor" href="#data-preparation"></a>
 </h3>
 <p>As previously mentioned, <strong>innsight</strong> needs numeric
-input and <strong>luz</strong> needs a <strong>torch</strong>-dataset.
+input, and <strong>luz</strong> needs a <strong>torch</strong> dataset.
 For this reason, we create a dataset with already encoded categorical
-variables (for more information about <code><a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">torch::dataset</a></code> see
-the <a href="https://torch.mlverse.org/start/custom_dataset/" class="external-link"><code>torch</code>
+variables (for more information about the <code>dataset</code> defined
+for <strong>torch</strong> models see the <a href="https://torch.mlverse.org/start/custom_dataset/" class="external-link"><strong>torch</strong>
 vignette</a>).</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load packages</span></span>
@@ -190,14 +191,14 @@ vignette</a>).</p>
 <span>  initialize <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">df</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span> <span class="co"># remove NAs</span></span>
 <span></span>
-<span>    <span class="co"># Get all numeric features and transform them to torch_tensor</span></span>
+<span>    <span class="co"># Get all numeric features and transform them to `torch_tensor`</span></span>
 <span>    <span class="va">x_cont</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>      <span class="st">"bill_length_mm"</span>, <span class="st">"bill_depth_mm"</span>, <span class="st">"flipper_length_mm"</span>,</span>
 <span>      <span class="st">"body_mass_g"</span>, <span class="st">"year"</span></span>
 <span>    <span class="op">)</span><span class="op">]</span></span>
 <span>    <span class="va">x_cont</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">torch_tensor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">x_cont</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span>    <span class="co"># Get and encode (one-hot) categorical features and transform them to torch_tensor</span></span>
+<span>    <span class="co"># Get and encode (one-hot) categorical features and transform them to `torch_tensor`</span></span>
 <span>    <span class="va">x_cat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">df</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"island"</span>, <span class="st">"sex"</span><span class="op">)</span><span class="op">]</span>, <span class="va">as.integer</span><span class="op">)</span></span>
 <span>    <span class="va">x_cat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">torch_tensor</a></span><span class="op">(</span><span class="va">x_cat</span>, dtype <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_dtype.html" class="external-link">torch_int64</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="va">x_cat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_hstack.html" class="external-link">torch_hstack</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -221,8 +222,8 @@ vignette</a>).</p>
 <p>Using the above method, we can now create a <strong>torch</strong>
 dataset from any subset of instances from the penguin dataset.
 Consequently, we can now get a training and validation dataset and build
-a data loader from it. Beforehand, however, we normalize all numerical
-inputs:</p>
+a data loader provided by the function <a href="https://torch.mlverse.org/docs/reference/dataloader.html" class="external-link"><code>torch::dataloader</code></a>.
+Beforehand, however, we normalize all numerical inputs:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Normalize inputs</span></span>
 <span><span class="va">scaled_penguin_ds</span> <span class="op">&lt;-</span> <span class="va">penguin_data</span></span>
@@ -250,9 +251,13 @@ inputs:</p>
 <p>The package <strong>luz</strong> requires an object of the class
 <code>nn_module</code>, which cannot be used for
 <strong>innsight</strong>. But a sequential model can be nested in a
-<code>nn_module</code> and then extracted afterwards. For this reason,
-we define a model that uses only the sequential network of class
-<code>nn_sequential</code> stored as a field:</p>
+<code>nn_module</code> and extracted afterward. For this reason, we
+define a model that uses only the sequential network of class
+<code>nn_sequential</code> stored as a field. In the same way, you can
+assemble a model from several sequential models and, if necessary, apply
+each model individually with <strong>innsight</strong>. For example, if
+you want to use several data pre-processing layers before the actual
+model.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create the model</span></span>
 <span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></span><span class="op">(</span></span>
@@ -273,7 +278,7 @@ we define a model that uses only the sequential network of class
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">}</span>,</span>
 <span></span>
-<span>  <span class="co"># the forward pass should only contain the call of the sequential model</span></span>
+<span>  <span class="co"># The forward pass should only contain the call of the sequential model</span></span>
 <span>  forward <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">self</span><span class="op">$</span><span class="fu">seq_model</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
@@ -282,10 +287,11 @@ we define a model that uses only the sequential network of class
 extract the sequential model to be used for
 <strong>innsight</strong>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># we have imbalanced classes, so we weight the output classes accordingly</span></span>
+<code class="sourceCode R"><span><span class="co"># We have imbalanced classes, so we weight the output classes accordingly</span></span>
 <span><span class="va">weight</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">train_ds</span><span class="op">$</span><span class="va">y</span><span class="op">)</span> <span class="op">/</span></span>
 <span>  <span class="op">(</span><span class="fl">3</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_stack.html" class="external-link">torch_stack</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">train_ds</span><span class="op">$</span><span class="va">y</span> <span class="op">==</span> <span class="va">i</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># Fit the model</span></span>
 <span><span class="va">fitted</span> <span class="op">&lt;-</span> <span class="va">net</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlverse.github.io/luz/reference/setup.html" class="external-link">setup</a></span><span class="op">(</span></span>
 <span>    loss <span class="op">=</span></span>
@@ -301,7 +307,7 @@ extract the sequential model to be used for
 <span><span class="co"># Extract the sequential model</span></span>
 <span><span class="va">model</span> <span class="op">&lt;-</span> <span class="va">fitted</span><span class="op">$</span><span class="va">model</span><span class="op">$</span><span class="va">seq_model</span></span>
 <span></span>
-<span><span class="co"># show result</span></span>
+<span><span class="co"># Show result</span></span>
 <span><span class="fu"><a href="https://mlverse.github.io/luz/reference/get_metrics.html" class="external-link">get_metrics</a></span><span class="op">(</span><span class="va">fitted</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">99</span>, <span class="fl">100</span>, <span class="fl">199</span>, <span class="fl">200</span><span class="op">)</span>, <span class="op">]</span></span>
 <span><span class="co">#&gt;       set metric epoch       value</span></span>
 <span><span class="co">#&gt; 99  train   loss    50 0.007749624</span></span>
@@ -313,14 +319,16 @@ extract the sequential model to be used for
 <div class="section level2">
 <h2 id="step-1-convert-the-model">Step 1: Convert the model<a class="anchor" aria-label="anchor" href="#step-1-convert-the-model"></a>
 </h2>
-<p>Analogous to the first example with the iris dataset, we can easily
-create the <code>Converter</code> object by passing the extracted model
-and the input dimension to the R6 class. However, since the categorical
+<p>Analogous to the <a href="https://bips-hb.github.io/innsight/articles/Example_1_iris.html">first
+example</a> considering the Iris dataset, we can easily create the
+<code>Converter</code> object by passing the extracted model and the
+input dimension to the R6 class. However, since the categorical
 variables have already been encoded, there are a total of <span class="math inline">\(10\)</span> inputs (<span class="math inline">\(5\)</span> numeric features, <span class="math inline">\(3\)</span> islands and <span class="math inline">\(2\)</span> genders) and the input names (optional
 argument) must be expanded accordingly.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bips-hb.github.io/innsight/">innsight</a></span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># Define input and output names</span></span>
 <span><span class="va">input_names</span> <span class="op">&lt;-</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>    <span class="st">"bill_length"</span>, <span class="st">"bill_depth"</span>, <span class="st">"flipper_length"</span>, <span class="st">"body_mass"</span>, <span class="st">"year"</span>,</span>
@@ -328,6 +336,8 @@ argument) must be expanded accordingly.</p>
 <span>    <span class="st">"sex_female"</span>, <span class="st">"sex_male"</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="va">output_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Adelie"</span>, <span class="st">"Chinstrap"</span>, <span class="st">"Gentoo"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Create the `Converter` object</span></span>
 <span><span class="va">converter_1</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/Converter.html">Converter</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">model</span>,</span>
 <span>  input_dim <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  input_names <span class="op">=</span> <span class="va">input_names</span>,</span>
@@ -342,7 +352,8 @@ relevance value for the overall feature island and not for each of the
 three islands. This will be explained in the next step and we create a
 converter for this variant here:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">converter_2</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/Converter.html">Converter</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">model</span>,</span>
+<code class="sourceCode R"><span><span class="co"># Create a second `Converter` object for combined categorical features</span></span>
+<span><span class="va">converter_2</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/Converter.html">Converter</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">model</span>,</span>
 <span>  input_dim <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  output_names <span class="op">=</span> <span class="va">output_names</span></span>
 <span><span class="op">)</span></span>
@@ -355,24 +366,24 @@ converter for this variant here:</p>
 </h2>
 <p>Now we can apply the implemented methods to our trained model.
 Although these methods are different, they are called more or less the
-same way in <strong>innsight</strong>. Essential arguments are of course
-the converter object (<code>converter</code>) and the data
+same way in <strong>innsight</strong>. Essential arguments are, of
+course, the converter object (<code>converter</code>) and the data
 (<code>data</code>) to which the method is to be applied. There are also
 other basic and model-specific arguments, but they are already explained
 in the other more <a href="https://bips-hb.github.io/innsight/articles/detailed_overview.html#step-2-apply-selected-method">detailed
 vignette</a>. Now two possibilities are presented with the categorical
-variables, either to consider the categorical expressions individually
-or summarized.</p>
+variables: either considering the categorical expressions individually
+or summarizing them.</p>
 <div class="section level3">
 <h3 id="separated-categorical-variables">Separated categorical variables<a class="anchor" aria-label="anchor" href="#separated-categorical-variables"></a>
 </h3>
 <p>In this variant, nothing needs to be changed, because it already
-corresponds to the default result, i.e. you can use the method of your
+corresponds to the default result, i.e., you can use the method of your
 choice as usual:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># data to be analyzed (in this case, we use the whole dataset)</span></span>
+<code class="sourceCode R"><span><span class="co"># Data to be analyzed (in this case, we use the whole dataset)</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">test_ds</span><span class="op">$</span><span class="va">x</span></span>
-<span><span class="co"># apply method 'LRP' with rule alpha-beta</span></span>
+<span><span class="co"># Apply method 'LRP' with rule alpha-beta</span></span>
 <span><span class="va">lrp_ab_1</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/LRP.html">LRP</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">converter_1</span>, <span class="va">data</span>, rule_name <span class="op">=</span> <span class="st">"alpha_beta"</span>, rule_param <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># the result for 333 instances, 10 inputs and all 3 outputs</span></span>
@@ -401,7 +412,7 @@ the input dimensions again:</p>
 <span>    <span class="st">"island"</span>, <span class="st">"sex"</span></span>
 <span>  <span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Combine (sum) the results for feature island and sex</span></span>
+<span><span class="co"># Combine (sum) the results for feature 'island' and 'sex'</span></span>
 <span><span class="va">lrp_ab_2</span><span class="op">$</span><span class="va">result</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_cat.html" class="external-link">torch_cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="va">lrp_ab_2</span><span class="op">$</span><span class="va">result</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span>, <span class="co"># results for all numeric features</span></span>
 <span>  <span class="va">lrp_ab_2</span><span class="op">$</span><span class="va">result</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span>, <span class="fl">6</span><span class="op">:</span><span class="fl">8</span>, <span class="op">]</span><span class="op">$</span><span class="fu">sum</span><span class="op">(</span><span class="fl">2</span>, keepdim <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="co"># results for feature island</span></span>
@@ -417,11 +428,11 @@ the input dimensions again:</p>
 <p><strong>📝 Note</strong><br>
 Even if the input names can be passed to the converter in other ways,
 they will be stored internally as a list (input layer) of lists (for
-each dimension). Since in this case we have only one input layer and
+each dimension). Since, in this case, we have only one input layer and
 only one feature dimension, it is sufficient to modify only
 <code>lrp_ab_2$converter$input_names[[1]][[1]]</code>. In the same way,
-regardless of the architecture of the model, the result is stored as a
-list (output layer) of lists (input layer), which is why in our case two
+regardless of the model’s architecture, the result is stored as a list
+(output layer) of lists (input layer), which is why in our case two
 lists are indexed by <code>1</code> before the results are modified.</p>
 </blockquote>
 </div>
@@ -442,36 +453,37 @@ variable. For more information on the S4 classes
 <code>innsight_ggplot</code> and <code>innsight_plotly</code> see the <a href="https://bips-hb.github.io/innsight/articles/detailed_overview.html#advanced-plotting">in-depth
 vignette</a> or the respective R documentation
 (<code><a href="../reference/innsight_ggplot2-class.html">?innsight_ggplot2</a></code> or <code><a href="../reference/innsight_plotly-class.html">?innsight_plotly</a></code>).</p>
-<p>For each of these classes and thus of course also for each method,
+<p>For each of these classes and thus, of course, also for each method,
 there are two plot functions:</p>
 <ul>
 <li>
-<code>plot</code> shows only individual data points and</li>
+<code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> shows only individual data points and</li>
 <li>
-<code>boxplot</code> visualizes summaries of multiple data points
+<code><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot()</a></code> visualizes summaries of multiple data points
 using summary statistics.</li>
 </ul>
 <div class="section level3">
 <h3 id="plot-individual-results">Plot individual results<a class="anchor" aria-label="anchor" href="#plot-individual-results"></a>
 </h3>
-<p>The function <code>plot</code> is implemented for each of the
+<p>The function <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> is implemented for each of the
 available methods. You can select your desired data points and output
 nodes/classes with the <code>data_idx</code> and <code>output_idx</code>
 arguments, respectively. To switch between a <strong>ggplot2</strong>
 and <strong>plotly</strong> based plot, you can use the logical
-<code>as_plotly</code> parameter, but this requires a successful
+<code>as_plotly</code> argument, but this requires a successful
 installation of the suggested <strong>plotly</strong> package.</p>
-<p>Now we plot the results for the first instance and for the classes
-Adelie and Gentoo, but once with separated and once with merged
-categorical variables:</p>
+<p>Now we plot the results for the first instance and the classes Adelie
+and Gentoo (output indices <span class="math inline">\(1\)</span> and
+<span class="math inline">\(3\)</span>), but once with separated and
+once with merged categorical variables:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="co"># separated categorical features</span></span>
+<span><span class="co"># Separated categorical features</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lrp_ab_1</span>, output_idx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_flip.html" class="external-link">coord_flip</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Example_2_penguin_files/figure-html/unnamed-chunk-11-1.png" width="90%" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># combined categorical features</span></span>
+<code class="sourceCode R"><span><span class="co"># Combined categorical features</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lrp_ab_2</span>, output_idx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_flip.html" class="external-link">coord_flip</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Example_2_penguin_files/figure-html/unnamed-chunk-11-2.png" width="90%" style="display: block; margin: auto;"></p>
@@ -511,19 +523,19 @@ dataset <code>penguin_data</code>. Unnormalized, it looks like this:</p>
 <td align="right">2007</td>
 </tr></tbody>
 </table>
-<p>This is an Adelie penguin, and it shows exactly what we thought at
+<p>This is an Adelie penguin, and it exactly shows what we thought at
 the beginning of this example: The key feature that argues for the class
 Adelie is the bill length (<code>bill_length_mm</code>). As you can see
-in the figures above, it gives by far the highest positive relevance for
+in the figures above, it has by far the highest positive relevance for
 the class Adelie and a very high negative relevance for the class
 Gentoo. In other words, the comparatively short bill length strongly
-argues for the class Adelie and on the other hand prevents the instance
-from being the species Gentoo.</p>
+argues for the class Adelie and, on the other hand, prevents the
+instance from being the species Gentoo.</p>
 <p>Of course, you can also investigate the other features more deeply,
 such as the island (<code>island</code>) on which the penguin was
 spotted. The Gentoo penguins were only sighted on Biscoe Island and
 Chinstrap penguins only on Dream, whereas the Adelie penguins were
-sighted on all three islands equally. For this reason, it makes sense
+equally sighted on all three islands. For this reason, it makes sense
 that for our example penguin sighted on Torgersen Island, a positive
 relevance for the species Adelie and a negative relevance for Gentoo
 resulted.</p>
@@ -531,18 +543,18 @@ resulted.</p>
 <div class="section level3">
 <h3 id="plot-summarized-results">Plot summarized results<a class="anchor" aria-label="anchor" href="#plot-summarized-results"></a>
 </h3>
-<p>The function <code>boxplot</code> is implemented for each of the
+<p>The function <code><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot()</a></code> is implemented for each of the
 available local methods. You can select your desired data points
 (default is <code>'all'</code>) and output nodes/classes with the
 <code>data_idx</code> and <code>output_idx</code> arguments,
 respectively. To switch between a <strong>ggplot2</strong> and
 <strong>plotly</strong> based plot, you can use the logical
-<code>as_plotly</code> parameter, but this requires a successful
+<code>as_plotly</code> argument, but this requires a successful
 installation of the suggested <strong>plotly</strong> package. In
 addition, you can use <code>ref_data_idx</code> to select a single data
 point that will be visualized in red as a reference value, and
 <code>preprocess_FUN</code> to select a function that will be applied to
-all data in advance (e.g. the absolute value).</p>
+all relevances in advance (e.g., the absolute value).</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>

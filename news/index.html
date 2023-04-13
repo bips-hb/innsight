@@ -35,16 +35,16 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/Example_1_iris.html">Example 1: Iris Dataset with `torch`</a>
+      <a href="../articles/Example_1_iris.html">Example 1: Iris dataset with torch</a>
     </li>
     <li>
-      <a href="../articles/Example_2_penguin.html">Example 2: Penguin Dataset with `torch` and `luz`</a>
+      <a href="../articles/Example_2_penguin.html">Example 2: Penguin dataset with torch and luz</a>
     </li>
     <li>
-      <a href="../articles/Example_3_imagenet.html">Example 3: ImageNet with `keras`</a>
+      <a href="../articles/Example_3_imagenet.html">Example 3: ImageNet with keras</a>
     </li>
     <li>
-      <a href="../articles/detailed_overview.html">In-depth Explanation</a>
+      <a href="../articles/detailed_overview.html">In-depth explanation</a>
     </li>
   </ul></li>
 <li>
@@ -75,12 +75,12 @@
 <div class="section level4">
 <h4 id="breaking-changes-0-2-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-2-0"></a></h4>
 <p>There are no user-facing changes that are not handled with default values or noted by throwing warnings.</p>
-<ul><li><p>When converting a model to a list, two necessary entries are added, containing the indices of the layers from the sublist <code>layers</code> indicating the input (<code>input_nodes</code>) and output (<code>output_nodes</code>) layers of the passed model. If one of these values is not set, a warning is raised and it is assumed that the model is sequential, i.e. the first layer is the only input layer and the last layer is the only output layer.</p></li>
-<li><p>Similarly, for each layer in the sublist <code>layers</code> the entries <code>input_layers</code> and <code>output_layers</code> are added containing the indices of the input and output layers for this layer. If these values are not set, a warning is raised and it is assumed that the model is sequential, i.e. the previous entry is the only preceding and the next entry is the only succeeding layer. The values <code>0</code> and <code>-1</code> indicate the input and output layers of the model, respectively.</p></li>
+<ul><li><p>When converting a model to a list, two necessary entries are added, containing the indices of the layers from the sub-list <code>layers</code> indicating the input (<code>input_nodes</code>) and output (<code>output_nodes</code>) layers of the passed model. If one of these values is not set, a warning is raised and it is assumed that the model is sequential, i.e., the first layer is the only input layer and the last layer is the only output layer.</p></li>
+<li><p>Similarly, for each layer in the sub-list <code>layers</code> the entries <code>input_layers</code> and <code>output_layers</code> are added containing the indices of the preceding and following layers for this layer. If these values are not set, a warning is thrown and it is assumed that the model is sequential, i.e., the previous entry is the only preceding and the next entry is the only succeeding layer. The values <code>0</code> and <code>-1</code> indicate the input and output layers of the model, respectively.</p></li>
 <li><p>The functions <code>plot</code> and <code>boxplot</code> for the interpretability methods no longer return instances of <strong>ggplot2</strong> or <strong>plotly</strong>, but instances of the new S4 classes <code>innsight_ggplot2</code> or <code>innsight_plotly</code>. However, these objects can be treated like ordinary objects of <strong>ggplot2</strong> or <strong>plotly</strong> to some extent and also create the usual visualizations by default (see <a href="https://bips-hb.github.io/innsight/articles/detailed_overview.html#advanced-plotting">this section</a> in the in-depth explanation for details). Since the results of models with multiple input and output layers are very complex, the suggested packages <strong>gtable</strong>, <strong>grid</strong> and <strong>gridExtra</strong> are needed only in these cases.</p></li>
 <li>
 <p>Add <strong>cli</strong> dependency:</p>
-<ul><li><p>Error messages, warnings, messages, and progress bars have been revised and unified, and now use the package <strong>cli</strong>.</p></li>
+<ul><li><p>Errors, warnings, messages, and progress bars have been revised and unified, and now use the package <strong>cli</strong>.</p></li>
 <li><p>Overwrite the default <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> function for the R6 classes <code>Converter</code> and <code>InterpretingMethod</code>, which in particular is inherited by all interpretability methods.</p></li>
 </ul></li>
 </ul></div>
@@ -106,7 +106,7 @@
 </ul></li>
 <li><p>Extend the arguments <code>output_idx</code> (in all interpretability methods and the corresponding plot and boxplot methods), <code>input_dim</code>, <code>input_names</code>, <code>output_dim</code>, <code>output_names</code> (in <code>Converter</code>), which now allow lists of these arguments to define them for multiple input or output layers.</p></li>
 <li><p>Overwrite the default <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> function for the R6 classes <code>Converter</code> and <code>InterpretingMethod</code>, which in particular is inherited by all interpretability methods.</p></li>
-<li><p>Add the S3 function <code><a href="../reference/get_result.html">get_result()</a></code> for instances of the R6 class <code>InterpretingMethod</code> (i.e. also for all inherited methods) that forwards to the corresponding class method <code>$get_result()</code>.</p></li>
+<li><p>Add the S3 function <code><a href="../reference/get_result.html">get_result()</a></code> for instances of the R6 class <code>InterpretingMethod</code> (i.e., also for all inherited methods) that forwards to the corresponding class method <code>$get_result()</code>.</p></li>
 <li><p>In the method <code>LRP</code> it is now possible to set the rule and the parameter individually for each layer type. In addition, for batch normalization layers the rule <code>"pass"</code> is added, which skips this type of layer in the backward pass.</p></li>
 <li><p>Add the logical argument <code>winner_takes_all</code> to the methods <code>DeepLift</code> and <code>LRP</code> to treat maximum pooling layers as an average pooling layer in the backward pass.</p></li>
 <li><p>Add the logical argument <code>verbose</code> to all implemented methods to show or disable the progress bar.</p></li>
@@ -115,15 +115,15 @@
 <h4 id="documentation-and-vignettes-0-2-0">Documentation and vignettes<a class="anchor" aria-label="anchor" href="#documentation-and-vignettes-0-2-0"></a></h4>
 <ul><li><p>Revise the documentation and use roxygen templates (<code>@template</code>) for almost all fields and arguments. These are stored in the folder <code>man-roxygen</code>.</p></li>
 <li><p>Revise the introduction vignette <code>innsight</code> (<code><a href="../articles/innsight.html">vignette("innsight")</a></code>).</p></li>
-<li><p>Add vignette “Example 1: Iris Dataset with <code>torch</code>” describing the basic usage of the package with tabular data and only numeric features.</p></li>
-<li><p>Add vignette “Example 2: Penguin Dataset with <code>torch</code> and <code>luz</code>” describing a more advanced usage with tabular data containing numerical and categorical features.</p></li>
-<li><p>Add article “Example 3: ImageNet with <code>keras</code>” describing the usage of the package with predefined models in <code>keras</code> on the ImageNet dataset.</p></li>
-<li><p>Add the vignette “In-depth Explanation” explaining all methods, arguments and possibilities of the package in great detail. This vignette also includes the depreciated vignette “Custom Model Definition”.</p></li>
+<li><p>Add vignette “Example 1: Iris dataset with torch” describing the basic usage of the package with tabular data and only numeric features.</p></li>
+<li><p>Add vignette “Example 2: Penguin dataset with torch and luz” describing a more advanced usage with tabular data containing numerical and categorical features.</p></li>
+<li><p>Add article “Example 3: ImageNet with keras” describing the usage of the package with predefined models in <strong>keras</strong> on the ImageNet dataset.</p></li>
+<li><p>Add the vignette “In-depth explanation” explaining all methods, arguments and possibilities of the package in great detail. This vignette also includes the depreciated vignette “Custom Model Definition”.</p></li>
 <li><p>The vignette “Custom Model Definition” is deprecated.</p></li>
 </ul></div>
 <div class="section level4">
 <h4 id="minor-improvements-and-bug-fixes-0-2-0">Minor improvements and bug fixes<a class="anchor" aria-label="anchor" href="#minor-improvements-and-bug-fixes-0-2-0"></a></h4>
-<ul><li><p>Small speed improvements by using more <strong>torch</strong> functions, e.g.  <code>torch_clip(x, min = 0)</code> instead of <code>(x &gt; 0) * x</code></p></li>
+<ul><li><p>Small speed improvements by using more <strong>torch</strong> functions, e.g., <code>torch_clip(x, min = 0)</code> instead of <code>(x &gt; 0) * x</code></p></li>
 <li><p>Some smaller bug fixes</p></li>
 </ul></div>
 </div>
