@@ -400,8 +400,7 @@ individual fields and in particular the torch-converted model
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Define a keras model</span></span></span>
-<span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/keras/man/keras_model_sequential.html" class="external-link">keras_model_sequential</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">model</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span></span>
+<span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/keras/man/keras_model_sequential.html" class="external-link">keras_model_sequential</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/pkg/keras/man/layer_conv_2d.html" class="external-link">layer_conv_2d</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    input_shape <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">32</span>, <span class="fl">32</span>, <span class="fl">3</span><span class="op">)</span>, kernel_size <span class="op">=</span> <span class="fl">8</span>, filters <span class="op">=</span> <span class="fl">8</span>,</span></span>
 <span class="r-in"><span>    activation <span class="op">=</span> <span class="st">"relu"</span>, padding <span class="op">=</span> <span class="st">"same"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span></span>
@@ -419,8 +418,15 @@ individual fields and in particular the torch-converted model
 <span class="r-in"><span><span class="va">converter</span> <span class="op">&lt;-</span> <span class="va">Converter</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">model</span>, save_model_as_list <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Print the converted model as a named list</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">converter</span><span class="op">$</span><span class="va">model_dict</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  NULL</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">converter</span><span class="op">$</span><span class="va">model_as_list</span>, max.level <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> List of 7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ input_dim   :List of 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ input_nodes : int 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ output_dim  :List of 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ output_nodes: int 6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ layers      :List of 6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ input_names :List of 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ output_names:List of 1</span>
 <span class="r-in"><span><span class="co">#----------------------- Example 4: List  ----------------------------------</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Define a model</span></span></span>
@@ -428,8 +434,10 @@ individual fields and in particular the torch-converted model
 <span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">model</span><span class="op">$</span><span class="va">input_dim</span> <span class="op">&lt;-</span> <span class="fl">5</span></span></span>
 <span class="r-in"><span><span class="va">model</span><span class="op">$</span><span class="va">input_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Feat1"</span>, <span class="st">"Feat2"</span>, <span class="st">"Feat3"</span>, <span class="st">"Feat4"</span>, <span class="st">"Feat5"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">model</span><span class="op">$</span><span class="va">input_nodes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">model</span><span class="op">$</span><span class="va">output_dim</span> <span class="op">&lt;-</span> <span class="fl">2</span></span></span>
 <span class="r-in"><span><span class="va">model</span><span class="op">$</span><span class="va">output_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cat"</span>, <span class="st">"no-Cat"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">model</span><span class="op">$</span><span class="va">output_nodes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">model</span><span class="op">$</span><span class="va">layers</span><span class="op">$</span><span class="va">Layer_1</span> <span class="op">&lt;-</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    type <span class="op">=</span> <span class="st">"Dense"</span>,</span></span>
@@ -437,34 +445,24 @@ individual fields and in particular the torch-converted model
 <span class="r-in"><span>    bias <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">20</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    activation_name <span class="op">=</span> <span class="st">"tanh"</span>,</span></span>
 <span class="r-in"><span>    dim_in <span class="op">=</span> <span class="fl">5</span>,</span></span>
-<span class="r-in"><span>    dim_out <span class="op">=</span> <span class="fl">20</span></span></span>
+<span class="r-in"><span>    dim_out <span class="op">=</span> <span class="fl">20</span>,</span></span>
+<span class="r-in"><span>    input_layers <span class="op">=</span> <span class="fl">0</span>, <span class="co"># '0' means model input layer</span></span></span>
+<span class="r-in"><span>    output_layers <span class="op">=</span> <span class="fl">2</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">model</span><span class="op">$</span><span class="va">layers</span><span class="op">$</span><span class="va">Layer_2</span> <span class="op">&lt;-</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    type <span class="op">=</span> <span class="st">"Dense"</span>,</span></span>
 <span class="r-in"><span>    weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">20</span> <span class="op">*</span> <span class="fl">2</span><span class="op">)</span>, <span class="fl">2</span>, <span class="fl">20</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    bias <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    activation_name <span class="op">=</span> <span class="st">"softmax"</span><span class="co">#,</span></span></span>
+<span class="r-in"><span>    activation_name <span class="op">=</span> <span class="st">"softmax"</span>,</span></span>
+<span class="r-in"><span>    input_layers <span class="op">=</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>    output_layers <span class="op">=</span> <span class="op">-</span><span class="fl">1</span> <span class="co"># '-1' means model output layer</span></span></span>
 <span class="r-in"><span>    <span class="co">#dim_in = 20, # These values are optional, but</span></span></span>
 <span class="r-in"><span>    <span class="co">#dim_out = 2  # useful for internal checks</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Convert the model</span></span></span>
 <span class="r-in"><span><span class="va">converter</span> <span class="op">&lt;-</span> <span class="va">Converter</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Argument `input_nodes` is unspecified! In the following, it is assumed that the</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> first entry in `model$layers` is the only input layer.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Argument `output_nodes` is unspecified! In the following, it is assumed that</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> the last entry in `model$layers` is the only output layer.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Argument `model$layers[[1]]$in_layers` is not specified! In the following, it</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> is assumed that the layer of index '0' is the input layer of the current one.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Argument `model$layers[[1]]$out_layers` is not specified! In the following, it</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> is assumed that the layer of index '2' is the subsequent layer of the current</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> one.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Argument `model$layers[[2]]$in_layers` is not specified! In the following, it</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> is assumed that the layer of index '1' is the input layer of the current one.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Argument `model$layers[[2]]$out_layers` is not specified! In the following, it</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> is assumed that the layer of index '-1' is the subsequent layer of the current</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> one.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Get the model as a torch::nn_module</span></span></span>
 <span class="r-in"><span><span class="va">torch_model</span> <span class="op">&lt;-</span> <span class="va">converter</span><span class="op">$</span><span class="va">model</span></span></span>
@@ -474,9 +472,9 @@ individual fields and in particular the torch-converted model
 <span class="r-in"><span><span class="fu">torch_model</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.8795  0.1205</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1804  0.8196</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.9647  0.0353</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.9050  0.0950</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0264  0.9736</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.9732  0.0268</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3,2} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 </code></pre></div>

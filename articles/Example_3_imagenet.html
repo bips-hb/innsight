@@ -154,7 +154,7 @@ steps:</p>
 <h2 id="method-configuration">Method configuration<a class="anchor" aria-label="anchor" href="#method-configuration"></a>
 </h2>
 <p>Besides the images, we also need the labels of the <span class="math inline">\(1000\)</span> classes, which we get via a trick
-with the <code>imagenet_decode_predictions</code> function:</p>
+with the <code><a href="https://rdrr.io/pkg/keras/man/imagenet_decode_predictions.html" class="external-link">imagenet_decode_predictions()</a></code> function:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># get class labels</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/keras/man/imagenet_decode_predictions.html" class="external-link">imagenet_decode_predictions</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">1000</span>, dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1000</span><span class="op">)</span><span class="op">)</span>, top <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
@@ -279,9 +279,9 @@ corresponding predictions from the model:</p>
 <span><span class="co"># show the summary of the output predictions</span></span>
 <span><span class="va">pred_df</span></span>
 <span><span class="co">#&gt;   class_name class_description     score index</span></span>
-<span><span class="co">#&gt; 1  n04311004 steel_arch_bridge 0.7572439   822</span></span>
-<span><span class="co">#&gt; 2  n02108422      bull_mastiff 0.4107324   244</span></span>
-<span><span class="co">#&gt; 3  n11939491             daisy 0.2913896   986</span></span>
+<span><span class="co">#&gt; 1  n04311004 steel_arch_bridge 0.7572442   822</span></span>
+<span><span class="co">#&gt; 2  n02108422      bull_mastiff 0.4107327   244</span></span>
+<span><span class="co">#&gt; 3  n11939491             daisy 0.2913897   986</span></span>
 <span><span class="co">#&gt; 4  n02782093           balloon 0.9997583   418</span></span></code></pre></div>
 <p>Afterward, we apply all the methods from the configuration
 <code>config</code> to the model by first putting it into a

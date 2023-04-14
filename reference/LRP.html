@@ -336,15 +336,15 @@ either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dty
 <span class="r-in"><span><span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">lrp</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,,<span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , Y1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              X1           X2          X3         X4          X5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.23052034 -0.001999352 -0.62828279  0.2417674 -0.10831421</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0.01674905  0.175973743 -0.05272345 -0.3269133 -0.04974912</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               X1           X2          X3          X4          X5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] -0.03653063 -0.001120847 -0.17971005 -0.09795436 0.001247473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] -0.02268374  0.147466391 -0.04206096 -0.07210875 0.051432852</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , Y2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                X1          X2          X3         X4          X5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]  0.386314452 0.006582273 -0.08492304 0.29311749 -0.04995049</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] -0.002584497 0.070540830  0.13177775 0.01919362 -0.03590592</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               X1          X2          X3           X4           X5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.001501454  0.00186749 -0.06714108 -0.004741502 -0.005563487</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0.005809673 -0.02191024 -0.01605760 -0.015226049  0.066734560</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the result for both classes</span></span></span>
@@ -374,36 +374,36 @@ either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dty
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , setosa</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      Sepal.Length Sepal.Width Petal.Length Petal.Width</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]     5.352360  -1.6640763    -2.469784   0.1962192</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]     3.777406  -0.3217585    -2.703612   0.1542027</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]     4.296607    5.625068    -2.378094  -0.7415232</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]     4.821519    5.424613    -2.531744  -0.8019521</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , versicolor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      Sepal.Length Sepal.Width Petal.Length Petal.Width</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]   -0.1474092  -0.1847457     1.851530  -0.1975731</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]    0.1798696  -0.9411673     2.404248  -0.1753674</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      Sepal.Length Sepal.Width  Petal.Length Petal.Width</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]    -2.040715    2.014232 -2.897207e-05  -0.2654193</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]    -2.057192    1.748464  5.014823e-02  -0.2492054</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , virginica</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      Sepal.Length Sepal.Width Petal.Length Petal.Width</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]    -4.989193    3.396092    0.6147677  -0.1545376</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]    -3.546299    2.232702    0.6000908  -0.1165616</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]    -1.467870   -4.947707     3.018605   0.8369357</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]    -1.816557   -4.767818     3.167621   0.8840329</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># get the result as a torch tensor for data point one and two</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">lrp</span>, type <span class="op">=</span> <span class="st">"torch.tensor"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (1,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   5.3524 -0.1474 -4.9892</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -1.6641 -0.1847  3.3961</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -2.4698  1.8515  0.6148</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.1962 -0.1976 -0.1545</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   4.2966e+00 -2.0407e+00 -1.4679e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   5.6251e+00  2.0142e+00 -4.9477e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -2.3781e+00 -2.8972e-05  3.0186e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -7.4152e-01 -2.6542e-01  8.3694e-01</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (2,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   3.7774  0.1799 -3.5463</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.3218 -0.9412  2.2327</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -2.7036  2.4042  0.6001</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.1542 -0.1754 -0.1166</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   4.8215 -2.0572 -1.8166</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   5.4246  1.7485 -4.7678</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -2.5317  0.0501  3.1676</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.8020 -0.2492  0.8840</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{2,4,3} ]</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># use the alpha-beta rule with alpha = 2</span></span></span>
@@ -471,12 +471,10 @@ either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dty
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://plotly-r.com" class="external-link">plotly</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Result as boxplots</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">lrp_eps</span>, as_plotly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in boxplot(lrp_eps, as_plotly = TRUE):</span> object 'lrp_eps' not found</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">lrp</span>, as_plotly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Result of the second data point</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lrp_eps</span>, data_idx <span class="op">=</span> <span class="fl">2</span>, as_plotly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'plot': object 'lrp_eps' not found</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lrp</span>, data_idx <span class="op">=</span> <span class="fl">2</span>, as_plotly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </div>
