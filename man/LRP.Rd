@@ -131,10 +131,10 @@ boxplot(lrp_comp, output_idx = 1:2)
 library(plotly)
 
 # Result as boxplots
-boxplot(lrp_eps, as_plotly = TRUE)
+boxplot(lrp, as_plotly = TRUE)
 
 # Result of the second data point
-plot(lrp_eps, data_idx = 2, as_plotly = TRUE)
+plot(lrp, data_idx = 2, as_plotly = TRUE)
 \dontshow{\}) # examplesIf}
 }
 \references{

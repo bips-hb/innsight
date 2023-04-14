@@ -2,7 +2,7 @@
 % Please edit documentation in R/ConvertedModel.R
 \name{ConvertedModel}
 \alias{ConvertedModel}
-\title{Converted \code{torch}-based model}
+\title{Converted torch-based model}
 \usage{
 ConvertedModel(modules_list, graph, input_nodes, output_nodes, dtype = "float")
 }

@@ -124,6 +124,9 @@ In addition, the default `print()` function for R6 classes has been
 overwritten so that all important properties and contents of the converter 
 object can be displayed in a summarized form:
 
+```{r, echo=FALSE}
+options(width = 80)
+```
 ```{r}
 converter
 ```
@@ -201,6 +204,9 @@ Afterward, the results can be retrieved either with the class method
 argument `type`, it is also possible to select whether the results are returned 
 as `array`, `data.frame` or `torch_tensor`:
 
+```{r, echo=FALSE}
+options(width = 90)
+```
 ```{r}
 # Get result as a `data.frame` using the class method
 head(grad_no_softmax$get_result(type = "data.frame"), 5)

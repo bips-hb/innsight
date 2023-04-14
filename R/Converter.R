@@ -857,6 +857,9 @@ print_layers <- function(layers) {
 }
 
 get_dims <- function(x) {
+  if (!is.list(x)) {
+    x <- list(x)
+  }
   res <- lapply(x, function(s) paste0("(*, ", paste0(s, collapse = ", "), ")"))
 
   paste0(res, collapse = ", ")

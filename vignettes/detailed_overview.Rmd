@@ -1119,9 +1119,10 @@ In addition, the default `print()` function for R6 classes has been
 overwritten so that all important properties, fields and contents of the 
 converter object can be displayed in a summarized form:
 
+```{r, echo=FALSE}
+options(width = 90)
+```
 ```{r}
-options(width = 200)
-
 # print the Converter instance
 converter
 ```

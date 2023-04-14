@@ -4,7 +4,7 @@
 ###############################################################################
 
 
-#' Converted `torch`-based model
+#' Converted torch-based model
 #'
 #' This class stores all layers converted to `torch` in a module which can be
 #' used like the original model (but `torch`-based). In addition, it provides

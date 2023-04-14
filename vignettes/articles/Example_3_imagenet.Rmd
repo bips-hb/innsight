@@ -57,7 +57,7 @@ images <- imagenet_preprocess_input(images)
 ## Method configuration
 
 Besides the images, we also need the labels of the $1000$ classes, which we get
-via a trick with the `imagenet_decode_predictions` function:
+via a trick with the `imagenet_decode_predictions()` function:
 
 ```{r}
 # get class labels

@@ -142,7 +142,7 @@ Additionally, interactive plots can be created based on the **plotly** package.
 The following is more of a high-level overview that only explains some of the
 details of the three steps. In case you are looking for a more detailed overview
 of all configuration options, we refer you to the [vignette "In-depth
-Explanation"](https://bips-hb.github.io/innsight/articles/detailed_overview.html)
+explanation"](https://bips-hb.github.io/innsight/articles/detailed_overview.html)
 (same as `vignette("detailed_overview", package = "innsight")`). The three steps
 for explaining individual predictions with the provided methods are unified in
 this package and follow a strict scheme. This will hopefully allow any user a
@@ -341,7 +341,7 @@ method <- Method$new(converter, data, # required arguments
 ```
 The most important arguments are explained below. For a complete and detailed 
 explanation, however, we refer to the R documentation (see 
-`?InterpretingMethod`) or the vignette ["In-depth Explanation"](https://bips-hb.github.io/innsight/articles/detailed_overview.html#step-2-apply-selected-method)
+`?InterpretingMethod`) or the vignette ["In-depth explanation"](https://bips-hb.github.io/innsight/articles/detailed_overview.html#step-2-apply-selected-method)
 (`vignette("detailed_overview", package = "innsight")`).
 
 * `converter`: This is the converter object created in the [first step](#step-1-model-creation-and-converting).

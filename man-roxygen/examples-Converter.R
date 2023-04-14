@@ -45,8 +45,7 @@
 #' is_keras_available()
 #'
 #' # Define a keras model
-#' model <- keras_model_sequential()
-#' model %>%
+#' model <- keras_model_sequential() %>%
 #'   layer_conv_2d(
 #'     input_shape = c(32, 32, 3), kernel_size = 8, filters = 8,
 #'     activation = "relu", padding = "same") %>%
@@ -64,7 +63,7 @@
 #' converter <- Converter$new(model, save_model_as_list = TRUE)
 #'
 #' # Print the converted model as a named list
-#' str(converter$model_dict)
+#' str(converter$model_as_list, max.level = 1)
 #'
 #' @examplesIf torch::torch_is_installed()
 #' #----------------------- Example 4: List  ----------------------------------
@@ -74,8 +73,10 @@
 #' model <- list()
 #' model$input_dim <- 5
 #' model$input_names <- list(c("Feat1", "Feat2", "Feat3", "Feat4", "Feat5"))
+#' model$input_nodes <- c(1)
 #' model$output_dim <- 2
 #' model$output_names <- list(c("Cat", "no-Cat"))
+#' model$output_nodes <- c(2)
 #' model$layers$Layer_1 <-
 #'   list(
 #'     type = "Dense",
@@ -83,14 +84,18 @@
 #'     bias = rnorm(20),
 #'     activation_name = "tanh",
 #'     dim_in = 5,
-#'     dim_out = 20
+#'     dim_out = 20,
+#'     input_layers = 0, # '0' means model input layer
+#'     output_layers = 2
 #'   )
 #' model$layers$Layer_2 <-
 #'   list(
 #'     type = "Dense",
 #'     weight = matrix(rnorm(20 * 2), 2, 20),
 #'     bias = rnorm(2),
-#'     activation_name = "softmax"#,
+#'     activation_name = "softmax",
+#'     input_layers = 1,
+#'     output_layers = -1 # '-1' means model output layer
 #'     #dim_in = 20, # These values are optional, but
 #'     #dim_out = 2  # useful for internal checks
 #'   )
