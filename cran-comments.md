@@ -56,7 +56,6 @@ the package:
   Skipping checking math rendering: package 'V8' unavailable
 ```
 
-
 ## --- `innsight` 0.1.1 ------------------------------------------------------
 
 ### Test environments with LibTorch

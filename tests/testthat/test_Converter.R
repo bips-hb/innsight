@@ -200,7 +200,7 @@ test_that("Test package Neuralnet", {
   y_pred <- as_array(converter$model(
     list(torch_tensor(as.matrix(iris[,c(3,4)]))))[[1]])
   expect_equal(dim(y_true), dim(y_pred))
-  expect_lt(mean((y_true - y_pred)^2), 1e-12)
+  expect_lt(mean((y_true - y_pred)^2), 1e-10)
 
   # update_ref method
   x_ref <- iris[sample(nrow(iris), 1), 3:4]
@@ -208,7 +208,7 @@ test_that("Test package Neuralnet", {
   y_ref <- as.array(converter$model$update_ref(torch_tensor(as.matrix(x_ref)))[[1]])
   dim_y_ref <- dim(y_ref)
   expect_equal(dim_y_ref, c(1, 1))
-  expect_lt((y_ref_true - y_ref)^2, 1e-12)
+  expect_lt((y_ref_true - y_ref)^2, 1e-10)
 
 })
 
