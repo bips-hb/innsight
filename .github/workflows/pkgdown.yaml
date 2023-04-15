@@ -19,26 +19,23 @@ jobs:
       group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      RSPM: https://packagemanager.rstudio.com/cran/__linux__/focal/latest
       TORCH_TEST: 1
       TORCH_INSTALL: 1
       RENDER_PLOTLY: 1
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
 
       - uses: r-lib/actions/setup-pandoc@v2
 
       - uses: r-lib/actions/setup-r@v2
 
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: any::pkgdown, local::.
-          needs: website
-
-      - name: Install packages for articles
+      - uses: Install dependencies
         run: |
-          install.packages("data.table")
-          install.packages("png")
+          install.packages("remotes")
+          remotes::install_deps(dependencies = TRUE)
+          remotes::install_cran("pkgdown")
+          remotes::install_cran("data.table")
+          remotes::install_cran("png")
         shell: Rscript {0}
 
       - name: Install Miniconda
