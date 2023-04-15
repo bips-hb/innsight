@@ -38,6 +38,7 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       TORCH_TEST: 1
       TORCH_INSTALL: 1
+      TORCH_COMMIT_SHA: "none"
 
     steps:
       - uses: actions/checkout@v3
