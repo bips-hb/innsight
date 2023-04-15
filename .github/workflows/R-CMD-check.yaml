@@ -49,23 +49,17 @@ jobs:
         with:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
+          use-public-rspm: true
 
-      - name: Install system dependencies
-        if: runner.os == 'Linux'
-        shell: bash
-        run: |
-          . /etc/os-release
-          while read -r cmd
-          do
-            echo "$cmd"
-            sudo $cmd
-          done < <(Rscript -e "writeLines(remotes::system_requirements('$ID-$VERSION_ID'))")
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::rcmdcheck
+          needs: check
 
-      - name: Install dependencies
+      - name: Install pkg + dependencies
         run: |
           install.packages("remotes")
-          remotes::install_local(dependencies = TRUE)
-          remotes::install_cran("rcmdcheck")
+          remotes::install_local(dependencies = TRUE, force = TRUE)
         shell: Rscript {0}
 
       - name: Install Miniconda
