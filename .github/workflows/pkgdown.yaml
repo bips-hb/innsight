@@ -31,16 +31,12 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::pkgdown, local::.
+          extra-packages: |
+            any::pkgdown
+            any::data.table
+            any::png
+            local::.
           needs: website
-
-      - name: Install pkg + dependencies
-        run: |
-          install.packages("remotes")
-          remotes::install_deps(dependencies = TRUE, force = TRUE)
-          remotes::install_cran("data.table")
-          remotes::install_cran("png")
-        shell: Rscript {0}
 
       - name: Install Miniconda
         run: reticulate::install_miniconda()

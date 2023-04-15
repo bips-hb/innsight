@@ -56,12 +56,6 @@ jobs:
           extra-packages: any::rcmdcheck
           needs: check
 
-      - name: Install pkg + dependencies
-        run: |
-          install.packages("remotes")
-          remotes::install_local(dependencies = TRUE, force = TRUE, repos = "https://cloud.r-project.org")
-        shell: Rscript {0}
-
       - name: Install Miniconda
         run: reticulate::install_miniconda()
         shell: Rscript {0}
