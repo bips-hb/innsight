@@ -58,7 +58,7 @@ jobs:
       - name: Install pkg + dependencies
         run: |
           install.packages("remotes")
-          remotes::install_local(dependencies = TRUE, force = TRUE)
+          remotes::install_local(dependencies = TRUE, force = TRUE, repos = "https://cloud.r-project.org")
         shell: Rscript {0}
 
       - name: Install Miniconda
