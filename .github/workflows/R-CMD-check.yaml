@@ -50,7 +50,7 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
 
-      - uses: Install dependencies
+      - name: Install dependencies
         run: |
           install.packages("remotes")
           remotes::install_deps(dependencies = TRUE)
