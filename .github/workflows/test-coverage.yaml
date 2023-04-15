@@ -17,22 +17,19 @@ jobs:
       TORCH_INSTALL: 1
 
     steps:
-      - uses: actions/checkout@v2
-
-      - uses: r-lib/actions/setup-pandoc@v2
+      - uses: actions/checkout@v3
 
       - uses: r-lib/actions/setup-r@v2
         id: setup-r
         with:
-          r-version: 'release'
           use-public-rspm: true
 
-      - name: Install remotes
-        run: install.packages("remotes")
-
-      - name: Install Package + deps
-        run: remotes::install_local(dependencies = TRUE, force = TRUE)
-        shell: Rscript{0}
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::covr
+            any::reticulate
+          needs: coverage
 
       - name: Install Miniconda
         run: reticulate::install_miniconda()
@@ -49,6 +46,7 @@ jobs:
             print("Torch is not installed!")
             install_torch()
           }
+          print(torch_randn(1))
         shell: Rscript {0}
 
       - name: Test coverage
