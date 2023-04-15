@@ -50,10 +50,21 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
 
+      - name: Install system dependencies
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          . /etc/os-release
+          while read -r cmd
+          do
+            echo "$cmd"
+            sudo $cmd
+          done < <(Rscript -e "writeLines(remotes::system_requirements('$ID-$VERSION_ID'))")
+
       - name: Install dependencies
         run: |
           install.packages("remotes")
-          remotes::install_deps(dependencies = TRUE)
+          remotes::install_local(dependencies = TRUE)
           remotes::install_cran("rcmdcheck")
         shell: Rscript {0}
 
