@@ -101,6 +101,14 @@ jobs:
       - name: Install Tensorflow + Keras deps
         run: keras::install_keras(tensorflow = '${{ matrix.config.tf }}-cpu')
 
+      - name: Check if torch is installed
+        run: |
+          library(torch)
+          if (!torch_is_installed()) {
+            print("Torch is not installed!")
+            install_torch()
+          }
+
       - name: Install rcmdcheck
         run: remotes::install_cran("rcmdcheck")
 

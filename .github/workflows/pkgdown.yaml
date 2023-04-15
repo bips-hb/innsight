@@ -29,6 +29,7 @@ jobs:
 
       - uses: r-lib/actions/setup-r@v2
         with:
+          r-version: 'release'
           use-public-rspm: true
 
       - uses: r-lib/actions/setup-r-dependencies@v2
@@ -56,6 +57,15 @@ jobs:
 
       - name: Install Tensorflow + Keras deps
         run: keras::install_keras()
+        shell: Rscript {0}
+
+      - name: Check if torch is installed
+        run: |
+          library(torch)
+          if (!torch_is_installed()) {
+            print("Torch is not installed!")
+            install_torch()
+          }
         shell: Rscript {0}
 
       - name: Build site
