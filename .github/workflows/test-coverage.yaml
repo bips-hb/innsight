@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
+      RSPM: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest"
       TORCH_TEST: 1
       TORCH_INSTALL: 1
 
@@ -20,9 +22,6 @@ jobs:
       - uses: actions/checkout@v3
 
       - uses: r-lib/actions/setup-r@v2
-        id: setup-r
-        with:
-          use-public-rspm: false
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:

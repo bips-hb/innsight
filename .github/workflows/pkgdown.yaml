@@ -19,6 +19,7 @@ jobs:
       group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      RSPM: https://packagemanager.rstudio.com/cran/__linux__/focal/latest
       TORCH_TEST: 1
       TORCH_INSTALL: 1
       RENDER_PLOTLY: 1
@@ -28,8 +29,6 @@ jobs:
       - uses: r-lib/actions/setup-pandoc@v2
 
       - uses: r-lib/actions/setup-r@v2
-        with:
-          use-public-rspm: false
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
