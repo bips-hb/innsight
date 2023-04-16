@@ -323,18 +323,18 @@ either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dty
 <span class="r-in"><span><span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">deeplift</span>, <span class="st">"torch.tensor"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (1,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0871  0.0502</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0066 -0.0083</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.1165  0.2006</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.5070  0.0215</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0002 -0.0001</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.4050  0.0294</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0227  0.2807</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0177 -0.2313</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0357  0.0238</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0050 -0.0018</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (2,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0629  0.0485</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0359 -0.0027</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0599  0.0794</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.2642 -0.0291</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0141  0.1333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0135  0.0027</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.1878  0.0632</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.1222 -0.0950</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0052  0.0016</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0056 -0.0089</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{2,5,2} ]</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the result for both classes</span></span></span>
@@ -367,11 +367,11 @@ either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dty
 <span class="r-in"><span><span class="co"># Get the result as a dataframe and show first 5 rows</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">deeplift_rescale</span>, type <span class="op">=</span> <span class="st">"data.frame"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     data model_input model_output      feature         output_node    value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 data_1     Input_1     Output_1 Petal.Length Species == "setosa" 1.228911</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 data_2     Input_1     Output_1 Petal.Length Species == "setosa" 1.228911</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 data_3     Input_1     Output_1 Petal.Length Species == "setosa" 1.262069</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 data_4     Input_1     Output_1 Petal.Length Species == "setosa" 1.194098</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 data_5     Input_1     Output_1 Petal.Length Species == "setosa" 1.228911</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 data_1     Input_1     Output_1 Petal.Length Species == "setosa" 3.062307</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 data_2     Input_1     Output_1 Petal.Length Species == "setosa" 3.062307</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 data_3     Input_1     Output_1 Petal.Length Species == "setosa" 3.241607</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 data_4     Input_1     Output_1 Petal.Length Species == "setosa" 2.864716</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 data_5     Input_1     Output_1 Petal.Length Species == "setosa" 3.062307</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   input_dimension</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1               1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2               1</span>

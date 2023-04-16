@@ -290,11 +290,11 @@ either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dty
 <span class="r-in"><span><span class="co"># Print the head of the result as a data.frame</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">cw</span>, <span class="st">"data.frame"</span><span class="op">)</span>, <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     data model_input model_output feature output_node       value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 data_1     Input_1     Output_1     Car          Y1  0.30527243</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 data_1     Input_1     Output_1     Cat          Y1  0.04912177</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 data_1     Input_1     Output_1     Dog          Y1  0.16221315</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 data_1     Input_1     Output_1   Plane          Y1  0.08519555</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 data_1     Input_1     Output_1   Horse          Y1 -0.04903730</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 data_1     Input_1     Output_1     Car          Y1 -0.01168402</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 data_1     Input_1     Output_1     Cat          Y1 -0.13347846</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 data_1     Input_1     Output_1     Dog          Y1  0.17524484</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 data_1     Input_1     Output_1   Plane          Y1 -0.14810151</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 data_1     Input_1     Output_1   Horse          Y1 -0.20645514</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   input_dimension</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1               1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2               1</span>
@@ -327,8 +327,8 @@ either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dty
 <span class="r-in"><span><span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">cw</span>, type <span class="op">=</span> <span class="st">"torch.tensor"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (1,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   12.2010</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    7.7018</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   102.3366</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   111.8986</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1,2,1} ]</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the result</span></span></span>
@@ -374,11 +374,11 @@ either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dty
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4 data_1     Input_1     Output_1      H2        W1      C1          Y1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5 data_1     Input_1     Output_1      H2        W1      C2          Y1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           value input_dimension</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -0.0007746196               3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -0.0026299804               3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.0009015114               3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  0.0022319085               3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 -0.0103540905               3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -0.0007003631               3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.0004572571               3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  0.0005975037               3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 -0.0097757801               3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 -0.0038552224               3</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the result for all classes</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cw</span>, output_idx <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span></span>
