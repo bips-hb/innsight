@@ -12,10 +12,6 @@ on:
 
 name: R-CMD-check
 
-defaults:
-  run:
-    shell: Rscript {0}
-
 jobs:
   R-CMD-check:
     runs-on: ${{ matrix.config.os }}
@@ -26,34 +22,26 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: 'ubuntu-20.04',   tf: 'default', r: 'devel', http-user-agent: 'release'}
+          - {os: 'macOS-latest'  , r: 'release'}
 
-          - {os: 'ubuntu-20.04'  , tf: 'default', r: 'release'}
-          - {os: 'windows-latest', tf: 'default', r: 'release'}
-          - {os: 'macOS-latest'  , tf: 'default', r: 'release'}
+          - {os: 'windows-latest', r: 'release'}
 
-          - {os: 'ubuntu-20.04'  , tf: 'default', r: 'oldrel'}
-          - {os: 'windows-latest', tf: 'default', r: 'oldrel'}
-           # Use 3.6 to trigger usage of RTools35
-          - {os: 'windows-latest', tf: 'default', r: '3.6'}
-
-          - {os: 'ubuntu-20.04',   tf: 'default', r: 'oldrel-1'}
-          - {os: 'ubuntu-20.04',   tf: 'default', r: '3.6'}
-          - {os: 'ubuntu-20.04',   tf: 'default', r: '3.5'}
-
-          - {os: 'ubuntu-20.04', tf: '2.8', r: 'release'}
-          - {os: 'ubuntu-20.04', tf: '2.7', r: 'release'}
-          - {os: 'ubuntu-20.04', tf: '2.6', r: 'release'}
-          - {os: 'ubuntu-20.04', tf: '2.5', r: 'release'}
-          - {os: 'ubuntu-20.04', tf: '2.4', r: 'release'}
+          - {os: 'ubuntu-latest', r: 'devel', http-user-agent: 'release'}
+          - {os: 'ubuntu-latest', r: 'release'}
+          - {os: 'ubuntu-latest', r: 'oldrel-1'}
+          - {os: 'ubuntu-latest', r: 'oldrel-2'}
+          - {os: 'ubuntu-latest', r: 'oldrel-3'}
+          - {os: 'ubuntu-latest', r: 'oldrel-4'}
 
     env:
-      R_REMOTES_NO_ERRORS_FROM_WARNINGS: 'true'
+      R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       TORCH_TEST: 1
+      TORCH_INSTALL: 1
+      TORCH_COMMIT_SHA: "none"
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: r-lib/actions/setup-pandoc@v2
 
@@ -64,65 +52,29 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
-      - name: Get Date
-        id: get-date
-        shell: bash
-        run: |
-          echo "year-week=$(date -u "+%Y-%U")" >> $GITHUB_OUTPUT
-          echo "date=$(date -u "+%F")" >> $GITHUB_OUTPUT
-
-      - name: Restore R package cache
-        uses: actions/cache@v2
-        id: r-package-cache
+      - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          path: ${{ env.R_LIBS_USER }}
-          key: ${{ matrix.config.os }}-${{ steps.setup-r.outputs.installed-r-version }}-${{ steps.get-date.outputs.year-week }}
-
-      - name: Install remotes
-        if: steps.r-package-cache.outputs.cache-hit != 'true'
-        run: install.packages("remotes")
-
-      - name: Install system dependencies
-        if: runner.os == 'Linux'
-        shell: bash
-        run: |
-          . /etc/os-release
-          while read -r cmd
-          do
-            echo "$cmd"
-            sudo $cmd
-          done < <(Rscript -e "writeLines(remotes::system_requirements('$ID-$VERSION_ID'))")
-
-      - name: Install RcppTOML for windows and R3_6
-        if: matrix.config.os == 'windows-latest' && matrix.config.r == '3.6'
-        run: remotes::install_version("RcppTOML", version = "0.1.7")
-
-      - name: Install Package + deps
-        run: remotes::install_local(dependencies = TRUE, force = TRUE)
+          extra-packages: any::rcmdcheck
+          needs: check
 
       - name: Install Miniconda
         run: reticulate::install_miniconda()
+        shell: Rscript {0}
 
       - name: Install Tensorflow + Keras deps
         run: keras::install_keras(tensorflow = '${{ matrix.config.tf }}-cpu')
+        shell: Rscript {0}
 
-      - name: Install LibTorch
-        run: torch::install_torch()
+      - name: Check if torch is installed
+        run: |
+          library(torch)
+          if (!torch_is_installed()) {
+            print("Torch is not installed!")
+            install_torch()
+          }
+          print(torch_randn(1))
+        shell: Rscript {0}
 
-      - name: Install rcmdcheck
-        run: remotes::install_cran("rcmdcheck")
-
-      - name: Check
-        run: rcmdcheck::rcmdcheck(args = c('--no-manual', '--as-cran'), error_on = 'error', check_dir = 'check')
-
-      - name: Show testthat output
-        if: always()
-        shell: bash
-        run: find check -name 'testthat.Rout*' -exec cat '{}' \; || true
-
-      - name: Upload check results
-        if: failure()
-        uses: actions/upload-artifact@main
+      - uses: r-lib/actions/check-r-package@v2
         with:
-          name: ${{ matrix.config.os }}-tf${{ matrix.config.tf }}-r${{ matrix.config.r }}-results
-          path: check
+          upload-snapshots: true
