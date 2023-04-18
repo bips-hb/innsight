@@ -203,13 +203,13 @@ test_that("Custom activation function", {
   # Activation function is not defined
   expect_error(conv <- Converter$new(model))
   # Activation function is not supported by the torch package
-  model$layers$Layer_1$FUN <- factor
+  model$layers$Layer_1$activation_fun <- factor
   expect_error(conv <- Converter$new(model))
   # Activation function doesn't operate point-wise
-  model$layers$Layer_1$FUN <- sum
+  model$layers$Layer_1$activation_fun <- sum
   expect_error(conv <- Converter$new(model))
 
-  model$layers$Layer_1$FUN <- function(x) x * tanh(x)
+  model$layers$Layer_1$activation_fun <- function(x) x * tanh(x)
   conv <- Converter$new(model)
 })
 

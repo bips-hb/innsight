@@ -453,6 +453,7 @@ create_dense_layer <- function(layer_as_list, dtype) {
   weight <- layer_as_list$weight
   bias <- layer_as_list$bias
   activation_name <- layer_as_list$activation_name
+  activation_fun <- layer_as_list$activation_fun
 
   # Check arguments
   cli_check(checkIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE),
@@ -466,7 +467,7 @@ create_dense_layer <- function(layer_as_list, dtype) {
     checkNumeric(bias, len = dim_out),
     checkTensor(bias, d = 1)), "bias")
   cli_check(checkString(activation_name), "activation_name")
-  act_func <- check_custom_activation(activation_name, layer_as_list$FUN)
+  act_func <- check_custom_activation(activation_name, activation_fun)
 
   dense_layer(weight, bias, activation_name, dim_in, dim_out,
     act_func = act_func, dtype = dtype
@@ -486,6 +487,7 @@ create_conv1d_layer <- function(layer_as_list, dtype, i) {
   weight <- layer_as_list$weight
   bias <- layer_as_list$bias
   activation_name <- layer_as_list$activation_name
+  activation_fun <- layer_as_list$activation_fun
   stride <- layer_as_list$stride
   dilation <- layer_as_list$dilation
   padding <- layer_as_list$padding
@@ -505,7 +507,7 @@ create_conv1d_layer <- function(layer_as_list, dtype, i) {
   cli_check(checkInt(stride, null.ok = TRUE), "stride")
   cli_check(checkInt(dilation, null.ok = TRUE), "dilation")
   cli_check(checkNumeric(padding, null.ok = TRUE, lower = 0), "padding")
-  act_func <- check_custom_activation(activation_name, layer_as_list$FUN)
+  act_func <- check_custom_activation(activation_name, activation_fun)
 
   # Set default arguments
   if (is.null(stride)) stride <- 1
@@ -542,6 +544,7 @@ create_conv2d_layer <- function(layer_as_list, dtype, i) {
   weight <- layer_as_list$weight
   bias <- layer_as_list$bias
   activation_name <- layer_as_list$activation_name
+  activation_fun <- layer_as_list$activation_fun
   stride <- layer_as_list$stride
   dilation <- layer_as_list$dilation
   padding <- layer_as_list$padding
@@ -561,7 +564,7 @@ create_conv2d_layer <- function(layer_as_list, dtype, i) {
   cli_check(checkNumeric(stride, null.ok = TRUE, lower = 1), "stride")
   cli_check(checkNumeric(dilation, null.ok = TRUE, lower = 1), "dilation")
   cli_check(checkNumeric(padding, null.ok = TRUE, lower = 0), "padding")
-  act_func <- check_custom_activation(activation_name, layer_as_list$FUN)
+  act_func <- check_custom_activation(activation_name, activation_fun)
 
   # Set default arguments
   if (is.null(stride)) stride <- c(1, 1)
@@ -726,6 +729,7 @@ create_activation_layer <- function(layer_as_list) {
   dim_in <- layer_as_list$dim_in
   dim_out <- layer_as_list$dim_out
   act_name <- layer_as_list$act_name
+  activation_fun <- layer_as_list$activation_fun
 
   # Check arguments
   cli_check(checkList(dim_in, null.ok = TRUE, types = "integerish"), "dim_in")
@@ -733,7 +737,7 @@ create_activation_layer <- function(layer_as_list) {
             "dim_out")
 
   # Is there a custom activation function defined?
-  act_func <- check_custom_activation(act_name, layer_as_list$FUN)
+  act_func <- check_custom_activation(act_name, activation_fun)
 
   activation_layer(dim_in, dim_out, act_name, act_func)
 }
@@ -1296,7 +1300,7 @@ check_custom_activation <- function(act_name, FUN) {
       }
     } else {
       stopf("In case of a custom activation function, the activation ",
-            "function must also be specified in the {.arg $FUN} entry of the list.")
+            "function must also be specified in the {.arg $activation_fun} entry of the list.")
     }
     act_func <- FUN
   } else {

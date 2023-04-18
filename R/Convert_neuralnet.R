@@ -18,7 +18,10 @@ convert_neuralnet_model <- function(model) {
   weights <- model$weights[[best_rep]]
   act_name <- attributes(model$act.fct)$type
   if (act_name == "function") {
-    stopf("You can't use custom activation functions for a {.pkg neuralnet} model.")
+    act_func <- model$act.fct
+    act_name <- "custom"
+  } else {
+    act_func <- NULL
   }
 
   model_as_list <- list()
@@ -32,6 +35,7 @@ convert_neuralnet_model <- function(model) {
     # consider the activation of the last layer
     if (i == length(weights) && model$linear.output == TRUE) {
       act_name <- "linear"
+      act_func <- NULL
     }
 
     # convert the layer as a list with all important parameters
@@ -45,6 +49,7 @@ convert_neuralnet_model <- function(model) {
         weight = w,
         bias = b,
         activation_name = act_name,
+        activation_fun = act_func,
         dim_in = dim(w)[2],
         dim_out = dim(w)[1],
         input_layers = i - 1,
