@@ -172,7 +172,46 @@ test_that("Torch: Test non sequential model", {
   expect_error(Converter$new(model))
 })
 
+test_that("Custom activation function", {
 
+  model <- list()
+  model$input_dim <- c(2)
+  model$input_nodes <- c(1)
+  model$output_dim <- 2
+  model$output_nodes <- c(2)
+  model$layers$Layer_1 <-
+    list(
+      type = "Dense",
+      weight = matrix(rnorm(2 * 20), 20, 2),
+      bias = rnorm(20),
+      activation_name = "custom",
+      dim_in = 2,
+      dim_out = 20,
+      input_layers = 0, # '0' means model input layer
+      output_layers = 2
+    )
+  model$layers$Layer_2 <-
+    list(
+      type = "Dense",
+      weight = matrix(rnorm(20 * 2), 2, 20),
+      bias = rnorm(2),
+      activation_name = "softmax",
+      input_layers = 1,
+      output_layers = -1 # '-1' means model output layer
+    )
+
+  # Activation function is not defined
+  expect_error(conv <- Converter$new(model))
+  # Activation function is not supported by the torch package
+  model$layers$Layer_1$FUN <- factor
+  expect_error(conv <- Converter$new(model))
+  # Activation function doesn't operate point-wise
+  model$layers$Layer_1$FUN <- sum
+  expect_error(conv <- Converter$new(model))
+
+  model$layers$Layer_1$FUN <- function(x) x * tanh(x)
+  conv <- Converter$new(model)
+})
 
 ################################################################################
 #                            Package: Neuralnet

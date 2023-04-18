@@ -14,6 +14,7 @@ dense_layer <- nn_module(
   initialize = function(weight, bias, activation_name,
                         dim_in = NULL,
                         dim_out = NULL,
+                        act_func = NULL,
                         dtype = "float") {
     if (is.null(dim_in)) {
       self$input_dim <- dim(weight)[2]
@@ -25,7 +26,7 @@ dense_layer <- nn_module(
     } else {
       self$output_dim <- dim_out
     }
-    self$get_activation(activation_name)
+    self$get_activation(activation_name, act_func)
 
     # Check if weight is already a tensor
     if (!inherits(weight, "torch_tensor")) {

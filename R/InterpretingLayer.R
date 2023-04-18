@@ -184,8 +184,8 @@ InterpretingLayer <- nn_module(
     self$dtype <- dtype
   },
 
-  get_activation = function(act_name) {
-    activation <- get_activation(act_name)
+  get_activation = function(act_name, act_func) {
+    activation <- get_activation(act_name, act_func)
 
     self$activation_f <- activation$act_func
     self$activation_name <- activation$act_name
@@ -207,7 +207,7 @@ InterpretingLayer <- nn_module(
 #                                Utils
 ###############################################################################
 
-get_activation <- function(act_name) {
+get_activation <- function(act_name, act_func) {
   result <- NULL
 
   if (act_name == "relu") {
@@ -224,6 +224,8 @@ get_activation <- function(act_name) {
     act <- nn_tanh()
   } else if (act_name == "linear") {
     act <- function(x) x
+  } else if (act_name == "custom") {
+    act <- act_func
   } else {
     stopf(sprintf(
       "Activation function '%s' is not implementet yet!",

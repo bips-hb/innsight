@@ -22,6 +22,7 @@ conv2d_layer <- nn_module(
                         padding = c(0, 0, 0, 0),
                         dilation = 1,
                         activation_name = "linear",
+                        act_func = NULL,
                         dtype = "float") {
 
     self$input_dim <- dim_in
@@ -33,7 +34,7 @@ conv2d_layer <- nn_module(
     self$padding <- padding
     self$dilation <- dilation
 
-    self$get_activation(activation_name)
+    self$get_activation(activation_name, act_func)
 
     # Check if weight is already a tensor
     if (!inherits(weight, "torch_tensor")) {

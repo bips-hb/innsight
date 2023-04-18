@@ -20,6 +20,7 @@ conv1d_layer <- nn_module(
                         padding = c(0, 0),
                         dilation = 1,
                         activation_name = "linear",
+                        act_func = NULL,
                         dtype = "float") {
 
     self$input_dim <- dim_in
@@ -31,7 +32,7 @@ conv1d_layer <- nn_module(
     self$padding <- padding
     self$dilation <- dilation
 
-    self$get_activation(activation_name)
+    self$get_activation(activation_name, act_func)
 
     if (!inherits(weight, "torch_tensor")) {
       self$W <- torch_tensor(weight)

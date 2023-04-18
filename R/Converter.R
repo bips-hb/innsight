@@ -466,9 +466,10 @@ create_dense_layer <- function(layer_as_list, dtype) {
     checkNumeric(bias, len = dim_out),
     checkTensor(bias, d = 1)), "bias")
   cli_check(checkString(activation_name), "activation_name")
+  act_func <- check_custom_activation(activation_name, layer_as_list$FUN)
 
   dense_layer(weight, bias, activation_name, dim_in, dim_out,
-    dtype = dtype
+    act_func = act_func, dtype = dtype
   )
 }
 
@@ -504,6 +505,7 @@ create_conv1d_layer <- function(layer_as_list, dtype, i) {
   cli_check(checkInt(stride, null.ok = TRUE), "stride")
   cli_check(checkInt(dilation, null.ok = TRUE), "dilation")
   cli_check(checkNumeric(padding, null.ok = TRUE, lower = 0), "padding")
+  act_func <- check_custom_activation(activation_name, layer_as_list$FUN)
 
   # Set default arguments
   if (is.null(stride)) stride <- 1
@@ -523,7 +525,7 @@ create_conv1d_layer <- function(layer_as_list, dtype, i) {
   }
 
   conv1d_layer(weight, bias, dim_in, dim_out, stride, padding, dilation,
-    activation_name,
+    activation_name, act_func = act_func,
     dtype = dtype
   )
 }
@@ -559,6 +561,7 @@ create_conv2d_layer <- function(layer_as_list, dtype, i) {
   cli_check(checkNumeric(stride, null.ok = TRUE, lower = 1), "stride")
   cli_check(checkNumeric(dilation, null.ok = TRUE, lower = 1), "dilation")
   cli_check(checkNumeric(padding, null.ok = TRUE, lower = 0), "padding")
+  act_func <- check_custom_activation(activation_name, layer_as_list$FUN)
 
   # Set default arguments
   if (is.null(stride)) stride <- c(1, 1)
@@ -603,7 +606,7 @@ create_conv2d_layer <- function(layer_as_list, dtype, i) {
   }
 
   conv2d_layer(weight, bias, dim_in, dim_out, stride, padding, dilation,
-    activation_name,
+    activation_name, act_func = act_func,
     dtype = dtype
   )
 }
@@ -729,7 +732,10 @@ create_activation_layer <- function(layer_as_list) {
   cli_check(checkIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE),
             "dim_out")
 
-  activation_layer(dim_in, dim_out, act_name)
+  # Is there a custom activation function defined?
+  act_func <- check_custom_activation(act_name, layer_as_list$FUN)
+
+  activation_layer(dim_in, dim_out, act_name, act_func)
 }
 
 # Add Layer -------------------------------------------------------------------
@@ -1267,4 +1273,35 @@ all_equal <- function(x, y) {
   }
 
   error
+}
+
+check_custom_activation <- function(act_name, FUN) {
+  if (act_name == "custom") {
+    if (!is.null(FUN)) {
+      if (is.function(FUN)) {
+        out <- tryCatch(FUN(torch_randn(3,2)),
+                        error = function(e) {
+                          stopf("Your custom activation function cannot be ",
+                                "converted to {.pkg torch}!\n\n Original error ",
+                                "message:\n", e)
+                        })
+        if (!checkTensor(out)) {
+          stopf("The output of your custom activation function doesn't ",
+                "result in a {.code torch_tensor} after inputting a {.code torch_tensor}.")
+        }
+        if (out$dim() != 2 | any(out$shape != c(3,2))) {
+          stopf("The custom activation function has to operate point-wise, ",
+                "i.e., the output must have the same shape as the input.")
+        }
+      }
+    } else {
+      stopf("In case of a custom activation function, the activation ",
+            "function must also be specified in the {.arg $FUN} entry of the list.")
+    }
+    act_func <- FUN
+  } else {
+    act_func <- NULL
+  }
+
+  act_func
 }

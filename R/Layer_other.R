@@ -272,7 +272,7 @@ activation_layer <- nn_module(
   classname = "Activation",
   inherit = OtherLayer,
 
-  initialize = function(dim_in, dim_out, act_name) {
+  initialize = function(dim_in, dim_out, act_name, act_func = NULL) {
     self$input_dim <- dim_in
     self$output_dim <- dim_out
     self$act_name <- act_name
@@ -281,7 +281,8 @@ activation_layer <- nn_module(
                        leaky_relu = nnf_leaky_relu,
                        softplus = nnf_softplus,
                        sigmoid = nnf_sigmoid,
-                       tanh = torch_tanh)
+                       tanh = torch_tanh,
+                       custom = act_func)
   },
 
   forward = function(x, save_input = TRUE, save_output = TRUE, ...) {
