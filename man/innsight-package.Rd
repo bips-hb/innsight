@@ -20,12 +20,12 @@ as an R analogue to 'iNNvestigate' or 'Captum' for Python.
 This package implements several model-specific interpretability
 (feature attribution) methods based on neural networks in R, e.g.,
 \itemize{
-\item \emph{Layer-wise Relevance Propagation (\link{LRP})}
+\item \emph{Layer-wise relevance propagation (\link{LRP})}
 \itemize{
 \item Including propagation rules: \eqn{\epsilon}-rule and
 \eqn{\alpha}-\eqn{\beta}-rule
 }
-\item \emph{Deep Learning Important Features (\link{DeepLift})}
+\item \emph{Deep learning important features (\link{DeepLift})}
 \itemize{
 \item Including propagation rules for non-linearities: \emph{Rescale} rule and
 \emph{RevealCancel} rule

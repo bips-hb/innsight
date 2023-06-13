@@ -21,49 +21,53 @@
 #'
 #'
 #' #----------------------- Example 2: Neuralnet ------------------------------
-#' library(neuralnet)
-#' data(iris)
+#' if (require("neuralnet")) {
+#'   library(neuralnet)
+#'   data(iris)
 #'
-#' # Train a neural network
-#' nn <- neuralnet((Species == "setosa") ~ Petal.Length + Petal.Width,
-#'   iris,
-#'   linear.output = FALSE,
-#'   hidden = c(3, 2), act.fct = "tanh", rep = 1
-#' )
+#'   # Train a neural network
+#'   nn <- neuralnet((Species == "setosa") ~ Petal.Length + Petal.Width,
+#'     iris,
+#'     linear.output = FALSE,
+#'     hidden = c(3, 2), act.fct = "tanh", rep = 1
+#'   )
 #'
-#' # Convert the model
-#' converter <- Converter$new(nn)
+#'   # Convert the model
+#'   converter <- Converter$new(nn)
 #'
-#' # Print all the layers
-#' converter$model$modules_list
+#'   # Print all the layers
+#'   converter$model$modules_list
+#' }
 #'
 #' @examplesIf keras::is_keras_available() & torch::torch_is_installed()
 #' #----------------------- Example 3: Keras ----------------------------------
-#' library(keras)
+#' if (require("keras")) {
+#'   library(keras)
 #'
-#' # Make sure keras is installed properly
-#' is_keras_available()
+#'   # Make sure keras is installed properly
+#'   is_keras_available()
 #'
-#' # Define a keras model
-#' model <- keras_model_sequential() %>%
-#'   layer_conv_2d(
-#'     input_shape = c(32, 32, 3), kernel_size = 8, filters = 8,
-#'     activation = "relu", padding = "same") %>%
-#'   layer_conv_2d(
-#'     kernel_size = 8, filters = 4,
-#'     activation = "tanh", padding = "same") %>%
-#'   layer_conv_2d(
-#'     kernel_size = 4, filters = 2,
-#'     activation = "relu", padding = "same") %>%
-#'   layer_flatten() %>%
-#'   layer_dense(units = 64, activation = "relu") %>%
-#'   layer_dense(units = 1, activation = "sigmoid")
+#'   # Define a keras model
+#'   model <- keras_model_sequential() %>%
+#'     layer_conv_2d(
+#'       input_shape = c(32, 32, 3), kernel_size = 8, filters = 8,
+#'       activation = "relu", padding = "same") %>%
+#'     layer_conv_2d(
+#'       kernel_size = 8, filters = 4,
+#'       activation = "tanh", padding = "same") %>%
+#'     layer_conv_2d(
+#'       kernel_size = 4, filters = 2,
+#'       activation = "relu", padding = "same") %>%
+#'     layer_flatten() %>%
+#'     layer_dense(units = 64, activation = "relu") %>%
+#'     layer_dense(units = 1, activation = "sigmoid")
 #'
-#' # Convert this model and save model as list
-#' converter <- Converter$new(model, save_model_as_list = TRUE)
+#'   # Convert this model and save model as list
+#'   converter <- Converter$new(model, save_model_as_list = TRUE)
 #'
-#' # Print the converted model as a named list
-#' str(converter$model_as_list, max.level = 1)
+#'   # Print the converted model as a named list
+#'   str(converter$model_as_list, max.level = 1)
+#' }
 #'
 #' @examplesIf torch::torch_is_installed()
 #' #----------------------- Example 4: List  ----------------------------------

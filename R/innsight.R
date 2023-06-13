@@ -13,10 +13,10 @@
 #' This package implements several model-specific interpretability
 #' (feature attribution) methods based on neural networks in R, e.g.,
 #'
-#' * *Layer-wise Relevance Propagation ([LRP])*
+#' * *Layer-wise relevance propagation ([LRP])*
 #'   * Including propagation rules: \eqn{\epsilon}-rule and
 #'   \eqn{\alpha}-\eqn{\beta}-rule
-#' * *Deep Learning Important Features ([DeepLift])*
+#' * *Deep learning important features ([DeepLift])*
 #'   * Including propagation rules for non-linearities: *Rescale* rule and
 #'  *RevealCancel* rule
 #' * Gradient-based methods:

@@ -2,9 +2,9 @@
 % Please edit documentation in R/DeepLift.R
 \name{DeepLift}
 \alias{DeepLift}
-\title{Deep Learning Important Features (DeepLift)}
+\title{Deep learning important features (DeepLift)}
 \description{
-This is an implementation of the \emph{Deep Learning Important Features
+This is an implementation of the \emph{deep learning important features
 (DeepLift)} algorithm introduced by Shrikumar et al. (2017). It's a local
 method for interpreting a single element \eqn{x} of the dataset concerning
 a reference value \eqn{x'} and returns the contribution of each input
@@ -13,7 +13,7 @@ output (\eqn{y'=f(x')}) prediction. The basic idea of this method is to
 decompose the difference-from-reference prediction with respect to the
 input features, i.e.,
 \deqn{\Delta y = y - y'  = \sum_i C(x_i).}
-Compared to \emph{Layer-wise Relevance Propagation} (see \link{LRP}), the
+Compared to \emph{Layer-wise relevance propagation} (see \link{LRP}), the
 DeepLift method is an exact decomposition and not an approximation, so we
 get real contributions of the input features to the
 difference-from-reference prediction. There are two ways to handle
@@ -51,80 +51,85 @@ plot(deeplift, output_idx = 1:2)
 boxplot(deeplift, output_idx = 1:2)
 
 # ------------------------- Example 2: Neuralnet ---------------------------
-library(neuralnet)
-data(iris)
+if (require("neuralnet")) {
+  library(neuralnet)
+  data(iris)
 
-# Train a neural network
-nn <- neuralnet((Species == "setosa") ~ Petal.Length + Petal.Width,
-  iris,
-  linear.output = FALSE,
-  hidden = c(3, 2), act.fct = "tanh", rep = 1
-)
+  # Train a neural network
+  nn <- neuralnet((Species == "setosa") ~ Petal.Length + Petal.Width,
+    iris,
+    linear.output = FALSE,
+    hidden = c(3, 2), act.fct = "tanh", rep = 1
+  )
 
-# Convert the model
-converter <- Converter$new(nn)
+  # Convert the model
+  converter <- Converter$new(nn)
 
-# Apply DeepLift with rescale-rule and a reference input of the feature
-# means
-x_ref <- matrix(colMeans(iris[, c(3, 4)]), nrow = 1)
-deeplift_rescale <- DeepLift$new(converter, iris[, c(3, 4)], x_ref = x_ref)
+  # Apply DeepLift with rescale-rule and a reference input of the feature
+  # means
+  x_ref <- matrix(colMeans(iris[, c(3, 4)]), nrow = 1)
+  deeplift_rescale <- DeepLift$new(converter, iris[, c(3, 4)], x_ref = x_ref)
 
-# Get the result as a dataframe and show first 5 rows
-get_result(deeplift_rescale, type = "data.frame")[1:5, ]
+  # Get the result as a dataframe and show first 5 rows
+  get_result(deeplift_rescale, type = "data.frame")[1:5, ]
 
-# Plot the result for the first datapoint in the data
-plot(deeplift_rescale, data_idx = 1)
+  # Plot the result for the first datapoint in the data
+  plot(deeplift_rescale, data_idx = 1)
 
-# Plot the result as boxplots
-boxplot(deeplift_rescale)
+  # Plot the result as boxplots
+  boxplot(deeplift_rescale)
+}
 \dontshow{\}) # examplesIf}
 \dontshow{if (keras::is_keras_available() & torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # ------------------------- Example 3: Keras -------------------------------
-library(keras)
+if (require("keras")) {
+  library(keras)
 
-# Make sure keras is installed properly
-is_keras_available()
+  # Make sure keras is installed properly
+  is_keras_available()
 
-data <- array(rnorm(10 * 32 * 32 * 3), dim = c(10, 32, 32, 3))
+  data <- array(rnorm(10 * 32 * 32 * 3), dim = c(10, 32, 32, 3))
 
-model <- keras_model_sequential()
-model \%>\%
-  layer_conv_2d(
-    input_shape = c(32, 32, 3), kernel_size = 8, filters = 8,
-    activation = "softplus", padding = "valid") \%>\%
-  layer_conv_2d(
-    kernel_size = 8, filters = 4, activation = "tanh",
-    padding = "same") \%>\%
-  layer_conv_2d(
-    kernel_size = 4, filters = 2, activation = "relu",
-    padding = "valid") \%>\%
-  layer_flatten() \%>\%
-  layer_dense(units = 64, activation = "relu") \%>\%
-  layer_dense(units = 16, activation = "relu") \%>\%
-  layer_dense(units = 2, activation = "softmax")
+  model <- keras_model_sequential()
+  model \%>\%
+    layer_conv_2d(
+      input_shape = c(32, 32, 3), kernel_size = 8, filters = 8,
+      activation = "softplus", padding = "valid") \%>\%
+    layer_conv_2d(
+      kernel_size = 8, filters = 4, activation = "tanh",
+      padding = "same") \%>\%
+    layer_conv_2d(
+      kernel_size = 4, filters = 2, activation = "relu",
+      padding = "valid") \%>\%
+    layer_flatten() \%>\%
+    layer_dense(units = 64, activation = "relu") \%>\%
+    layer_dense(units = 16, activation = "relu") \%>\%
+    layer_dense(units = 2, activation = "softmax")
 
-# Convert the model
-converter <- Converter$new(model)
+  # Convert the model
+  converter <- Converter$new(model)
 
-# Apply the DeepLift method with reveal-cancel rule
-deeplift_revcancel <- DeepLift$new(converter, data,
-  channels_first = FALSE,
-  rule_name = "reveal_cancel"
-)
+  # Apply the DeepLift method with reveal-cancel rule
+  deeplift_revcancel <- DeepLift$new(converter, data,
+    channels_first = FALSE,
+    rule_name = "reveal_cancel"
+  )
 
-# Plot the result for the first image and both classes
-plot(deeplift_revcancel, output_idx = 1:2)
+  # Plot the result for the first image and both classes
+  plot(deeplift_revcancel, output_idx = 1:2)
 
-# Plot the result as boxplots for first class
-boxplot(deeplift_revcancel, output_idx = 1)
+  # Plot the result as boxplots for first class
+  boxplot(deeplift_revcancel, output_idx = 1)
+}
 \dontshow{\}) # examplesIf}
 \dontshow{if (torch::torch_is_installed() & Sys.getenv("RENDER_PLOTLY", unset = 0) == 1) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 #------------------------- Plotly plots ------------------------------------
-
-# You can also create an interactive plot with plotly.
-# This is a suggested package, so make sure that it is installed
-library(plotly)
-boxplot(deeplift_rescale, as_plotly = TRUE)
+if (require("plotly")) {
+  # You can also create an interactive plot with plotly.
+  # This is a suggested package, so make sure that it is installed
+  library(plotly)
+  boxplot(deeplift, as_plotly = TRUE)
+}
 \dontshow{\}) # examplesIf}
 }
 \references{

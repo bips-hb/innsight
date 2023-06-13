@@ -1,7 +1,7 @@
-#' Connection Weights method
+#' Connection weights method
 #'
 #' @description
-#' This class implements the *Connection Weights* method investigated by
+#' This class implements the *Connection weights* method investigated by
 #' Olden et al. (2004), which results in a relevance score for each input
 #' variable. The basic idea is to multiply all path weights for each
 #' possible connection between an input feature and the output node and then
@@ -14,7 +14,7 @@
 #'
 #' In this package, we extended this method to a local method inspired by the
 #' method *Gradient\eqn{\times}Input* (see [`Gradient`]). Hence, the local variant is
-#' simply the point-wise product of the global *Connection Weights* method and
+#' simply the point-wise product of the global *Connection weights* method and
 #' the input data. You can use this variant by setting the `times_input`
 #' argument to `TRUE` and providing input data.
 #'
@@ -39,7 +39,7 @@ ConnectionWeights <- R6Class(
   public = list(
     #' @field times_input (`logical(1)`)\cr
     #' This logical value indicates whether the results from
-    #' the *Connection Weights* method were multiplied by the provided input
+    #' the *Connection weights* method were multiplied by the provided input
     #' data or not. Thus, this value specifies whether the original global
     #' variant of the method or the local one was applied. If the value is
     #' `TRUE`, then data is provided in the field `data`.
@@ -52,7 +52,7 @@ ConnectionWeights <- R6Class(
     #'
     #' @param times_input (`logical(1)`)\cr
     #' Multiplies the results with the input features.
-    #' This variant turns the global *Connection Weights* method into a local
+    #' This variant turns the global *Connection weights* method into a local
     #' one. Default: `FALSE`.\cr
     initialize = function(converter,
                           data = NULL,

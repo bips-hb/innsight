@@ -1,7 +1,7 @@
-#' @title Layer-wise Relevance Propagation (LRP)
+#' @title Layer-wise relevance propagation (LRP)
 #'
 #' @description
-#' This is an implementation of the \emph{Layer-wise Relevance Propagation
+#' This is an implementation of the \emph{layer-wise relevance propagation
 #' (LRP)} algorithm introduced by Bach et al. (2015). It's a local method for
 #' interpreting a single element of the dataset and calculates the relevance
 #' scores for each input feature to the model output. The basic idea of this

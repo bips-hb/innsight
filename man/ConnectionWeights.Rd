@@ -2,9 +2,9 @@
 % Please edit documentation in R/ConnectionWeights.R
 \name{ConnectionWeights}
 \alias{ConnectionWeights}
-\title{Connection Weights method}
+\title{Connection weights method}
 \description{
-This class implements the \emph{Connection Weights} method investigated by
+This class implements the \emph{Connection weights} method investigated by
 Olden et al. (2004), which results in a relevance score for each input
 variable. The basic idea is to multiply all path weights for each
 possible connection between an input feature and the output node and then
@@ -17,7 +17,7 @@ multiplication independent of the activation functions in between:
 
 In this package, we extended this method to a local method inspired by the
 method \emph{Gradient\eqn{\times}Input} (see \code{\link{Gradient}}). Hence, the local variant is
-simply the point-wise product of the global \emph{Connection Weights} method and
+simply the point-wise product of the global \emph{Connection weights} method and
 the input data. You can use this variant by setting the \code{times_input}
 argument to \code{TRUE} and providing input data.
 }
@@ -50,72 +50,77 @@ head(get_result(cw, "data.frame"), 5)
 plot(cw)
 
 #----------------------- Example 2: Neuralnet ------------------------------
-library(neuralnet)
-data(iris)
+if (require("neuralnet")) {
+  library(neuralnet)
+  data(iris)
 
-# Train a Neural Network
-nn <- neuralnet((Species == "setosa") ~ Petal.Length + Petal.Width,
-  iris,
-  linear.output = FALSE,
-  hidden = c(3, 2), act.fct = "tanh", rep = 1
-)
+  # Train a Neural Network
+  nn <- neuralnet((Species == "setosa") ~ Petal.Length + Petal.Width,
+    iris,
+    linear.output = FALSE,
+    hidden = c(3, 2), act.fct = "tanh", rep = 1
+  )
 
-# Convert the trained model
-converter <- Converter$new(nn)
+  # Convert the trained model
+  converter <- Converter$new(nn)
 
-# Apply the Connection Weights method
-cw <- ConnectionWeights$new(converter)
+  # Apply the Connection Weights method
+  cw <- ConnectionWeights$new(converter)
 
-# Get the result as a torch tensor
-get_result(cw, type = "torch.tensor")
+  # Get the result as a torch tensor
+  get_result(cw, type = "torch.tensor")
 
-# Plot the result
-plot(cw)
+  # Plot the result
+  plot(cw)
+}
 \dontshow{\}) # examplesIf}
 \dontshow{if (keras::is_keras_available() & torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # ------------------------- Example 3: Keras -------------------------------
-library(keras)
+if (require("keras")) {
+  library(keras)
 
-# Make sure keras is installed properly
-is_keras_available()
+  # Make sure keras is installed properly
+  is_keras_available()
 
-data <- array(rnorm(10 * 32 * 32 * 3), dim = c(10, 32, 32, 3))
+  data <- array(rnorm(10 * 32 * 32 * 3), dim = c(10, 32, 32, 3))
 
-model <- keras_model_sequential()
-model \%>\%
-  layer_conv_2d(
-    input_shape = c(32, 32, 3), kernel_size = 8, filters = 8,
-    activation = "softplus", padding = "valid") \%>\%
-  layer_conv_2d(
-    kernel_size = 8, filters = 4, activation = "tanh",
-    padding = "same") \%>\%
-  layer_conv_2d(
-    kernel_size = 4, filters = 2, activation = "relu",
-    padding = "valid") \%>\%
-  layer_flatten() \%>\%
-  layer_dense(units = 64, activation = "relu") \%>\%
-  layer_dense(units = 16, activation = "relu") \%>\%
-  layer_dense(units = 2, activation = "softmax")
+  model <- keras_model_sequential()
+  model \%>\%
+    layer_conv_2d(
+      input_shape = c(32, 32, 3), kernel_size = 8, filters = 8,
+      activation = "softplus", padding = "valid") \%>\%
+    layer_conv_2d(
+      kernel_size = 8, filters = 4, activation = "tanh",
+      padding = "same") \%>\%
+    layer_conv_2d(
+      kernel_size = 4, filters = 2, activation = "relu",
+      padding = "valid") \%>\%
+    layer_flatten() \%>\%
+    layer_dense(units = 64, activation = "relu") \%>\%
+    layer_dense(units = 16, activation = "relu") \%>\%
+    layer_dense(units = 2, activation = "softmax")
 
-# Convert the model
-converter <- Converter$new(model)
+  # Convert the model
+  converter <- Converter$new(model)
 
-# Apply the Connection Weights method
-cw <- ConnectionWeights$new(converter)
+  # Apply the Connection Weights method
+  cw <- ConnectionWeights$new(converter)
 
-# Get the head of the result as a data.frame
-head(get_result(cw, type = "data.frame"), 5)
+  # Get the head of the result as a data.frame
+  head(get_result(cw, type = "data.frame"), 5)
 
-# Plot the result for all classes
-plot(cw, output_idx = 1:2)
+  # Plot the result for all classes
+  plot(cw, output_idx = 1:2)
+}
 \dontshow{\}) # examplesIf}
 \dontshow{if (torch::torch_is_installed() & Sys.getenv("RENDER_PLOTLY", unset = 0) == 1) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 #------------------------- Plotly plots ------------------------------------
-
-# You can also create an interactive plot with plotly.
-# This is a suggested package, so make sure that it is installed
-library(plotly)
-plot(cw, as_plotly = TRUE)
+if (require("plotly")) {
+  # You can also create an interactive plot with plotly.
+  # This is a suggested package, so make sure that it is installed
+  library(plotly)
+  plot(cw, as_plotly = TRUE)
+}
 \dontshow{\}) # examplesIf}
 }
 \references{
@@ -141,7 +146,7 @@ Other methods:
 \describe{
 \item{\code{times_input}}{(\code{logical(1)})\cr
 This logical value indicates whether the results from
-the \emph{Connection Weights} method were multiplied by the provided input
+the \emph{Connection weights} method were multiplied by the provided input
 data or not. Thus, this value specifies whether the original global
 variant of the method or the local one was applied. If the value is
 \code{TRUE}, then data is provided in the field \code{data}.}
@@ -241,7 +246,7 @@ has no channel axis, use the default value \code{TRUE}.\cr}
 
 \item{\code{times_input}}{(\code{logical(1)})\cr
 Multiplies the results with the input features.
-This variant turns the global \emph{Connection Weights} method into a local
+This variant turns the global \emph{Connection weights} method into a local
 one. Default: \code{FALSE}.\cr}
 
 \item{\code{verbose}}{(\code{logical(1)})\cr

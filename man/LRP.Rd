@@ -2,9 +2,9 @@
 % Please edit documentation in R/LRP.R
 \name{LRP}
 \alias{LRP}
-\title{Layer-wise Relevance Propagation (LRP)}
+\title{Layer-wise relevance propagation (LRP)}
 \description{
-This is an implementation of the \emph{Layer-wise Relevance Propagation
+This is an implementation of the \emph{layer-wise relevance propagation
 (LRP)} algorithm introduced by Bach et al. (2015). It's a local method for
 interpreting a single element of the dataset and calculates the relevance
 scores for each input feature to the model output. The basic idea of this
@@ -47,94 +47,101 @@ plot(lrp, output_idx = 1:2)
 boxplot(lrp, output_idx = 1:2, preprocess_FUN = identity)
 
 # ------------------------- Example 2: Neuralnet ---------------------------
-library(neuralnet)
-data(iris)
-nn <- neuralnet(Species ~ .,
-  iris,
-  linear.output = FALSE,
-  hidden = c(10, 8), act.fct = "tanh", rep = 1, threshold = 0.5
-)
-# create an converter for this model
-converter <- Converter$new(nn)
+if (require("neuralnet")) {
+  library(neuralnet)
+  data(iris)
+  nn <- neuralnet(Species ~ .,
+    iris,
+    linear.output = FALSE,
+    hidden = c(10, 8), act.fct = "tanh", rep = 1, threshold = 0.5
+  )
 
-# create new instance of 'LRP'
-lrp <- LRP$new(converter, iris[, -5], rule_name = "simple")
+  # Create an converter for this model
+  converter <- Converter$new(nn)
 
-# get the result as an array for data point one and two
-get_result(lrp)[1:2,,]
+  # Create new instance of 'LRP'
+  lrp <- LRP$new(converter, iris[, -5], rule_name = "simple")
 
-# get the result as a torch tensor for data point one and two
-get_result(lrp, type = "torch.tensor")[1:2]
+  # Get the result as an array for data point one and two
+  get_result(lrp)[1:2,,]
 
-# use the alpha-beta rule with alpha = 2
-lrp <- LRP$new(converter, iris[, -5],
-  rule_name = "alpha_beta",
-  rule_param = 2
-)
+  # Get the result as a torch tensor for data point one and two
+  get_result(lrp, type = "torch.tensor")[1:2]
 
-# include the last activation into the calculation
-lrp <- LRP$new(converter, iris[, -5],
-  rule_name = "alpha_beta",
-  rule_param = 2,
-  ignore_last_act = FALSE
-)
+  # Use the alpha-beta rule with alpha = 2
+  lrp <- LRP$new(converter, iris[, -5],
+    rule_name = "alpha_beta",
+    rule_param = 2
+  )
 
-# Plot the result for all classes
-plot(lrp, output_idx = 1:3)
+  # Include the last activation into the calculation
+  lrp <- LRP$new(converter, iris[, -5],
+    rule_name = "alpha_beta",
+    rule_param = 2,
+    ignore_last_act = FALSE
+  )
+
+  # Plot the result for all classes
+  plot(lrp, output_idx = 1:3)
+}
 \dontshow{\}) # examplesIf}
 \dontshow{if (keras::is_keras_available() & torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # ------------------------- Example 3: Keras -------------------------------
-library(keras)
+if (require("keras")) {
+  library(keras)
 
-# Make sure keras is installed properly
-is_keras_available()
+  # Make sure keras is installed properly
+  is_keras_available()
 
-data <- array(rnorm(10 * 60 * 3), dim = c(10, 60, 3))
+  data <- array(rnorm(10 * 60 * 3), dim = c(10, 60, 3))
 
-model <- keras_model_sequential()
-model \%>\%
-  layer_conv_1d(
-    input_shape = c(60, 3), kernel_size = 8, filters = 8,
-    activation = "softplus", padding = "valid") \%>\%
-  layer_conv_1d(
-    kernel_size = 8, filters = 4, activation = "tanh",
-    padding = "same") \%>\%
-  layer_conv_1d(
-    kernel_size = 4, filters = 2, activation = "relu",
-    padding = "valid") \%>\%
-  layer_flatten() \%>\%
-  layer_dense(units = 64, activation = "relu") \%>\%
-  layer_dense(units = 16, activation = "relu") \%>\%
-  layer_dense(units = 3, activation = "softmax")
+  model <- keras_model_sequential()
+  model \%>\%
+    layer_conv_1d(
+      input_shape = c(60, 3), kernel_size = 8, filters = 8,
+      activation = "softplus", padding = "valid") \%>\%
+    layer_conv_1d(
+      kernel_size = 8, filters = 4, activation = "tanh",
+      padding = "same") \%>\%
+    layer_conv_1d(
+      kernel_size = 4, filters = 2, activation = "relu",
+      padding = "valid") \%>\%
+    layer_flatten() \%>\%
+    layer_dense(units = 64, activation = "relu") \%>\%
+    layer_dense(units = 16, activation = "relu") \%>\%
+    layer_dense(units = 3, activation = "softmax")
 
-# Convert the model
-converter <- Converter$new(model)
+  # Convert the model
+  converter <- Converter$new(model)
 
-# Apply the LRP method with the epsilon rule for the dense layers and
-# the alpha-beta rule for the convolutional layers
-lrp_comp <- LRP$new(converter, data,
-  channels_first = FALSE,
-  rule_name = list(Dense_Layer = "epsilon", Conv1D_Layer = "alpha_beta"),
-  rule_param = list(Dense_Layer = 0.1, Conv1D_Layer = 1)
-)
+  # Apply the LRP method with the epsilon rule for the dense layers and
+  # the alpha-beta rule for the convolutional layers
+  lrp_comp <- LRP$new(converter, data,
+    channels_first = FALSE,
+    rule_name = list(Dense_Layer = "epsilon", Conv1D_Layer = "alpha_beta"),
+    rule_param = list(Dense_Layer = 0.1, Conv1D_Layer = 1)
+  )
 
-# Plot the result for the first datapoint and all classes
-plot(lrp_comp, output_idx = 1:3)
+  # Plot the result for the first datapoint and all classes
+  plot(lrp_comp, output_idx = 1:3)
 
-# Plot the result as boxplots for first two classes
-boxplot(lrp_comp, output_idx = 1:2)
+  # Plot the result as boxplots for first two classes
+  boxplot(lrp_comp, output_idx = 1:2)
+}
 \dontshow{\}) # examplesIf}
 \dontshow{if (torch::torch_is_installed() & Sys.getenv("RENDER_PLOTLY", unset = 0) == 1) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 #------------------------- Plotly plots ------------------------------------
-# You can also create an interactive plot with plotly.
-# This is a suggested package, so make sure that it is installed
-library(plotly)
+if (require("plotly")) {
+  # You can also create an interactive plot with plotly.
+  # This is a suggested package, so make sure that it is installed
+  library(plotly)
 
-# Result as boxplots
-boxplot(lrp, as_plotly = TRUE)
+  # Result as boxplots
+  boxplot(lrp, as_plotly = TRUE)
 
-# Result of the second data point
-plot(lrp, data_idx = 2, as_plotly = TRUE)
+  # Result of the second data point
+  plot(lrp, data_idx = 2, as_plotly = TRUE)
+}
 \dontshow{\}) # examplesIf}
 }
 \references{
