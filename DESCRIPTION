@@ -1,7 +1,7 @@
 Type: Package
 Package: innsight
-Title: Get the Insights of your Neural Network
-Version: 0.2.0
+Title: Get the Insights of Your Neural Network
+Version: 0.2.1
 Authors@R: c(
     person("Niklas", "Koenen", , "niklas.koenen@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-4623-8271")),
@@ -10,9 +10,9 @@ Authors@R: c(
 Description: Interpretability methods to analyze the behavior and
     individual predictions of modern neural networks. Implemented methods
     are: 'Connection Weights' described by Olden et al. (2004)
-    <doi:10.1016/j.ecolmodel.2004.03.013>, Layer-wise Relevance
-    Propagation ('LRP') described by Bach et al. (2015)
-    <doi:10.1371/journal.pone.0130140>, Deep Learning Important Features
+    <doi:10.1016/j.ecolmodel.2004.03.013>, layer-wise relevance
+    propagation ('LRP') described by Bach et al. (2015)
+    <doi:10.1371/journal.pone.0130140>, deep learning important features
     ('DeepLIFT') described by Shrikumar et al.  (2017) <arXiv:1704.02685>
     and gradient-based methods like 'SmoothGrad' described by Smilkov et
     al. (2017) <arXiv:1706.03825>, 'Gradient x Input' described by
@@ -50,6 +50,7 @@ VignetteBuilder:
     knitr
 Config/testthat/edition: 3
 Encoding: UTF-8
+Language: en-US
 Roxygen: list(markdown = TRUE, r6 = TRUE)
 RoxygenNote: 7.2.3
 Collate: 
@@ -76,4 +77,3 @@ Collate:
     'utils_plotly.R'
     'innsight_ggplot2.R'
     'innsight_plotly.R'
-Language: en-US

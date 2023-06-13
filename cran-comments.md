@@ -1,4 +1,4 @@
-## --- `innsight` 0.2.0 ------------------------------------------------------
+## --- `innsight` 0.2.1 ------------------------------------------------------
 
 ### Test environments with LibTorch
 * GitHub Actions (ubuntu-22.04): 3.5, 3.6, 4.0, 4.1, release, devel
@@ -19,7 +19,8 @@ of torch (see torch
 and disabled their execution on CRAN.
 
 ### Test environments without LibTorch
-- R-hub Windows Server 2022, R-devel, 64 bit
+- winbuilder Windows Server 2022, R-devel, 64 bit
+- winbuilder Windows Server 2022, R-release, 64 bit
 - R-hub Ubuntu Linux 20.04.1 LTS, R-release, GCC
 - R-hub Fedora Linux, R-devel, clang, gfortran
 - macOS builder, R-release
@@ -29,19 +30,8 @@ and disabled their execution on CRAN.
 There were no errors or warnings only some notes which are not related to
 the package: 
 
-* Windows:
 ```
-❯ checking HTML version of manual ... NOTE
-  Skipping checking math rendering: package 'V8' unavailable
-
-❯ checking for detritus in the temp directory ... NOTE
-  Found the following files/directories:
-    'lastMiKTeXException'
-```
-
-* Fedora Linux
-```
-❯ checking HTML version of manual ... NOTE
-  Skipping checking HTML validation: no command 'tidy' found
-  Skipping checking math rendering: package 'V8' unavailable
+* checking HTML version of manual ... NOTE
+Skipping checking HTML validation: no command 'tidy' found
+Skipping checking math rendering: package 'V8' unavailable
 ```

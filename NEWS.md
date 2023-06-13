@@ -1,3 +1,9 @@
+# innsight 0.2.1
+
+* Add `if(require("pkgname"))` for suggested packages in examples
+* Fix typos in documentation
+
+
 # innsight 0.2.0
 
 This is a minor release but does contain a range of substantial new features 
