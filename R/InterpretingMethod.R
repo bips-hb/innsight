@@ -12,6 +12,7 @@
 #' - Gradient-based methods:
 #'    - *Vanilla gradients* including *Gradient\eqn{\times}Input* ([`Gradient`])
 #'    - Smoothed gradients including *SmoothGrad\eqn{\times}Input* ([`SmoothGrad`])
+#'    - *Integrated gradients* ([`IntegratedGradient`])
 #' - *Connection Weights* (global and local) ([`ConnectionWeights`])
 #'
 #' @template param-converter
@@ -271,7 +272,7 @@ InterpretingMethod <- R6Class(
         value_name <- "Contribution"
         include_data <- TRUE
       } else if (inherits(self, "GradientBased")) {
-        value_name <- "Gradient"
+        value_name <- if(self$times_input) "Relevance" else "Gradient"
         include_data <- TRUE
       }
 
@@ -745,14 +746,17 @@ InterpretingMethod <- R6Class(
           if (is.data.frame(input_data)) {
             input_data <- as.matrix(input_data)
           }
-          as.array(input_data)
+          input_data <- as.array(input_data)
+          assertNumeric(input_data)
+          input_data
         },
         error = function(e) {
           stopf("Failed to convert the argument {.arg ", name,
-               "[[", i, "]]} to an array ",
+               "[[", i, "]]} to a numeric array ",
                "using the function {.fn base::as.array}. The class of your ",
                "argument {.arg ", name, "[[", i, "]]}: '",
-               paste(class(input_data), collapse = "', '"), "'")
+               paste(class(input_data), collapse = "', '"), "'",
+               " (of type: '", paste(typeof(input_data), collapse = "', '"), "')")
         })
 
         ordered_dim <- self$converter$input_dim[[i]]

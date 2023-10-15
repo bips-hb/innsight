@@ -134,6 +134,7 @@ simulated data.} Ecological Modelling 178, p. 389–397
 Other methods: 
 \code{\link{DeepLift}},
 \code{\link{Gradient}},
+\code{\link{IntegratedGradient}},
 \code{\link{LRP}},
 \code{\link{SmoothGrad}}
 }

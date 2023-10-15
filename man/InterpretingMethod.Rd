@@ -13,6 +13,7 @@ This is a super class for all interpreting methods in the
 \itemize{
 \item \emph{Vanilla gradients} including \emph{Gradient\eqn{\times}Input} (\code{\link{Gradient}})
 \item Smoothed gradients including \emph{SmoothGrad\eqn{\times}Input} (\code{\link{SmoothGrad}})
+\item \emph{Integrated gradients} (\code{\link{IntegratedGradient}})
 }
 \item \emph{Connection Weights} (global and local) (\code{\link{ConnectionWeights}})
 }

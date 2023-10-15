@@ -134,6 +134,7 @@ Other methods:
 \code{\link{ConnectionWeights}},
 \code{\link{DeepLift}},
 \code{\link{Gradient}},
+\code{\link{IntegratedGradient}},
 \code{\link{LRP}}
 }
 \concept{methods}

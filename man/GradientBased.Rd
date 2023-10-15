@@ -10,6 +10,7 @@ gradient-based methods and provides a private function to calculate the
 gradients w.r.t. to the input for given data. Implemented are:
 \itemize{
 \item \emph{Vanilla Gradients} and \emph{Gradient\eqn{\times}Input} (\code{\link{Gradient}})
+\item \emph{Integrated Gradients} (\code{\link{IntegratedGradient}})
 \item \emph{SmoothGrad} and \emph{SmoothGrad\eqn{\times}Input} (\code{\link{SmoothGrad}})
 }
 }

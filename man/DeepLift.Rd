@@ -140,6 +140,7 @@ propagating activation differences.}  ICML 2017, p. 4844-4866
 Other methods: 
 \code{\link{ConnectionWeights}},
 \code{\link{Gradient}},
+\code{\link{IntegratedGradient}},
 \code{\link{LRP}},
 \code{\link{SmoothGrad}}
 }
