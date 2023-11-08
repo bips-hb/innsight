@@ -142,6 +142,7 @@ M. Sundararajan et al. (2017) \emph{Axiomatic attribution for deep networks.} IC
 Other methods: 
 \code{\link{ConnectionWeights}},
 \code{\link{DeepLift}},
+\code{\link{DeepSHAP}},
 \code{\link{Gradient}},
 \code{\link{LRP}},
 \code{\link{SmoothGrad}}

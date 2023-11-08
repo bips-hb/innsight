@@ -268,7 +268,7 @@ InterpretingMethod <- R6Class(
       } else if (inherits(self, "LRP")) {
         value_name <- "Relevance"
         include_data <- TRUE
-      } else if (inherits(self, "DeepLift")) {
+      } else if (inherits(self, c("DeepLift", "DeepSHAP"))) {
         value_name <- "Contribution"
         include_data <- TRUE
       } else if (inherits(self, "GradientBased")) {
@@ -390,7 +390,7 @@ InterpretingMethod <- R6Class(
         value_name <- "Relative Importance"
       } else if (inherits(self, "LRP")) {
         value_name <- "Relevance"
-      } else if (inherits(self, "DeepLift")) {
+      } else if (inherits(self, c("DeepLift", "DeepSHAP"))) {
         value_name <- "Contribution"
       } else if (inherits(self, "GradientBased")) {
         value_name <- "Gradient"
@@ -531,7 +531,7 @@ InterpretingMethod <- R6Class(
   private = list(
 
     # ----------------------- backward Function -------------------------------
-    run = function(method_name) { # only 'LRP' or 'DeepLift'
+    run = function(method_name) {
 
       # Declare vector for relevances for each output node
       rel_list <- vector(mode = "list",
@@ -582,7 +582,7 @@ InterpretingMethod <- R6Class(
             }
 
             # For DeepLift, we only need ones
-            if (method_name == "DeepLift") {
+            if (method_name %in% c("DeepLift", "DeepSHAP")) {
               rel <- torch_diag_embed(torch_ones_like(out))
               # Overwrite rule name
               if (self$ignore_last_act) {
@@ -656,9 +656,11 @@ InterpretingMethod <- R6Class(
             rel <- layer$get_input_relevances(rel, rule_name = lrp_rule$rule_name,
                                               rule_param = lrp_rule$rule_param,
                                               winner_takes_all = self$winner_takes_all)
-          } else if (method_name == "DeepLift") {
+          } else if (method_name %in% c("DeepLift", "DeepSHAP")) {
+            use_grad_near_zero <- ifelse(method_name == "DeepLift", TRUE, FALSE)
             rel <- layer$get_input_multiplier(rel, rule_name = rule_name,
-                                              winner_takes_all = self$winner_takes_all)
+                                              winner_takes_all = self$winner_takes_all,
+                                              use_grad_near_zero = use_grad_near_zero)
           } else if (method_name == "Connection-Weights") {
             rel <- layer$get_gradient(rel, weight = layer$W,
                                       use_avgpool = !self$winner_takes_all)
@@ -713,18 +715,21 @@ InterpretingMethod <- R6Class(
         }
       }
 
-      # For the DeepLift method, we only get the multiplier. Hence, we have
-      # to multiply this by the differences of inputs
-      if (method_name == "DeepLift") {
+      # For the DeepLift and DeepSHAP method, we only get the multiplier.
+      # Hence, we have to multiply this by the differences of inputs
+      if (method_name %in% c("DeepLift", "DeepSHAP")) {
         fun <- function(result, out_idx, in_idx, x, x_ref) {
           res <- result[[out_idx]][[in_idx]]
           if (is.null(res)) {
             res <- NULL
           } else {
-            res <- res * (x[[in_idx]] - x_ref[[in_idx]])$unsqueeze(-1)
+            res <- res * (x[[in_idx]] -
+                            torch_mean(x_ref[[in_idx]], dim = 1, keepdim = TRUE)
+                         )$unsqueeze(-1)
           }
         }
-        result <- apply_results(result, fun, x = self$data, x_ref = self$x_ref)
+        x_ref <- if (method_name == "DeepLift") self$x_ref else self$data_ref
+        result <- apply_results(result, fun, x = self$data, x_ref = x_ref)
       }
 
       result

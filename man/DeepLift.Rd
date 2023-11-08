@@ -139,6 +139,7 @@ propagating activation differences.}  ICML 2017, p. 4844-4866
 \seealso{
 Other methods: 
 \code{\link{ConnectionWeights}},
+\code{\link{DeepSHAP}},
 \code{\link{Gradient}},
 \code{\link{IntegratedGradient}},
 \code{\link{LRP}},

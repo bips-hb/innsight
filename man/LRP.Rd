@@ -153,6 +153,7 @@ p. 1-46
 Other methods: 
 \code{\link{ConnectionWeights}},
 \code{\link{DeepLift}},
+\code{\link{DeepSHAP}},
 \code{\link{Gradient}},
 \code{\link{IntegratedGradient}},
 \code{\link{SmoothGrad}}

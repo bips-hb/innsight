@@ -134,6 +134,7 @@ if (require("plotly")) {
 Other methods: 
 \code{\link{ConnectionWeights}},
 \code{\link{DeepLift}},
+\code{\link{DeepSHAP}},
 \code{\link{IntegratedGradient}},
 \code{\link{LRP}},
 \code{\link{SmoothGrad}}

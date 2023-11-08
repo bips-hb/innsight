@@ -91,7 +91,8 @@ InterpretingLayer <- nn_module(
     rel_input
   },
 
-  get_input_multiplier = function(mult_output, rule_name = "rescale", ...) {
+  get_input_multiplier = function(mult_output, rule_name = "rescale",
+                                  use_grad_near_zero = FALSE, ...) {
 
     # --------------------- Non-linear part---------------------------
     mult_pos <- mult_output
@@ -106,17 +107,23 @@ InterpretingLayer <- nn_module(
           (self$preactivation - self$preactivation_ref)$unsqueeze(-1)
 
         # Near zero needs special treatment
-        mask <- torch_le(abs(delta_preact), eps) * 1.0
-        x <-  mask *
-          (self$preactivation + self$preactivation_ref)$unsqueeze(-1) / 2
-        x$requires_grad <- TRUE
+        if (use_grad_near_zero) {
+          mask <- torch_le(abs(delta_preact), eps) * 1.0
+          x <-  mask *
+            (self$preactivation + self$preactivation_ref)$unsqueeze(-1) / 2
+          x$requires_grad <- TRUE
 
-        y <- sum(self$activation_f(x))
-        grad <- autograd_grad(y, x)[[1]]
+          y <- sum(self$activation_f(x))
+          grad <- autograd_grad(y, x)[[1]]
 
-        nonlin_mult <-
-          (1 - mask) * (delta_output / (delta_preact + delta_preact$eq(0.0) * eps)) +
-          mask * grad
+          nonlin_mult <-
+            (1 - mask) * (delta_output / (delta_preact + delta_preact$eq(0.0) * eps)) +
+            mask * grad
+        } else {
+          nonlin_mult <-
+            delta_output / (delta_preact + delta_preact$eq(0.0) * eps)
+        }
+
 
         mult_pos <- mult_output * nonlin_mult
         mult_neg <- mult_output * nonlin_mult
