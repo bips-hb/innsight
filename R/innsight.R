@@ -45,4 +45,5 @@
 #' @importFrom cli cli_h1 cli_h2 cli_text cli_ul cli_li cli_end col_grey
 #' @importFrom cli cli_dl symbol cli_ol cli_div cli_bullets col_cyan
 #' @importFrom cli cli_progress_bar cli_progress_update cli_progress_done
+#' @importFrom stats predict
 NULL

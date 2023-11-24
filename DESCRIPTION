@@ -32,17 +32,20 @@ Imports:
     torch
 Suggests:
     covr,
+    fastshap,
     GGally,
     grid,
     gridExtra,
     gtable,
     keras,
     knitr,
+    lime,
     luz,
     neuralnet,
     palmerpenguins,
     plotly,
     rmarkdown,
+    ranger,
     spelling,
     tensorflow,
     testthat (>= 3.0.0)
@@ -54,6 +57,8 @@ Language: en-US
 Roxygen: list(markdown = TRUE, r6 = TRUE)
 RoxygenNote: 7.2.3
 Collate: 
+    'AgnosticMethods.R'
+    'AgnosticWrapper.R'
     'ConnectionWeights.R'
     'Convert_keras.R'
     'Convert_neuralnet.R'

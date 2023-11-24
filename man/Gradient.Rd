@@ -136,7 +136,9 @@ Other methods:
 \code{\link{DeepLift}},
 \code{\link{DeepSHAP}},
 \code{\link{IntegratedGradient}},
+\code{\link{LIME}},
 \code{\link{LRP}},
+\code{\link{SHAP}},
 \code{\link{SmoothGrad}}
 }
 \concept{methods}

@@ -274,6 +274,12 @@ InterpretingMethod <- R6Class(
       } else if (inherits(self, "GradientBased")) {
         value_name <- if(self$times_input) "Relevance" else "Gradient"
         include_data <- TRUE
+      } else if (inherits(self, "LIME")) {
+        value_name <- "Weight"
+        include_data <- TRUE
+      } else if (inherits(self, "SHAP")) {
+        value_name <- "Shapley Value"
+        include_data <- TRUE
       }
 
       # Check correctness of arguments
@@ -394,6 +400,10 @@ InterpretingMethod <- R6Class(
         value_name <- "Contribution"
       } else if (inherits(self, "GradientBased")) {
         value_name <- "Gradient"
+      } else if (inherits(self, "LIME")) {
+        value_name <- "Weight"
+      } else if (inherits(self, "SHAP")) {
+        value_name <- "Shapley Value"
       }
 
       #

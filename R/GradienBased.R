@@ -362,7 +362,7 @@ IntegratedGradient <- R6Class(
           dim = 1)
 
         # Define scale
-        scale <- torch_tensor(rep(seq(0, 1, length.out = self$n), length.out = res$shape[1]))
+        scale <- torch_tensor(rep(seq(1/self$n, 1, length.out = self$n), length.out = res$shape[1]))
         scale <- scale$reshape(c(-1, rep(1, res$dim() - 1)))
 
         # Create interpolations between x and x_ref
@@ -386,13 +386,13 @@ IntegratedGradient <- R6Class(
           # of shape (n, dim_in)
           grad <- grad$chunk(dim(self$data[[1]])[1])
 
-          # Define trapezoidal rule for approximation the integral
-          trapez_rule <- function(x, n) {
-            torch_mean((x[1:(n-1), ] + x[2:n]) / 2, dim = 1)
-          }
+          # # Define trapezoidal rule for approximation the integral
+          #trapez_rule <- function(x, n) {
+          #  torch_mean((x[1:(n-1), ] + x[2:n]) / 2, dim = 1)
+          #}
 
           # Calculate the result of IntegratedGradients for current gradients
-          res <- torch_stack(lapply(grad, trapez_rule, n = self$n))
+          res <- torch_stack(lapply(grad, torch_mean, dim = 1))
         }
 
         res

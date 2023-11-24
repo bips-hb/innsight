@@ -156,6 +156,8 @@ Other methods:
 \code{\link{DeepSHAP}},
 \code{\link{Gradient}},
 \code{\link{IntegratedGradient}},
+\code{\link{LIME}},
+\code{\link{SHAP}},
 \code{\link{SmoothGrad}}
 }
 \concept{methods}
