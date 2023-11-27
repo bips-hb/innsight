@@ -80,5 +80,6 @@ Collate:
     'utils.R'
     'utils_ggplot.R'
     'utils_plotly.R'
+    'innsight_sugar.R'
     'innsight_ggplot2.R'
     'innsight_plotly.R'
