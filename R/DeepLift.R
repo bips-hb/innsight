@@ -24,6 +24,7 @@
 #' @template param-converter
 #' @template param-data
 #' @template param-output_idx
+#' @template param-output_label
 #' @template param-channels_first
 #' @template param-ignore_last_act
 #' @template param-x_ref
@@ -69,13 +70,14 @@ DeepLift <- R6Class(
     initialize = function(converter, data,
                           channels_first = TRUE,
                           output_idx = NULL,
+                          output_label = NULL,
                           ignore_last_act = TRUE,
                           rule_name = "rescale",
                           x_ref = NULL,
                           winner_takes_all = TRUE,
                           verbose = interactive(),
                           dtype = "float") {
-      super$initialize(converter, data, channels_first, output_idx,
+      super$initialize(converter, data, channels_first, output_idx, output_label,
                        ignore_last_act, winner_takes_all, verbose, dtype)
 
       cli_check(checkChoice(rule_name, c("rescale", "reveal_cancel")),
@@ -143,7 +145,7 @@ DeepLift <- R6Class(
 #' Deep Shapley additive explanations (DeepSHAP)
 #'
 #' @description
-#' The *DeepSHAP* method extends the [DeepLift] technique by not only
+#' The *DeepSHAP* method extends the [`DeepLift`] technique by not only
 #' considering a single reference value but by calculating the average
 #' from several, ideally representative reference values at each layer. The
 #' obtained feature-wise results are approximate Shapley values for the
@@ -156,6 +158,7 @@ DeepLift <- R6Class(
 #' @template param-converter
 #' @template param-data
 #' @template param-output_idx
+#' @template param-output_label
 #' @template param-channels_first
 #' @template param-ignore_last_act
 #' @template param-dtype
@@ -222,6 +225,7 @@ DeepSHAP <- R6Class(
     initialize = function(converter, data,
                           channels_first = TRUE,
                           output_idx = NULL,
+                          output_label = NULL,
                           ignore_last_act = TRUE,
                           rule_name = "rescale",
                           data_ref = NULL,
@@ -229,7 +233,7 @@ DeepSHAP <- R6Class(
                           winner_takes_all = TRUE,
                           verbose = interactive(),
                           dtype = "float") {
-      super$initialize(converter, data, channels_first, output_idx,
+      super$initialize(converter, data, channels_first, output_idx, output_label,
                        ignore_last_act, winner_takes_all, verbose, dtype)
 
       cli_check(checkChoice(rule_name, c("rescale", "reveal_cancel")), "rule_name")
@@ -301,16 +305,16 @@ DeepSHAP <- R6Class(
       i <- cli_ul()
       cli_li(paste0("{.field rule_name}: '", self$rule_name, "'"))
       cli_li(paste0("{.field winner_takes_all}: ", self$winner_takes_all))
-      all_zeros <- all(unlist(lapply(self$x_ref,
+      all_zeros <- all(unlist(lapply(self$data_ref,
                                      function(x) all(as_array(x) == 0))))
       if (all_zeros) {
         s <- "zeros"
       } else {
-        values <- unlist(lapply(self$x_ref, as_array))
+        values <- unlist(lapply(self$data_ref, as_array))
         s <- paste0("mean: ", mean(values), " (q1: ", quantile(values, 0.25),
                     ", q3: ", quantile(values, 0.75), ")")
       }
-      cli_li(paste0("{.field x_ref}: ", s))
+      cli_li(paste0("{.field data_ref}: ", s))
       cli_end(id = i)
     }
   )

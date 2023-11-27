@@ -22,6 +22,7 @@
 #' @template param-x_ref
 #' @template param-dtype
 #' @template param-output_idx
+#' @template param-output_label
 #' @template param-verbose
 #' @template param-winner_takes_all
 #'
@@ -94,13 +95,14 @@ LRP <- R6Class(
     initialize = function(converter, data,
                           channels_first = TRUE,
                           output_idx = NULL,
+                          output_label = NULL,
                           ignore_last_act = TRUE,
                           rule_name = "simple",
                           rule_param = NULL,
                           winner_takes_all = TRUE,
                           verbose = interactive(),
                           dtype = "float") {
-      super$initialize(converter, data, channels_first, output_idx,
+      super$initialize(converter, data, channels_first, output_idx, output_label,
                        ignore_last_act, winner_takes_all, verbose, dtype)
 
       layer_names_with_rule <- c(

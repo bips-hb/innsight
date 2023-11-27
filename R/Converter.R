@@ -379,7 +379,8 @@ Converter <- R6Class("Converter",
 
       # Check input names
       if (is.null(model_as_list$input_names)) {
-        model_as_list$input_names <- get_input_names(model_as_list$input_dim)
+        model_as_list$input_names <-
+          set_name_format(get_input_names(model_as_list$input_dim))
       } else {
         input_names <- model_as_list$input_names
         input_names_lenght <- lapply(input_names,
@@ -399,7 +400,7 @@ Converter <- R6Class("Converter",
       # Check output names
       if (is.null(model_as_list$output_names)) {
         model_as_list$output_names <-
-          get_output_names(model_as_list$output_dim)
+          set_name_format(get_output_names(model_as_list$output_dim))
       } else {
         output_names <- model_as_list$output_names
         output_names_length <- lapply(output_names,

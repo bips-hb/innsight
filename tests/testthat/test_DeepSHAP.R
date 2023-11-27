@@ -145,12 +145,12 @@ test_that("DeepSHAP: Dense-Net (Neuralnet)", {
                                     TRUE, TRUE, TRUE, TRUE)
 
   last_layer <- rev(converter$model$modules_list)[[1]]
-  contrib_true <- last_layer$output - last_layer$output_ref
+  contrib_true <- last_layer$output - last_layer$output_ref$mean(dim = 1, keepdim = TRUE)
   contrib_no_last_act_true <-
-    last_layer$preactivation - last_layer$preactivation_ref
+    last_layer$preactivation - last_layer$preactivation_ref$mean(dim = 1, keepdim = TRUE)
 
   first_layer <- converter$model$modules_list[[1]]
-  input_diff <- (first_layer$input - first_layer$input_ref)$unsqueeze(-1)
+  input_diff <- (first_layer$input - first_layer$input_ref$mean(dim = 1, keepdim = TRUE))$unsqueeze(-1)
 
 
   deepshap_rescale <- d$get_result(type = "torch.tensor")
@@ -234,12 +234,12 @@ test_that("DeepSHAP: Dense-Net (keras)", {
   converter$model$update_ref(torch_tensor(data_ref), TRUE, TRUE, TRUE, TRUE)
 
   last_layer <- rev(converter$model$modules_list)[[1]]
-  contrib_true <- last_layer$output - last_layer$output_ref
+  contrib_true <- last_layer$output - last_layer$output_ref$mean(dim = 1, keepdim = TRUE)
   contrib_no_last_act_true <-
-    last_layer$preactivation - last_layer$preactivation_ref
+    last_layer$preactivation - last_layer$preactivation_ref$mean(dim = 1, keepdim = TRUE)
 
   first_layer <- converter$model$modules_list[[1]]
-  input_diff <- (first_layer$input - first_layer$input_ref)$unsqueeze(-1)
+  input_diff <- (first_layer$input - first_layer$input_ref$mean(dim = 1, keepdim = TRUE))$unsqueeze(-1)
 
   deepshap_rescale <- d$get_result(type = "torch.tensor")
 
@@ -330,12 +330,12 @@ test_that("DeepSHAP: Conv1D-Net", {
   converter$model$update_ref(torch_tensor(data_ref), FALSE, TRUE, TRUE, TRUE)
 
   last_layer <- rev(converter$model$modules_list)[[1]]
-  contrib_true <- last_layer$output - last_layer$output_ref
+  contrib_true <- last_layer$output - last_layer$output_ref$mean(dim = 1, keepdim = TRUE)
   contrib_no_last_act_true <-
-    last_layer$preactivation - last_layer$preactivation_ref
+    last_layer$preactivation - last_layer$preactivation_ref$mean(dim = 1, keepdim = TRUE)
 
   first_layer <- converter$model$modules_list[[1]]
-  input_diff <- (first_layer$input - first_layer$input_ref)$unsqueeze(-1)
+  input_diff <- (first_layer$input - first_layer$input_ref$mean(dim = 1, keepdim = TRUE))$unsqueeze(-1)
 
 
   deepshap_rescale <- d$get_result(type = "torch.tensor")
@@ -429,16 +429,14 @@ test_that("DeepSHAP: Conv2D-Net", {
   converter$model$update_ref(torch_tensor(data_ref), FALSE, TRUE, TRUE, TRUE)
 
   last_layer <- rev(converter$model$modules_list)[[1]]
-  contrib_true <- last_layer$output - last_layer$output_ref
+  contrib_true <- last_layer$output - last_layer$output_ref$mean(dim = 1, keepdim = TRUE)
   contrib_no_last_act_true <-
-    last_layer$preactivation - last_layer$preactivation_ref
+    last_layer$preactivation - last_layer$preactivation_ref$mean(dim = 1, keepdim = TRUE)
 
   first_layer <- converter$model$modules_list[[1]]
-  input_diff <- (first_layer$input - first_layer$input_ref)$unsqueeze(-1)
+  input_diff <- (first_layer$input - first_layer$input_ref$mean(dim = 1, keepdim = TRUE))$unsqueeze(-1)
 
   deepshap_rescale <- d$get_result(type = "torch.tensor")
-  as.array(mean(abs(deepshap_rescale$sum(dim = c(2, 3, 4)) -
-                      contrib_true)^2))
 
   expect_equal(dim(deepshap_rescale), c(4, 16, 16, 3, 2))
   expect_lt(as.array(mean(abs(deepshap_rescale$sum(dim = c(2, 3, 4)) -

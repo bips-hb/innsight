@@ -21,6 +21,7 @@
 #' @template param-ignore_last_act
 #' @template param-dtype
 #' @template param-aggr_channels
+#' @template param-output_label
 #' @template param-as_plotly
 #' @template param-verbose
 #' @template param-ref_data_idx
@@ -35,6 +36,7 @@
 #' @template field-ignore_last_act
 #' @template field-result
 #' @template field-output_idx
+#' @template field-output_label
 #' @template field-verbose
 #' @template field-winner_takes_all
 #'
@@ -49,6 +51,7 @@ InterpretingMethod <- R6Class(
     ignore_last_act = NULL,
     result = NULL,
     output_idx = NULL,
+    output_label = NULL,
     verbose = NULL,
 
     #' @description
@@ -79,6 +82,7 @@ InterpretingMethod <- R6Class(
     initialize = function(converter, data,
                           channels_first = TRUE,
                           output_idx = NULL,
+                          output_label = NULL,
                           ignore_last_act = TRUE,
                           winner_takes_all = TRUE,
                           verbose = interactive(),
@@ -102,8 +106,11 @@ InterpretingMethod <- R6Class(
       self$dtype <- dtype
       self$converter$model$set_dtype(dtype)
 
-      # Check output indices
-      self$output_idx <- check_output_idx(output_idx, converter$output_dim)
+      # Check output indices and labels
+      outputs <- check_output_idx(output_idx, converter$output_dim,
+                                  output_label, converter$output_names)
+      self$output_idx <- outputs[[1]]
+      self$output_label <- outputs[[2]]
 
       self$data <- private$test_data(data)
     },
@@ -898,16 +905,14 @@ print_output_idx <- function(output_idx, out_names) {
 #                                 Utils
 ###############################################################################
 
-check_output_idx <- function(output_idx, output_dim) {
-  # for the default value, choose from the first output the first ten
-  # (maybe less) output nodes
-  if (is.null(output_idx)) {
-    output_idx <- list(1:min(10, output_dim[[1]]))
-  } else if (testIntegerish(output_idx,
-                          lower = 1,
-                          upper = output_dim[[1]])) {
-    # or only a number (assumes the first output)
+check_output_idx <- function(output_idx, output_dim, output_label, output_names) {
+  # Check the output indices --------------------------
+  # Check if output_idx is a single vector
+  if (testIntegerish(output_idx,
+                     lower = 1,
+                     upper = output_dim[[1]])) {
     output_idx <- list(output_idx)
+  # Check if it's a list of vectors
   } else if (testList(output_idx, max.len = length(output_dim))) {
     # the argument output_idx is a list of output_nodes for each output
     n <- 1
@@ -916,25 +921,86 @@ check_output_idx <- function(output_idx, output_dim) {
       cli_check(checkInt(limit), "limit")
       if (!testIntegerish(output, lower = 1, upper = limit, null.ok = TRUE)) {
         stopf("Assertion on {.arg output_idx[[", n, "]]} failed: Value(s) ",
-             paste(output, collapse = ","), " not <= ", limit, ".")
+              paste(output, collapse = ","), " not <= ", limit, ".")
       }
       n <- n + 1
     }
-  } else {
+  } else if (!is.null(output_idx)) {
     stopf("The argument {.arg output_idx} has to be either a vector with maximum ",
-         "value of '", output_dim[[1]], "' or a list of length '",
-         length(output_dim), "' with maximal values of '",
-         paste(unlist(output_dim), collapse = ","), "'.")
+          "value of '", output_dim[[1]], "' or a list of length '",
+          length(output_dim), "' with maximal values of '",
+          paste(unlist(output_dim), collapse = ","), "'.")
+  }
+
+  # Check the output labels -------------------------
+  # Check if output_label is a single vector
+  if (testCharacter(output_label, min.len = 1, max.len = output_dim[[1]]) ||
+      testFactor(output_label, min.len = 1, max.len = output_dim[[1]])) {
+    # Check if labels are a subset of output_names
+    cli_check(checkSubset(as.factor(output_label), unlist(output_names[[1]])),
+              "output_label")
+    output_label <- list(output_label)
+    # Check if it's a list of vectors
+  } else if (testList(output_label, max.len = length(output_names))) {
+    # the argument output_label is a list of names for each output
+    n <- 1
+    for (output in output_label) {
+      # Check if labels are a subset of output_names
+      cli_check(checkSubset(as.factor(unlist(output)), unlist(output_names[[n]])),
+                "output_label")
+      n <- n + 1
+    }
+  } else if (!is.null(output_label)) {
+    stopf("The argument {.arg output_label} has to be either a vector of ",
+          "characters/factors or a list of vectors of characters/factors!")
+  }
+
+  if (is.null(output_idx) && is.null(output_label)) {
+    output_idx <- list(1:min(10, output_dim[[1]]))
+    output_label <- list(output_names[[1]][[1]][output_idx[[1]]])
+  } else if (is.null(output_idx) && !is.null(output_label)) {
+    output_idx <- list()
+    for (i in seq_along(output_label)) {
+      output_idx[[i]] <- match(output_label[[i]], output_names[[i]][[1]])
+      if (length(output_idx[[i]]) == 0) output_idx[[i]] <- NULL
+    }
+  } else if (is.null(output_label) && !is.null(output_idx)) {
+    output_label <- list()
+    for (i in seq_along(output_idx)) {
+      output_label[[i]] <- output_names[[i]][[1]][output_idx[[i]]]
+    }
   }
 
   # Fill up with NULLs
-  if (length(output_idx) < length(output_dim)) {
-    output_idx <-
-      append(output_idx,
-             rep(list(NULL), length(output_dim) - length(output_idx)))
+  num_layers <- length(output_dim)
+  if (length(output_idx) < num_layers) {
+    output_idx <- append(output_idx,
+                         rep(list(NULL), num_layers - length(output_idx)))
+  }
+  if (length(output_label) < num_layers) {
+    output_label <- append(output_label,
+                           rep(list(NULL), num_layers - length(output_label)))
   }
 
-  output_idx
+  # Check if both are consistent
+  for (i in seq_along(output_dim)) {
+    if (testTRUE(length(output_idx[[i]]) != length(output_label[[i]]))) {
+      stopf("Both the {.arg output_idx} and {.arg output_label} arguments ",
+            "were passed (i.e., not {.code NULL}). However, they do not ",
+            "match and point to different output nodes.")
+    }
+
+    # Get labels from output_idx
+    labels <- output_names[[i]][[1]][output_idx[[i]]]
+    if (length(labels) == 0) labels <- NULL
+    if (!testSetEqual(labels, as.factor(output_label[[i]]))) {
+      stopf("Both the {.arg output_idx} and {.arg output_label} arguments ",
+            "were passed (i.e., not {.code NULL}). However, they do not ",
+            "match and point to different output nodes.")
+    }
+  }
+
+  list(output_idx, output_label)
 }
 
 

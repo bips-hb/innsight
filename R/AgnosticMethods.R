@@ -27,6 +27,7 @@
 #' `data.frame` back into an `array` as necessary.
 #'
 #' @template param-output_idx
+#' @template param-output_label
 #' @template param-channels_first
 #' @template param-model-agnostic
 #' @template param-data-agnostic
@@ -55,6 +56,7 @@ LIME <- R6Class(
                           output_type = NULL,
                           pred_fun = NULL,
                           output_idx = NULL,
+                          output_label = NULL,
                           channels_first = TRUE,
                           input_dim = NULL,
                           input_names = NULL,
@@ -65,7 +67,7 @@ LIME <- R6Class(
       if (inherits(x, "torch_tensor")) x <- as.array(x)
 
       super$initialize(model, data, x, output_type, pred_fun, output_idx,
-                       channels_first, input_dim, input_names,
+                       output_label, channels_first, input_dim, input_names,
                        output_names)
 
       # Get the pre-processed x
@@ -153,6 +155,7 @@ model_type.innsight_agnostic_wrapper <- function(x, ...) {
 #' `data.frame` back into an `array` as necessary.
 #'
 #' @template param-output_idx
+#' @template param-output_label
 #' @template param-channels_first
 #' @template param-model-agnostic
 #' @template param-data-agnostic
@@ -179,6 +182,7 @@ SHAP <- R6Class(
     initialize = function(model, data, x,
                           pred_fun = NULL,
                           output_idx = NULL,
+                          output_label = NULL,
                           channels_first = TRUE,
                           input_dim = NULL,
                           input_names = NULL,
@@ -192,7 +196,7 @@ SHAP <- R6Class(
       if (inherits(x, "torch_tensor")) x <- as.array(x)
 
       super$initialize(model, data, x, output_type, pred_fun, output_idx,
-                       channels_first, input_dim, input_names,
+                       output_label, channels_first, input_dim, input_names,
                        output_names)
 
       # We use the fastshap package for the explanation

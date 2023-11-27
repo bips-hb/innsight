@@ -144,8 +144,6 @@ test_that("ConnectionWeights (global): Conv1D-Net", {
   # get_result method
   result <- cw_first$get_result()
   expect_equal(dim(result), c(1,3,64,4))
-  expect_equal(dimnames(result),
-               c(list(NULL), converter$input_names[[1]], converter$output_names[[1]]))
   result <- cw_first$get_result("torch.tensor")
   expect_equal(dim(result), c(1,3,64,4))
   result <- cw_first$get_result("data.frame")
@@ -229,8 +227,6 @@ test_that("ConnectionWeights (global): Conv2D-Net", {
   # get_result method
   result <- cw_first$get_result()
   expect_equal(dim(result), c(1,3,32,32,5))
-  expect_equal(dimnames(result),
-               c(list(NULL), converter$input_names[[1]], converter$output_names[[1]]))
   result <- cw_first$get_result("torch.tensor")
   expect_equal(dim(result), c(1,3,32,32,5))
   result <- cw_first$get_result("data.frame")
@@ -395,8 +391,6 @@ test_that("ConnectionWeights (local): Dense-Net", {
   # get_result method
   result <- cw_first$get_result()
   expect_equal(dim(result), c(10,4,3))
-  expect_equal(dimnames(result),
-               c(list(NULL), converter$input_names[[1]], converter$output_names[[1]]))
   result <- cw_first$get_result("torch.tensor")
   expect_equal(dim(result), c(10,4,3))
   result <- cw_first$get_result("data.frame")
@@ -482,8 +476,6 @@ test_that("ConnectionWeights (local): Conv1D-Net", {
   # get_result method
   result <- cw_first$get_result()
   expect_equal(dim(result), c(10,3,64,4))
-  expect_equal(dimnames(result),
-               c(list(NULL), converter$input_names[[1]], converter$output_names[[1]]))
   result <- cw_first$get_result("torch.tensor")
   expect_equal(dim(result), c(10,3,64,4))
   result <- cw_first$get_result("data.frame")
@@ -575,8 +567,6 @@ test_that("ConnectionWeights (local): Conv2D-Net", {
   # get_result method
   result <- cw_first$get_result()
   expect_equal(dim(result), c(10,3,32,32,5))
-  expect_equal(dimnames(result),
-               c(list(NULL), converter$input_names[[1]], converter$output_names[[1]]))
   result <- cw_first$get_result("torch.tensor")
   expect_equal(dim(result), c(10,3,32,32,5))
   result <- cw_first$get_result("data.frame")

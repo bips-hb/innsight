@@ -134,6 +134,7 @@ Other methods:
 \code{\link{ConnectionWeights}},
 \code{\link{DeepLift}},
 \code{\link{DeepSHAP}},
+\code{\link{ExpectedGradient}},
 \code{\link{Gradient}},
 \code{\link{IntegratedGradient}},
 \code{\link{LIME}},
@@ -186,6 +187,7 @@ the given data and the results are stored in the field \code{result}.
   data,
   channels_first = TRUE,
   output_idx = NULL,
+  output_label = NULL,
   ignore_last_act = TRUE,
   times_input = FALSE,
   n = 50,
@@ -239,6 +241,33 @@ applied to output nodes from different layers, a list can be passed
 that specifies the desired indices of the output nodes for each
 output layer. Unwanted output layers have the entry \code{NULL} instead of
 a vector of indices, e.g., \code{list(NULL, c(1,3))} for the first and
+third output node in the second output layer.
+\item \code{NULL} (default): The method is applied to all output nodes in
+the first output layer but is limited to the first ten as the
+calculations become more computationally expensive for more output
+nodes.\cr
+}}
+
+\item{\code{output_label}}{(\code{character}, \code{factor}, \code{list} or \code{NULL})\cr
+These values specify the output nodes for which
+the method is to be applied. Only values that were previously passed with
+the argument \code{output_names} in the \code{converter} can be used. In order to
+allow models with multiple
+output layers, there are the following possibilities to select
+the names of the output nodes in the individual output layers:
+\itemize{
+\item A \code{character} vector or \code{factor} of labels: If the model has only one output
+layer, the values correspond to the labels of the output nodes named in the
+passed \code{Converter} object, e.g.,
+\code{c("a", "c", "d")} for the first, third and fourth output node if the
+output names are \code{c("a", "b", "c", "d")}. If there are
+multiple output layers, the names of the output nodes from the first
+output layer are considered.
+\item A \code{list} of \code{charactor}/\code{factor} vectors of labels: If the method is to be
+applied to output nodes from different layers, a list can be passed
+that specifies the desired labels of the output nodes for each
+output layer. Unwanted output layers have the entry \code{NULL} instead of
+a vector of labels, e.g., \code{list(NULL, c("a", "c"))} for the first and
 third output node in the second output layer.
 \item \code{NULL} (default): The method is applied to all output nodes in
 the first output layer but is limited to the first ten as the

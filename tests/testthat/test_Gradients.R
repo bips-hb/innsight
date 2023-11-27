@@ -13,10 +13,24 @@ test_that("Gradient: Plot and Boxplot", {
   # create an converter for this model
   converter <- Converter$new(nn)
 
-  # Rescale Rule
-  grad <- Gradient$new(converter, data,
-                    dtype = "double",
-  )
+  expect_error(Gradient$new(converter, data, output_idx = c(1, 10)))
+  Gradient$new(converter, data, output_idx = c(1, 2))
+  expect_error(Gradient$new(converter, data, output_idx = list(c(1, 10))))
+  Gradient$new(converter, data, output_idx = list(c(1, 3)))
+  expect_error(Gradient$new(converter, data, output_idx = list(NULL, c(1, 2))))
+  expect_error(Gradient$new(converter, data, output_label = c(1, 2)))
+  expect_error(Gradient$new(converter, data, output_label = c("A", "b")))
+  Gradient$new(converter, data, output_label = c("setosa", "virginica"))
+  Gradient$new(converter, data, output_label = as.factor(c("setosa", "virginica")))
+  Gradient$new(converter, data, output_label = list(c("setosa", "virginica")))
+  expect_error(Gradient$new(converter, data,
+                            output_label =  c("setosa", "virginica"),
+                            output_idx = c(1, 2)))
+  Gradient$new(converter, data, output_label =  c("setosa", "virginica"),
+               output_idx = c(1, 3))
+
+  # ggplot2
+  grad <- Gradient$new(converter, data, dtype = "double")
 
   # ggplot2
 

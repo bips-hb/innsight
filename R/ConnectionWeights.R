@@ -24,6 +24,7 @@
 #' @template param-channels_first
 #' @template param-dtype
 #' @template param-output_idx
+#' @template param-output_label
 #' @template param-verbose
 #'
 #' @references
@@ -57,6 +58,7 @@ ConnectionWeights <- R6Class(
     initialize = function(converter,
                           data = NULL,
                           output_idx = NULL,
+                          output_label = NULL,
                           channels_first = TRUE,
                           times_input = FALSE,
                           verbose = interactive(),
@@ -77,8 +79,11 @@ ConnectionWeights <- R6Class(
       self$dtype <- dtype
       self$converter$model$set_dtype(dtype)
 
-      # Check output indices
-      self$output_idx <- check_output_idx(output_idx, converter$output_dim)
+      # Check output indices and labels
+      outputs <- check_output_idx(output_idx, converter$output_dim,
+                                  output_label, converter$output_names)
+      self$output_idx <- outputs[[1]]
+      self$output_label <- outputs[[2]]
 
       if (times_input & is.null(data)) {
         stopf(

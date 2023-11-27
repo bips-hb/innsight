@@ -26,6 +26,23 @@ test_that("LIME: General errors", {
   expect_error(LIME$new(model, data, data[1:2, ], output_names = c("a", "d"))) # wrong output_names
   LIME$new(model, data, data[1:2, ], output_names = factor(c("a", "d", "c")))
 
+  expect_error(LIME$new(model, data, data[1:2, ], output_idx = c(1, 10)))
+  LIME$new(model, data, data[1:2, ], output_idx = c(1, 2))
+  expect_error(LIME$new(model, data, data[1:2, ], output_idx = list(c(1, 10))))
+  LIME$new(model, data, data[1:2, ], output_idx = list(c(1, 3)))
+  expect_error(LIME$new(model, data, data[1:2, ], output_idx = list(NULL, c(1, 2))))
+  expect_error(LIME$new(model, data, data[1:2, ], output_label = c(1, 2)))
+  expect_error(LIME$new(model, data, data[1:2, ], output_label = c("A", "b")))
+  LIME$new(model, data, data[1:2, ], output_label = c("setosa", "virginica"))
+  LIME$new(model, data, data[1:2, ], output_label = as.factor(c("setosa", "virginica")))
+  LIME$new(model, data, data[1:2, ], output_label = list(c("setosa", "virginica")))
+  expect_error(LIME$new(model, data, data[1:2, ],
+                        output_label =  c("setosa", "virginica"),
+                        output_idx = c(1, 2)))
+  LIME$new(model, data, data[1:2, ],
+           output_label =  c("setosa", "virginica"),
+           output_idx = c(1, 3))
+
   # Forwarding arguments to lime::explain
   lime <- LIME$new(model, data, data[1:10, ], n_permutations = 100, gower_power = 3)
 

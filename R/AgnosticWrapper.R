@@ -20,6 +20,7 @@
 #' @template param-channels_first
 #' @template param-model-agnostic
 #' @template param-data-agnostic
+#' @template param-output_label
 #' @template param-x-agnostic
 #' @template param-output_type-agnostic
 #' @template param-pred_fun-agnostic
@@ -43,6 +44,7 @@ AgnosticWrapper <- R6Class(
                           output_type = NULL,
                           pred_fun = NULL,
                           output_idx = NULL,
+                          output_label = NULL,
                           channels_first = TRUE,
                           input_dim = NULL,
                           input_names = NULL,
@@ -77,8 +79,11 @@ AgnosticWrapper <- R6Class(
       self$ignore_last_act <- FALSE
       self$dtype <- "float"
 
-      # Check output indices
-      self$output_idx <- check_output_idx(output_idx, conv_model$output_dim)
+      # Check output indices and labels
+      outputs <- check_output_idx(output_idx, self$converter$output_dim,
+                                  output_label, self$converter$output_names)
+      self$output_idx <- outputs[[1]]
+      self$output_label <- outputs[[2]]
 
       # Save the original data to be explained
       self$x <- x
