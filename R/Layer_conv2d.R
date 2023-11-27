@@ -89,7 +89,7 @@ conv2d_layer <- nn_module(
   update_ref = function(x_ref, save_input = TRUE, save_preactivation = TRUE,
                         save_output = TRUE, ...) {
     if (save_input) {
-      self$input_ref <- x_ref$mean(dim = 1, keepdim = TRUE)
+      self$input_ref <- x_ref
     }
     # Apply padding
     if (any(self$padding != 0)) {
@@ -103,12 +103,12 @@ conv2d_layer <- nn_module(
       dilation = self$dilation
     )
     if (save_preactivation) {
-      self$preactivation_ref <- preactivation_ref$mean(dim = 1, keepdim = TRUE)
+      self$preactivation_ref <- preactivation_ref
     }
     # Apply non-linearity
     output_ref <- self$activation_f(preactivation_ref)
     if (save_output) {
-      self$output_ref <- output_ref$mean(dim = 1, keepdim = TRUE)
+      self$output_ref <- output_ref
     }
 
     output_ref

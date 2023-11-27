@@ -169,11 +169,11 @@ avg_pool1d_layer <- nn_module(
   update_ref = function(x_ref, save_input = TRUE, save_preactivation = TRUE,
                         save_output = TRUE, ...) {
     if (save_input) {
-      self$input_ref <- x_ref$mean(dim = 1, keepdim = TRUE)
+      self$input_ref <- x_ref
     }
     output_ref <- nnf_avg_pool1d(x_ref, self$kernel_size, self$strides)
     if (save_output) {
-      self$output_ref <- output_ref$mean(dim = 1, keepdim = TRUE)
+      self$output_ref <- output_ref
     }
 
     output_ref
@@ -242,11 +242,11 @@ avg_pool2d_layer <- nn_module(
   update_ref = function(x_ref, save_input = TRUE, save_preactivation = TRUE,
                         save_output = TRUE, ...) {
     if (save_input) {
-      self$input_ref <- x_ref$mean(dim = 1, keepdim = TRUE)
+      self$input_ref <- x_ref
     }
     output_ref <- nnf_avg_pool2d(x_ref, self$kernel_size, self$strides)
     if (save_output) {
-      self$output_ref <- output_ref$mean(dim = 1, keepdim = TRUE)
+      self$output_ref <- output_ref
     }
 
     output_ref
@@ -319,11 +319,11 @@ max_pool1d_layer <- nn_module(
   update_ref = function(x_ref, save_input = TRUE, save_preactivation = TRUE,
                         save_output = TRUE, ...) {
     if (save_input) {
-      self$input_ref <- x_ref$mean(dim = 1, keepdim = TRUE)
+      self$input_ref <- x_ref
     }
     output_ref <- nnf_max_pool1d(x_ref, self$kernel_size, self$strides)
     if (save_output) {
-      self$output_ref <- output_ref$mean(dim = 1, keepdim = TRUE)
+      self$output_ref <- output_ref
     }
 
     output_ref
@@ -479,11 +479,11 @@ max_pool2d_layer <- nn_module(
   update_ref = function(x_ref, save_input = TRUE, save_preactivation = TRUE,
                         save_output = TRUE, ...) {
     if (save_input) {
-      self$input_ref <- x_ref$mean(dim = 1, keepdim = TRUE)
+      self$input_ref <- x_ref
     }
     output_ref <- nnf_max_pool2d(x_ref, self$kernel_size, self$strides)
     if (save_output) {
-      self$output_ref <- output_ref$mean(dim = 1, keepdim = TRUE)
+      self$output_ref <- output_ref
     }
 
     output_ref

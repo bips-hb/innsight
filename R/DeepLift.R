@@ -93,8 +93,8 @@ DeepLift <- R6Class(
       if (any(num_instances != 1)) {
         stopf("For the method {.code DeepLift}, you have to pass ",
               "only a single instance for the argument {.arg x_ref}. ",
-              "You passed (for at least one input layer) {max(num_instances)}",
-              " data instances!")
+              "You passed (for at least one input layer) '",
+              max(num_instances), "' data instances!")
       }
 
       self$converter$model$forward(self$data,
@@ -232,7 +232,7 @@ DeepSHAP <- R6Class(
       super$initialize(converter, data, channels_first, output_idx,
                        ignore_last_act, winner_takes_all, verbose, dtype)
 
-      cli_check(checkChoice(rule_name, c("rescale")), "rule_name")
+      cli_check(checkChoice(rule_name, c("rescale", "reveal_cancel")), "rule_name")
       self$rule_name <- rule_name
       cli_check(checkInt(limit_ref), "limit_ref")
 
@@ -249,22 +249,50 @@ DeepSHAP <- R6Class(
       ids <- sample.int(num_samples, min(num_samples, limit_ref))
       self$data_ref <- lapply(self$data_ref, function(x) x[ids, drop = FALSE])
 
+      # Repeat values, s.t. `data` and `data_ref` have the same number of
+      # instances
+      num_samples <- dim(self$data[[1]])[1]
+      num_samples_ref <- dim(self$data_ref[[1]])[1]
+      data <- lapply(self$data, torch_repeat_interleave,
+                     repeats = as.integer(num_samples_ref),
+                     dim = 1) # now of shape (batch_size * num_samples_ref, input_dim)
+      repeat_input <- function(x) {
+        torch_cat(lapply(seq_len(num_samples), function(i) x))
+      }
+      data_ref <- lapply(self$data_ref, repeat_input) # now of shape (batch_size * num_samples_ref, input_dim)
+
       # Forward for normal input
-      self$converter$model$forward(self$data,
+      self$converter$model$forward(data,
                                    channels_first = self$channels_first,
                                    save_input = TRUE,
                                    save_preactivation = TRUE,
                                    save_output = TRUE
       )
-      # Forward for reference dataset
-      self$converter$model$update_ref(self$data_ref,
+
+      self$converter$model$update_ref(data_ref,
                                       channels_first = self$channels_first,
                                       save_input = TRUE,
                                       save_preactivation = TRUE,
                                       save_output = TRUE
       )
 
-      self$result <- private$run("DeepSHAP")
+      result <- private$run("DeepSHAP")
+
+      # For the DeepSHAP method, we only get the multiplier.
+      # Hence, we have to multiply this by the differences of inputs
+      fun <- function(result, out_idx, in_idx, x, x_ref, n) {
+        res <- result[[out_idx]][[in_idx]]
+        if (is.null(res)) {
+          res <- NULL
+        } else {
+          res <- res * (x[[in_idx]] - x_ref[[in_idx]])$unsqueeze(-1)
+          res <- torch_stack(res$chunk(n), dim = 1)$mean(2)
+        }
+      }
+      result <- apply_results(result, fun, x = data, x_ref = data_ref,
+                              n = num_samples)
+
+      self$result <- result
     }
   ),
 

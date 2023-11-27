@@ -587,6 +587,213 @@ SmoothGrad <- R6Class(
   )
 )
 
+###############################################################################
+#                           ExpectedGradients
+###############################################################################
+
+#' @title Expected Gradients
+#'
+#' @description
+#' The `ExpectedGradient` class implements the method ExpectedGradients
+#' (Sundararajan et al., 2017), which incorporates a reference value \eqn{x'}
+#' (also known as baseline value) analogous to the [`DeepLift`] method.
+#' Integrated Gradients helps to uncover the relative importance of input
+#' features in the predictions \eqn{y = f(x)} made by a model compared to the
+#' prediction of the reference value \eqn{y' = f(x')}. This is achieved through
+#' the following formula:
+#' \deqn{
+#' (x - x') \times \int_{\alpha=0}^{1} \frac{\partial f(x' + \alpha (x - x'))}{\partial x} d\alpha
+#' }
+#' In simpler terms, it calculates how much each feature contributes to a
+#' model's output by tracing a path from a baseline input \eqn{x'} to the actual
+#' input \eqn{x} and measuring the average gradients along that path.
+#'
+#' Similar to the other gradient-based methods, by default the integrated
+#' gradient is multiplied by the input to get an approximate decomposition
+#' of \eqn{y - y'}. However, with the parameter `times_input` only the gradient
+#' describing the output sensitivity can be returned.
+#'
+#' @template param-converter
+#' @template param-data
+#' @template param-channels_first
+#' @template param-dtype
+#' @template param-output_idx
+#' @template param-ignore_last_act
+#' @template param-verbose
+#' @template examples-IntegratedGradient
+#'
+#' @references
+#' M. Sundararajan et al. (2017) *Axiomatic attribution for deep networks.* ICML
+#' 2017, PMLR 70, pp. 3319-3328.
+#'
+#' @family methods
+#' @export
+ExpectedGradient <- R6Class(
+  classname = "ExpectedGradient",
+  inherit = GradientBased,
+  public = list(
+
+    #' @field n (`integer(1)`)\cr
+    #' Number of steps for the approximation of the integration path along
+    #' \eqn{\alpha} (default: \eqn{50}).\cr
+    #' @field x_ref (`list`)\cr
+    #' The reference input for the IntegratedGradient method. This value is
+    #' stored as a list of `torch_tensor`s of shape *(1, dim_in)* for each
+    #' input layer.\cr
+    #'
+    n = NULL,
+    data_ref = NULL,
+
+    #' @description
+    #' Create a new instance of the `IntegratedGradient` R6 class. When
+    #' initialized, the method *Integrated Gradient* is applied to the given
+    #' data and baseline value and the results are stored in the field `result`.
+    #'
+    #' @param times_input (`logical(1`)\cr
+    #' Multiplies the integrated gradients with the difference of the input
+    #' features and the baseline values. By default, the original definition of
+    #' IntegratedGradient is applied. However, by setting `times_input = FALSE`
+    #' only an approximation of the integral is calculated, which describes the
+    #' sensitivity of the features to the output.\cr
+    #' @param n (`integer(1)`)\cr
+    #' Number of steps for the approximation of the integration path along
+    #' \eqn{\alpha} (default: \eqn{50}).\cr
+    #' @param x_ref ([`array`], [`data.frame`], [`torch_tensor`] or `list`)\cr
+    #' The reference input for the IntegratedGradient method. This value
+    #' must have the same format as the input data of the passed model to the
+    #' converter object. This means either
+    #' - an `array`, `data.frame`, `torch_tensor` or array-like format of
+    #' size *(1, dim_in)*, if e.g., the model has only one input layer, or
+    #' - a `list` with the corresponding input data (according to the upper point)
+    #' for each of the input layers.
+    #' - It is also possible to use the default value `NULL` to take only
+    #' zeros as reference input.\cr
+    #'
+    initialize = function(converter, data,
+                          data_ref = NULL,
+                          n = 50,
+                          times_input = TRUE,
+                          channels_first = TRUE,
+                          output_idx = NULL,
+                          ignore_last_act = TRUE,
+                          verbose = interactive(),
+                          dtype = "float") {
+      super$initialize(converter, data, channels_first, output_idx,
+                       ignore_last_act, times_input, verbose, dtype)
+
+      cli_check(checkInt(n, lower = 1), "n")
+      self$n <- n
+
+      if (is.null(data_ref)) {
+        data_ref <- lapply(lapply(self$data, dim),
+                        function(x) array(0, dim = c(1, x[-1])))
+      }
+      self$data_ref <- private$test_data(data_ref, name = "data_ref")
+
+      self$result <- private$run()
+      self$converter$model$reset()
+    }
+  ),
+  private = list(
+    run = function() {
+      # Combine input and baseline for each input layer
+      input <- lapply(seq_along(self$data),
+                      function(i) list(data = self$data[[i]],
+                                       data_ref = self$data_ref[[i]]))
+
+      # Define helper function for getting `self$n` interpolated inputs, i.e.
+      # the result has a shape of (batch_size * n, dim_in)
+      tmp_fun <- function(input, idx) {
+        # Repeat the input (batch_size * n)
+        res <- torch_repeat_interleave(
+          input$data,
+          repeats = torch_tensor(self$n, dtype = torch_long()),
+          dim = 1)
+
+        # Get the random baselines
+        res_ref <- input$data_ref[idx]
+
+        # Define scale
+        scale <- torch_rand(res$shape[1])$reshape(c(-1, rep(1, res$dim() - 1)))
+
+        # Create interpolations between x and x_ref
+        list(
+          inputs = res_ref + scale * (res - res_ref),
+          data = res,
+          data_ref = res_ref
+        )
+      }
+
+      # Get random samples from the baseline distribution
+      idx <- sample.int(input[[1]]$data_ref$shape[1],
+                        size = self$n * input[[1]]$data$shape[1],
+                        replace = TRUE)
+
+      # Create interpolated inputs along the integration path for each input
+      # layer and calculate the gradients of them
+      input <- lapply(input, tmp_fun, idx = idx)
+      gradients <- private$calculate_gradients(
+        lapply(input, function(x) x$inputs), "ExpectedGradient")
+
+      # Define the core ExpectedGradients calculation
+      # `grad` has a shape of (batch_size * n * num_baselines, dim_in)
+      tmp_ExpGrad <- function(i, grads, inputs) {
+        grad <- grads[[i]]
+        inp <- (inputs[[i]]$data - inputs[[i]]$data_ref)$unsqueeze(-1)
+        # Output node is not connected to the input layer
+        if (is.null(grad)) {
+          res <- NULL
+        } else { # otherwise ...
+          grad <- grad * inp
+          # Chunk the gradients for each of the batch_size samples
+          # Results in a list with batch_size entries containing torch_tensors
+          # of shape (n * baselines, dim_in)
+          grad <- grad$chunk(dim(self$data[[1]])[1])
+
+          # Calculate the result of ExpectedGradients for current gradients
+          res <- torch_stack(lapply(grad, torch_mean, dim = 1))
+        }
+
+        res
+      }
+
+      # Apply ExpectedGradients to all outputs
+      expected_grads <- lapply(
+        gradients,
+        function(grad_output) lapply(seq_along(grad_output), tmp_ExpGrad,
+                                     grads = grad_output, inputs = input)
+      )
+
+      expected_grads
+    },
+
+    print_method_specific = function() {
+      i <- cli_ul()
+      if (self$times_input) {
+        cli_li(paste0("{.field times_input}:  TRUE (",
+                      symbol$arrow_right,
+                      " decomposition of y - y')"))
+      } else {
+        cli_li(paste0("{.field times_input}:  FALSE (",
+                      symbol$arrow_right,
+                      " output sensitivity)"))
+      }
+      cli_li(paste0("{.field n}: ", self$n))
+      all_zeros <- all(unlist(lapply(self$x_ref,
+                                     function(x) all(as_array(x) == 0))))
+      if (all_zeros) {
+        s <- "zeros"
+      } else {
+        values <- unlist(lapply(self$x_ref, as_array))
+        s <- paste0("mean: ", mean(values), " (q1: ", quantile(values, 0.25),
+                    ", q3: ", quantile(values, 0.75), ")")
+      }
+      cli_li(paste0("{.field x_ref}: ", s))
+      cli_end(id = i)
+    }
+  )
+)
+
 
 ###############################################################################
 #                                     Utils

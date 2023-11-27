@@ -38,14 +38,14 @@ batchnorm_layer <- nn_module(
 
   update_ref = function(x_ref, save_input = TRUE, save_output = TRUE, ...) {
     if (save_input) {
-      self$input_ref <- x_ref$mean(dim = 1, keepdim = TRUE)
+      self$input_ref <- x_ref
     }
 
     out <- nnf_batch_norm(x_ref, self$run_mean, self$run_var, self$gamma,
                           self$beta, eps = self$eps)
 
     if (save_output) {
-      self$output_ref <- out$mean(dim = 1, keepdim = TRUE)
+      self$output_ref <- out
     }
 
     out
