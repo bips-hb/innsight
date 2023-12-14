@@ -70,10 +70,23 @@ GradientBased <- R6Class(
                                   save_output = FALSE,
                                   save_last_layer = TRUE)
 
+      # Save predictions
+      if (method_name %in% c("Gradient")) {
+        pred <- get_outputs(out, self$output_idx)
+        self$preds <- pred
+      }
+
 
       if (self$ignore_last_act) {
         out <- lapply(self$converter$model$output_nodes,
                       function(x) self$converter$model$modules_list[[x]]$preactivation)
+
+      }
+
+      # Save decomposition goal
+      if (method_name %in% c("Gradient")) {
+        pred <- get_outputs(out, self$output_idx)
+        self$decomp_goal <- pred
       }
 
       # Add up the output over the batch dimension
@@ -347,6 +360,34 @@ IntegratedGradient <- R6Class(
               " data instances!")
       }
 
+      # Calculate predictions
+      out <- self$converter$model(self$data,
+                                  channels_first = self$channels_first,
+                                  save_input = FALSE,
+                                  save_preactivation = FALSE,
+                                  save_output = FALSE,
+                                  save_last_layer = TRUE)
+      out_ref <- self$converter$model$update_ref(self$x_ref,
+                                      channels_first = self$channels_first,
+                                      save_input = FALSE,
+                                      save_preactivation = FALSE,
+                                      save_output = FALSE,
+                                      save_last_layer = TRUE)
+
+      # Save prediction
+      self$preds <- get_outputs(out, self$output_idx)
+
+      if (self$ignore_last_act) {
+        out <- lapply(self$converter$model$output_nodes,
+                      function(x) self$converter$model$modules_list[[x]]$preactivation)
+        out_ref <- lapply(self$converter$model$output_nodes,
+                          function(x) self$converter$model$modules_list[[x]]$preactivation_ref)
+      }
+
+      # Save decomposition goal
+      preds <- lapply(seq_along(out), function(i) out[[i]] - out_ref[[i]])
+      self$decomp_goal <- get_outputs(preds, self$output_idx)
+
       self$result <- private$run()
       self$converter$model$reset()
     }
@@ -525,6 +566,22 @@ SmoothGrad <- R6Class(
       self$n <- n
       self$noise_level <- noise_level
 
+      # Calculate predictions
+      out <- self$converter$model(self$data,
+                                  channels_first = self$channels_first,
+                                  save_input = FALSE,
+                                  save_preactivation = FALSE,
+                                  save_output = FALSE,
+                                  save_last_layer = TRUE)
+
+      self$preds <- get_outputs(out, self$output_idx)
+
+      if (self$ignore_last_act) {
+        out <- lapply(self$converter$model$output_nodes,
+                      function(x) self$converter$model$modules_list[[x]]$preactivation)
+      }
+      self$decomp_goal <- get_outputs(out, self$output_idx)
+
       self$result <- private$run()
       self$converter$model$reset()
     }
@@ -691,6 +748,30 @@ ExpectedGradient <- R6Class(
       }
       self$data_ref <- private$test_data(data_ref, name = "data_ref")
 
+      # Calculate predictions
+      out <- self$converter$model(self$data,
+                                  channels_first = self$channels_first,
+                                  save_input = FALSE,
+                                  save_preactivation = FALSE,
+                                  save_output = FALSE,
+                                  save_last_layer = TRUE)
+      out_ref <- self$converter$model$update_ref(self$data_ref,
+                                                 channels_first = self$channels_first,
+                                                 save_input = FALSE,
+                                                 save_preactivation = FALSE,
+                                                 save_output = FALSE,
+                                                 save_last_layer = TRUE)
+
+      self$preds <- get_outputs(out, self$output_idx)
+      if (self$ignore_last_act) {
+        out <- lapply(self$converter$model$output_nodes,
+                      function(x) self$converter$model$modules_list[[x]]$preactivation)
+        out_ref <- lapply(self$converter$model$output_nodes,
+                          function(x) self$converter$model$modules_list[[x]]$preactivation_ref)
+      }
+      preds <- lapply(seq_along(out), function(i) out[[i]] - out_ref[[i]]$mean(dim = 1, keepdim = TRUE))
+      self$decomp_goal <- get_outputs(preds, self$output_idx)
+
       self$result <- private$run()
       self$converter$model$reset()
     }
@@ -807,4 +888,9 @@ calc_times_input <- function(gradients, input) {
   }
 
   gradients
+}
+
+get_outputs <- function(out, out_idx) {
+  lapply(seq_along(out),
+         function(i) out[[i]][, out_idx[[i]], drop = FALSE]$data())
 }

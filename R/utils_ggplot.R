@@ -8,7 +8,7 @@
 #----- Main plot function -----------------------------------------------------
 create_ggplot <- function(result_df, value_name = "Relevance",
                       include_data = TRUE, boxplot = FALSE, data_idx = NULL,
-                      same_scale = TRUE) {
+                      same_scale = TRUE, show_preds = TRUE) {
 
   num_inputs <- length(unique(result_df$model_input))
   num_outputs <- length(unique(result_df$model_output))
@@ -21,13 +21,15 @@ create_ggplot <- function(result_df, value_name = "Relevance",
       p <- plot_image(result_df, value_name,
                       facet_rows = facet_rows,
                       facet_cols = "output_node",
-                      boxplot = boxplot)
+                      boxplot = boxplot,
+                      show_preds = show_preds)
     } else {
       p <- plot_bar(result_df, value_name,
                     facet_rows = facet_rows,
                     facet_cols = "output_node",
                     boxplot = boxplot,
-                    data_idx = data_idx)
+                    data_idx = data_idx,
+                    show_preds = show_preds)
     }
 
     p <- new("innsight_ggplot2",
@@ -39,7 +41,7 @@ create_ggplot <- function(result_df, value_name = "Relevance",
   } else {
     # This is for models with multiple input and/or output layers
     p <- plot_extended(result_df, value_name, include_data, boxplot, data_idx,
-                       same_scale)
+                       same_scale, show_preds)
   }
 
   p
@@ -48,7 +50,8 @@ create_ggplot <- function(result_df, value_name = "Relevance",
 #----- Plot function for 1D and 2D --------------------------------------------
 plot_bar <- function(result_df, value_name = "value", facet_rows = NULL,
                      facet_cols = NULL, calc_fill = TRUE, xticks = TRUE,
-                     yticks = TRUE, boxplot = FALSE, data_idx = NULL) {
+                     yticks = TRUE, boxplot = FALSE, data_idx = NULL,
+                     show_preds = TRUE) {
 
   if (boxplot) {
     facet_rows <- NULL
@@ -119,6 +122,28 @@ plot_bar <- function(result_df, value_name = "value", facet_rows = NULL,
     x_scale +
     scale_y_continuous(labels = get_format)
 
+  # Add box with local information
+  if (!boxplot & show_preds) {
+    df <- unique(result_df[c("data", "output_node","pred", "decomp_sum",
+                             "decomp_goal")])
+    labels <- c("Pred.: ", "Sum:") #\u2004
+    values <- list(df$pred, df$decomp_sum)
+    if (any(!is.na(df$decomp_goal))) {
+      labels <- c(labels, "Goal:")
+      values <- append(values, list(df$decomp_goal))
+    }
+    labels <- format(labels)
+    df$label <- lapply(seq_len(nrow(df)), function(i) {
+      res <- format(signif(round(unlist(lapply(values, function(x) x[i])),
+                    digits = 8), digits = 4), justify = "right")
+      paste0(labels, res, collapse = "\n")
+    })
+
+    p <- p + geom_label(aes(label = .data$label), x = -Inf, y = Inf,
+                   data = df, vjust = "inward", hjust = "inward", alpha = 0.5,
+                   color = "black", fill = "darkgray", size = ggplot2::.pt)
+  }
+
   # Add reference datapoint
   if (boxplot && !is.null(data_idx)) {
     p <- p + ref_line
@@ -141,7 +166,8 @@ plot_bar <- function(result_df, value_name = "value", facet_rows = NULL,
 #----- Plot function for images -----------------------------------------------
 plot_image <- function(result_df, value_name = "value", facet_rows = NULL,
                        facet_cols = NULL, calc_fill = TRUE, xticks = TRUE,
-                       yticks = TRUE, legend_labels = NULL, boxplot = FALSE) {
+                       yticks = TRUE, legend_labels = NULL, boxplot = FALSE,
+                       show_preds = TRUE) {
 
   if (boxplot) {
     facet_rows <- NULL
@@ -234,6 +260,28 @@ plot_image <- function(result_df, value_name = "value", facet_rows = NULL,
     scale_x_continuous(expand = c(0, 0)) +
     scale_y_continuous(expand = c(0, 0))
 
+  # Add box with local information
+  if (!boxplot & show_preds) {
+    df <- unique(result_df[c("data", "output_node","pred", "decomp_sum",
+                             "decomp_goal")])
+    labels <- c("Pred.: ", "Sum:") #\u2004
+    values <- list(df$pred, df$decomp_sum)
+    if (any(!is.na(df$decomp_goal))) {
+      labels <- c(labels, "Goal:")
+      values <- append(values, list(df$decomp_goal))
+    }
+    labels <- format(labels)
+    df$label <- lapply(seq_len(nrow(df)), function(i) {
+      res <- format(signif(round(unlist(lapply(values, function(x) x[i])),
+                                 digits = 8), digits = 4), justify = "right")
+      paste0(labels, res, collapse = "\n")
+    })
+
+    p <- p + geom_label(aes(label = .data$label), x = -Inf, y = Inf,
+                        data = df, vjust = "inward", hjust = "inward", alpha = 0.5,
+                        color = "black", fill = "darkgray", size = ggplot2::.pt)
+  }
+
   # Remove ticks and labels
   if (!xticks) {
     p <- p + xlab(NULL) +
@@ -251,7 +299,7 @@ plot_image <- function(result_df, value_name = "value", facet_rows = NULL,
 
 #----- Plot function for multimodal data --------------------------------------
 plot_extended <- function(result_df, value_name, include_data, boxplot,
-                          data_idx = NULL, same_scale) {
+                          data_idx = NULL, same_scale, show_preds) {
   # Load required packages
   for (pkg in c("grid", "gtable", "gridExtra")) {
     if (!requireNamespace(pkg, quietly = FALSE)) {
@@ -335,7 +383,8 @@ plot_extended <- function(result_df, value_name, include_data, boxplot,
                           xticks = labels$xticks,
                           yticks = labels$yticks,
                           legend_labels = legend_labels,
-                          boxplot = boxplot)
+                          boxplot = boxplot,
+                          show_preds = show_preds)
         } else {
           p <- plot_bar(data, value_name,
                         facet_rows = facets$facet_rows,
@@ -344,7 +393,8 @@ plot_extended <- function(result_df, value_name, include_data, boxplot,
                         xticks = labels$xticks,
                         yticks = labels$yticks,
                         boxplot = boxplot,
-                        data_idx = data_idx)
+                        data_idx = data_idx,
+                        show_preds = show_preds)
         }
 
         grobs[j, k, i] <- list(p)

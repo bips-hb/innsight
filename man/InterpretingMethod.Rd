@@ -8,14 +8,21 @@ This is a super class for all interpreting methods in the
 \code{innsight} package. Implemented are the following methods:
 \itemize{
 \item \emph{Deep Learning Important Features} (\code{\link{DeepLift}})
+\item \emph{Deep Shapley additive explanations} (\code{\link{DeepSHAP}})
 \item \emph{Layer-wise Relevance Propagation} (\code{\link{LRP}})
 \item Gradient-based methods:
 \itemize{
 \item \emph{Vanilla gradients} including \emph{Gradient\eqn{\times}Input} (\code{\link{Gradient}})
 \item Smoothed gradients including \emph{SmoothGrad\eqn{\times}Input} (\code{\link{SmoothGrad}})
 \item \emph{Integrated gradients} (\code{\link{IntegratedGradient}})
+\item \emph{Expected gradients} (\code{\link{ExpectedGradient}})
 }
 \item \emph{Connection Weights} (global and local) (\code{\link{ConnectionWeights}})
+\item Also some model-agnostic approaches:
+\itemize{
+\item \emph{Local interpretable model-agnostic explanations} (\code{\link{LIME}})
+\item \emph{Shapley values} (\code{\link{SHAP}})
+}
 }
 }
 \section{Public fields}{
@@ -105,6 +112,20 @@ the problem of too many zero relevances. With the default value \code{TRUE},
 the whole upper-layer relevance is passed to the maximum value in each
 pooling window. Otherwise, if \code{FALSE}, the relevance is distributed equally
 among all nodes in a pooling window.\cr}
+
+\item{\code{preds}}{(\code{list})\cr
+In this field, all calculated predictions are stored as a list of
+\code{torch_tensor}s. Each output layer has its own list entry and contains
+the respective predicted values.\cr}
+
+\item{\code{decomp_goal}}{(\code{list})\cr
+In this field, the method-specific decomposition objectives are stored as
+a list of \code{torch_tensor}s for each output layer. For example,
+GradientxInput and LRP attempt to decompose the prediction into
+feature-wise additive effects. DeepLift and IntegratedGradient decompose
+the difference between \eqn{f(x)} and \eqn{f(x')}. On the other hand,
+DeepSHAP and ExpectedGradient aim to decompose \eqn{f(x)} minus the
+averaged prediction across the reference values.\cr}
 }
 \if{html}{\out{</div>}}
 }
@@ -302,14 +323,19 @@ a bit more complex, therefore the suggested packages \code{'grid'},
 \code{'gridExtra'} and \code{'gtable'} must be installed in your R session.
 \item If the global \emph{Connection Weights} method was applied, the
 unnecessary argument \code{data_idx} will be ignored.
+\item The predictions, the sum of relevances, and, if available, the
+decomposition target are displayed by default in a box within the plot.
+Currently, these are not generated for \code{plotly} plots.
 }
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{InterpretingMethod$plot(
   data_idx = 1,
   output_idx = NULL,
+  output_label = NULL,
   aggr_channels = "sum",
   as_plotly = FALSE,
-  same_scale = FALSE
+  same_scale = FALSE,
+  show_preds = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -331,6 +357,33 @@ initialization \code{new()} (see argument \code{output_idx} in method \code{new(
 this R6 class for details). By default (\code{NULL}), the smallest index
 of all calculated output nodes and output layers is used.\cr}
 
+\item{\code{output_label}}{(\code{character}, \code{factor}, \code{list} or \code{NULL})\cr
+These values specify the output nodes for which
+the method is to be applied. Only values that were previously passed with
+the argument \code{output_names} in the \code{converter} can be used. In order to
+allow models with multiple
+output layers, there are the following possibilities to select
+the names of the output nodes in the individual output layers:
+\itemize{
+\item A \code{character} vector or \code{factor} of labels: If the model has only one output
+layer, the values correspond to the labels of the output nodes named in the
+passed \code{Converter} object, e.g.,
+\code{c("a", "c", "d")} for the first, third and fourth output node if the
+output names are \code{c("a", "b", "c", "d")}. If there are
+multiple output layers, the names of the output nodes from the first
+output layer are considered.
+\item A \code{list} of \code{charactor}/\code{factor} vectors of labels: If the method is to be
+applied to output nodes from different layers, a list can be passed
+that specifies the desired labels of the output nodes for each
+output layer. Unwanted output layers have the entry \code{NULL} instead of
+a vector of labels, e.g., \code{list(NULL, c("a", "c"))} for the first and
+third output node in the second output layer.
+\item \code{NULL} (default): The method is applied to all output nodes in
+the first output layer but is limited to the first ten as the
+calculations become more computationally expensive for more output
+nodes.\cr
+}}
+
 \item{\code{aggr_channels}}{(\code{character(1)} or \code{\link{function}})\cr
 Pass one of \code{'norm'}, \code{'sum'}, \code{'mean'} or a
 custom function to aggregate the channels, e.g., the maximum
@@ -351,6 +404,14 @@ A logical value that specifies whether the individual plots have the
 same fill scale across multiple input layers or whether each is
 scaled individually. This argument is only used if more than one input
 layer results are plotted.\cr}
+
+\item{\code{show_preds}}{(\code{logical})\cr
+This logical value indicates whether the plots display the prediction,
+the sum of calculated relevances, and, if available, the targeted
+decomposition value. For example, in the case of GradientxInput, the
+goal is to obtain a decomposition of the predicted value, while for
+DeepLift and IntegratedGradient, the goal is the difference between
+the prediction and the reference value, i.e., \eqn{f(x) - f(x')}.\cr}
 }
 \if{html}{\out{</div>}}
 }
@@ -391,6 +452,7 @@ a bit more complex, therefore the suggested packages \code{'grid'},
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{InterpretingMethod$boxplot(
   output_idx = NULL,
+  output_label = NULL,
   data_idx = "all",
   ref_data_idx = NULL,
   aggr_channels = "sum",
@@ -412,6 +474,33 @@ which the results were calculated, i.e., a subset of \code{output_idx} from
 the initialization \code{new()} (see argument \code{output_idx} in method \code{new()}
 of this R6 class for details). By default (\code{NULL}), the smallest index
 of all calculated output nodes and output layers is used.\cr}
+
+\item{\code{output_label}}{(\code{character}, \code{factor}, \code{list} or \code{NULL})\cr
+These values specify the output nodes for which
+the method is to be applied. Only values that were previously passed with
+the argument \code{output_names} in the \code{converter} can be used. In order to
+allow models with multiple
+output layers, there are the following possibilities to select
+the names of the output nodes in the individual output layers:
+\itemize{
+\item A \code{character} vector or \code{factor} of labels: If the model has only one output
+layer, the values correspond to the labels of the output nodes named in the
+passed \code{Converter} object, e.g.,
+\code{c("a", "c", "d")} for the first, third and fourth output node if the
+output names are \code{c("a", "b", "c", "d")}. If there are
+multiple output layers, the names of the output nodes from the first
+output layer are considered.
+\item A \code{list} of \code{charactor}/\code{factor} vectors of labels: If the method is to be
+applied to output nodes from different layers, a list can be passed
+that specifies the desired labels of the output nodes for each
+output layer. Unwanted output layers have the entry \code{NULL} instead of
+a vector of labels, e.g., \code{list(NULL, c("a", "c"))} for the first and
+third output node in the second output layer.
+\item \code{NULL} (default): The method is applied to all output nodes in
+the first output layer but is limited to the first ten as the
+calculations become more computationally expensive for more output
+nodes.\cr
+}}
 
 \item{\code{data_idx}}{(\code{integer})\cr
 By default, all available data points are used

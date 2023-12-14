@@ -88,6 +88,10 @@ AgnosticWrapper <- R6Class(
       # Save the original data to be explained
       self$x <- x
 
+      # Calculate predictions
+      self$preds <- list(self$converter$pred_fun(as.data.frame(x),
+                                            input_dim = self$converter$input_dim[[1]]))
+
       # Save the data (the field "data" means the data to be explained, i.e.,
       # in this case "x")
       if (is.data.frame(x)) x <- as.matrix(x)

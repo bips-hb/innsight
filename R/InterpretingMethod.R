@@ -8,12 +8,17 @@
 #' `innsight` package. Implemented are the following methods:
 #'
 #' - *Deep Learning Important Features* ([`DeepLift`])
+#' - *Deep Shapley additive explanations* ([`DeepSHAP`])
 #' - *Layer-wise Relevance Propagation* ([`LRP`])
 #' - Gradient-based methods:
 #'    - *Vanilla gradients* including *Gradient\eqn{\times}Input* ([`Gradient`])
 #'    - Smoothed gradients including *SmoothGrad\eqn{\times}Input* ([`SmoothGrad`])
 #'    - *Integrated gradients* ([`IntegratedGradient`])
+#'    - *Expected gradients* ([`ExpectedGradient`])
 #' - *Connection Weights* (global and local) ([`ConnectionWeights`])
+#' - Also some model-agnostic approaches:
+#'    - *Local interpretable model-agnostic explanations* ([`LIME`])
+#'    - *Shapley values* ([`SHAP`])
 #'
 #' @template param-converter
 #' @template param-data
@@ -40,6 +45,19 @@
 #' @template field-verbose
 #' @template field-winner_takes_all
 #'
+#' @field preds (`list`)\cr
+#' In this field, all calculated predictions are stored as a list of
+#' `torch_tensor`s. Each output layer has its own list entry and contains
+#' the respective predicted values.\cr
+#' @field decomp_goal (`list`)\cr
+#' In this field, the method-specific decomposition objectives are stored as
+#' a list of `torch_tensor`s for each output layer. For example,
+#' GradientxInput and LRP attempt to decompose the prediction into
+#' feature-wise additive effects. DeepLift and IntegratedGradient decompose
+#' the difference between \eqn{f(x)} and \eqn{f(x')}. On the other hand,
+#' DeepSHAP and ExpectedGradient aim to decompose \eqn{f(x)} minus the
+#' averaged prediction across the reference values.\cr
+#'
 InterpretingMethod <- R6Class(
   classname = "InterpretingMethod",
   public = list(
@@ -53,6 +71,8 @@ InterpretingMethod <- R6Class(
     output_idx = NULL,
     output_label = NULL,
     verbose = NULL,
+    preds = NULL,
+    decomp_goal = NULL,
 
     #' @description
     #' Create a new instance of this super class.
@@ -163,11 +183,23 @@ InterpretingMethod <- R6Class(
           result <- apply_results(result, FUN)
         }
 
+        # Prepare predictions
+        prepare_preds <- function(x) {
+          if (is.null(unlist(x))) {
+            NULL
+          } else {
+            lapply(seq_along(x), function(i) as.array(x[[i]]))
+          }
+        }
+        preds <- prepare_preds(self$preds)
+        decomp_goals <- prepare_preds(self$decomp_goal)
+
         # Convert the torch_tensor result into a data.frame
         result <- create_dataframe_from_result(
           seq_len(dim(self$data[[1]])[1]), result,
           self$converter$input_names, self$converter$output_names,
-          self$output_idx)
+          self$output_idx, preds, decomp_goals)
+
         # Remove unnecessary columns
         if (all(result$input_dimension <= 2)) {
           result$feature_2 <- NULL
@@ -223,6 +255,9 @@ InterpretingMethod <- R6Class(
     #' `'gridExtra'` and `'gtable'` must be installed in your R session.
     #' 3. If the global *Connection Weights* method was applied, the
     #' unnecessary argument `data_idx` will be ignored.
+    #' 4. The predictions, the sum of relevances, and, if available, the
+    #' decomposition target are displayed by default in a box within the plot.
+    #' Currently, these are not generated for `plotly` plots.
     #'
     #' @param data_idx (`integer`)\cr
     #' An integer vector containing the numbers of the data
@@ -242,6 +277,13 @@ InterpretingMethod <- R6Class(
     #' same fill scale across multiple input layers or whether each is
     #' scaled individually. This argument is only used if more than one input
     #' layer results are plotted.\cr
+    #' @param show_preds (`logical`)\cr
+    #' This logical value indicates whether the plots display the prediction,
+    #' the sum of calculated relevances, and, if available, the targeted
+    #' decomposition value. For example, in the case of GradientxInput, the
+    #' goal is to obtain a decomposition of the predicted value, while for
+    #'  DeepLift and IntegratedGradient, the goal is the difference between
+    #'  the prediction and the reference value, i.e., \eqn{f(x) - f(x')}.\cr
     #'
     #' @return
     #' Returns either an [`innsight_ggplot2`] (`as_plotly = FALSE`) or an
@@ -250,10 +292,13 @@ InterpretingMethod <- R6Class(
     #'
     plot = function(data_idx = 1,
                     output_idx = NULL,
+                    output_label = NULL,
                     aggr_channels = "sum",
                     as_plotly = FALSE,
-                    same_scale = FALSE) {
+                    same_scale = FALSE,
+                    show_preds = TRUE) {
 
+      # Get method-specific arguments -----------------------------------------
       if (inherits(self, "ConnectionWeights")) {
         if (!self$times_input) {
           if (!identical(data_idx, 1)) {
@@ -289,20 +334,34 @@ InterpretingMethod <- R6Class(
         include_data <- TRUE
       }
 
-      # Check correctness of arguments
+      # Check correctness of arguments ----------------------------------------
       cli_check(
         checkIntegerish(data_idx, lower = 1, upper = dim(self$data[[1]])[1]),
         "data_idx")
-      output_idx <- check_output_idx_for_plot(output_idx, self$output_idx)
       cli_check(checkLogical(as_plotly), "as_plotly")
       cli_check(checkLogical(same_scale), "same_scale")
 
       # Set aggregation function for channels
       aggr_channels <- get_aggr_function(aggr_channels)
 
-      # Get only relevant model outputs
+      # Check for output_label and output_idx
+      if (!is.null(output_label) & is.null(output_idx)) {
+        output_idx <- transform_label_to_idx(output_label,
+                                             self$converter$output_names)
+      } else if (!is.null(output_label) & !is.null(output_idx)) {
+        warningf("You passed non-{.code NULL} values for the arguments ",
+                 "{.arg output_label} and {.arg output_idx}. Both are used ",
+                 "to specify the output nodes to be plotted. In the ",
+                 "following, only the values of {.arg output_idx} are used!")
+      }
+      output_idx <- check_output_idx_for_plot(output_idx, self$output_idx)
+
+      # Get only the relevant results -----------------------------------------
+      # Get only relevant model output layer
       null_idx <- unlist(lapply(output_idx, is.null))
       result <- self$result[!null_idx]
+      preds <- if (length(self$preds) != 0) self$preds[!null_idx] else NULL
+      decomp_goals <- if (length(self$decomp_goal) != 0) self$decomp_goal[!null_idx] else NULL
 
       # Get the relevant output and class node indices
       # This is done by matching the given output indices ('output_idx') with
@@ -312,8 +371,28 @@ InterpretingMethod <- R6Class(
         seq_along(output_idx),
         function(i) match(output_idx[[i]], self$output_idx[[i]]))[!null_idx]
 
-      result <- apply_results(result, aggregate_channels, idx_matches, data_idx,
-                              self$channels_first, aggr_channels)
+      # Get only the relevant results, predictions and decomposition goals
+      result <- apply_results(result, aggregate_channels, idx_matches,
+                              data_idx, self$channels_first, aggr_channels)
+      if (show_preds) {
+        fun <- function(i, x) {
+          as.array(x[[i]][data_idx, idx_matches[[i]], drop = FALSE])
+        }
+        if (!is.null(unlist(preds))) {
+          preds <- lapply(seq_along(preds), fun, x = preds)
+        } else {
+          preds = NULL
+        }
+        if (!is.null(unlist(decomp_goals))) {
+          decomp_goals <- lapply(seq_along(decomp_goals), fun, x = decomp_goals)
+        } else {
+          decomp_goals = NULL
+        }
+      } else {
+        preds = NULL
+        decomp_goals = NULL
+      }
+
 
       # Get and modify input names
       input_names <- lapply(self$converter$input_names, function(in_name) {
@@ -323,8 +402,10 @@ InterpretingMethod <- R6Class(
         in_name
       })
 
+      # Create the data.frame with all information necessary for the plot
       result_df <- create_dataframe_from_result(
-        data_idx, result, input_names, self$converter$output_names, output_idx)
+        data_idx, result, input_names, self$converter$output_names, output_idx,
+        preds, decomp_goals)
 
       # Get plot
       if (as_plotly) {
@@ -332,7 +413,7 @@ InterpretingMethod <- R6Class(
                            same_scale)
       } else {
         p <- create_ggplot(result_df, value_name, include_data, FALSE, NULL,
-                           same_scale)
+                           same_scale, show_preds)
       }
 
       p
@@ -382,6 +463,7 @@ InterpretingMethod <- R6Class(
     #' [`innsight_plotly`] (`as_plotly = TRUE`) object with the plotted
     #' summarized results.
     boxplot = function(output_idx = NULL,
+                       output_label = NULL,
                        data_idx = "all",
                        ref_data_idx = NULL,
                        aggr_channels = "sum",
@@ -390,6 +472,7 @@ InterpretingMethod <- R6Class(
                        individual_data_idx = NULL,
                        individual_max = 20) {
 
+      # Get method-specific arguments -----------------------------------------
       if (inherits(self, "ConnectionWeights")) {
         if (!self$times_input) {
           stopf(
@@ -406,19 +489,14 @@ InterpretingMethod <- R6Class(
       } else if (inherits(self, c("DeepLift", "DeepSHAP"))) {
         value_name <- "Contribution"
       } else if (inherits(self, "GradientBased")) {
-        value_name <- "Gradient"
+        value_name <- if(self$times_input) "Relevance" else "Gradient"
       } else if (inherits(self, "LIME")) {
         value_name <- "Weight"
       } else if (inherits(self, "SHAP")) {
         value_name <- "Shapley Value"
       }
 
-      #
-      # Do checks
-      #
-
-      # output_idx
-      output_idx <- check_output_idx_for_plot(output_idx, self$output_idx)
+      # Check correctness of arguments ----------------------------------------
       # data_idx
       num_data <- dim(self$data[[1]])[1]
       if (identical(data_idx, "all")) {
@@ -446,6 +524,18 @@ InterpretingMethod <- R6Class(
       cli_check(checkInt(individual_max, lower = 1), "individual_max")
       individual_max <- min(individual_max, num_data)
 
+      # Check for output_label and output_idx
+      if (!is.null(output_label) & is.null(output_idx)) {
+        output_idx <- transform_label_to_idx(output_label,
+                                             self$converter$output_names)
+      } else if (!is.null(output_label) & !is.null(output_idx)) {
+        warningf("You passed non-{.code NULL} values for the arguments ",
+                 "{.arg output_label} and {.arg output_idx}. Both are used ",
+                 "to specify the output nodes to be plotted. In the ",
+                 "following, only the values of {.arg output_idx} are used!")
+      }
+      output_idx <- check_output_idx_for_plot(output_idx, self$output_idx)
+
       # Set the individual instances for the plot
       if (!as_plotly) {
         individual_idx <- ref_data_idx
@@ -455,7 +545,7 @@ InterpretingMethod <- R6Class(
         individual_idx <- individual_idx[!is.na(individual_idx)]
       }
 
-
+      # Get only the relevant results -----------------------------------------
       # Get only relevant model outputs
       null_idx <- unlist(lapply(output_idx, is.null))
       result <- self$result[!null_idx]
@@ -468,7 +558,7 @@ InterpretingMethod <- R6Class(
         seq_along(output_idx),
         function(i) match(output_idx[[i]], self$output_idx[[i]]))[!null_idx]
 
-      # apply preprocess function
+      # Apply preprocess function ---------------------------------------------
       preprocess <- function(result, out_idx, in_idx, idx_matches) {
         res <- result[[out_idx]][[in_idx]]
         if (is.null(res)) {
@@ -490,7 +580,8 @@ InterpretingMethod <- R6Class(
       })
 
       idx <- sort(unique(c(individual_idx, data_idx)))
-      # Create boxplot data
+
+      # Create boxplot data and plots -----------------------------------------
       result <-
         apply_results(result, aggregate_channels, idx_matches, idx,
                       self$channels_first, aggr_channels)
@@ -553,6 +644,12 @@ InterpretingMethod <- R6Class(
       # Declare vector for relevances for each output node
       rel_list <- vector(mode = "list",
                          length = length(self$converter$model$output_nodes))
+      # Declare vector for the predictions for each output node
+      pred_list <- vector(mode = "list",
+                          length = length(self$converter$model$output_nodes))
+      # Declare vector for the decomposition goal for each output node
+      decomp_list <- vector(mode = "list",
+                            length = length(self$converter$model$output_nodes))
 
       if (self$verbose) {
         #messagef("Backward pass '", method_name, "':")
@@ -581,6 +678,7 @@ InterpretingMethod <- R6Class(
           # relevances for this output
           if (is.null(self$output_idx[[idx]])) {
             rel <- NULL
+            pred <- NULL
           } else {
             # Otherwise ...
             # get the corresponding output depending on the argument
@@ -597,6 +695,23 @@ InterpretingMethod <- R6Class(
                 out <- out - 0.5
               }
             }
+
+            # Save the prediction
+            pred <- layer$output
+            decomp_goal <- out
+            if (method_name %in% c("DeepLift", "DeepSHAP")) {
+              if (self$ignore_last_act) {
+                pred_ref <- layer$preactivation_ref
+              } else {
+                pred_ref <- layer$output_ref
+              }
+              num_samples <- dim(self$data[[1]])[1]
+              decomp_goal <- torch_stack((out - pred_ref)$chunk(num_samples),
+                                  dim = 1)$mean(2)
+              pred <- torch_stack(pred$chunk(num_samples), dim = 1)$mean(2)
+            }
+            pred_list[[idx]] <- pred[, self$output_idx[[idx]], drop = FALSE]
+            decomp_list[[idx]] <- decomp_goal[, self$output_idx[[idx]], drop = FALSE]
 
             # For DeepLift, we only need ones
             if (method_name %in% c("DeepLift", "DeepSHAP")) {
@@ -705,6 +820,10 @@ InterpretingMethod <- R6Class(
           cli_progress_update(force = TRUE)
         }
       }
+
+      # Save output predictions
+      self$preds <- pred_list
+      self$decomp_goal <- decomp_list
 
       if (self$verbose) cli_progress_done()
 
@@ -992,8 +1111,10 @@ check_output_idx <- function(output_idx, output_dim, output_label, output_names)
 
     # Get labels from output_idx
     labels <- output_names[[i]][[1]][output_idx[[i]]]
+    labels_ref <- as.factor(output_label[[i]])
     if (length(labels) == 0) labels <- NULL
-    if (!testSetEqual(labels, as.factor(output_label[[i]]))) {
+    if (length(labels_ref) == 0) labels_ref <- NULL
+    if (!testSetEqual(labels, labels_ref)) {
       stopf("Both the {.arg output_idx} and {.arg output_label} arguments ",
             "were passed (i.e., not {.code NULL}). However, they do not ",
             "match and point to different output nodes.")
@@ -1070,7 +1191,8 @@ tensor_list_to_named_array <- function(torch_result, input_names, output_names,
 
 
 create_dataframe_from_result <- function(data_idx, result, input_names,
-                                         output_names, output_idx) {
+                                         output_names, output_idx,
+                                         preds = NULL, decomp_goal = NULL) {
 
   if (length(data_idx) == 0) {
     result_df <- NULL
@@ -1082,8 +1204,9 @@ create_dataframe_from_result <- function(data_idx, result, input_names,
     output_names <- output_names[nonnull_idx]
 
     fun <- function(result, out_idx, in_idx, input_names, output_names,
-                    output_idx, nonnull_idx) {
+                    output_idx, nonnull_idx, preds) {
       res <- result[[out_idx]][[in_idx]]
+
       result_df <-
         create_grid(data_idx, input_names[[in_idx]],
                     output_names[[out_idx]][[1]][output_idx[[out_idx]]])
@@ -1091,6 +1214,27 @@ create_dataframe_from_result <- function(data_idx, result, input_names,
         result_df$value <- NaN
       } else {
         result_df$value <- as.vector(as.array(res))
+        res_sum <- apply(res, c(1, length(dim(res))), sum)
+        num_reps <- nrow(result_df) %/% (length(data_idx) * length(output_idx[[out_idx]]))
+        res_sum <- do.call("rbind", lapply(seq_len(num_reps), function(x) res_sum))
+
+        if (length(preds) == 0) {
+          pred <- NA
+        } else {
+          pred <- preds[[out_idx]]
+          pred <- do.call("rbind", lapply(seq_len(num_reps), function(x) pred))
+        }
+
+        if (length(decomp_goal) == 0) {
+          dec_goal <- NA
+        } else {
+          dec_goal <- decomp_goal[[out_idx]]
+          dec_goal <- do.call("rbind", lapply(seq_len(num_reps), function(x) dec_goal))
+        }
+
+        result_df$pred <- as.vector(pred)
+        result_df$decomp_sum <- as.vector(res_sum)
+        result_df$decomp_goal <- as.vector(dec_goal)
       }
       result_df$model_input <- paste0("Input_", in_idx)
       result_df$model_output <- factor(
@@ -1103,10 +1247,10 @@ create_dataframe_from_result <- function(data_idx, result, input_names,
     }
 
     result <- apply_results(result, fun, input_names, output_names,
-                            output_idx, nonnull_idx)
+                            output_idx, nonnull_idx, preds)
     result_df <- do.call("rbind",
                          lapply(result, function(x) do.call("rbind", x)))
-    result_df <- result_df[, c(1, 8, 9, 3, 4, 2, 5, 7, 6)]
+    result_df <- result_df[, c(1, 11, 12, 3, 4, 2, 5, 7, 8, 9, 10, 6)]
   }
 
   result_df
@@ -1170,6 +1314,25 @@ check_output_idx_for_plot <- function(output_idx, true_output_idx) {
   }
 
   output_idx
+}
+
+transform_label_to_idx <- function(output_label, output_names) {
+  if (!is.list(output_label)) {
+    output_label <- list(output_label)
+  }
+
+  fun <- function(i) {
+    if (!is.null(output_label[[i]])) {
+      labels <- as.factor(output_label[[i]])
+      out_names <- output_names[[i]][[1]]
+      cli_check(checkSubset(labels, out_names), "output_label")
+      match(labels, out_names)
+    } else {
+      NULL
+    }
+  }
+
+  lapply(seq_along(output_label), fun)
 }
 
 move_channels_last <- function(names) {
