@@ -84,7 +84,7 @@ of [`devtools`](https://www.r-project.org/nosvn/pandoc/devtools.html) is
 required)
 
 ``` r
-# Stable version (v0.1.1)
+# Stable version
 install.packages("innsight")
 
 # Development version
