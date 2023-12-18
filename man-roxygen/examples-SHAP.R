@@ -13,7 +13,13 @@
 #'
 #' # Calculate Shapley values for the first 10 instances and set the
 #' # feature and outcome names
-#' shap <- SHAP$new(model, data, data[1:10, ],
+#' shap <- SHAP$new(model, data[1:10, ], data_ref = data,
+#'                  input_names = c("Car", "Cat", "Dog", "Plane", "Horse"),
+#'                  output_names = c("Buy it!", "Don't buy it!"))
+#'
+#' # You can also use the helper function `run_shap` for initializing
+#' # an R6 SHAP object
+#' shap <- run_shap(model, data[1:10, ], data_ref = data,
 #'                  input_names = c("Car", "Cat", "Dog", "Plane", "Horse"),
 #'                  output_names = c("Buy it!", "Don't buy it!"))
 #'
@@ -28,7 +34,7 @@
 #'
 #' # We can also forward some arguments to fastshap::explain, e.g. nsim to
 #' # get more accurate values
-#' shap <- SHAP$new(model, data, data[1:10, ],
+#' shap <- run_shap(model, data[1:10, ], data_ref = data,
 #'                  input_names = c("Car", "Cat", "Dog", "Plane", "Horse"),
 #'                  output_names = c("Buy it!", "Don't buy it!"),
 #'                  nsim = 10)
@@ -39,13 +45,13 @@
 #' #----------------------- Example 2: Converter object --------------------------
 #' # We can do the same with an Converter object (all feature and outcome names
 #' # will be extracted by the SHAP method!)
-#' conv <- Converter$new(model,
-#'                       input_dim = c(5),
-#'                       input_names = c("Car", "Cat", "Dog", "Plane", "Horse"),
-#'                       output_names = c("Buy it!", "Don't buy it!"))
+#' conv <- convert(model,
+#'                 input_dim = c(5),
+#'                 input_names = c("Car", "Cat", "Dog", "Plane", "Horse"),
+#'                 output_names = c("Buy it!", "Don't buy it!"))
 #'
 #' # Calculate Shapley values for the first 10 instances
-#' shap <- SHAP$new(conv, data, data[1:10])
+#' shap <- run_shap(conv, data[1:10], data_ref = data)
 #'
 #' # Plot the result for both classes
 #' plot(shap, output_idx = c(1, 2))
@@ -67,7 +73,7 @@
 #'
 #'   # Calculate Shapley values for the instances of index 1 and 111 and add
 #'   # the outcome labels
-#'   shap <- SHAP$new(model, iris[, -5], iris[c(1, 111), -5],
+#'   shap <- run_shap(model, iris[c(1, 111), -5], data_ref = iris[, -5],
 #'                    pred_fun = pred_fun,
 #'                    output_names = levels(iris$Species),
 #'                    nsim = 10)

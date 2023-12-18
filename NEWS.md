@@ -1,3 +1,60 @@
+# innsight 0.3.0
+
+This is a minor release but does contain a range of substantial new features 
+as well as visual changes, along with some bug fixes. For users, however, 
+nothing changes that is not set by default as in the previous version or made 
+aware by warnings. An exception to this are the graphics that are created 
+using `plot()`. These now contain a small box with information about the 
+prediction, the sum of the relevances and the goal of the method.
+
+### Breaking changes
+
+* By default, the `plot()` method now creates a small box within the plot 
+with the prediction for the instance and the corresponding class. This info 
+box also contains the sum of the relevances and, if available, the 
+decomposition target of the method. Displaying the box can be toggled with 
+the `show_preds` argument.
+
+* The `boxplot()` function for the interpretation methods has been 
+renamed `plot_global()` due to the inappropriate name (especially for images). 
+The old method `boxplot()` can still be used, but throws a warning for image 
+data and executes the method `plot_global()` internally.
+
+### New features
+
+* We have now implemented the following other feature attribution methods:
+    * Integrated Gradients (`IntegratedGradient`)
+    * Expected Gradients (`ExpectedGradient`)
+    * DeepSHAP (`DeepSHAP`)
+    * and the model-agnostic approaches LIME (`LIME`) and Shapley values 
+    (`SHAP`). Both can be applied to arbitrary models (by providing the 
+    prediction function `pref_fun`) and wrap the suggested packages `lime` and
+    `fastshap`. However, they can only be applied to models with a single input
+    and output layer.
+    
+* We have added functions for the initialization of R6 classes. In this way,
+we don't require prior knowledge of R6 syntax for our package. We implemented the
+following methods:
+    * `convert(...)` for `Converter$new(...)`
+    * `run_grad(...)` for `Gradient$new(...)`
+    * `run_smoothgrad(...)` for `SmoothGrad$new(...)`
+    * `run_intgrad(...)` for `IntegratedGradient$new(...)`
+    * `run_expgrad(...)` for `ExpectedGradient$new(...)`
+    * `run_deeplift(...)` for `DeepLift$new(...)`
+    * `run_deepshap(...)` for `DeepSHAP$new(...)`
+    * `run_lrp(...)` for `LRP$new(...)`
+    * `run_cw(...)` for `ConnectionWeights$new(...)`
+    * `run_lime(...)` for `LIME$new(...)`
+    * `run_shap(...)` for `SHAP$new(...)`
+
+* In addition to the output index with `output_idx`, the new argument 
+`output_label` for the  output label can now also be specified in order to 
+calculate or visualize only certain output nodes. 
+
+### Documentation and vignettes
+
+* Update documentation and vignettes according to the new features and changes
+
 # innsight 0.2.1
 
 * Add `if(require("pkgname"))` for suggested packages in examples

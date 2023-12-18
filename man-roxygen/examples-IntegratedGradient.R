@@ -13,10 +13,14 @@
 #' ref <- torch_randn(1, 5)
 #'
 #' # Create Converter
-#' converter <- Converter$new(model, input_dim = c(5))
+#' converter <- convert(model, input_dim = c(5))
 #'
 #' # Apply method IntegratedGradient
 #' int_grad <- IntegratedGradient$new(converter, data, x_ref = ref)
+#'
+#' # You can also use the helper function `run_intgrad` for initializing
+#' # an R6 IntegratedGradient object
+#' int_grad <- run_intgrad(converter, data, x_ref = ref)
 #'
 #' # Print the result as a torch tensor for first two data points
 #' get_result(int_grad, "torch.tensor")[1:2]
@@ -40,11 +44,11 @@
 #'   )
 #'
 #'   # Convert the model
-#'   converter <- Converter$new(nn)
+#'   converter <- convert(nn)
 #'
 #'   # Apply IntegratedGradient with a reference input of the feature means
 #'   x_ref <- matrix(colMeans(iris[, c(3, 4)]), nrow = 1)
-#'   int_grad <- IntegratedGradient$new(converter, iris[, c(3, 4)], x_ref = x_ref)
+#'   int_grad <- run_intgrad(converter, iris[, c(3, 4)], x_ref = x_ref)
 #'
 #'   # Get the result as a dataframe and show first 5 rows
 #'   get_result(int_grad, type = "data.frame")[1:5, ]
@@ -82,11 +86,11 @@
 #'     layer_dense(units = 2, activation = "softmax")
 #'
 #'   # Convert the model
-#'   converter <- Converter$new(model)
+#'   converter <- convert(model)
 #'
 #'   # Apply the IntegratedGradient method with a zero baseline and n = 20
 #'   # iteration steps
-#'   int_grad <- IntegratedGradient$new(converter, data,
+#'   int_grad <- run_intgrad(converter, data,
 #'     channels_first = FALSE,
 #'     n = 20
 #'   )
@@ -94,8 +98,8 @@
 #'   # Plot the result for the first image and both classes
 #'   plot(int_grad, output_idx = 1:2)
 #'
-#'   # Plot the result as boxplots for first class
-#'   boxplot(int_grad, output_idx = 1)
+#'   # Plot the pixel-wise median of the results
+#'   plot_global(int_grad, output_idx = 1)
 #' }
 #' @examplesIf torch::torch_is_installed() & Sys.getenv("RENDER_PLOTLY", unset = 0) == 1
 #' #------------------------- Plotly plots ------------------------------------

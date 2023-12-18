@@ -9,42 +9,42 @@ test_that("LIME: General errors", {
 
   expect_error(LIME$new()) # missing converter
   expect_error(LIME$new(model)) # missing data
-  expect_error(LIME$new(NULL, data, data[1:2, ])) # no output_type
-  expect_error(LIME$new(NULL, data, data[1:2, ], output_type = "regression")) # no pred_fun
-  expect_error(LIME$new(NULL, data, data[1:2, ],
+  expect_error(LIME$new(NULL, data[1:2, ], data )) # no output_type
+  expect_error(LIME$new(NULL, data[1:2, ], data, output_type = "regression")) # no pred_fun
+  expect_error(LIME$new(NULL, data[1:2, ], data,
                         output_type = "regression",
                         perd_fun = function(newdata, ...) newdata))
 
-  LIME$new(model, data, data[1:2, ]) # successful run
-  expect_error(LIME$new(model, data, data[1:2, ], output_type = "ds")) # wrong output_type
-  expect_error(LIME$new(model, data, data[1:2, ], pred_fun = identity)) # wrong pred_fun
-  expect_error(LIME$new(model, data, data[1:2, ], output_idx = c(1,4))) # wrong output_idx
-  LIME$new(model, data, data[1:2, ], output_idx = c(2))
-  expect_error(LIME$new(model, data, data[1:2, ], input_dim = c(1))) # wrong input_dim
-  expect_error(LIME$new(model, data, data[1:2, ], input_names = c("a", "b", "d"))) # wrong input_names
-  LIME$new(model, data, data[1:2, ], input_names = factor(c("a", "b")))
-  expect_error(LIME$new(model, data, data[1:2, ], output_names = c("a", "d"))) # wrong output_names
-  LIME$new(model, data, data[1:2, ], output_names = factor(c("a", "d", "c")))
+  LIME$new(model, data[1:2, ], data) # successful run
+  expect_error(LIME$new(model, data[1:2, ], data, output_type = "ds")) # wrong output_type
+  expect_error(LIME$new(model, data[1:2, ], data, pred_fun = identity)) # wrong pred_fun
+  expect_error(LIME$new(model, data[1:2, ], data, output_idx = c(1,4))) # wrong output_idx
+  LIME$new(model, data[1:2, ], data, output_idx = c(2))
+  expect_error(LIME$new(model, data[1:2, ], data, input_dim = c(1))) # wrong input_dim
+  expect_error(LIME$new(model, data[1:2, ], data, input_names = c("a", "b", "d"))) # wrong input_names
+  LIME$new(model, data[1:2, ], data, input_names = factor(c("a", "b")))
+  expect_error(LIME$new(model, data[1:2, ], data, output_names = c("a", "d"))) # wrong output_names
+  LIME$new(model, data[1:2, ], data, output_names = factor(c("a", "d", "c")))
 
-  expect_error(LIME$new(model, data, data[1:2, ], output_idx = c(1, 10)))
-  LIME$new(model, data, data[1:2, ], output_idx = c(1, 2))
-  expect_error(LIME$new(model, data, data[1:2, ], output_idx = list(c(1, 10))))
-  LIME$new(model, data, data[1:2, ], output_idx = list(c(1, 3)))
-  expect_error(LIME$new(model, data, data[1:2, ], output_idx = list(NULL, c(1, 2))))
-  expect_error(LIME$new(model, data, data[1:2, ], output_label = c(1, 2)))
-  expect_error(LIME$new(model, data, data[1:2, ], output_label = c("A", "b")))
-  LIME$new(model, data, data[1:2, ], output_label = c("setosa", "virginica"))
-  LIME$new(model, data, data[1:2, ], output_label = as.factor(c("setosa", "virginica")))
-  LIME$new(model, data, data[1:2, ], output_label = list(c("setosa", "virginica")))
-  expect_error(LIME$new(model, data, data[1:2, ],
+  expect_error(LIME$new(model, data[1:2, ], data, output_idx = c(1, 10)))
+  LIME$new(model, data[1:2, ], data, output_idx = c(1, 2))
+  expect_error(LIME$new(model, data[1:2, ], data, output_idx = list(c(1, 10))))
+  LIME$new(model, data[1:2, ], data, output_idx = list(c(1, 3)))
+  expect_error(LIME$new(model, data[1:2, ], data, output_idx = list(NULL, c(1, 2))))
+  expect_error(LIME$new(model, data[1:2, ], data, output_label = c(1, 2)))
+  expect_error(LIME$new(model, data[1:2, ], data, output_label = c("A", "b")))
+  LIME$new(model, data[1:2, ], data, output_label = c("setosa", "virginica"))
+  LIME$new(model, data[1:2, ], data, output_label = as.factor(c("setosa", "virginica")))
+  LIME$new(model, data[1:2, ], data, output_label = list(c("setosa", "virginica")))
+  expect_error(LIME$new(model, data[1:2, ], data,
                         output_label =  c("setosa", "virginica"),
                         output_idx = c(1, 2)))
-  LIME$new(model, data, data[1:2, ],
+  LIME$new(model, data[1:2, ], data,
            output_label =  c("setosa", "virginica"),
            output_idx = c(1, 3))
 
   # Forwarding arguments to lime::explain
-  lime <- LIME$new(model, data, data[1:10, ], n_permutations = 100, gower_power = 3)
+  lime <- LIME$new(model, data[1:10, ], data, n_permutations = 100, gower_power = 3)
 
   # get_result()
   res <- get_result(lime)
@@ -110,7 +110,7 @@ test_that("LIME: Dense-Net (Neuralnet)", {
   )
 
   # Normal model
-  lime <- LIME$new(nn, data, data[1:2, ])
+  lime <- LIME$new(nn, data[1:2, ], data)
   expect_equal(dim(lime$get_result()), c(2, 4, 3))
   p <- plot(lime, output_idx = c(2,3))
   boxp <- boxplot(lime, output_idx = c(2,3))
@@ -119,7 +119,7 @@ test_that("LIME: Dense-Net (Neuralnet)", {
 
   # Converter
   conv <- Converter$new(nn)
-  lime <- LIME$new(conv, data, data[1:2, ])
+  lime <- LIME$new(conv, data[1:2, ], data)
   expect_equal(dim(lime$get_result()), c(2, 4, 3))
   p <- plot(lime, output_idx = c(2,3))
   boxp <- boxplot(lime, output_idx = c(2,3))
@@ -141,7 +141,7 @@ test_that("LIME: Dense-Net (keras)", {
     layer_dense(units = 3, activation = "softmax")
 
   # Normal model
-  lime <- LIME$new(model, data, data[1:2, ])
+  lime <- LIME$new(model, data[1:2, ], data)
   expect_equal(dim(lime$get_result()), c(2, 4, 3))
   p <- plot(lime, output_idx = c(1,3))
   boxp <- boxplot(lime, output_idx = c(1,3))
@@ -150,7 +150,7 @@ test_that("LIME: Dense-Net (keras)", {
 
   # Converter
   conv <- Converter$new(model)
-  lime <- LIME$new(conv, data, data[1:2, ])
+  lime <- LIME$new(conv, data[1:2, ], data)
   expect_equal(dim(lime$get_result()), c(2, 4, 3))
   p <- plot(lime, output_idx = c(1,3))
   boxp <- boxplot(lime, output_idx = c(1,3))
@@ -166,7 +166,7 @@ test_that("LIME: Dense-Net (keras)", {
     layer_dense(units = 2, activation = "linear")
 
   # Normal model
-  lime <- LIME$new(model, data, data[1:2, ])
+  lime <- LIME$new(model, data[1:2, ], data)
   expect_equal(dim(lime$get_result()), c(2, 4, 2))
   p <- plot(lime, output_idx = c(2))
   boxp <- boxplot(lime, output_idx = c(2))
@@ -175,7 +175,7 @@ test_that("LIME: Dense-Net (keras)", {
 
   # Converter
   conv <- Converter$new(model)
-  lime <- LIME$new(conv, data, data[1:2, ])
+  lime <- LIME$new(conv, data[1:2, ], data)
   expect_equal(dim(lime$get_result()), c(2, 4, 2))
   p <- plot(lime, output_idx = c(2))
   boxp <- boxplot(lime, output_idx = c(2))
@@ -213,7 +213,7 @@ test_that("LIME: Conv1D-Net (keras)", {
     layer_dense(units = 1, activation = "sigmoid")
 
   # Normal model
-  lime <- LIME$new(model, data, data[1:2,, ], channels_first = FALSE)
+  lime <- LIME$new(model, data[1:2,, ], data, channels_first = FALSE)
   expect_equal(dim(lime$get_result()), c(2, 64, 3, 1))
   p <- plot(lime)
   boxp <- boxplot(lime)
@@ -222,7 +222,7 @@ test_that("LIME: Conv1D-Net (keras)", {
 
   # Converter
   conv <- Converter$new(model)
-  lime <- LIME$new(conv, data, data[1:2,, ], channels_first = FALSE)
+  lime <- LIME$new(conv, data[1:2,, ], data, channels_first = FALSE)
   expect_equal(dim(lime$get_result()), c(2, 64, 3, 1))
   p <- plot(lime)
   boxp <- boxplot(lime)
@@ -245,7 +245,7 @@ test_that("LIME: Conv1D-Net (keras)", {
     layer_dense(units = 2, activation = "linear")
 
   # Normal model
-  lime <- LIME$new(model, data, data[1:2,, ], channels_first = FALSE)
+  lime <- LIME$new(model, data[1:2,, ], data, channels_first = FALSE)
   expect_equal(dim(lime$get_result()), c(2, 64, 3, 2))
   p <- plot(lime, output_idx = c(2))
   boxp <- boxplot(lime, output_idx = c(2))
@@ -254,7 +254,7 @@ test_that("LIME: Conv1D-Net (keras)", {
 
   # Converter
   conv <- Converter$new(model)
-  lime <- LIME$new(conv, data, data[1:2,, ], channels_first = FALSE)
+  lime <- LIME$new(conv, data[1:2,, ], data, channels_first = FALSE)
   expect_equal(dim(lime$get_result()), c(2, 64, 3, 2))
   p <- plot(lime, output_idx = c(2))
   boxp <- boxplot(lime, output_idx = c(2))
@@ -288,19 +288,19 @@ test_that("LIME: Conv2D-Net (keras)", {
     layer_dense(units = 1, activation = "sigmoid")
 
   # Normal model
-  lime <- LIME$new(model, data, data[1:2,,, ], channels_first = FALSE)
+  lime <- LIME$new(model, data[1:2,,, ], data, channels_first = FALSE)
   expect_equal(dim(lime$get_result()), c(2, 10, 10, 3, 1))
   p <- plot(lime)
-  boxp <- boxplot(lime)
+  boxp <- plot_global(lime)
   expect_s4_class(p, "innsight_ggplot2")
   expect_s4_class(boxp, "innsight_ggplot2")
 
   # Converter
   conv <- Converter$new(model)
-  lime <- LIME$new(conv, data, data[1:2,,, ], channels_first = FALSE)
+  lime <- LIME$new(conv, data[1:2,,, ], data, channels_first = FALSE)
   expect_equal(dim(lime$get_result()), c(2, 10, 10, 3, 1))
   p <- plot(lime)
-  boxp <- boxplot(lime)
+  boxp <- plot_global(lime)
   expect_s4_class(p, "innsight_ggplot2")
   expect_s4_class(boxp, "innsight_ggplot2")
 
@@ -318,19 +318,19 @@ test_that("LIME: Conv2D-Net (keras)", {
     layer_dense(units = 2, activation = "linear")
 
   # Normal model
-  lime <- LIME$new(model, data, data[1:2,,, ], channels_first = FALSE)
+  lime <- LIME$new(model, data[1:2,,, ], data, channels_first = FALSE)
   expect_equal(dim(lime$get_result()), c(2, 10, 10, 3, 2))
   p <- plot(lime, output_idx = c(2))
-  boxp <- boxplot(lime, output_idx = c(2))
+  boxp <- plot_global(lime, output_idx = c(2))
   expect_s4_class(p, "innsight_ggplot2")
   expect_s4_class(boxp, "innsight_ggplot2")
 
   # Converter
   conv <- Converter$new(model)
-  lime <- LIME$new(conv, data, data[1:2,,, ], channels_first = FALSE)
+  lime <- LIME$new(conv, data[1:2,,, ], data, channels_first = FALSE)
   expect_equal(dim(lime$get_result()), c(2, 10, 10, 3, 2))
   p <- plot(lime, output_idx = c(2))
-  boxp <- boxplot(lime, output_idx = c(2))
+  boxp <- plot_global(lime, output_idx = c(2))
   expect_s4_class(p, "innsight_ggplot2")
   expect_s4_class(boxp, "innsight_ggplot2")
 
@@ -357,7 +357,7 @@ test_that("LIME: Dense-Net (torch)", {
   )
 
   # Normal model
-  lime <- LIME$new(model, data, data[1:2, ])
+  lime <- LIME$new(model, data[1:2, ], data)
   expect_equal(dim(lime$get_result()), c(2, 4, 3))
   p <- plot(lime, output_idx = c(1,3))
   boxp <- boxplot(lime, output_idx = c(1,3))
@@ -366,7 +366,7 @@ test_that("LIME: Dense-Net (torch)", {
 
   # Converter
   conv <- Converter$new(model, input_dim = c(4))
-  lime <- LIME$new(conv, data, data[1:2, ])
+  lime <- LIME$new(conv, data[1:2, ], data)
   expect_equal(dim(lime$get_result()), c(2, 4, 3))
   p <- plot(lime, output_idx = c(1,3))
   boxp <- boxplot(lime, output_idx = c(1,3))
@@ -382,7 +382,7 @@ test_that("LIME: Dense-Net (torch)", {
   )
 
   # Normal model
-  lime <- LIME$new(model, data, data[1:2, ])
+  lime <- LIME$new(model, data[1:2, ], data)
   expect_equal(dim(lime$get_result()), c(2, 4, 2))
   p <- plot(lime, output_idx = c(2))
   boxp <- boxplot(lime, output_idx = c(2))
@@ -391,7 +391,7 @@ test_that("LIME: Dense-Net (torch)", {
 
   # Converter
   conv <- Converter$new(model, input_dim = c(4))
-  lime <- LIME$new(conv, data, data[1:2, ])
+  lime <- LIME$new(conv, data[1:2, ], data)
   expect_equal(dim(lime$get_result()), c(2, 4, 2))
   p <- plot(lime, output_idx = c(2))
   boxp <- boxplot(lime, output_idx = c(2))
@@ -428,7 +428,7 @@ test_that("LIME: Conv1D-Net (torch)", {
   )
 
   # Normal model
-  lime <- LIME$new(model, data, data[1:2,, ], channels_first = TRUE)
+  lime <- LIME$new(model, data[1:2,, ], data, channels_first = TRUE)
   expect_equal(dim(lime$get_result()), c(2, 3, 64, 1))
   p <- plot(lime)
   boxp <- boxplot(lime)
@@ -437,7 +437,7 @@ test_that("LIME: Conv1D-Net (torch)", {
 
   # Converter
   conv <- Converter$new(model, input_dim = c(3, 64))
-  lime <- LIME$new(conv, data, data[1:2,, ], channels_first = TRUE)
+  lime <- LIME$new(conv, data[1:2,, ], data, channels_first = TRUE)
   expect_equal(dim(lime$get_result()), c(2, 3, 64, 1))
   p <- plot(lime)
   boxp <- boxplot(lime)
@@ -460,7 +460,7 @@ test_that("LIME: Conv1D-Net (torch)", {
   )
 
   # Normal model
-  lime <- LIME$new(model, data, data[1:2,, ], channels_first = TRUE)
+  lime <- LIME$new(model, data[1:2,, ], data, channels_first = TRUE)
   expect_equal(dim(lime$get_result()), c(2, 3, 64, 2))
   p <- plot(lime, output_idx = c(2))
   boxp <- boxplot(lime, output_idx = c(2))
@@ -469,7 +469,7 @@ test_that("LIME: Conv1D-Net (torch)", {
 
   # Converter
   conv <- Converter$new(model, input_dim = c(3, 64))
-  lime <- LIME$new(conv, data, data[1:2,, ], channels_first = TRUE)
+  lime <- LIME$new(conv, data[1:2,, ], data, channels_first = TRUE)
   expect_equal(dim(lime$get_result()), c(2, 3, 64, 2))
   p <- plot(lime, output_idx = c(2))
   boxp <- boxplot(lime, output_idx = c(2))
@@ -504,19 +504,19 @@ test_that("LIME: Conv2D-Net (torch)", {
   )
 
   # Normal model
-  lime <- LIME$new(model, data, data[1:2,,, ], channels_first = TRUE)
+  lime <- LIME$new(model, data[1:2,,, ], data, channels_first = TRUE)
   expect_equal(dim(lime$get_result()), c(2, 3, 10, 10, 1))
   p <- plot(lime)
-  boxp <- boxplot(lime)
+  boxp <- plot_global(lime)
   expect_s4_class(p, "innsight_ggplot2")
   expect_s4_class(boxp, "innsight_ggplot2")
 
   # Converter
   conv <- Converter$new(model, input_dim = c(3, 10, 10))
-  lime <- LIME$new(conv, data, data[1:2,,, ], channels_first = TRUE)
+  lime <- LIME$new(conv, data[1:2,,, ], data, channels_first = TRUE)
   expect_equal(dim(lime$get_result()), c(2, 3, 10, 10, 1))
   p <- plot(lime)
-  boxp <- boxplot(lime)
+  boxp <- plot_global(lime)
   expect_s4_class(p, "innsight_ggplot2")
   expect_s4_class(boxp, "innsight_ggplot2")
 
@@ -534,19 +534,19 @@ test_that("LIME: Conv2D-Net (torch)", {
   )
 
   # Normal model
-  lime <- LIME$new(model, data, data[1:2,,, ], channels_first = TRUE)
+  lime <- LIME$new(model, data[1:2,,, ], data, channels_first = TRUE)
   expect_equal(dim(lime$get_result()), c(2, 3, 10, 10, 2))
   p <- plot(lime, output_idx = c(2))
-  boxp <- boxplot(lime, output_idx = c(2))
+  boxp <- plot_global(lime, output_idx = c(2))
   expect_s4_class(p, "innsight_ggplot2")
   expect_s4_class(boxp, "innsight_ggplot2")
 
   # Converter
   conv <- Converter$new(model, input_dim = c(3, 10, 10))
-  lime <- LIME$new(conv, data, data[1:2,,, ], channels_first = TRUE)
+  lime <- LIME$new(conv, data[1:2,,, ], data, channels_first = TRUE)
   expect_equal(dim(lime$get_result()), c(2, 3, 10, 10, 2))
   p <- plot(lime, output_idx = c(2))
-  boxp <- boxplot(lime, output_idx = c(2))
+  boxp <- plot_global(lime, output_idx = c(2))
   expect_s4_class(p, "innsight_ggplot2")
   expect_s4_class(boxp, "innsight_ggplot2")
 
@@ -580,7 +580,7 @@ test_that("LIME: Keras multiple input or output layers", {
   data <- lapply(list(c(5), c(10,10,2)),
                  function(x) array(rnorm(10 * prod(x)), dim = c(10, x)))
 
-  expect_error(LIME$new(model, data))
+  expect_error(LIME$new(model, data, data_ref = NULL))
 
   # Multiple output layers
   main_input <- layer_input(shape = c(10,10,2), name = 'main_input')
@@ -615,7 +615,7 @@ test_that("Custom model", {
     predict(model, newdata, ...)$predictions
   }
 
-  lime <- LIME$new(model, iris[, -5], iris[c(1,70, 111), -5],
+  lime <- LIME$new(model, iris[c(1,70, 111), -5], iris[, -5],
                    output_type = "classification",
                    pred_fun = pred_fun,
                    output_names = levels(iris$Species))

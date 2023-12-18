@@ -301,7 +301,7 @@ test_that("innsight_plotly: Tabular data (multiple columns)", {
 
 #----- Image data -----------------------------------------------------------
 test_that("innsight_plotly: Signal data (one column)", {
-  p <- boxplot(res_2d, as_plotly = TRUE)
+  p <- plot_global(res_2d, as_plotly = TRUE)
 
   # Check class
   expect_s4_class(p, "innsight_plotly")
@@ -321,7 +321,7 @@ test_that("innsight_plotly: Signal data (one column)", {
 
 
 test_that("innsight_plotly: Tabular data (multiple columns)", {
-  p <- boxplot(res_2d, output_idx = c(1,2,3), as_plotly = TRUE)
+  p <- plot_global(res_2d, output_idx = c(1,2,3), as_plotly = TRUE)
 
   # Check class
   expect_s4_class(p, "innsight_plotly")
@@ -343,7 +343,7 @@ test_that("innsight_plotly: Tabular data (multiple columns)", {
 test_that("innsight_plotly: Mixed data", {
   skip_if_not_installed("keras")
 
-  p <- boxplot(res_mixed, output_idx = list(c(1,2,3), c(1)), as_plotly = TRUE)
+  p <- plot_global(res_mixed, output_idx = list(c(1,2,3), c(1)), as_plotly = TRUE)
 
   # Check class
   expect_s4_class(p, "innsight_plotly")

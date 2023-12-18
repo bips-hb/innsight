@@ -16,6 +16,9 @@
 #' \code{vignette("detailed_overview", package = "innsight")} or the
 #' [website](https://bips-hb.github.io/innsight/articles/detailed_overview.html#model-as-named-list)).
 #'
+#' The R6 class can also be initialized using the [`convert`] function
+#' as a helper function so that no prior knowledge of R6 classes is required.
+#'
 #' @field model ([`ConvertedModel`])\cr
 #' The converted neural network based on the torch module [ConvertedModel].\cr
 #' @field input_dim (`list`)\cr
@@ -47,10 +50,19 @@
 #' * S. Bach et al. (2015) \emph{On pixel-wise explanations for non-linear
 #'  classifier decisions by layer-wise relevance propagation.} PLoS ONE 10,
 #'  p. 1-46
+#'  * M. T. Ribeiro et al. (2016) \emph{"Why should I trust you?": Explaining
+#'  the predictions of any classifier.} KDD 2016, p. 1135-1144
 #' * A. Shrikumar et al. (2017) \emph{Learning important features through
 #' propagating activation differences.}  ICML 2017, p. 4844-4866
 #' * D. Smilkov et al. (2017) \emph{SmoothGrad: removing noise by adding noise.}
 #' CoRR, abs/1706.03825
+#' M. Sundararajan et al. (2017) \emph{Axiomatic attribution for deep networks.}
+#' ICML 2017, p.3319-3328
+#' * S. Lundberg et al. (2017) \emph{A unified approach to interpreting model
+#' predictions.} NIPS 2017, p. 4768-4777
+#' * G. Erion et al. (2021) \emph{Improving performance of deep learning models
+#' with axiomatic attribution priors and expected gradients.} Nature Machine
+#' Intelligence 3, p. 620-631
 #'
 #' @export
 Converter <- R6Class("Converter",

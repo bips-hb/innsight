@@ -23,7 +23,7 @@ are available (all are wrapped by other packages):
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{x}}{The individual instances to be explained by the method
+\item{\code{data_orig}}{The individual instances to be explained by the method
 (unprocessed!).}
 }
 \if{html}{\out{</div>}}
@@ -38,9 +38,9 @@ are available (all are wrapped by other packages):
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="boxplot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-boxplot'><code>innsight::InterpretingMethod$boxplot()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-get_result'><code>innsight::InterpretingMethod$get_result()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot'><code>innsight::InterpretingMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot_global"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot_global'><code>innsight::InterpretingMethod$plot_global()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="print"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-print'><code>innsight::InterpretingMethod$print()</code></a></span></li>
 </ul>
 </details>
@@ -54,7 +54,7 @@ Create a new instance of the \code{AgnosticWrapper} R6 class.
 \if{html}{\out{<div class="r">}}\preformatted{AgnosticWrapper$new(
   model,
   data,
-  x,
+  data_ref,
   output_type = NULL,
   pred_fun = NULL,
   output_idx = NULL,
@@ -69,7 +69,7 @@ Create a new instance of the \code{AgnosticWrapper} R6 class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{model}}{\cr
+\item{\code{model}}{(any prediction model)\cr
 A fitted model for a classification or regression task that
 is intended to be interpreted. A \code{\link{Converter}} object can also be
 passed. In order for the package to know how to make predictions
@@ -80,20 +80,20 @@ the argument \code{pred_fun}. However, for models created by
 these have already been pre-implemented and do not need to be
 specified.\cr}
 
-\item{\code{data}}{(\code{\link{array}}, \code{\link{data.frame}} or \code{\link{torch_tensor}})\cr
-The dataset to which the method is to be applied. These must
-have the same format as the input data of the passed model and has to
-be either \code{\link{matrix}}, an \code{\link{array}}, a \code{\link{data.frame}} or a
-\code{\link{torch_tensor}}.\cr
-\strong{Note:} For the model-agnostic methods, only models with a single
-input and output layer is allowed!\cr}
-
-\item{\code{x}}{(\code{array}, \code{data.frame} or \code{torch_tensor})\cr
+\item{\code{data}}{(\code{array}, \code{data.frame} or \code{torch_tensor})\cr
 The individual instances to be explained by the method.
 These must have the same format as the input data of the passed model
 and has to be either \code{\link{matrix}}, an \code{\link{array}}, a \code{\link{data.frame}} or a
 \code{\link{torch_tensor}}. If no value is specified, all instances in the
 dataset \code{data} will be explained.\cr
+\strong{Note:} For the model-agnostic methods, only models with a single
+input and output layer is allowed!\cr}
+
+\item{\code{data_ref}}{(\code{\link{array}}, \code{\link{data.frame}} or \code{\link{torch_tensor}})\cr
+The dataset to which the method is to be applied. These must
+have the same format as the input data of the passed model and has to
+be either \code{\link{matrix}}, an \code{\link{array}}, a \code{\link{data.frame}} or a
+\code{\link{torch_tensor}}.\cr
 \strong{Note:} For the model-agnostic methods, only models with a single
 input and output layer is allowed!\cr}
 

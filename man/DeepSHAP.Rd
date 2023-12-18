@@ -10,9 +10,12 @@ from several, ideally representative reference values at each layer. The
 obtained feature-wise results are approximate Shapley values for the
 chosen output, where the conditional expectation is computed using these
 different reference values, i.e., the \emph{DeepSHAP} method decompose the
-difference from the prediction and the mean prediction \eqn{f(x) - E[f(x)]}
+difference from the prediction and the mean prediction \eqn{f(x) - E[f(\tilde{x})]}
 in feature-wise effects. The reference values can be passed by the argument
 \code{data_ref}.
+
+The R6 class can also be initialized using the \code{\link{run_deepshap}} function
+as a helper function so that no prior knowledge of R6 classes is required.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -33,10 +36,14 @@ data <- torch_randn(25, 5)
 ref <- torch_randn(5, 5)
 
 # Create Converter
-converter <- Converter$new(model, input_dim = c(5))
+converter <- convert(model, input_dim = c(5))
 
 # Apply method DeepSHAP
 deepshap <- DeepSHAP$new(converter, data, data_ref = ref)
+
+# You can also use the helper function `run_deepshap` for initializing
+# an R6 DeepSHAP object
+deepshap <- run_deepshap(converter, data, data_ref = ref)
 
 # Print the result as a torch tensor for first two data points
 get_result(deepshap, "torch.tensor")[1:2]
@@ -60,11 +67,11 @@ if (require("neuralnet")) {
   )
 
   # Convert the model
-  converter <- Converter$new(nn)
+  converter <- convert(nn)
 
   # Apply DeepSHAP with rescale-rule and a 100 (default of `limit_ref`)
   # instances as the reference dataset
-  deepshap <- DeepSHAP$new(converter, iris[, c(3, 4)],
+  deepshap <- run_deepshap(converter, iris[, c(3, 4)],
                            data_ref = iris[, c(3, 4)])
 
   # Get the result as a dataframe and show first 5 rows
@@ -104,17 +111,17 @@ if (require("keras")) {
     layer_dense(units = 2, activation = "softmax")
 
   # Convert the model
-  converter <- Converter$new(model)
+  converter <- convert(model)
 
   # Apply the DeepSHAP method with zero baseline (wich is equivalent to
   # DeepLift with zero baseline)
-  deepshap <- DeepSHAP$new(converter, data, channels_first = FALSE)
+  deepshap <- run_deepshap(converter, data, channels_first = FALSE)
 
   # Plot the result for the first image and both classes
   plot(deepshap, output_idx = 1:2)
 
-  # Plot the result as boxplots for first class
-  boxplot(deepshap, output_idx = 1)
+  # Plot the pixel-wise median of the results
+  plot_global(deepshap, output_idx = 1)
 }
 \dontshow{\}) # examplesIf}
 \dontshow{if (torch::torch_is_installed() & Sys.getenv("RENDER_PLOTLY", unset = 0) == 1) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -174,9 +181,9 @@ format \emph{channels first} is used.\cr}
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="boxplot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-boxplot'><code>innsight::InterpretingMethod$boxplot()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-get_result'><code>innsight::InterpretingMethod$get_result()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot'><code>innsight::InterpretingMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot_global"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot_global'><code>innsight::InterpretingMethod$plot_global()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="print"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-print'><code>innsight::InterpretingMethod$print()</code></a></span></li>
 </ul>
 </details>

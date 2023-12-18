@@ -15,6 +15,9 @@ function is pre-implemented for models created with
 \code{\link[neuralnet]{neuralnet}} or \code{\link{Converter}}. Internally, the
 suggested package \code{fastshap} is utilized and applied to \code{data.frame}.
 
+The R6 class can also be initialized using the \code{\link{run_shap}} function
+as a helper function so that no prior knowledge of R6 classes is required.
+
 \strong{Note:} Even signal and image data are initially transformed into a
 \code{data.frame} using \code{as.data.frame()} and then \code{\link[fastshap:explain]{fastshap::explain}} is
 applied. In other words, a custom \code{pred_fun} may need to convert the
@@ -36,7 +39,13 @@ data <- torch_randn(25, 5)
 
 # Calculate Shapley values for the first 10 instances and set the
 # feature and outcome names
-shap <- SHAP$new(model, data, data[1:10, ],
+shap <- SHAP$new(model, data[1:10, ], data_ref = data,
+                 input_names = c("Car", "Cat", "Dog", "Plane", "Horse"),
+                 output_names = c("Buy it!", "Don't buy it!"))
+
+# You can also use the helper function `run_shap` for initializing
+# an R6 SHAP object
+shap <- run_shap(model, data[1:10, ], data_ref = data,
                  input_names = c("Car", "Cat", "Dog", "Plane", "Horse"),
                  output_names = c("Buy it!", "Don't buy it!"))
 
@@ -51,7 +60,7 @@ boxplot(shap, output_idx = c(1, 2))
 
 # We can also forward some arguments to fastshap::explain, e.g. nsim to
 # get more accurate values
-shap <- SHAP$new(model, data, data[1:10, ],
+shap <- run_shap(model, data[1:10, ], data_ref = data,
                  input_names = c("Car", "Cat", "Dog", "Plane", "Horse"),
                  output_names = c("Buy it!", "Don't buy it!"),
                  nsim = 10)
@@ -62,13 +71,13 @@ boxplot(shap, output_idx = c(1, 2))
 #----------------------- Example 2: Converter object --------------------------
 # We can do the same with an Converter object (all feature and outcome names
 # will be extracted by the SHAP method!)
-conv <- Converter$new(model,
-                      input_dim = c(5),
-                      input_names = c("Car", "Cat", "Dog", "Plane", "Horse"),
-                      output_names = c("Buy it!", "Don't buy it!"))
+conv <- convert(model,
+                input_dim = c(5),
+                input_names = c("Car", "Cat", "Dog", "Plane", "Horse"),
+                output_names = c("Buy it!", "Don't buy it!"))
 
 # Calculate Shapley values for the first 10 instances
-shap <- SHAP$new(conv, data, data[1:10])
+shap <- run_shap(conv, data[1:10], data_ref = data)
 
 # Plot the result for both classes
 plot(shap, output_idx = c(1, 2))
@@ -90,7 +99,7 @@ if (require("neuralnet") & require("ranger")) {
 
   # Calculate Shapley values for the instances of index 1 and 111 and add
   # the outcome labels
-  shap <- SHAP$new(model, iris[, -5], iris[c(1, 111), -5],
+  shap <- run_shap(model, iris[c(1, 111), -5], data_ref = iris[, -5],
                    pred_fun = pred_fun,
                    output_names = levels(iris$Species),
                    nsim = 10)
@@ -129,9 +138,9 @@ Other methods:
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="boxplot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-boxplot'><code>innsight::InterpretingMethod$boxplot()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-get_result'><code>innsight::InterpretingMethod$get_result()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot'><code>innsight::InterpretingMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot_global"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot_global'><code>innsight::InterpretingMethod$plot_global()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="print"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-print'><code>innsight::InterpretingMethod$print()</code></a></span></li>
 </ul>
 </details>
@@ -147,7 +156,7 @@ stored in the field \code{result}.
 \if{html}{\out{<div class="r">}}\preformatted{SHAP$new(
   model,
   data,
-  x,
+  data_ref,
   pred_fun = NULL,
   output_idx = NULL,
   output_label = NULL,
@@ -162,7 +171,7 @@ stored in the field \code{result}.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{model}}{\cr
+\item{\code{model}}{(any prediction model)\cr
 A fitted model for a classification or regression task that
 is intended to be interpreted. A \code{\link{Converter}} object can also be
 passed. In order for the package to know how to make predictions
@@ -173,20 +182,20 @@ the argument \code{pred_fun}. However, for models created by
 these have already been pre-implemented and do not need to be
 specified.\cr}
 
-\item{\code{data}}{(\code{\link{array}}, \code{\link{data.frame}} or \code{\link{torch_tensor}})\cr
-The dataset to which the method is to be applied. These must
-have the same format as the input data of the passed model and has to
-be either \code{\link{matrix}}, an \code{\link{array}}, a \code{\link{data.frame}} or a
-\code{\link{torch_tensor}}.\cr
-\strong{Note:} For the model-agnostic methods, only models with a single
-input and output layer is allowed!\cr}
-
-\item{\code{x}}{(\code{array}, \code{data.frame} or \code{torch_tensor})\cr
+\item{\code{data}}{(\code{array}, \code{data.frame} or \code{torch_tensor})\cr
 The individual instances to be explained by the method.
 These must have the same format as the input data of the passed model
 and has to be either \code{\link{matrix}}, an \code{\link{array}}, a \code{\link{data.frame}} or a
 \code{\link{torch_tensor}}. If no value is specified, all instances in the
 dataset \code{data} will be explained.\cr
+\strong{Note:} For the model-agnostic methods, only models with a single
+input and output layer is allowed!\cr}
+
+\item{\code{data_ref}}{(\code{\link{array}}, \code{\link{data.frame}} or \code{\link{torch_tensor}})\cr
+The dataset to which the method is to be applied. These must
+have the same format as the input data of the passed model and has to
+be either \code{\link{matrix}}, an \code{\link{array}}, a \code{\link{data.frame}} or a
+\code{\link{torch_tensor}}.\cr
 \strong{Note:} For the model-agnostic methods, only models with a single
 input and output layer is allowed!\cr}
 

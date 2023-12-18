@@ -21,7 +21,7 @@
 #' * `run_shap` for [`SHAP`]
 #'
 #' @template param-converter
-#' @template param-x-agnostic
+#' @template param-data_ref-agnostic
 #'
 #' @param model ([`nn_sequential`], \code{\link[keras]{keras_model}},
 #' \code{\link[neuralnet]{neuralnet}} or `list`)\cr
@@ -67,7 +67,7 @@ NULL
 #' convert(model, ...)
 #'
 #' @export
-convert = function(model, ...) {
+convert <- function(model, ...) {
   Converter$new(model, ...)
 }
 
@@ -78,7 +78,7 @@ convert = function(model, ...) {
 #' run_grad(converter, data, ...)
 #'
 #' @export
-run_grad = function(converter, data, ...) {
+run_grad <- function(converter, data, ...) {
   Gradient$new(converter, data, ...)
 }
 
@@ -89,7 +89,7 @@ run_grad = function(converter, data, ...) {
 #' run_smoothgrad(converter, data, ...)
 #'
 #' @export
-run_smoothgrad = function(converter, data, ...) {
+run_smoothgrad <- function(converter, data, ...) {
   SmoothGrad$new(converter, data, ...)
 }
 
@@ -100,7 +100,7 @@ run_smoothgrad = function(converter, data, ...) {
 #' run_intgrad(converter, data, ...)
 #'
 #' @export
-run_intgrad = function(converter, data, ...) {
+run_intgrad <- function(converter, data, ...) {
   IntegratedGradient$new(converter, data, ...)
 }
 
@@ -111,7 +111,7 @@ run_intgrad = function(converter, data, ...) {
 #' run_expgrad(converter, data, ...)
 #'
 #' @export
-run_expgrad = function(converter, data, ...) {
+run_expgrad <- function(converter, data, ...) {
   ExpectedGradient$new(converter, data, ...)
 }
 
@@ -122,7 +122,7 @@ run_expgrad = function(converter, data, ...) {
 #' run_lrp(converter, data, ...)
 #'
 #' @export
-run_lrp = function(converter, data, ...) {
+run_lrp <- function(converter, data, ...) {
   LRP$new(converter, data, ...)
 }
 
@@ -133,7 +133,7 @@ run_lrp = function(converter, data, ...) {
 #' run_deeplift(converter, data, ...)
 #'
 #' @export
-run_deeplift = function(converter, data, ...) {
+run_deeplift <- function(converter, data, ...) {
   DeepLift$new(converter, data, ...)
 }
 
@@ -144,7 +144,7 @@ run_deeplift = function(converter, data, ...) {
 #' run_deepshap(converter, data, ...)
 #'
 #' @export
-run_deepshap = function(converter, data, ...) {
+run_deepshap <- function(converter, data, ...) {
   DeepSHAP$new(converter, data, ...)
 }
 
@@ -155,28 +155,28 @@ run_deepshap = function(converter, data, ...) {
 #' run_cw(converter, ...)
 #'
 #' @export
-run_cw = function(converter, ...) {
+run_cw <- function(converter, ...) {
   ConnectionWeights$new(converter, ...)
 }
 
 #' @rdname innsight_sugar
 #'
 #' @usage
-#' # Apply the `LIME` method to explain `x` by using the dataset `data`
-#' run_lime(model, data, x, ...)
+#' # Apply the `LIME` method to explain `data` by using the dataset `data_ref`
+#' run_lime(model, data, data_ref, ...)
 #'
 #' @export
-run_lime = function(model, data, x, ...) {
-  LIME$new(model, data, x, ...)
+run_lime <- function(model, data, data_ref, ...) {
+  LIME$new(model, data, data_ref, ...)
 }
 
 #' @rdname innsight_sugar
 #'
 #' @usage
-#' # Apply the `SHAP` method to explain `x` by using the dataset `data`
-#' run_shap(model, data, x, ...)
+#' # Apply the `SHAP` method to explain `data` by using the dataset `data_ref`
+#' run_shap(model, data, data_ref, ...)
 #'
 #' @export
-run_shap = function(model, data, x, ...) {
-  SHAP$new(model, data, x, ...)
+run_shap <- function(model, data, data_ref, ...) {
+  SHAP$new(model, data, data_ref, ...)
 }

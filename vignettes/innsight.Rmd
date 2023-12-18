@@ -128,7 +128,7 @@ variant of PyTorch called LibTorch (see Fig. 2).
 * **Unified framework:** It does not matter which model and method you choose, 
 it is always the same three steps that lead to a visual illustration of the 
 results (see the [next section](#how-to-use) for details):
-<div align="center"> model $\xrightarrow{\text{Step 1}}$ `Converter` $\xrightarrow{\text{Step 2}}$ method $\xrightarrow{\text{Step 3}}$ `print()` or `boxplot()` </div></br>
+<div align="center"> model $\xrightarrow{\text{Step 1}}$ `Converter` $\xrightarrow{\text{Step 2}}$ method $\xrightarrow{\text{Step 3}}$ `plot()` or `plot_global()`/`boxplot()` </div></br>
 
 * **Visualization tools:** Our package **innsight** offers several 
 visualization methods for individual or summarized results regardless of 
@@ -154,15 +154,18 @@ are:
 model <- ... # this step is left to the user
 
 # Step 1: Convert the model
-converter <- Converter$new(model)
+converter <- convert(model)
+converter <- Converter$new(model) # the same but without helper function
 
 # Step 2: Apply selected method to your data
-result <- Method$new(converter, data)
+result <- run_method(converter, data)
+result <- Method$new(converter, data) # the same but without helper function
 
 # Step 3: Show and plot the results
 get_result(result) # get the result as an `array`, `data.frame` or `torch_tensor`
 plot(result) # for individual results (local)
-boxplot(result) # for summarized results (global)
+plot_global(result) # for summarized results (global)
+boxplot(result) # alias for `plot_global` for tabular and signal data
 ```
 
 
@@ -174,17 +177,20 @@ or defined. For this reason, there are several ways in this package to pass
 a neural network to the `Converter` object, but the call is always the same:
 
 ```{r, eval = FALSE}
-# The 'Converter' object (R6 class)
+# Using the helper function `convert`
+converter <- convert(model, ...)
+# It simply passes all arguments to the initialization function of
+# the corresponding R6 class, i.e., it is equivalent to
 converter <- Converter$new(model, ...)
 ```
 
 Except for a **neuralnet** model, no names of inputs or outputs are stored in 
 the given model. If no further arguments are set for the `Converter`
-instance, default labels are generated for the input (e.g. `'X1'`, `'X2'`, ...) 
-and output names (`'Y1'`, `'Y2'`, ... ). In the converter, 
-however, there is the possibility with the optional arguments `input_names` 
-and `output_names` to pass the names, which will then be used in all results 
-and plots created by this object.
+instance or `convert()` function, default labels are generated for the input 
+(e.g. `'X1'`, `'X2'`, ...) and output names (`'Y1'`, `'Y2'`, ... ). In the 
+converter, however, there is the possibility with the optional arguments 
+`input_names` and `output_names` to pass the names, which will then be used in 
+all results and plots created by this object.
 
 #### Usage with torch models
 
@@ -216,10 +222,10 @@ model <- nn_sequential(
   nn_softmax(2)
 )
 # Convert the model
-conv_dense <- Converter$new(model, input_dim = c(3))
+conv_dense <- convert(model, input_dim = c(3))
 # Convert model with input and output names
 conv_dense_with_names <-
-  Converter$new(model,
+  convert(model,
     input_dim = c(3),
     input_names = list(c("Price", "Weight", "Height")),
     output_names = list(c("Buy it!", "Don't buy it!"))
@@ -254,7 +260,7 @@ model <- model %>%
   layer_dense(5, activation = "softmax")
 
 # Convert the model
-conv_cnn <- Converter$new(model)
+conv_cnn <- convert(model)
 ```
 </details>
 
@@ -279,7 +285,7 @@ model <- neuralnet(Species ~ Petal.Length + Petal.Width, iris,
 )
 
 # Convert model
-conv_dense <- Converter$new(model)
+conv_dense <- convert(model)
 ```
 </details>
 
@@ -310,7 +316,7 @@ model <- list(
   )
 )
 
-converter <- Converter$new(model)
+converter <- convert(model)
 ```
 </details>
 
@@ -339,6 +345,19 @@ method <- Method$new(converter, data, # required arguments
   ... # other args and method-specific args
 )
 ```
+
+However, you can also use the helper functions (e.g., `run_grad()`, 
+`run_deeplift()`, etc.) for initializing a new object:
+
+```{r, eval = FALSE}
+method <- run_method(converter, data, # required arguments
+  channels_first = TRUE, # optional settings
+  output_idx = NULL, # .
+  ignore_last_act = TRUE, # .
+  ... # other args and method-specific args
+)
+```
+
 The most important arguments are explained below. For a complete and detailed 
 explanation, however, we refer to the R documentation (see 
 `?InterpretingMethod`) or the vignette ["In-depth explanation"](https://bips-hb.github.io/innsight/articles/detailed_overview.html#step-2-apply-selected-method)
@@ -366,6 +385,11 @@ values correspond to the indices of the output nodes, e.g., `c(1,3,4)` for the
 first, third and fourth output node. If your model has more than one output
 layer, you can pass the respective output nodes in a list which is described in
 detail in the R documentation (see `?InterpretingMethod`) or in the [in-depth vignette](https://bips-hb.github.io/innsight/articles/detailed_overview.html#argument-output_idx)
+
+* `output_label`: These values specify the output nodes for which the method 
+is to be applied and can be used as an alternative to the argument `output_idx`. 
+Only values that were previously passed with the argument `output_names` in 
+the `converter` can be used. 
 
 * `ignore_last_act`: Set this logical value to include the last activation 
 functions for each output layer, or not (default: `TRUE`)
@@ -395,9 +419,12 @@ $$
 # Apply method 'Gradient' for the dense network
 grad_dense <- Gradient$new(conv_dense, iris[-c(1, 2, 5)])
 
+# You can also use the helper function `run_grad`
+grad_dense <- run_grad(conv_dense, iris[-c(1, 2, 5)])
+
 # Apply method 'Gradient x Input' for CNN
 x <- torch_randn(c(10, 3, 10, 10))
-grad_cnn <- Gradient$new(conv_cnn, x, times_input = TRUE)
+grad_cnn <- run_grad(conv_cnn, x, times_input = TRUE)
 ```
 </details>
 </li>
@@ -415,14 +442,58 @@ with $\varepsilon_1, \ldots \varepsilon_n \sim \mathcal{N}(0, \sigma^2)$.
 <summary>Examples</summary>
 ```{r, results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Apply method 'SmoothGrad' for the dense network
-smooth_dense <- SmoothGrad$new(conv_dense, iris[-c(1, 2, 5)])
+smooth_dense <- run_smoothgrad(conv_dense, iris[-c(1, 2, 5)])
 
 # Apply method 'SmoothGrad x Input' for CNN
 x <- torch_randn(c(10, 3, 10, 10))
-smooth_cnn <- SmoothGrad$new(conv_cnn, x, times_input = TRUE)
+smooth_cnn <- run_smoothgrad(conv_cnn, x, times_input = TRUE)
 ```
 </details>
 </li>
+
+<li> **`IntegratedGradient`** : Calculation of the integrated gradients 
+([Sundararajan et al. (2017)](https://arxiv.org/abs/1703.01365)) with respect 
+to a reference input $\tilde{x}$:
+$$
+\text{IntGrad}(x)_i^c = (x - \tilde{x}) \int_{\alpha = 0}^1 \frac{\partial f(\tilde{x} + \alpha (x - \tilde{x}))}{\partial x} d\alpha.
+$$
+
+<details>
+<summary>Examples</summary>
+```{r, results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()}
+# Apply method 'IntegratedGradient' for the dense network
+intgrad_dense <- run_intgrad(conv_dense, iris[-c(1, 2, 5)])
+
+# Apply method 'IntegratedGradient' for CNN with the average baseline
+x <- torch_randn(c(10, 3, 10, 10))
+x_ref <- x$mean(1, keepdim = TRUE)
+intgrad_cnn <- run_intgrad(conv_cnn, x, x_ref = x_ref)
+```
+</details>
+</li>
+
+<li> **`ExpectedGradient`** : Calculation of the integrated gradients 
+([Erion et al., 2021](https://doi.org/10.1038/s42256-021-00343-w)) with respect 
+to a whole reference dataset $\tilde{X} \sim \tilde{x}$:
+$$
+\text{ExpGrad}(x)_i^c = \mathbb{E}_{\tilde{x}\sim \tilde{X}, \alpha \sim U(0,1)} \left[(x - \tilde{x}) \times \frac{\partial f(\tilde{x} + \alpha (x - \tilde{x}))}{\partial x} \right]
+$$
+
+<details>
+<summary>Examples</summary>
+```{r, results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()}
+# Apply method 'ExpectedGradient' for the dense network
+expgrad_dense <- run_expgrad(conv_dense, iris[-c(1, 2, 5)],
+                             data_ref = iris[-c(1, 2, 5)])
+
+# Apply method 'ExpectedGradient' for CNN
+x <- torch_randn(c(10, 3, 10, 10))
+data_ref <- torch_randn(c(20, 3, 10, 10))
+expgrad_cnn <- run_expgrad(conv_cnn, x, data_ref = data_ref)
+```
+</details>
+</li>
+
 
 <li> **`LRP`** : Back-propagating the model output to the model input neurons to 
 obtain relevance scores for the model prediction which is known as
@@ -436,11 +507,11 @@ with $R_i$ relevance score for input neuron $i$.
 <summary>Examples</summary>
 ```{r, results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Apply method 'LRP' for the dense network
-lrp_dense <- LRP$new(conv_dense, iris[-c(1, 2, 5)])
+lrp_dense <- run_lrp(conv_dense, iris[-c(1, 2, 5)])
 
 # Apply method 'LRP' for CNN with alpha-beta-rule
 x <- torch_randn(c(10, 10, 10, 3))
-lrp_cnn <- LRP$new(conv_cnn, x,
+lrp_cnn <- run_lrp(conv_cnn, x,
   rule_name = "alpha_beta", rule_param = 1,
   channels_first = FALSE
 )
@@ -464,11 +535,11 @@ difference-from-reference model output $\Delta y_c$.
 # Define reference value
 x_ref <- array(colMeans(iris[-c(1, 2, 5)]), dim = c(1, 2))
 # Apply method 'DeepLift' for the dense network
-deeplift_dense <- DeepLift$new(conv_dense, iris[-c(1, 2, 5)], x_ref = x_ref)
+deeplift_dense <- run_deeplift(conv_dense, iris[-c(1, 2, 5)], x_ref = x_ref)
 
 # Apply method 'DeepLift' for CNN (default is a zero baseline)
 x <- torch_randn(c(10, 3, 10, 10))
-deeplift_cnn <- DeepLift$new(conv_cnn, x)
+deeplift_cnn <- run_deeplift(conv_cnn, x)
 ```
 </details>
 </li>
@@ -481,17 +552,23 @@ them up (see [*Connection Weights*](https://doi.org/10.1016/j.ecolmodel.2004.03.
 <summary>Examples</summary>
 ```{r, results='hide', message=FALSE, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Apply global method 'ConnectionWeights' for a dense network
-connectweights_dense <- ConnectionWeights$new(conv_dense)
+connectweights_dense <- run_cw(conv_dense)
 
 # Apply local method 'ConnectionWeights' for a CNN
 # Note: This variant requires input data
 x <- torch_randn(c(10, 3, 10, 10))
-connectweights_cnn <- ConnectionWeights$new(conv_cnn, x, times_input = TRUE)
+connectweights_cnn <- run_cw(conv_cnn, x, times_input = TRUE)
 ```
 </details>
 </li>
-</ul>  
-  
+
+<li> Additionally, the method **`DeepSHAP`** and the model-agnostic methods
+**`LIME`** and **`SHAP`** are implemented (by the functions `run_deepshap()`,
+`run_lime()` and `run_shap()`). For details, we refer to our [vignette "In-depth
+explanation"](https://bips-hb.github.io/innsight/articles/detailed_overview.html).
+</li>
+</ul> 
+
 
 > **`r knitr::asis_output("\U1F4DD")`  Notes**  
 >
@@ -607,26 +684,31 @@ for the plot. In addition, if the results have channels, the
 `aggr_channels` argument can be used to determine how the channels are 
 aggregated. All arguments are explained in detail in the R documentation 
 (see `?InterpretingMethod`) or [here for `plot()`](https://bips-hb.github.io/innsight/articles/detailed_overview.html#plot-single-results-plot) and 
-[here for `boxplot()`](https://bips-hb.github.io/innsight/articles/detailed_overview.html#plot-summarized-results-boxplot).
+[here for `plot_global()`](https://bips-hb.github.io/innsight/articles/detailed_overview.html#plot-summarized-results-plot_global).
 
 ```{r, eval = FALSE}
 # Create a plot for single data points
 plot(method,
   data_idx = 1, # the data point to be plotted
   output_idx = NULL, # the indices of the output nodes/classes to be plotted
+  output_label = NULL, # the class labels to be plotted
   aggr_channels = "sum",
   as_plotly = FALSE, # create an interactive plot
   ... # other arguments
 )
 
 # Create a plot with summarized results
-boxplot(method,
+plot_global(method,
   output_idx = NULL, # the indices of the output nodes/classes to be plotted
+  output_label = NULL, # the class labels to be plotted
   ref_data_idx = NULL, # the index of an reference data point to be plotted
   aggr_channels = "sum",
   as_plotly = FALSE, # create an interactive plot
   ... # other arguments
 )
+
+# Alias for `plot_global` for tabular and signal data
+boxplot(...)
 ```
 
 > **`r knitr::asis_output("\U1F4DD")`  Note**    
@@ -663,12 +745,12 @@ plotly::config(print(p))
 </details>
 
 <details>
-<summary> `boxplot()` function (**ggplot2**) </summary>
+<summary> `plot_global()` function (**ggplot2**) </summary>
 ```{r, eval = keras::is_keras_available() & torch::torch_is_installed(), fig.height=6, fig.width=9}
 # Create boxplot for the first two output classes
-boxplot(smooth_dense, output_idx = 1:2)
+plot_global(smooth_dense, output_idx = 1:2)
 # Use no preprocess function (default: abs) and plot a reference data point
-boxplot(smooth_dense,
+plot_global(smooth_dense,
   output_idx = 1:3, preprocess_FUN = identity,
   ref_data_idx = c(55)
 )
@@ -676,17 +758,17 @@ boxplot(smooth_dense,
 </details>
 
 <details>
-<summary> `boxplot()` function (**plotly**) </summary>
+<summary> `plot_global()` function (**plotly**) </summary>
 ```{r, fig.height=6, fig.width=9, eval = FALSE}
 # You can do the same with the plotly-based plots
-boxplot(smooth_dense,
+plot_global(smooth_dense,
   output_idx = 1:3, preprocess_FUN = identity,
   ref_data_idx = c(55), as_plotly = TRUE
 )
 ```
 ```{r, fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed()}
 # You can do the same with the plotly-based plots
-p <- boxplot(smooth_dense,
+p <- plot_global(smooth_dense,
   output_idx = 1:3, preprocess_FUN = identity,
   ref_data_idx = c(55), as_plotly = TRUE
 )

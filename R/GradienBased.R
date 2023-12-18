@@ -12,6 +12,7 @@
 #' - *Vanilla Gradients* and *Gradient\eqn{\times}Input* ([`Gradient`])
 #' - *Integrated Gradients* ([`IntegratedGradient`])
 #' - *SmoothGrad* and *SmoothGrad\eqn{\times}Input* ([`SmoothGrad`])
+#' - *ExpectedGradients* ([`ExpectedGradient`])
 #'
 #' @template param-converter
 #' @template param-data
@@ -153,15 +154,6 @@ GradientBased <- R6Class(
 )
 
 
-#'
-#' @importFrom graphics boxplot
-#' @exportS3Method
-#'
-boxplot.GradientBased <- function(x, ...) {
-  x$boxplot(...)
-}
-
-
 ###############################################################################
 #                               Vanilla Gradient
 ###############################################################################
@@ -177,6 +169,12 @@ boxplot.GradientBased <- function(x, ...) {
 #' If the argument `times_input` is `TRUE`, the gradients are multiplied by
 #' the respective input value (*Gradient\eqn{\times}Input*), i.e.,
 #' \deqn{x_i * d f(x)_j / d x_i.}
+#' While the vanilla gradients emphasize prediction-sensitive features,
+#' Gradient\eqn{\times}Input is a decomposition of the output into feature-wise
+#' effects based on the first-order Taylor decomposition.
+#'
+#' The R6 class can also be initialized using the [`run_grad`] function as a
+#' helper function so that no prior knowledge of R6 classes is required.
 #'
 #' @template examples-Gradient
 #' @template param-converter
@@ -271,6 +269,9 @@ Gradient <- R6Class(
 #' gradient is multiplied by the input to get an approximate decomposition
 #' of \eqn{y - y'}. However, with the parameter `times_input` only the gradient
 #' describing the output sensitivity can be returned.
+#'
+#' The R6 class can also be initialized using the [`run_intgrad`] function
+#' as a helper function so that no prior knowledge of R6 classes is required.
 #'
 #' @template param-converter
 #' @template param-data
@@ -504,6 +505,9 @@ IntegratedGradient <- R6Class(
 #' `times_input` to multiply the gradients by the inputs before taking the
 #' average (*SmoothGrad\eqn{\times}Input*).
 #'
+#' The R6 class can also be initialized using the [`run_smoothgrad`] function
+#' as a helper function so that no prior knowledge of R6 classes is required.
+#'
 #' @template examples-SmoothGrad
 #' @template param-converter
 #' @template param-data
@@ -671,7 +675,10 @@ SmoothGrad <- R6Class(
 #' }
 #' The distribution of the reference values is specified with the argument
 #' `data_ref`, of which `n` samples are taken at random for each instance
-#' during the exstimation.
+#' during the estimation.
+#'
+#' The R6 class can also be initialized using the [`run_expgrad`] function
+#' as a helper function so that no prior knowledge of R6 classes is required.
 #'
 #' @template param-converter
 #' @template param-data

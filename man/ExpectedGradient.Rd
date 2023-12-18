@@ -16,7 +16,10 @@ E_{x'\sim X', \alpha \sim U(0,1)}[(x - x') \times \frac{\partial f(x' + \alpha (
 }
 The distribution of the reference values is specified with the argument
 \code{data_ref}, of which \code{n} samples are taken at random for each instance
-during the exstimation.
+during the estimation.
+
+The R6 class can also be initialized using the \code{\link{run_expgrad}} function
+as a helper function so that no prior knowledge of R6 classes is required.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -34,10 +37,14 @@ data <- torch_randn(25, 5)
 ref <- torch_randn(1, 5)
 
 # Create Converter
-converter <- Converter$new(model, input_dim = c(5))
+converter <- convert(model, input_dim = c(5))
 
 # Apply method IntegratedGradient
 int_grad <- IntegratedGradient$new(converter, data, x_ref = ref)
+
+# You can also use the helper function `run_intgrad` for initializing
+# an R6 IntegratedGradient object
+int_grad <- run_intgrad(converter, data, x_ref = ref)
 
 # Print the result as a torch tensor for first two data points
 get_result(int_grad, "torch.tensor")[1:2]
@@ -61,11 +68,11 @@ if (require("neuralnet")) {
   )
 
   # Convert the model
-  converter <- Converter$new(nn)
+  converter <- convert(nn)
 
   # Apply IntegratedGradient with a reference input of the feature means
   x_ref <- matrix(colMeans(iris[, c(3, 4)]), nrow = 1)
-  int_grad <- IntegratedGradient$new(converter, iris[, c(3, 4)], x_ref = x_ref)
+  int_grad <- run_intgrad(converter, iris[, c(3, 4)], x_ref = x_ref)
 
   # Get the result as a dataframe and show first 5 rows
   get_result(int_grad, type = "data.frame")[1:5, ]
@@ -103,11 +110,11 @@ if (require("keras")) {
     layer_dense(units = 2, activation = "softmax")
 
   # Convert the model
-  converter <- Converter$new(model)
+  converter <- convert(model)
 
   # Apply the IntegratedGradient method with a zero baseline and n = 20
   # iteration steps
-  int_grad <- IntegratedGradient$new(converter, data,
+  int_grad <- run_intgrad(converter, data,
     channels_first = FALSE,
     n = 20
   )
@@ -115,8 +122,8 @@ if (require("keras")) {
   # Plot the result for the first image and both classes
   plot(int_grad, output_idx = 1:2)
 
-  # Plot the result as boxplots for first class
-  boxplot(int_grad, output_idx = 1)
+  # Plot the pixel-wise median of the results
+  plot_global(int_grad, output_idx = 1)
 }
 \dontshow{\}) # examplesIf}
 \dontshow{if (torch::torch_is_installed() & Sys.getenv("RENDER_PLOTLY", unset = 0) == 1) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -175,9 +182,9 @@ input layer.\cr}
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="boxplot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-boxplot'><code>innsight::InterpretingMethod$boxplot()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-get_result'><code>innsight::InterpretingMethod$get_result()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot'><code>innsight::InterpretingMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot_global"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot_global'><code>innsight::InterpretingMethod$plot_global()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="print"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-print'><code>innsight::InterpretingMethod$print()</code></a></span></li>
 </ul>
 </details>

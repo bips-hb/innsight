@@ -9,25 +9,25 @@ test_that("SHAP: General errors", {
 
   expect_error(SHAP$new()) # missing converter
   expect_error(SHAP$new(model)) # missing data
-  expect_error(SHAP$new(NULL, data, data[1:2, ])) # no output_type
-  expect_error(SHAP$new(NULL, data, data[1:2, ], output_type = "regression")) # no pred_fun
-  expect_error(SHAP$new(NULL, data, data[1:2, ],
+  expect_error(SHAP$new(NULL, data[1:2, ], data)) # no output_type
+  expect_error(SHAP$new(NULL, data[1:2, ], data, output_type = "regression")) # no pred_fun
+  expect_error(SHAP$new(NULL, data[1:2, ], data,
                         output_type = "regression",
                         perd_fun = function(newdata, ...) newdata))
 
-  SHAP$new(model, data, data[1:2, ]) # successful run
-  expect_error(SHAP$new(model, data, data[1:2, ], output_type = "ds")) # wrong output_type
-  expect_error(SHAP$new(model, data, data[1:2, ], pred_fun = identity)) # wrong pred_fun
-  expect_error(SHAP$new(model, data, data[1:2, ], output_idx = c(1,4))) # wrong output_idx
-  SHAP$new(model, data, data[1:2, ], output_idx = c(2))
-  expect_error(SHAP$new(model, data, data[1:2, ], input_dim = c(1))) # wrong input_dim
-  expect_error(SHAP$new(model, data, data[1:2, ], input_names = c("a", "b", "d"))) # wrong input_names
-  SHAP$new(model, data, data[1:2, ], input_names = factor(c("a", "b")))
-  expect_error(SHAP$new(model, data, data[1:2, ], output_names = c("a", "d"))) # wrong output_names
-  SHAP$new(model, data, data[1:2, ], output_names = factor(c("a", "d", "c")))
+  SHAP$new(model, data[1:2, ], data) # successful run
+  expect_error(SHAP$new(model, data[1:2, ], data, output_type = "ds")) # wrong output_type
+  expect_error(SHAP$new(model, data[1:2, ], data, pred_fun = identity)) # wrong pred_fun
+  expect_error(SHAP$new(model, data[1:2, ], data, output_idx = c(1,4))) # wrong output_idx
+  SHAP$new(model, data[1:2, ], data, output_idx = c(2))
+  expect_error(SHAP$new(model, data[1:2, ], data, input_dim = c(1))) # wrong input_dim
+  expect_error(SHAP$new(model, data[1:2, ], data, input_names = c("a", "b", "d"))) # wrong input_names
+  SHAP$new(model, data[1:2, ], data, input_names = factor(c("a", "b")))
+  expect_error(SHAP$new(model, data[1:2, ], data, output_names = c("a", "d"))) # wrong output_names
+  SHAP$new(model, data[1:2, ], data, output_names = factor(c("a", "d", "c")))
 
   # Forwarding arguments to fastshap::explain
-  shap <- SHAP$new(model, data, data[1:10, ], nsim = 4)
+  shap <- SHAP$new(model, data[1:10, ], data, nsim = 4)
 
   # get_result()
   res <- get_result(shap)
@@ -93,7 +93,7 @@ test_that("SHAP: Dense-Net (Neuralnet)", {
   )
 
   # Normal model
-  shap <- SHAP$new(nn, data, data[1:2, ])
+  shap <- SHAP$new(nn, data[1:2, ], data)
   expect_equal(dim(shap$get_result()), c(2, 4, 3))
   p <- plot(shap, output_idx = c(2,3))
   boxp <- boxplot(shap, output_idx = c(2,3))
@@ -102,7 +102,7 @@ test_that("SHAP: Dense-Net (Neuralnet)", {
 
   # Converter
   conv <- Converter$new(nn)
-  shap <- SHAP$new(conv, data, data[1:2, ])
+  shap <- SHAP$new(conv, data[1:2, ], data)
   expect_equal(dim(shap$get_result()), c(2, 4, 3))
   p <- plot(shap, output_idx = c(2,3))
   boxp <- boxplot(shap, output_idx = c(2,3))
@@ -124,7 +124,7 @@ test_that("SHAP: Dense-Net (keras)", {
     layer_dense(units = 3, activation = "softmax")
 
   # Normal model
-  shap <- SHAP$new(model, data, data[1:2, ])
+  shap <- SHAP$new(model, data[1:2, ], data)
   expect_equal(dim(shap$get_result()), c(2, 4, 3))
   p <- plot(shap, output_idx = c(1,3))
   boxp <- boxplot(shap, output_idx = c(1,3))
@@ -133,7 +133,7 @@ test_that("SHAP: Dense-Net (keras)", {
 
   # Converter
   conv <- Converter$new(model)
-  shap <- SHAP$new(conv, data, data[1:2, ])
+  shap <- SHAP$new(conv, data[1:2, ], data)
   expect_equal(dim(shap$get_result()), c(2, 4, 3))
   p <- plot(shap, output_idx = c(1,3))
   boxp <- boxplot(shap, output_idx = c(1,3))
@@ -149,7 +149,7 @@ test_that("SHAP: Dense-Net (keras)", {
     layer_dense(units = 2, activation = "linear")
 
   # Normal model
-  shap <- SHAP$new(model, data, data[1:2, ])
+  shap <- SHAP$new(model, data[1:2, ], data)
   expect_equal(dim(shap$get_result()), c(2, 4, 2))
   p <- plot(shap, output_idx = c(2))
   boxp <- boxplot(shap, output_idx = c(2))
@@ -158,7 +158,7 @@ test_that("SHAP: Dense-Net (keras)", {
 
   # Converter
   conv <- Converter$new(model)
-  shap <- SHAP$new(conv, data, data[1:2, ])
+  shap <- SHAP$new(conv, data[1:2, ], data)
   expect_equal(dim(shap$get_result()), c(2, 4, 2))
   p <- plot(shap, output_idx = c(2))
   boxp <- boxplot(shap, output_idx = c(2))
@@ -181,23 +181,19 @@ test_that("SHAP: Conv1D-Net (keras)", {
   library(torch)
 
   # Classification -------------------------------------------------------------
-  data <- array(rnorm(4 * 64 * 3), dim = c(4, 64, 3))
+  data <- array(rnorm(4 * 14 * 3), dim = c(4, 14, 3))
   model <- keras_model_sequential()
   model %>%
     layer_conv_1d(
-      input_shape = c(64, 3), kernel_size = 16, filters = 8,
+      input_shape = c(14, 3), kernel_size = 8, filters = 2,
       activation = "softplus"
     ) %>%
-    layer_conv_1d(kernel_size = 16, filters = 4, activation = "tanh") %>%
-    layer_conv_1d(kernel_size = 16, filters = 2, activation = "relu") %>%
     layer_flatten() %>%
-    layer_dense(units = 64, activation = "relu") %>%
-    layer_dense(units = 16, activation = "relu") %>%
     layer_dense(units = 1, activation = "sigmoid")
 
   # Normal model
-  shap <- SHAP$new(model, data, data[1:2,, ], channels_first = FALSE)
-  expect_equal(dim(shap$get_result()), c(2, 64, 3, 1))
+  shap <- SHAP$new(model, data[1:2,, ], data, channels_first = FALSE)
+  expect_equal(dim(shap$get_result()), c(2, 14, 3, 1))
   p <- plot(shap)
   boxp <- boxplot(shap)
   expect_s4_class(p, "innsight_ggplot2")
@@ -205,31 +201,27 @@ test_that("SHAP: Conv1D-Net (keras)", {
 
   # Converter
   conv <- Converter$new(model)
-  shap <- SHAP$new(conv, data, data[1:2,, ], channels_first = FALSE)
-  expect_equal(dim(shap$get_result()), c(2, 64, 3, 1))
+  shap <- SHAP$new(conv, data[1:2,, ], data, channels_first = FALSE)
+  expect_equal(dim(shap$get_result()), c(2, 14, 3, 1))
   p <- plot(shap)
   boxp <- boxplot(shap)
   expect_s4_class(p, "innsight_ggplot2")
   expect_s4_class(boxp, "innsight_ggplot2")
 
   # Regression -----------------------------------------------------------------
-  data <- array(rnorm(4 * 64 * 3), dim = c(4, 64, 3))
+  data <- array(rnorm(4 * 14 * 3), dim = c(4, 14, 3))
   model <- keras_model_sequential()
   model %>%
     layer_conv_1d(
-      input_shape = c(64, 3), kernel_size = 16, filters = 8,
+      input_shape = c(14, 3), kernel_size = 8, filters = 4,
       activation = "softplus"
     ) %>%
-    layer_conv_1d(kernel_size = 16, filters = 4, activation = "tanh") %>%
-    layer_conv_1d(kernel_size = 16, filters = 2, activation = "relu") %>%
     layer_flatten() %>%
-    layer_dense(units = 64, activation = "relu") %>%
-    layer_dense(units = 16, activation = "relu") %>%
     layer_dense(units = 2, activation = "linear")
 
   # Normal model
-  shap <- SHAP$new(model, data, data[1:2,, ], channels_first = FALSE)
-  expect_equal(dim(shap$get_result()), c(2, 64, 3, 2))
+  shap <- SHAP$new(model, data[1:2,, ], data, channels_first = FALSE)
+  expect_equal(dim(shap$get_result()), c(2, 14, 3, 2))
   p <- plot(shap, output_idx = c(2))
   boxp <- boxplot(shap, output_idx = c(2))
   expect_s4_class(p, "innsight_ggplot2")
@@ -237,8 +229,8 @@ test_that("SHAP: Conv1D-Net (keras)", {
 
   # Converter
   conv <- Converter$new(model)
-  shap <- SHAP$new(conv, data, data[1:2,, ], channels_first = FALSE)
-  expect_equal(dim(shap$get_result()), c(2, 64, 3, 2))
+  shap <- SHAP$new(conv, data[1:2,, ], data, channels_first = FALSE)
+  expect_equal(dim(shap$get_result()), c(2, 14, 3, 2))
   p <- plot(shap, output_idx = c(2))
   boxp <- boxplot(shap, output_idx = c(2))
   expect_s4_class(p, "innsight_ggplot2")
@@ -258,62 +250,58 @@ test_that("SHAP: Conv2D-Net (keras)", {
   library(torch)
 
   # Classification -------------------------------------------------------------
-  data <- array(rnorm(4 * 10 * 10 * 3), dim = c(4, 10, 10, 3))
+  data <- array(rnorm(4 * 4 * 4 * 3), dim = c(4, 4, 4, 3))
   model <- keras_model_sequential()
   model %>%
     layer_conv_2d(
-      input_shape = c(10, 10, 3), kernel_size = 4, filters = 8,
+      input_shape = c(4, 4, 3), kernel_size = 2, filters = 4,
       activation = "softplus"
     ) %>%
-    layer_conv_2d(kernel_size = 4, filters = 2, activation = "relu") %>%
     layer_flatten() %>%
-    layer_dense(units = 16, activation = "relu") %>%
     layer_dense(units = 1, activation = "sigmoid")
 
   # Normal model
-  shap <- SHAP$new(model, data, data[1:2,,, ], channels_first = FALSE)
-  expect_equal(dim(shap$get_result()), c(2, 10, 10, 3, 1))
+  shap <- SHAP$new(model, data[1:2,,, ], data, channels_first = FALSE)
+  expect_equal(dim(shap$get_result()), c(2, 4, 4, 3, 1))
   p <- plot(shap)
-  boxp <- boxplot(shap)
+  boxp <- plot_global(shap)
   expect_s4_class(p, "innsight_ggplot2")
   expect_s4_class(boxp, "innsight_ggplot2")
 
   # Converter
   conv <- Converter$new(model)
-  shap <- SHAP$new(conv, data, data[1:2,,, ], channels_first = FALSE)
-  expect_equal(dim(shap$get_result()), c(2, 10, 10, 3, 1))
+  shap <- SHAP$new(conv, data[1:2,,, ], data, channels_first = FALSE)
+  expect_equal(dim(shap$get_result()), c(2, 4, 4, 3, 1))
   p <- plot(shap)
-  boxp <- boxplot(shap)
+  boxp <- plot_global(shap)
   expect_s4_class(p, "innsight_ggplot2")
   expect_s4_class(boxp, "innsight_ggplot2")
 
   # Regression -----------------------------------------------------------------
-  data <- array(rnorm(4 * 10 * 10 * 3), dim = c(4, 10, 10, 3))
+  data <- array(rnorm(4 * 4 * 4 * 3), dim = c(4, 4, 4, 3))
   model <- keras_model_sequential()
   model %>%
     layer_conv_2d(
-      input_shape = c(10, 10, 3), kernel_size = 4, filters = 8,
+      input_shape = c(4, 4, 3), kernel_size = 2, filters = 4,
       activation = "softplus"
     ) %>%
-    layer_conv_2d(kernel_size = 4, filters = 2, activation = "relu") %>%
     layer_flatten() %>%
-    layer_dense(units = 16, activation = "relu") %>%
     layer_dense(units = 2, activation = "linear")
 
   # Normal model
-  shap <- SHAP$new(model, data, data[1:2,,, ], channels_first = FALSE)
-  expect_equal(dim(shap$get_result()), c(2, 10, 10, 3, 2))
+  shap <- SHAP$new(model, data[1:2,,, ], data, channels_first = FALSE)
+  expect_equal(dim(shap$get_result()), c(2, 4, 4, 3, 2))
   p <- plot(shap, output_idx = c(2))
-  boxp <- boxplot(shap, output_idx = c(2))
+  boxp <- plot_global(shap, output_idx = c(2))
   expect_s4_class(p, "innsight_ggplot2")
   expect_s4_class(boxp, "innsight_ggplot2")
 
   # Converter
   conv <- Converter$new(model)
-  shap <- SHAP$new(conv, data, data[1:2,,, ], channels_first = FALSE)
-  expect_equal(dim(shap$get_result()), c(2, 10, 10, 3, 2))
+  shap <- SHAP$new(conv, data[1:2,,, ], data, channels_first = FALSE)
+  expect_equal(dim(shap$get_result()), c(2, 4, 4, 3, 2))
   p <- plot(shap, output_idx = c(2))
-  boxp <- boxplot(shap, output_idx = c(2))
+  boxp <- plot_global(shap, output_idx = c(2))
   expect_s4_class(p, "innsight_ggplot2")
   expect_s4_class(boxp, "innsight_ggplot2")
 
@@ -340,7 +328,7 @@ test_that("SHAP: Dense-Net (torch)", {
   )
 
   # Normal model
-  shap <- SHAP$new(model, data, data[1:2, ])
+  shap <- SHAP$new(model, data[1:2, ], data)
   expect_equal(dim(shap$get_result()), c(2, 4, 3))
   p <- plot(shap, output_idx = c(1,3))
   boxp <- boxplot(shap, output_idx = c(1,3))
@@ -349,7 +337,7 @@ test_that("SHAP: Dense-Net (torch)", {
 
   # Converter
   conv <- Converter$new(model, input_dim = c(4))
-  shap <- SHAP$new(conv, data, data[1:2, ])
+  shap <- SHAP$new(conv, data[1:2, ], data)
   expect_equal(dim(shap$get_result()), c(2, 4, 3))
   p <- plot(shap, output_idx = c(1,3))
   boxp <- boxplot(shap, output_idx = c(1,3))
@@ -365,7 +353,7 @@ test_that("SHAP: Dense-Net (torch)", {
   )
 
   # Normal model
-  shap <- SHAP$new(model, data, data[1:2, ])
+  shap <- SHAP$new(model, data[1:2, ], data)
   expect_equal(dim(shap$get_result()), c(2, 4, 2))
   p <- plot(shap, output_idx = c(2))
   boxp <- boxplot(shap, output_idx = c(2))
@@ -374,7 +362,7 @@ test_that("SHAP: Dense-Net (torch)", {
 
   # Converter
   conv <- Converter$new(model, input_dim = c(4))
-  shap <- SHAP$new(conv, data, data[1:2, ])
+  shap <- SHAP$new(conv, data[1:2, ], data)
   expect_equal(dim(shap$get_result()), c(2, 4, 2))
   p <- plot(shap, output_idx = c(2))
   boxp <- boxplot(shap, output_idx = c(2))
@@ -395,65 +383,57 @@ test_that("SHAP: Conv1D-Net (torch)", {
   library(torch)
 
   # Classification -------------------------------------------------------------
-  data <- array(rnorm(4 * 64 * 3), dim = c(4, 3, 64))
+  data <- array(rnorm(4 * 14 * 3), dim = c(4, 3, 14))
   model <- nn_sequential(
-    nn_conv1d(3, 8, 16),
-    nn_softplus(),
-    nn_conv1d(8, 4, 16),
-    nn_tanh(),
-    nn_conv1d(4, 2, 16),
+    nn_conv1d(3, 8, 8),
     nn_relu(),
     nn_flatten(),
-    nn_linear(38, 16),
+    nn_linear(56, 16),
     nn_relu(),
     nn_linear(16, 1),
     nn_sigmoid()
   )
 
   # Normal model
-  shap <- SHAP$new(model, data, data[1:2,, ], channels_first = TRUE)
-  expect_equal(dim(shap$get_result()), c(2, 3, 64, 1))
+  shap <- SHAP$new(model, data[1:2,, ], data, channels_first = TRUE)
+  expect_equal(dim(shap$get_result()), c(2, 3, 14, 1))
   p <- plot(shap)
   boxp <- boxplot(shap)
   expect_s4_class(p, "innsight_ggplot2")
   expect_s4_class(boxp, "innsight_ggplot2")
 
   # Converter
-  conv <- Converter$new(model, input_dim = c(3, 64))
-  shap <- SHAP$new(conv, data, data[1:2,, ], channels_first = TRUE)
-  expect_equal(dim(shap$get_result()), c(2, 3, 64, 1))
+  conv <- Converter$new(model, input_dim = c(3, 14))
+  shap <- SHAP$new(conv, data[1:2,, ], data, channels_first = TRUE)
+  expect_equal(dim(shap$get_result()), c(2, 3, 14, 1))
   p <- plot(shap)
   boxp <- boxplot(shap)
   expect_s4_class(p, "innsight_ggplot2")
   expect_s4_class(boxp, "innsight_ggplot2")
 
   # Regression -----------------------------------------------------------------
-  data <- array(rnorm(4 * 64 * 3), dim = c(4, 3, 64))
+  data <- array(rnorm(4 * 14 * 3), dim = c(4, 3, 14))
   model <- nn_sequential(
-    nn_conv1d(3, 8, 16),
-    nn_softplus(),
-    nn_conv1d(8, 4, 16),
-    nn_tanh(),
-    nn_conv1d(4, 2, 16),
+    nn_conv1d(3, 8, 8),
     nn_relu(),
     nn_flatten(),
-    nn_linear(38, 16),
+    nn_linear(56, 16),
     nn_relu(),
     nn_linear(16, 2)
   )
 
   # Normal model
-  shap <- SHAP$new(model, data, data[1:2,, ], channels_first = TRUE)
-  expect_equal(dim(shap$get_result()), c(2, 3, 64, 2))
+  shap <- SHAP$new(model, data[1:2,, ], data, channels_first = TRUE)
+  expect_equal(dim(shap$get_result()), c(2, 3, 14, 2))
   p <- plot(shap, output_idx = c(2))
   boxp <- boxplot(shap, output_idx = c(2))
   expect_s4_class(p, "innsight_ggplot2")
   expect_s4_class(boxp, "innsight_ggplot2")
 
   # Converter
-  conv <- Converter$new(model, input_dim = c(3, 64))
-  shap <- SHAP$new(conv, data, data[1:2,, ], channels_first = TRUE)
-  expect_equal(dim(shap$get_result()), c(2, 3, 64, 2))
+  conv <- Converter$new(model, input_dim = c(3, 14))
+  shap <- SHAP$new(conv, data[1:2,, ], data, channels_first = TRUE)
+  expect_equal(dim(shap$get_result()), c(2, 3, 14, 2))
   p <- plot(shap, output_idx = c(2))
   boxp <- boxplot(shap, output_idx = c(2))
   expect_s4_class(p, "innsight_ggplot2")
@@ -473,63 +453,59 @@ test_that("SHAP: Conv2D-Net (torch)", {
   library(torch)
 
   # Classification -------------------------------------------------------------
-  data <- array(rnorm(4 * 10 * 10 * 3), dim = c(4, 3, 10, 10))
+  data <- array(rnorm(4 * 4 * 4 * 3), dim = c(4, 3, 4, 4))
   model <- nn_sequential(
-    nn_conv2d(3, 8, c(4, 4)),
-    nn_softplus(),
-    nn_conv2d(8, 2, c(4, 4)),
+    nn_conv2d(3, 8, c(2, 2)),
     nn_relu(),
     nn_flatten(),
-    nn_linear(32, 16),
+    nn_linear(72, 16),
     nn_relu(),
     nn_linear(16, 1),
     nn_sigmoid()
   )
 
   # Normal model
-  shap <- SHAP$new(model, data, data[1:2,,, ], channels_first = TRUE)
-  expect_equal(dim(shap$get_result()), c(2, 3, 10, 10, 1))
+  shap <- SHAP$new(model, data[1:2,,, ], data, channels_first = TRUE)
+  expect_equal(dim(shap$get_result()), c(2, 3, 4, 4, 1))
   p <- plot(shap)
-  boxp <- boxplot(shap)
+  boxp <- plot_global(shap)
   expect_s4_class(p, "innsight_ggplot2")
   expect_s4_class(boxp, "innsight_ggplot2")
 
   # Converter
-  conv <- Converter$new(model, input_dim = c(3, 10, 10))
-  shap <- SHAP$new(conv, data, data[1:2,,, ], channels_first = TRUE)
-  expect_equal(dim(shap$get_result()), c(2, 3, 10, 10, 1))
+  conv <- Converter$new(model, input_dim = c(3, 4, 4))
+  shap <- SHAP$new(conv, data[1:2,,, ], data, channels_first = TRUE)
+  expect_equal(dim(shap$get_result()), c(2, 3, 4, 4, 1))
   p <- plot(shap)
-  boxp <- boxplot(shap)
+  boxp <- plot_global(shap)
   expect_s4_class(p, "innsight_ggplot2")
   expect_s4_class(boxp, "innsight_ggplot2")
 
   # Regression -----------------------------------------------------------------
-  data <- array(rnorm(4 * 10 * 10 * 3), dim = c(4, 3, 10, 10))
+  data <- array(rnorm(4 * 4 * 4 * 3), dim = c(4, 3, 4, 4))
   model <- nn_sequential(
-    nn_conv2d(3, 8, c(4, 4)),
-    nn_softplus(),
-    nn_conv2d(8, 2, c(4, 4)),
+    nn_conv2d(3, 8, c(2, 2)),
     nn_relu(),
     nn_flatten(),
-    nn_linear(32, 16),
+    nn_linear(72, 16),
     nn_relu(),
     nn_linear(16, 2)
   )
 
   # Normal model
-  shap <- SHAP$new(model, data, data[1:2,,, ], channels_first = TRUE)
-  expect_equal(dim(shap$get_result()), c(2, 3, 10, 10, 2))
+  shap <- SHAP$new(model, data[1:2,,, ], data, channels_first = TRUE)
+  expect_equal(dim(shap$get_result()), c(2, 3, 4, 4, 2))
   p <- plot(shap, output_idx = c(2))
-  boxp <- boxplot(shap, output_idx = c(2))
+  boxp <- plot_global(shap, output_idx = c(2))
   expect_s4_class(p, "innsight_ggplot2")
   expect_s4_class(boxp, "innsight_ggplot2")
 
   # Converter
-  conv <- Converter$new(model, input_dim = c(3, 10, 10))
-  shap <- SHAP$new(conv, data, data[1:2,,, ], channels_first = TRUE)
-  expect_equal(dim(shap$get_result()), c(2, 3, 10, 10, 2))
+  conv <- Converter$new(model, input_dim = c(3, 4, 4))
+  shap <- SHAP$new(conv, data[1:2,,, ], data, channels_first = TRUE)
+  expect_equal(dim(shap$get_result()), c(2, 3, 4, 4, 2))
   p <- plot(shap, output_idx = c(2))
-  boxp <- boxplot(shap, output_idx = c(2))
+  boxp <- plot_global(shap, output_idx = c(2))
   expect_s4_class(p, "innsight_ggplot2")
   expect_s4_class(boxp, "innsight_ggplot2")
 
@@ -598,7 +574,7 @@ test_that("Custom model", {
     predict(model, newdata, ...)$predictions
   }
 
-  shap <- SHAP$new(model, iris[, -5], iris[c(1,70, 111), -5],
+  shap <- SHAP$new(model, iris[c(1,70, 111), -5], iris[, -5],
                    pred_fun = pred_fun,
                    output_names = levels(iris$Species))
 

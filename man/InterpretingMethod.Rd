@@ -135,7 +135,7 @@ averaged prediction across the reference values.\cr}
 \item \href{#method-InterpretingMethod-new}{\code{InterpretingMethod$new()}}
 \item \href{#method-InterpretingMethod-get_result}{\code{InterpretingMethod$get_result()}}
 \item \href{#method-InterpretingMethod-plot}{\code{InterpretingMethod$plot()}}
-\item \href{#method-InterpretingMethod-boxplot}{\code{InterpretingMethod$boxplot()}}
+\item \href{#method-InterpretingMethod-plot_global}{\code{InterpretingMethod$plot_global()}}
 \item \href{#method-InterpretingMethod-print}{\code{InterpretingMethod$print()}}
 \item \href{#method-InterpretingMethod-clone}{\code{InterpretingMethod$clone()}}
 }
@@ -422,11 +422,11 @@ individual results.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-InterpretingMethod-boxplot"></a>}}
-\if{latex}{\out{\hypertarget{method-InterpretingMethod-boxplot}{}}}
-\subsection{Method \code{boxplot()}}{
+\if{html}{\out{<a id="method-InterpretingMethod-plot_global"></a>}}
+\if{latex}{\out{\hypertarget{method-InterpretingMethod-plot_global}{}}}
+\subsection{Method \code{plot_global()}}{
 This method visualizes the results of the selected method summarized as
-boxplots and enables a visual in-depth investigation of the global
+boxplots/median image and enables a visual in-depth investigation of the global
 behavior with the help of the S4 classes \code{\link{innsight_ggplot2}} and
 \code{\link{innsight_plotly}}.\cr
 You can use the argument \code{output_idx} to select the individual output
@@ -450,7 +450,7 @@ a bit more complex, therefore the suggested packages \code{'grid'},
 \code{'gridExtra'} and \code{'gtable'} must be installed in your R session.
 }
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{InterpretingMethod$boxplot(
+\if{html}{\out{<div class="r">}}\preformatted{InterpretingMethod$plot_global(
   output_idx = NULL,
   output_label = NULL,
   data_idx = "all",

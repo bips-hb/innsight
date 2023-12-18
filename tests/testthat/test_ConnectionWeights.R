@@ -242,7 +242,7 @@ test_that("ConnectionWeights (global): Conv2D-Net", {
   expect_s4_class(p, "innsight_plotly")
   p <- plot(cw_first, as_plotly = TRUE, output_idx = c(1,2))
   expect_s4_class(p, "innsight_plotly")
-  expect_error(boxplot(cw_first))
+  expect_error(plot_global(cw_first))
   expect_message(plot(cw_first, data_idx = c(1,3)))
 
   # Test plot function with channels last
@@ -254,7 +254,7 @@ test_that("ConnectionWeights (global): Conv2D-Net", {
   expect_s4_class(p, "innsight_plotly")
   p <- plot(cw_last, as_plotly = TRUE, output_idx = c(1,2))
   expect_s4_class(p, "innsight_plotly")
-  expect_error(boxplot(cw_last))
+  expect_error(plot_global(cw_last))
   expect_message(plot(cw_last, data_idx = c(1,3)))
 })
 
@@ -325,7 +325,7 @@ test_that("ConnectionWeights (global): Keras model with two inputs + two outputs
   expect_s4_class(p, "innsight_plotly")
   p <- plot(cw_first, as_plotly = TRUE, output_idx = list(c(2), c(1)))
   expect_s4_class(p, "innsight_plotly")
-  expect_error(boxplot(cw_first))
+  expect_error(plot_global(cw_first))
   expect_message(plot(cw_first, data_idx = c(1,3)))
 
   # Test plot function with channels last
@@ -337,7 +337,7 @@ test_that("ConnectionWeights (global): Keras model with two inputs + two outputs
   expect_s4_class(p, "innsight_plotly")
   p <- plot(cw_last, as_plotly = TRUE, output_idx = list(c(2), c(1)))
   expect_s4_class(p, "innsight_plotly")
-  expect_error(boxplot(cw_last))
+  expect_error(plot_global(cw_last))
   expect_message(plot(cw_last, data_idx = c(1,3)))
 
 })
@@ -593,10 +593,10 @@ test_that("ConnectionWeights (local): Conv2D-Net", {
   p <- plot(cw_last, as_plotly = TRUE, output_idx = c(1,2), data_idx = c(1,4))
   expect_s4_class(p, "innsight_plotly")
 
-  # Test boxplot
-  box <- boxplot(cw_first)
+  # Test plot_global
+  box <- plot_global(cw_first)
   expect_s4_class(box, "innsight_ggplot2")
-  box <- boxplot(cw_first, as_plotly = TRUE)
+  box <- plot_global(cw_first, as_plotly = TRUE)
   expect_s4_class(box, "innsight_plotly")
 })
 
@@ -685,9 +685,9 @@ test_that("ConnectionWeights (global): Keras model with two inputs + two outputs
   p <- plot(cw_last, as_plotly = TRUE, output_idx = list(c(2), c(1)))
   expect_s4_class(p, "innsight_plotly")
 
-  # Test boxplot
-  box <- boxplot(cw_first)
+  # Test plot_global
+  box <- plot_global(cw_first)
   expect_s4_class(box, "innsight_ggplot2")
-  box <- boxplot(cw_first, as_plotly = TRUE)
+  box <- plot_global(cw_first, as_plotly = TRUE)
   expect_s4_class(box, "innsight_plotly")
 })

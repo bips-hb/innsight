@@ -16,10 +16,14 @@
 #' ref <- torch_randn(5, 5)
 #'
 #' # Create Converter
-#' converter <- Converter$new(model, input_dim = c(5))
+#' converter <- convert(model, input_dim = c(5))
 #'
 #' # Apply method DeepSHAP
 #' deepshap <- DeepSHAP$new(converter, data, data_ref = ref)
+#'
+#' # You can also use the helper function `run_deepshap` for initializing
+#' # an R6 DeepSHAP object
+#' deepshap <- run_deepshap(converter, data, data_ref = ref)
 #'
 #' # Print the result as a torch tensor for first two data points
 #' get_result(deepshap, "torch.tensor")[1:2]
@@ -43,11 +47,11 @@
 #'   )
 #'
 #'   # Convert the model
-#'   converter <- Converter$new(nn)
+#'   converter <- convert(nn)
 #'
 #'   # Apply DeepSHAP with rescale-rule and a 100 (default of `limit_ref`)
 #'   # instances as the reference dataset
-#'   deepshap <- DeepSHAP$new(converter, iris[, c(3, 4)],
+#'   deepshap <- run_deepshap(converter, iris[, c(3, 4)],
 #'                            data_ref = iris[, c(3, 4)])
 #'
 #'   # Get the result as a dataframe and show first 5 rows
@@ -87,17 +91,17 @@
 #'     layer_dense(units = 2, activation = "softmax")
 #'
 #'   # Convert the model
-#'   converter <- Converter$new(model)
+#'   converter <- convert(model)
 #'
 #'   # Apply the DeepSHAP method with zero baseline (wich is equivalent to
 #'   # DeepLift with zero baseline)
-#'   deepshap <- DeepSHAP$new(converter, data, channels_first = FALSE)
+#'   deepshap <- run_deepshap(converter, data, channels_first = FALSE)
 #'
 #'   # Plot the result for the first image and both classes
 #'   plot(deepshap, output_idx = 1:2)
 #'
-#'   # Plot the result as boxplots for first class
-#'   boxplot(deepshap, output_idx = 1)
+#'   # Plot the pixel-wise median of the results
+#'   plot_global(deepshap, output_idx = 1)
 #' }
 #' @examplesIf torch::torch_is_installed() & Sys.getenv("RENDER_PLOTLY", unset = 0) == 1
 #' #------------------------- Plotly plots ------------------------------------

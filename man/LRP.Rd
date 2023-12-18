@@ -16,6 +16,9 @@ is generally an approximation. There exist several propagation rules to
 determine the relevance scores. In this package are implemented: simple
 rule ("simple"), \eqn{\varepsilon}-rule ("epsilon") and
 \eqn{\alpha}-\eqn{\beta}-rule ("alpha_beta").
+
+The R6 class can also be initialized using the \code{\link{run_lrp}} function
+as a helper function so that no prior knowledge of R6 classes is required.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -32,10 +35,14 @@ model <- nn_sequential(
 data <- torch_randn(25, 5)
 
 # Create Converter
-converter <- Converter$new(model, input_dim = c(5))
+converter <- convert(model, input_dim = c(5))
 
 # Apply method LRP with simple rule (default)
 lrp <- LRP$new(converter, data)
+
+# You can also use the helper function `run_lrp` for initializing
+# an R6 LRP object
+lrp <- run_lrp(converter, data)
 
 # Print the result as an array for data point one and two
 get_result(lrp)[1:2,,]
@@ -57,10 +64,10 @@ if (require("neuralnet")) {
   )
 
   # Create an converter for this model
-  converter <- Converter$new(nn)
+  converter <- convert(nn)
 
   # Create new instance of 'LRP'
-  lrp <- LRP$new(converter, iris[, -5], rule_name = "simple")
+  lrp <- run_lrp(converter, iris[, -5], rule_name = "simple")
 
   # Get the result as an array for data point one and two
   get_result(lrp)[1:2,,]
@@ -69,13 +76,13 @@ if (require("neuralnet")) {
   get_result(lrp, type = "torch.tensor")[1:2]
 
   # Use the alpha-beta rule with alpha = 2
-  lrp <- LRP$new(converter, iris[, -5],
+  lrp <- run_lrp(converter, iris[, -5],
     rule_name = "alpha_beta",
     rule_param = 2
   )
 
   # Include the last activation into the calculation
-  lrp <- LRP$new(converter, iris[, -5],
+  lrp <- run_lrp(converter, iris[, -5],
     rule_name = "alpha_beta",
     rule_param = 2,
     ignore_last_act = FALSE
@@ -112,11 +119,11 @@ if (require("keras")) {
     layer_dense(units = 3, activation = "softmax")
 
   # Convert the model
-  converter <- Converter$new(model)
+  converter <- convert(model)
 
   # Apply the LRP method with the epsilon rule for the dense layers and
   # the alpha-beta rule for the convolutional layers
-  lrp_comp <- LRP$new(converter, data,
+  lrp_comp <- run_lrp(converter, data,
     channels_first = FALSE,
     rule_name = list(Dense_Layer = "epsilon", Conv1D_Layer = "alpha_beta"),
     rule_param = list(Dense_Layer = 0.1, Conv1D_Layer = 1)
@@ -200,9 +207,9 @@ rule parameter to each layer type.\cr}
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="boxplot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-boxplot'><code>innsight::InterpretingMethod$boxplot()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-get_result'><code>innsight::InterpretingMethod$get_result()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot'><code>innsight::InterpretingMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot_global"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot_global'><code>innsight::InterpretingMethod$plot_global()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="print"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-print'><code>innsight::InterpretingMethod$print()</code></a></span></li>
 </ul>
 </details>

@@ -51,10 +51,13 @@ interpretability (feature attribution) methods based on neural networks in R, e.
   * Including propagation rules: $\varepsilon$-rule and $\alpha$-$\beta$-rule
 * Deep Learning Important Features ([DeepLift](https://arxiv.org/abs/1704.02685))
   * Including propagation rules for non-linearities: Rescale rule and RevealCancel rule
+  * [DeepSHAP](https://proceedings.neurips.cc/paper/2017/hash/8a20a8621978632d76c43dfd28b67767-Abstract.html)
 * Gradient-based methods:
   * Vanilla Gradient, including [Gradient x Input](https://www.jmlr.org/papers/v11/baehrens10a.html)
   * Smoothed gradients ([SmoothGrad](https://arxiv.org/abs/1706.03825)), including
   SmoothGrad x Input
+  * [Integrated gradients](https://arxiv.org/abs/1703.01365)
+  * [Expected gradients](https://doi.org/10.1038/s42256-021-00343-w)
 * Connection Weights
 
 Example results for these methods on ImageNet with pretrained network VGG19 (see
@@ -122,23 +125,24 @@ model = ...
 
 # -------------- Step 1: Convert your model ----------------
 # For keras and neuralnet
-converter <- Converter$new(model)
+converter <- convert(model)
 # For a torch model the argument 'input_dim' is required
-converter <- Converter$new(model, input_dim = model_input_dim)
+converter <- convert(model, input_dim = model_input_dim)
 
 # -------------- Step 2: Apply method ----------------------
 # Apply global method
-result <- Method$new(converter) # no data argument is needed
+result <- run_method(converter) # no data argument is needed
 # Apply local methods
-result <- Method$new(converter, data)
+result <- run_method(converter, data)
 
 # -------------- Step 3: Get and plot results --------------
 # Get the results as an array
 res <- get_result(result)
 # Plot individual results
 plot(result)
-# Plot a boxplot of all given data points in argument 'data' 
-boxplot(result)
+# Plot a aggregated plot of all given data points in argument 'data' 
+plot_global(result)
+boxplot(result) # alias of `plot_global` for tabular and signal data
 # Interactive plots can also be created for both methods
 plot(result, as_plotly = TRUE)
 ```
@@ -170,7 +174,7 @@ or create a feature request if you are missing something for your analyses or
 have great ideas for extending this package. Currently, we are working on the following:
 
 - [ ]  GPU support
-- [ ]  More methods, e.g. Grad-CAM, integrated gradients, etc.
+- [ ]  More methods, e.g. Grad-CAM, etc.
 - [ ]  More examples and documentation (contact me if you have a non-trivial
 application for me)
 

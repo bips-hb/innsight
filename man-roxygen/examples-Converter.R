@@ -13,6 +13,10 @@
 #' # Convert the model (for torch models is 'input_dim' required!)
 #' converter <- Converter$new(model, input_dim = c(5))
 #'
+#' # You can also use the helper function `convert()` for initializing a
+#' # Converter object
+#' converter <- convert(model, input_dim = c(5))
+#'
 #' # Get the converted model stored in the field 'model'
 #' converted_model <- converter$model
 #'
@@ -33,7 +37,7 @@
 #'   )
 #'
 #'   # Convert the model
-#'   converter <- Converter$new(nn)
+#'   converter <- convert(nn)
 #'
 #'   # Print all the layers
 #'   converter$model$modules_list
@@ -63,7 +67,7 @@
 #'     layer_dense(units = 1, activation = "sigmoid")
 #'
 #'   # Convert this model and save model as list
-#'   converter <- Converter$new(model, save_model_as_list = TRUE)
+#'   converter <- convert(model, save_model_as_list = TRUE)
 #'
 #'   # Print the converted model as a named list
 #'   str(converter$model_as_list, max.level = 1)
@@ -105,7 +109,7 @@
 #'   )
 #'
 #' # Convert the model
-#' converter <- Converter$new(model)
+#' converter <- convert(model)
 #'
 #' # Get the model as a torch::nn_module
 #' torch_model <- converter$model

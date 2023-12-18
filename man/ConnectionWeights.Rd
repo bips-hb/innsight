@@ -20,6 +20,9 @@ method \emph{Gradient\eqn{\times}Input} (see \code{\link{Gradient}}). Hence, the
 simply the point-wise product of the global \emph{Connection weights} method and
 the input data. You can use this variant by setting the \code{times_input}
 argument to \code{TRUE} and providing input data.
+
+The R6 class can also be initialized using the \code{\link{run_cw}} function
+as a helper function so that no prior knowledge of R6 classes is required.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -40,8 +43,17 @@ converter <- Converter$new(model,
   input_names = list(c("Car", "Cat", "Dog", "Plane", "Horse"))
 )
 
+# You can also use the helper function for the initialization part
+converter <- convert(model,
+  input_dim = c(5),
+  input_names = list(c("Car", "Cat", "Dog", "Plane", "Horse"))
+)
+
 # Apply method Connection Weights
 cw <- ConnectionWeights$new(converter)
+
+# Again, you can use a helper function `run_cw()` for initializing
+cw <- run_cw(converter)
 
 # Print the head of the result as a data.frame
 head(get_result(cw, "data.frame"), 5)
@@ -62,10 +74,10 @@ if (require("neuralnet")) {
   )
 
   # Convert the trained model
-  converter <- Converter$new(nn)
+  converter <- convert(nn)
 
   # Apply the Connection Weights method
-  cw <- ConnectionWeights$new(converter)
+  cw <- run_cw(converter)
 
   # Get the result as a torch tensor
   get_result(cw, type = "torch.tensor")
@@ -101,10 +113,10 @@ if (require("keras")) {
     layer_dense(units = 2, activation = "softmax")
 
   # Convert the model
-  converter <- Converter$new(model)
+  converter <- convert(model)
 
   # Apply the Connection Weights method
-  cw <- ConnectionWeights$new(converter)
+  cw <- run_cw(converter)
 
   # Get the head of the result as a data.frame
   head(get_result(cw, type = "data.frame"), 5)
@@ -168,9 +180,9 @@ variant of the method or the local one was applied. If the value is
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="boxplot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-boxplot'><code>innsight::InterpretingMethod$boxplot()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-get_result'><code>innsight::InterpretingMethod$get_result()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot'><code>innsight::InterpretingMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot_global"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot_global'><code>innsight::InterpretingMethod$plot_global()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="print"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-print'><code>innsight::InterpretingMethod$print()</code></a></span></li>
 </ul>
 </details>

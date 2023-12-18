@@ -19,9 +19,9 @@
 #' @template param-output_idx
 #' @template param-channels_first
 #' @template param-model-agnostic
-#' @template param-data-agnostic
+#' @template param-data_ref-agnostic
 #' @template param-output_label
-#' @template param-x-agnostic
+#' @template param-data-agnostic
 #' @template param-output_type-agnostic
 #' @template param-pred_fun-agnostic
 #' @template param-input_dim-agnostic
@@ -33,14 +33,14 @@ AgnosticWrapper <- R6Class(
   classname = "AgnosticWrapper",
   inherit = InterpretingMethod,
   public = list(
-    #' @field x The individual instances to be explained by the method
+    #' @field data_orig The individual instances to be explained by the method
     #' (unprocessed!).
-    x = NULL,
+    data_orig = NULL,
 
     #' @description
     #' Create a new instance of the `AgnosticWrapper` R6 class.
     #'
-    initialize = function(model, data, x,
+    initialize = function(model, data, data_ref,
                           output_type = NULL,
                           pred_fun = NULL,
                           output_idx = NULL,
@@ -50,16 +50,16 @@ AgnosticWrapper <- R6Class(
                           input_names = NULL,
                           output_names = NULL) {
 
-      # If x is missing, we interpret all instances in the given data
-      if (missing(x)) x <- data
-
       # Check for required arguments
       if (missing(model)) stopf("Argument {.arg model} is missing, with no default!")
       if (missing(data)) stopf("Argument {.arg data} is missing, with no default!")
 
+      # If data_ref is missing, we interpret all instances in the given data
+      if (missing(data_ref)) data_ref <- data
+
       # Set the default input shape given by the data
       if (is.null(input_dim)) {
-        input_dim <- dim(data)[-1]
+        input_dim <- dim(data_ref)[-1]
         # The input shape is always in the channels first format
         if (!channels_first) {
           input_dim <- c(input_dim[length(input_dim)], input_dim[-length(input_dim)])
@@ -67,7 +67,7 @@ AgnosticWrapper <- R6Class(
       }
 
       # Get names from data (if possible)
-      if (is.null(input_names)) input_names <- names(data)
+      if (is.null(input_names)) input_names <- names(data_ref)
 
       # Create converter object for agnostic IML methods
       conv_model <- get_converter(model, data, input_dim, input_names,
@@ -86,27 +86,19 @@ AgnosticWrapper <- R6Class(
       self$output_label <- outputs[[2]]
 
       # Save the original data to be explained
-      self$x <- x
+      self$data_orig <- data
 
       # Calculate predictions
-      self$preds <- list(self$converter$pred_fun(as.data.frame(x),
+      self$preds <- list(self$converter$pred_fun(as.data.frame(data),
                                             input_dim = self$converter$input_dim[[1]]))
 
-      # Save the data (the field "data" means the data to be explained, i.e.,
-      # in this case "x")
-      if (is.data.frame(x)) x <- as.matrix(x)
-      self$data <- list(torch_tensor(x))
+      # Save the data
+      if (is.data.frame(data)) data <- as.matrix(data)
+      self$data <- list(torch_tensor(data))
     }
   )
 )
 
-#'
-#' @importFrom graphics boxplot
-#' @exportS3Method
-#'
-boxplot.AgnosticWrapper <- function(x, ...) {
-  x$boxplot(...)
-}
 
 ################################################################################
 #                     Converter for model-agnostic methods

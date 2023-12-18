@@ -21,6 +21,9 @@
 #' activation functions: the *Rescale* rule (`'rescale'`) and
 #' *RevealCancel* rule (`'reveal_cancel'`).
 #'
+#' The R6 class can also be initialized using the [`run_deeplift`] function
+#' as a helper function so that no prior knowledge of R6 classes is required.
+#'
 #' @template param-converter
 #' @template param-data
 #' @template param-output_idx
@@ -151,9 +154,12 @@ DeepLift <- R6Class(
 #' obtained feature-wise results are approximate Shapley values for the
 #' chosen output, where the conditional expectation is computed using these
 #' different reference values, i.e., the *DeepSHAP* method decompose the
-#' difference from the prediction and the mean prediction \eqn{f(x) - E[f(x)]}
+#' difference from the prediction and the mean prediction \eqn{f(x) - E[f(\tilde{x})]}
 #' in feature-wise effects. The reference values can be passed by the argument
 #' `data_ref`.
+#'
+#' The R6 class can also be initialized using the [`run_deepshap`] function
+#' as a helper function so that no prior knowledge of R6 classes is required.
 #'
 #' @template param-converter
 #' @template param-data
@@ -319,20 +325,3 @@ DeepSHAP <- R6Class(
     }
   )
 )
-
-
-#'
-#' @importFrom graphics boxplot
-#' @exportS3Method
-#'
-boxplot.DeepLift <- function(x, ...) {
-  x$boxplot(...)
-}
-
-#'
-#' @importFrom graphics boxplot
-#' @exportS3Method
-#'
-boxplot.DeepSHAP <- function(x, ...) {
-  x$boxplot(...)
-}

@@ -14,6 +14,9 @@
 #' rule ("simple"), \eqn{\varepsilon}-rule ("epsilon") and
 #' \eqn{\alpha}-\eqn{\beta}-rule ("alpha_beta").
 #'
+#' The R6 class can also be initialized using the [`run_lrp`] function
+#' as a helper function so that no prior knowledge of R6 classes is required.
+#'
 #' @template examples-LRP
 #' @template param-converter
 #' @template param-data
@@ -195,11 +198,3 @@ LRP <- R6Class(
     }
   )
 )
-
-#'
-#' @importFrom graphics boxplot
-#' @exportS3Method
-#'
-boxplot.LRP <- function(x, ...) {
-  x$boxplot(...)
-}

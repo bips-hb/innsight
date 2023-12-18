@@ -42,11 +42,11 @@ run_deepshap(converter, data, ...)
 # Apply the `ConnectionWeights` method (argument `data` is not always required)
 run_cw(converter, ...)
 
-# Apply the `LIME` method to explain `x` by using the dataset `data`
-run_lime(model, data, x, ...)
+# Apply the `LIME` method to explain `data` by using the dataset `data_ref`
+run_lime(model, data, data_ref, ...)
 
-# Apply the `SHAP` method to explain `x` by using the dataset `data`
-run_shap(model, data, x, ...)
+# Apply the `SHAP` method to explain `data` by using the dataset `data_ref`
+run_shap(model, data, data_ref, ...)
 }
 \arguments{
 \item{model}{(\code{\link{nn_sequential}}, \code{\link[keras]{keras_model}},
@@ -88,12 +88,11 @@ upper point) for each of the input layers.
 \strong{Note:} For the model-agnostic methods, only models with a single
 input and output layer is allowed!\cr}
 
-\item{x}{(\code{array}, \code{data.frame} or \code{torch_tensor})\cr
-The individual instances to be explained by the method.
-These must have the same format as the input data of the passed model
-and has to be either \code{\link{matrix}}, an \code{\link{array}}, a \code{\link{data.frame}} or a
-\code{\link{torch_tensor}}. If no value is specified, all instances in the
-dataset \code{data} will be explained.\cr
+\item{data_ref}{(\code{\link{array}}, \code{\link{data.frame}} or \code{\link{torch_tensor}})\cr
+The dataset to which the method is to be applied. These must
+have the same format as the input data of the passed model and has to
+be either \code{\link{matrix}}, an \code{\link{array}}, a \code{\link{data.frame}} or a
+\code{\link{torch_tensor}}.\cr
 \strong{Note:} For the model-agnostic methods, only models with a single
 input and output layer is allowed!\cr}
 }

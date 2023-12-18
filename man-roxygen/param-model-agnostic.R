@@ -1,4 +1,4 @@
-#' @param model \cr
+#' @param model (any prediction model)\cr
 #' A fitted model for a classification or regression task that
 #' is intended to be interpreted. A [`Converter`] object can also be
 #' passed. In order for the package to know how to make predictions

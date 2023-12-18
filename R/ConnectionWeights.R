@@ -18,6 +18,9 @@
 #' the input data. You can use this variant by setting the `times_input`
 #' argument to `TRUE` and providing input data.
 #'
+#' The R6 class can also be initialized using the [`run_cw`] function
+#' as a helper function so that no prior knowledge of R6 classes is required.
+#'
 #' @template examples-ConnectionWeights
 #' @template param-converter
 #' @template param-data-optional
@@ -132,9 +135,3 @@ ConnectionWeights <- R6Class(
   )
 )
 
-
-#' @importFrom graphics boxplot
-#' @exportS3Method
-boxplot.ConnectionWeights <- function(x, ...) {
-  x$boxplot(...)
-}

@@ -12,7 +12,7 @@
 #' data <- torch_randn(25, 5)
 #'
 #' # Create Converter with input and output names
-#' converter <- Converter$new(model,
+#' converter <- convert(model,
 #'   input_dim = c(5),
 #'   input_names = list(c("Car", "Cat", "Dog", "Plane", "Horse")),
 #'   output_names = list(c("Buy it!", "Don't buy it!"))
@@ -20,6 +20,10 @@
 #'
 #' # Calculate the Gradients
 #' grad <- Gradient$new(converter, data)
+#'
+#' # You can also use the helper function `run_grad` for initializing
+#' # an R6 Gradient object
+#' grad <- run_grad(converter, data)
 #'
 #' # Print the result as a data.frame for first 5 rows
 #' get_result(grad, "data.frame")[1:5,]
@@ -44,18 +48,18 @@
 #'   )
 #'
 #'   # Convert the trained model
-#'   converter <- Converter$new(nn)
+#'   converter <- convert(nn)
 #'
 #'   # Calculate the gradients
-#'   gradient <- Gradient$new(converter, iris[, -5])
+#'   gradient <- run_grad(converter, iris[, -5])
 #'
 #'   # Plot the result for the first and 60th data point and all classes
 #'   plot(gradient, data_idx = c(1, 60), output_idx = 1:3)
 #'
 #'   # Calculate Gradients x Input and do not ignore the last activation
-#'   gradient <- Gradient$new(converter, iris[, -5],
-#'                            ignore_last_act = FALSE,
-#'                            times_input = TRUE)
+#'   gradient <- run_grad(converter, iris[, -5],
+#'                        ignore_last_act = FALSE,
+#'                        times_input = TRUE)
 #'
 #'   # Plot the result again
 #'   plot(gradient, data_idx = c(1, 60), output_idx = 1:3)
@@ -88,10 +92,10 @@
 #'     layer_dense(units = 3, activation = "softmax")
 #'
 #'   # Convert the model
-#'   converter <- Converter$new(model)
+#'   converter <- convert(model)
 #'
 #'   # Apply the Gradient method
-#'   gradient <- Gradient$new(converter, data, channels_first = FALSE)
+#'   gradient <- run_grad(converter, data, channels_first = FALSE)
 #'
 #'   # Plot the result for the first datapoint and all classes
 #'   plot(gradient, output_idx = 1:3)

@@ -421,7 +421,7 @@ InterpretingMethod <- R6Class(
 
     #' @description
     #' This method visualizes the results of the selected method summarized as
-    #' boxplots and enables a visual in-depth investigation of the global
+    #' boxplots/median image and enables a visual in-depth investigation of the global
     #' behavior with the help of the S4 classes [`innsight_ggplot2`] and
     #' [`innsight_plotly`].\cr
     #' You can use the argument `output_idx` to select the individual output
@@ -462,15 +462,15 @@ InterpretingMethod <- R6Class(
     #' Returns either an [`innsight_ggplot2`] (`as_plotly = FALSE`) or an
     #' [`innsight_plotly`] (`as_plotly = TRUE`) object with the plotted
     #' summarized results.
-    boxplot = function(output_idx = NULL,
-                       output_label = NULL,
-                       data_idx = "all",
-                       ref_data_idx = NULL,
-                       aggr_channels = "sum",
-                       preprocess_FUN = abs,
-                       as_plotly = FALSE,
-                       individual_data_idx = NULL,
-                       individual_max = 20) {
+    plot_global = function(output_idx = NULL,
+                           output_label = NULL,
+                           data_idx = "all",
+                           ref_data_idx = NULL,
+                           aggr_channels = "sum",
+                           preprocess_FUN = abs,
+                           as_plotly = FALSE,
+                           individual_data_idx = NULL,
+                           individual_max = 20) {
 
       # Get method-specific arguments -----------------------------------------
       if (inherits(self, "ConnectionWeights")) {
@@ -940,7 +940,8 @@ InterpretingMethod <- R6Class(
 #' [`InterpretingMethod`] for details.
 #'
 #' @param x An object of the class [`InterpretingMethod`] including the
-#' subclasses [`Gradient`], [`SmoothGrad`], [`LRP`], [`DeepLift`] and
+#' subclasses [`Gradient`], [`SmoothGrad`], [`LRP`], [`DeepLift`],
+#' [`DeepSHAP`], [`IntegratedGradient`], [`ExpectedGradient`] and
 #' [`ConnectionWeights`].
 #' @param ... Other arguments specified in the R6 method
 #' `InterpretingMethod$get_result()`. See [`InterpretingMethod`] for details.
@@ -951,6 +952,42 @@ get_result <- function(x, ...) UseMethod("get_result", x)
 #' @exportS3Method
 get_result.InterpretingMethod <- function(x, ...) {
   x$get_result(...)
+}
+
+
+#'
+#' @importFrom graphics boxplot
+#' @exportS3Method
+#'
+boxplot.InterpretingMethod <- function(x, ...) {
+  dims <- unlist(lapply(x$converter$input_dim, length))
+  if (any(dims > 2)) {
+    warningf("The {.fn boxplot} function is only intended for tabular or signal ",
+             "data. It is called {.fn plot_global} instead. ")
+  }
+  x$plot_global(...)
+}
+
+
+#' Get the result of an interpretation method
+#'
+#' This is a generic S3 method for the R6 method
+#' `InterpretingMethod$plot_global()`. See the respective method described in
+#' [`InterpretingMethod`] for details.
+#'
+#' @param x An object of the class [`InterpretingMethod`] including the
+#' subclasses [`Gradient`], [`SmoothGrad`], [`LRP`], [`DeepLift`],
+#' [`DeepSHAP`], [`IntegratedGradient`], [`ExpectedGradient`] and
+#' [`ConnectionWeights`].
+#' @param ... Other arguments specified in the R6 method
+#' `InterpretingMethod$plot_global()`. See [`InterpretingMethod`] for details.
+#'
+#' @export
+plot_global <- function(x, ...) UseMethod("plot_global", x)
+
+#' @exportS3Method
+plot_global.InterpretingMethod <- function(x, ...) {
+  x$plot_global(...)
 }
 
 ###############################################################################

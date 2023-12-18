@@ -19,10 +19,16 @@
 #' * *Deep learning important features ([DeepLift])*
 #'   * Including propagation rules for non-linearities: *Rescale* rule and
 #'  *RevealCancel* rule
+#'  * [DeepSHAP]
 #' * Gradient-based methods:
 #'   * *Vanilla [Gradient]*, including *Gradient\eqn{\times}Input*
 #'   * Smoothed gradients *([SmoothGrad])*, including *SmoothGrad\eqn{\times}Input*
+#'   * *Integrated gradients* ([IntegratedGradient])
+#'   * *Expected gradients* ([ExpectedGradient])
 #' * *[ConnectionWeights]*
+#' * Model-agnostic methods:
+#'   * *Local interpretable model-agnostic explanation ([LIME])*
+#'   * *Shapley values* ([SHAP])
 #'
 #' The package `innsight` aims to be as flexible as possible and independent
 #' of a specific deep learning package in which the passed network has been

@@ -12,10 +12,14 @@
 #' data <- torch_randn(25, 5)
 #'
 #' # Create Converter
-#' converter <- Converter$new(model, input_dim = c(5))
+#' converter <- convert(model, input_dim = c(5))
 #'
 #' # Calculate the smoothed Gradients
 #' smoothgrad <- SmoothGrad$new(converter, data)
+#'
+#' # You can also use the helper function `run_smoothgrad` for initializing
+#' # an R6 SmoothGrad object
+#' smoothgrad <- run_smoothgrad(converter, data)
 #'
 #' # Print the result as a data.frame for first 5 rows
 #' head(get_result(smoothgrad, "data.frame"), 5)
@@ -40,16 +44,16 @@
 #'   )
 #'
 #'   # Convert the trained model
-#'   converter <- Converter$new(nn)
+#'   converter <- convert(nn)
 #'
 #'   # Calculate the smoothed gradients
-#'   smoothgrad <- SmoothGrad$new(converter, iris[, -5], times_input = FALSE)
+#'   smoothgrad <- run_smoothgrad(converter, iris[, -5], times_input = FALSE)
 #'
 #'   # Plot the result for the first and 60th data point and all classes
 #'   plot(smoothgrad, data_idx = c(1, 60), output_idx = 1:3)
 #'
 #'   # Calculate SmoothGrad x Input and do not ignore the last activation
-#'   smoothgrad <- SmoothGrad$new(converter, iris[, -5], ignore_last_act = FALSE)
+#'   smoothgrad <- run_smoothgrad(converter, iris[, -5], ignore_last_act = FALSE)
 #'
 #'   # Plot the result again
 #'   plot(smoothgrad, data_idx = c(1, 60), output_idx = 1:3)
@@ -82,10 +86,10 @@
 #'     layer_dense(units = 3, activation = "softmax")
 #'
 #'   # Convert the model
-#'   converter <- Converter$new(model)
+#'   converter <- convert(model)
 #'
 #'   # Apply the SmoothGrad method
-#'   smoothgrad <- SmoothGrad$new(converter, data, channels_first = FALSE)
+#'   smoothgrad <- run_smoothgrad(converter, data, channels_first = FALSE)
 #'
 #'   # Plot the result for the first datapoint and all classes
 #'   plot(smoothgrad, output_idx = 1:3)

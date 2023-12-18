@@ -13,7 +13,13 @@
 #'
 #' # Calculate LIME for the first 10 instances and set the
 #' # feature and outcome names
-#' lime <- LIME$new(model, data, data[1:10, ],
+#' lime <- LIME$new(model, data[1:10, ], data_ref = data,
+#'                  input_names = c("Car", "Cat", "Dog", "Plane", "Horse"),
+#'                  output_names = c("Buy it!", "Don't buy it!"))
+#'
+#' # You can also use the helper function `run_lime` for initializing
+#' # an R6 LIME object
+#' lime <- run_lime(model, data[1:10, ], data_ref = data,
 #'                  input_names = c("Car", "Cat", "Dog", "Plane", "Horse"),
 #'                  output_names = c("Buy it!", "Don't buy it!"))
 #'
@@ -28,10 +34,10 @@
 #'
 #' # We can also forward some arguments to lime::explain, e.g. n_permutatuins
 #' # to get more accurate values
-#' lime <- LIME$new(model, data, data[1:10, ],
+#' lime <- run_lime(model, data[1:10, ], data_ref = data,
 #'                  input_names = c("Car", "Cat", "Dog", "Plane", "Horse"),
 #'                  output_names = c("Buy it!", "Don't buy it!"),
-#'                  n_perturbations = 500)
+#'                  n_perturbations = 200)
 #'
 #' # Plot the boxplots again
 #' boxplot(lime, output_idx = c(1, 2))
@@ -39,13 +45,13 @@
 #' #----------------------- Example 2: Converter object --------------------------
 #' # We can do the same with an Converter object (all feature and outcome names
 #' # will be extracted by the LIME method!)
-#' conv <- Converter$new(model,
-#'                       input_dim = c(5),
-#'                       input_names = c("Car", "Cat", "Dog", "Plane", "Horse"),
-#'                       output_names = c("Buy it!", "Don't buy it!"))
+#' conv <- convert(model,
+#'                 input_dim = c(5),
+#'                 input_names = c("Car", "Cat", "Dog", "Plane", "Horse"),
+#'                 output_names = c("Buy it!", "Don't buy it!"))
 #'
 #' # Calculate LIME for the first 10 instances
-#' lime <- LIME$new(conv, data, data[1:10], n_perturbations = 400)
+#' lime <- run_lime(conv, data[1:10], data_ref = data, n_perturbations = 300)
 #'
 #' # Plot the result for both classes
 #' plot(lime, output_idx = c(1, 2))
@@ -67,11 +73,12 @@
 #'
 #'   # Calculate LIME for the instances of index 1 and 111 and add
 #'   # the outcome labels (for LIME, the output_type is required!)
-#'   lime <- LIME$new(model, iris[, -5], iris[c(1, 111), -5],
+#'   lime <- run_lime(model, iris[c(1, 111), -5],
+#'                    data_ref = iris[, -5],
 #'                    pred_fun = pred_fun,
 #'                    output_type = "classification",
 #'                    output_names = levels(iris$Species),
-#'                    n_perturbations = 500)
+#'                    n_perturbations = 300)
 #'
 #'   # Plot the result for the first two classes and all selected instances
 #'   plot(lime, data_idx = 1:2, output_idx = 1:2)

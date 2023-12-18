@@ -20,6 +20,9 @@
 #' \code{\link[neuralnet]{neuralnet}} or [`Converter`]. Internally, the
 #' suggested package `lime` is utilized and applied to `data.frame`.
 #'
+#' The R6 class can also be initialized using the [`run_lime`] function
+#' as a helper function so that no prior knowledge of R6 classes is required.
+#'
 #' **Note:** Even signal and image data are initially transformed into a
 #' `data.frame` using `as.data.frame()` and then [`lime::lime`] and
 #' [`lime::explain`] are
@@ -30,8 +33,8 @@
 #' @template param-output_label
 #' @template param-channels_first
 #' @template param-model-agnostic
+#' @template param-data_ref-agnostic
 #' @template param-data-agnostic
-#' @template param-x-agnostic
 #' @template param-output_type-agnostic
 #' @template param-pred_fun-agnostic
 #' @template param-input_dim-agnostic
@@ -52,7 +55,7 @@ LIME <- R6Class(
     #' stored in the field `result`.
     #'
     #' @param ... other arguments forwarded to [`lime::explain`].
-    initialize = function(model, data, x,
+    initialize = function(model, data, data_ref,
                           output_type = NULL,
                           pred_fun = NULL,
                           output_idx = NULL,
@@ -62,16 +65,20 @@ LIME <- R6Class(
                           input_names = NULL,
                           output_names = NULL, ...) {
 
-      # Check if data or x is a torch_tensor
-      if (inherits(data, "torch_tensor")) data <- as.array(data)
-      if (inherits(x, "torch_tensor")) x <- as.array(x)
+      # Check if data or data_ref is a torch_tensor
+      if (!missing(data)) {
+        if (inherits(data, "torch_tensor")) data <- as.array(data)
+      }
+      if (!missing(data_ref)) {
+        if (inherits(data_ref, "torch_tensor")) data_ref <- as.array(data_ref)
+      }
 
-      super$initialize(model, data, x, output_type, pred_fun, output_idx,
+      super$initialize(model, data, data_ref, output_type, pred_fun, output_idx,
                        output_label, channels_first, input_dim, input_names,
                        output_names)
 
       # Get the pre-processed x
-      x <- self$x
+      x <- self$data_orig
 
       # We use the lime package for the explanation
       if (!requireNamespace("lime", quietly = TRUE)) {
@@ -79,7 +86,7 @@ LIME <- R6Class(
       }
 
       # Create the explainer of the lime package
-      explainer <- lime::lime(data.frame(data), self$converter)
+      explainer <- lime::lime(data.frame(data_ref), self$converter)
 
       # Apply lime
       if (self$converter$output_type == "classification") {
@@ -149,6 +156,9 @@ model_type.innsight_agnostic_wrapper <- function(x, ...) {
 #' \code{\link[neuralnet]{neuralnet}} or [`Converter`]. Internally, the
 #' suggested package `fastshap` is utilized and applied to `data.frame`.
 #'
+#' The R6 class can also be initialized using the [`run_shap`] function
+#' as a helper function so that no prior knowledge of R6 classes is required.
+#'
 #' **Note:** Even signal and image data are initially transformed into a
 #' `data.frame` using `as.data.frame()` and then [`fastshap::explain`] is
 #' applied. In other words, a custom `pred_fun` may need to convert the
@@ -159,7 +169,7 @@ model_type.innsight_agnostic_wrapper <- function(x, ...) {
 #' @template param-channels_first
 #' @template param-model-agnostic
 #' @template param-data-agnostic
-#' @template param-x-agnostic
+#' @template param-data_ref-agnostic
 #' @template param-pred_fun-agnostic
 #' @template param-input_dim-agnostic
 #' @template param-input_names-agnostic
@@ -179,7 +189,7 @@ SHAP <- R6Class(
     #' stored in the field `result`.
     #'
     #' @param ... other arguments forwarded to [`fastshap::explain`].
-    initialize = function(model, data, x,
+    initialize = function(model, data, data_ref,
                           pred_fun = NULL,
                           output_idx = NULL,
                           output_label = NULL,
@@ -191,11 +201,15 @@ SHAP <- R6Class(
       # output_type is not necessary for fastshap
       output_type <- "regression"
 
-      # Check if data or x is a torch_tensor
-      if (inherits(data, "torch_tensor")) data <- as.array(data)
-      if (inherits(x, "torch_tensor")) x <- as.array(x)
+      # Check if data or data_ref is a torch_tensor
+      if (!missing(data)) {
+        if (inherits(data, "torch_tensor")) data <- as.array(data)
+      }
+      if (!missing(data_ref)) {
+        if (inherits(data_ref, "torch_tensor")) data_ref <- as.array(data_ref)
+      }
 
-      super$initialize(model, data, x, output_type, pred_fun, output_idx,
+      super$initialize(model, data, data_ref, output_type, pred_fun, output_idx,
                        output_label, channels_first, input_dim, input_names,
                        output_names)
 
@@ -212,10 +226,10 @@ SHAP <- R6Class(
 
         res <- fastshap::explain(
           self$converter,
-          X = as.data.frame(data),
-          newdata = as.data.frame(self$x),
+          X = as.data.frame(data_ref),
+          newdata = as.data.frame(self$data_orig),
           pred_wrapper = pred_wrapper, ...)
-        dim(res) <- dim(self$x)
+        dim(res) <- dim(self$data_orig)
         res
       }
 
