@@ -1,4 +1,4 @@
-## --- `innsight` 0.2.1 ------------------------------------------------------
+## --- `innsight` 0.3.0 ------------------------------------------------------
 
 ### Test environments with LibTorch
 * GitHub Actions (ubuntu-22.04): 3.5, 3.6, 4.0, 4.1, release, devel
@@ -7,7 +7,7 @@
 
 #### R CMD check results
 
-No warnings or errors occurred.
+TODO!
 
 **Note:** We can't run examples, tests or vignettes on CRAN, as this 
 requires a successful installation of LibTorch. Every implemented method 
