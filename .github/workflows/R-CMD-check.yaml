@@ -39,6 +39,8 @@ jobs:
       TORCH_TEST: 1
       TORCH_INSTALL: 1
       TORCH_COMMIT_SHA: "none"
+      CC: gcc-14
+      CXX: g++-14
 
     steps:
       - uses: actions/checkout@v3
@@ -77,4 +79,5 @@ jobs:
 
       - uses: r-lib/actions/check-r-package@v2
         with:
+          error-on: '"error"'
           upload-snapshots: true
