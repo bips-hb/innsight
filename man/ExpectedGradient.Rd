@@ -84,9 +84,9 @@ if (require("neuralnet")) {
   boxplot(int_grad)
 }
 \dontshow{\}) # examplesIf}
-\dontshow{if (keras::is_keras_available() & torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # ------------------------- Example 3: Keras -------------------------------
-if (require("keras")) {
+if (require("keras") & keras::is_keras_available()) {
   library(keras)
 
   # Make sure keras is installed properly

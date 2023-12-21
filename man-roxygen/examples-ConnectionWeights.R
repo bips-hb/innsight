@@ -58,9 +58,9 @@
 #'   # Plot the result
 #'   plot(cw)
 #' }
-#' @examplesIf keras::is_keras_available() & torch::torch_is_installed()
+#' @examplesIf torch::torch_is_installed()
 #' # ------------------------- Example 3: Keras -------------------------------
-#' if (require("keras")) {
+#' if (require("keras") & keras::is_keras_available()) {
 #'   library(keras)
 #'
 #'   # Make sure keras is installed properly
