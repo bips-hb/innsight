@@ -257,7 +257,7 @@ input_names <-
 output_names <- c("Adelie", "Chinstrap", "Gentoo")
 
 # Create the `Converter` object
-converter_1 <- Converter$new(model,
+converter_1 <- convert(model,
   input_dim = 10,
   input_names = input_names,
   output_names = output_names
@@ -271,7 +271,7 @@ explained in the next step and we create a converter for this variant here:
 
 ```{r}
 # Create a second `Converter` object for combined categorical features
-converter_2 <- Converter$new(model,
+converter_2 <- convert(model,
   input_dim = 10,
   output_names = output_names
 )
@@ -298,7 +298,7 @@ to the default result, i.e., you can use the method of your choice as usual:
 # Data to be analyzed (in this case, we use the whole dataset)
 data <- test_ds$x
 # Apply method 'LRP' with rule alpha-beta
-lrp_ab_1 <- LRP$new(converter_1, data, rule_name = "alpha_beta", rule_param = 2)
+lrp_ab_1 <- run_lrp(converter_1, data, rule_name = "alpha_beta", rule_param = 2)
 
 # the result for 333 instances, 10 inputs and all 3 outputs
 dim(get_result(lrp_ab_1))
@@ -315,7 +315,7 @@ of the categorical features have to be combined so that the field
 
 ```{r, results='hide', message=FALSE}
 # Apply method as in the other case
-lrp_ab_2 <- LRP$new(converter_2, data, rule_name = "alpha_beta", rule_param = 2)
+lrp_ab_2 <- run_lrp(converter_2, data, rule_name = "alpha_beta", rule_param = 2)
 
 # Adjust input dimension and input names in the method converter object
 lrp_ab_2$converter$input_dim[[1]] <- 7
@@ -368,7 +368,8 @@ For each of these classes and thus, of course, also for each method, there are
 two plot functions:  
 
 * `plot()` shows only individual data points and
-* `boxplot()` visualizes summaries of multiple data points using summary statistics.
+* `plot_global()` visualizes summaries of multiple data points using summary 
+statistics (you can also use the alias `boxplot()` for tabular and signal data).
 
 ### Plot individual results
 
@@ -421,7 +422,9 @@ resulted.
 
 ### Plot summarized results
 
-The function `boxplot()` is implemented for each of the available local methods. 
+The function `plot_global()` is implemented for each of the available local methods.
+Since we are dealing with tabular data in this case, the method `boxplot()` can 
+alternatively be used instead of `plot_global()`.
 You can select your desired data points (default is `'all'`) and output 
 nodes/classes with the `data_idx` and `output_idx` arguments, respectively. 
 To switch between a **ggplot2** and **plotly** based plot, you can use the 

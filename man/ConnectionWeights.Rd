@@ -20,6 +20,9 @@ method \emph{Gradient\eqn{\times}Input} (see \code{\link{Gradient}}). Hence, the
 simply the point-wise product of the global \emph{Connection weights} method and
 the input data. You can use this variant by setting the \code{times_input}
 argument to \code{TRUE} and providing input data.
+
+The R6 class can also be initialized using the \code{\link{run_cw}} function
+as a helper function so that no prior knowledge of R6 classes is required.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -40,8 +43,17 @@ converter <- Converter$new(model,
   input_names = list(c("Car", "Cat", "Dog", "Plane", "Horse"))
 )
 
+# You can also use the helper function for the initialization part
+converter <- convert(model,
+  input_dim = c(5),
+  input_names = list(c("Car", "Cat", "Dog", "Plane", "Horse"))
+)
+
 # Apply method Connection Weights
 cw <- ConnectionWeights$new(converter)
+
+# Again, you can use a helper function `run_cw()` for initializing
+cw <- run_cw(converter)
 
 # Print the head of the result as a data.frame
 head(get_result(cw, "data.frame"), 5)
@@ -62,10 +74,10 @@ if (require("neuralnet")) {
   )
 
   # Convert the trained model
-  converter <- Converter$new(nn)
+  converter <- convert(nn)
 
   # Apply the Connection Weights method
-  cw <- ConnectionWeights$new(converter)
+  cw <- run_cw(converter)
 
   # Get the result as a torch tensor
   get_result(cw, type = "torch.tensor")
@@ -74,9 +86,9 @@ if (require("neuralnet")) {
   plot(cw)
 }
 \dontshow{\}) # examplesIf}
-\dontshow{if (keras::is_keras_available() & torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # ------------------------- Example 3: Keras -------------------------------
-if (require("keras")) {
+if (require("keras") & keras::is_keras_available()) {
   library(keras)
 
   # Make sure keras is installed properly
@@ -101,10 +113,10 @@ if (require("keras")) {
     layer_dense(units = 2, activation = "softmax")
 
   # Convert the model
-  converter <- Converter$new(model)
+  converter <- convert(model)
 
   # Apply the Connection Weights method
-  cw <- ConnectionWeights$new(converter)
+  cw <- run_cw(converter)
 
   # Get the head of the result as a data.frame
   head(get_result(cw, type = "data.frame"), 5)
@@ -133,8 +145,13 @@ simulated data.} Ecological Modelling 178, p. 389–397
 \seealso{
 Other methods: 
 \code{\link{DeepLift}},
+\code{\link{DeepSHAP}},
+\code{\link{ExpectedGradient}},
 \code{\link{Gradient}},
+\code{\link{IntegratedGradient}},
+\code{\link{LIME}},
 \code{\link{LRP}},
+\code{\link{SHAP}},
 \code{\link{SmoothGrad}}
 }
 \concept{methods}
@@ -163,9 +180,9 @@ variant of the method or the local one was applied. If the value is
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="boxplot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-boxplot'><code>innsight::InterpretingMethod$boxplot()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-get_result'><code>innsight::InterpretingMethod$get_result()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot'><code>innsight::InterpretingMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot_global"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot_global'><code>innsight::InterpretingMethod$plot_global()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="print"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-print'><code>innsight::InterpretingMethod$print()</code></a></span></li>
 </ul>
 </details>
@@ -182,6 +199,7 @@ are stored in the field \code{result}.
   converter,
   data = NULL,
   output_idx = NULL,
+  output_label = NULL,
   channels_first = TRUE,
   times_input = FALSE,
   verbose = interactive(),
@@ -228,6 +246,33 @@ applied to output nodes from different layers, a list can be passed
 that specifies the desired indices of the output nodes for each
 output layer. Unwanted output layers have the entry \code{NULL} instead of
 a vector of indices, e.g., \code{list(NULL, c(1,3))} for the first and
+third output node in the second output layer.
+\item \code{NULL} (default): The method is applied to all output nodes in
+the first output layer but is limited to the first ten as the
+calculations become more computationally expensive for more output
+nodes.\cr
+}}
+
+\item{\code{output_label}}{(\code{character}, \code{factor}, \code{list} or \code{NULL})\cr
+These values specify the output nodes for which
+the method is to be applied. Only values that were previously passed with
+the argument \code{output_names} in the \code{converter} can be used. In order to
+allow models with multiple
+output layers, there are the following possibilities to select
+the names of the output nodes in the individual output layers:
+\itemize{
+\item A \code{character} vector or \code{factor} of labels: If the model has only one output
+layer, the values correspond to the labels of the output nodes named in the
+passed \code{Converter} object, e.g.,
+\code{c("a", "c", "d")} for the first, third and fourth output node if the
+output names are \code{c("a", "b", "c", "d")}. If there are
+multiple output layers, the names of the output nodes from the first
+output layer are considered.
+\item A \code{list} of \code{charactor}/\code{factor} vectors of labels: If the method is to be
+applied to output nodes from different layers, a list can be passed
+that specifies the desired labels of the output nodes for each
+output layer. Unwanted output layers have the entry \code{NULL} instead of
+a vector of labels, e.g., \code{list(NULL, c("a", "c"))} for the first and
 third output node in the second output layer.
 \item \code{NULL} (default): The method is applied to all output nodes in
 the first output layer but is limited to the first ten as the

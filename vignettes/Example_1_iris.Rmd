@@ -101,7 +101,7 @@ part for our trained model is done by:
 
 ```{r example_1_conv_1}
 # Create the converter object
-converter <- Converter$new(model, input_dim = c(4))
+converter <- convert(model, input_dim = c(4))
 ```
 
 Since there are no labels for the inputs and outputs stored in the **torch**
@@ -113,7 +113,7 @@ are thrown if any discrepancies arise.
 
 ```{r example_1_conv_2, eval = torch::torch_is_installed()}
 # Create `Converter` object (with custom labels)
-converter <- Converter$new(model,
+converter <- convert(model,
   input_dim = c(4),
   input_names = c("Sepal (length)", "Sepal (width)", "Petal (length)", "Petal (width)"),
   output_names = c("Setosa", "Versicolor", "Virginica")
@@ -162,13 +162,13 @@ methods provided in the package:
 <li>
 **Gradient without last activation**
 ```{r}
-grad_no_softmax <- Gradient$new(converter, x, ignore_last_act = TRUE)
+grad_no_softmax <- run_grad(converter, x, ignore_last_act = TRUE)
 ```
 </li>
 <li>
 **Gradient with last activation**
 ```{r, message = FALSE, results = 'hide'}
-grad_softmax <- Gradient$new(converter, x, ignore_last_act = FALSE)
+grad_softmax <- run_grad(converter, x, ignore_last_act = FALSE)
 ```
 </li>
 <li>
@@ -178,7 +178,7 @@ We can also set the method-specific arguments, such as the LRP rule and its
 associated parameter:
 
 ```{r, message = FALSE, results = 'hide'}
-lrp_eps <- LRP$new(converter, x, rule_name = "epsilon", rule_param = 0.01)
+lrp_eps <- run_lrp(converter, x, rule_name = "epsilon", rule_param = 0.01)
 ```
 </li>
 <li>
@@ -186,7 +186,7 @@ lrp_eps <- LRP$new(converter, x, rule_name = "epsilon", rule_param = 0.01)
 
 ```{r, message = FALSE, results = 'hide'}
 x_ref <- x$mean(1, keepdim = TRUE) # ref value needs the shape (1,4)
-deeplift_mean <- DeepLift$new(converter, x, x_ref = x_ref)
+deeplift_mean <- run_deeplift(converter, x, x_ref = x_ref)
 ```
 </li>
 </ul>
@@ -232,8 +232,8 @@ For each of these classes and thus, of course, also for each method, there are
 two plot functions:  
 
 * `plot()` shows only individual data points and 
-* `boxplot()` visualizes summaries of multiple data points using summary 
-statistics.
+* `plot_global()` visualizes summaries of multiple data points using summary 
+statistics (you can also use the alias `boxplot()` for tabular and signal data).
 
 #### Plot individual results
 
@@ -275,7 +275,8 @@ plotly::config(print(p, shareY = TRUE))
 
 #### Plot summarized results
 
-The S3 function `boxplot()` is implemented for each of the available local methods. 
+The S3 function `plot_global()` (or `boxplot()` for tabular and signal data) 
+is implemented for each of the available local methods. 
 You can select your desired data points (default is `'all'`) and output 
 nodes/classes with the `data_idx` and `output_idx` arguments, respectively. 
 To switch between a **ggplot2** and **plotly** based plot, you can use the 

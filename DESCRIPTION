@@ -1,15 +1,16 @@
 Type: Package
 Package: innsight
 Title: Get the Insights of Your Neural Network
-Version: 0.2.1
+Version: 0.3.0
 Authors@R: c(
     person("Niklas", "Koenen", , "niklas.koenen@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-4623-8271")),
     person("Raphael", "Baudeu", , "raphael.baudeu@gmail.com", role = "ctb")
   )
-Description: Interpretability methods to analyze the behavior and
-    individual predictions of modern neural networks. Implemented methods
-    are: 'Connection Weights' described by Olden et al. (2004)
+Description: Interpretation methods for analyzing the behavior and individual
+    predictions of modern neural networks in a three-step procedure: Converting 
+    the model, running the interpretation method, and visualizing the results. 
+    Implemented methods are, e.g., 'Connection Weights' described by Olden et al. (2004)
     <doi:10.1016/j.ecolmodel.2004.03.013>, layer-wise relevance
     propagation ('LRP') described by Bach et al. (2015)
     <doi:10.1371/journal.pone.0130140>, deep learning important features
@@ -32,17 +33,20 @@ Imports:
     torch
 Suggests:
     covr,
+    fastshap,
     GGally,
     grid,
     gridExtra,
     gtable,
     keras,
     knitr,
+    lime,
     luz,
     neuralnet,
     palmerpenguins,
     plotly,
     rmarkdown,
+    ranger,
     spelling,
     tensorflow,
     testthat (>= 3.0.0)
@@ -54,6 +58,8 @@ Language: en-US
 Roxygen: list(markdown = TRUE, r6 = TRUE)
 RoxygenNote: 7.2.3
 Collate: 
+    'AgnosticMethods.R'
+    'AgnosticWrapper.R'
     'ConnectionWeights.R'
     'Convert_keras.R'
     'Convert_neuralnet.R'
@@ -75,5 +81,6 @@ Collate:
     'utils.R'
     'utils_ggplot.R'
     'utils_plotly.R'
+    'innsight_sugar.R'
     'innsight_ggplot2.R'
     'innsight_plotly.R'

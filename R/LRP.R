@@ -14,6 +14,9 @@
 #' rule ("simple"), \eqn{\varepsilon}-rule ("epsilon") and
 #' \eqn{\alpha}-\eqn{\beta}-rule ("alpha_beta").
 #'
+#' The R6 class can also be initialized using the [`run_lrp`] function
+#' as a helper function so that no prior knowledge of R6 classes is required.
+#'
 #' @template examples-LRP
 #' @template param-converter
 #' @template param-data
@@ -22,6 +25,7 @@
 #' @template param-x_ref
 #' @template param-dtype
 #' @template param-output_idx
+#' @template param-output_label
 #' @template param-verbose
 #' @template param-winner_takes_all
 #'
@@ -94,13 +98,14 @@ LRP <- R6Class(
     initialize = function(converter, data,
                           channels_first = TRUE,
                           output_idx = NULL,
+                          output_label = NULL,
                           ignore_last_act = TRUE,
                           rule_name = "simple",
                           rule_param = NULL,
                           winner_takes_all = TRUE,
                           verbose = interactive(),
                           dtype = "float") {
-      super$initialize(converter, data, channels_first, output_idx,
+      super$initialize(converter, data, channels_first, output_idx, output_label,
                        ignore_last_act, winner_takes_all, verbose, dtype)
 
       layer_names_with_rule <- c(
@@ -193,11 +198,3 @@ LRP <- R6Class(
     }
   )
 )
-
-#'
-#' @importFrom graphics boxplot
-#' @exportS3Method
-#'
-boxplot.LRP <- function(x, ...) {
-  x$boxplot(...)
-}

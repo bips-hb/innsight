@@ -387,7 +387,7 @@ test_that("innsight_ggplot2: Tabular data (multiple columns)", {
 
 #----- Image data -----------------------------------------------------------
 test_that("innsight_ggplot2: Signal data (one column)", {
-  p <- boxplot(res_2d)
+  p <- plot_global(res_2d)
 
   # Check class
   expect_s4_class(p, "innsight_ggplot2")
@@ -415,7 +415,7 @@ test_that("innsight_ggplot2: Signal data (one column)", {
 
 
 test_that("innsight_ggplot2: Tabular data (multiple columns)", {
-  p <- boxplot(res_2d, output_idx = c(1,2,3))
+  p <- plot_global(res_2d, output_idx = c(1,2,3))
 
   # Check class
   expect_s4_class(p, "innsight_ggplot2")
@@ -445,7 +445,7 @@ test_that("innsight_ggplot2: Tabular data (multiple columns)", {
 test_that("innsight_ggplot2: Mixed data", {
   skip_if_not_installed("keras")
 
-  p <- boxplot(res_mixed, output_idx = list(c(1,2,3), c(1)))
+  p <- plot_global(res_mixed, output_idx = list(c(1,2,3), c(1)))
 
   # Check class
   expect_s4_class(p, "innsight_ggplot2")

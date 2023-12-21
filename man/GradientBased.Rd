@@ -10,7 +10,9 @@ gradient-based methods and provides a private function to calculate the
 gradients w.r.t. to the input for given data. Implemented are:
 \itemize{
 \item \emph{Vanilla Gradients} and \emph{Gradient\eqn{\times}Input} (\code{\link{Gradient}})
+\item \emph{Integrated Gradients} (\code{\link{IntegratedGradient}})
 \item \emph{SmoothGrad} and \emph{SmoothGrad\eqn{\times}Input} (\code{\link{SmoothGrad}})
+\item \emph{ExpectedGradients} (\code{\link{ExpectedGradient}})
 }
 }
 \section{Super class}{
@@ -35,9 +37,9 @@ were multiplied by the provided input data or not.\cr}
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="boxplot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-boxplot'><code>innsight::InterpretingMethod$boxplot()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="get_result"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-get_result'><code>innsight::InterpretingMethod$get_result()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot'><code>innsight::InterpretingMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="plot_global"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-plot_global'><code>innsight::InterpretingMethod$plot_global()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="innsight" data-topic="InterpretingMethod" data-id="print"><a href='../../innsight/html/InterpretingMethod.html#method-InterpretingMethod-print'><code>innsight::InterpretingMethod$print()</code></a></span></li>
 </ul>
 </details>
@@ -55,6 +57,7 @@ the field \code{result}.
   data,
   channels_first = TRUE,
   output_idx = NULL,
+  output_label = NULL,
   ignore_last_act = TRUE,
   times_input = TRUE,
   verbose = interactive(),
@@ -106,6 +109,33 @@ applied to output nodes from different layers, a list can be passed
 that specifies the desired indices of the output nodes for each
 output layer. Unwanted output layers have the entry \code{NULL} instead of
 a vector of indices, e.g., \code{list(NULL, c(1,3))} for the first and
+third output node in the second output layer.
+\item \code{NULL} (default): The method is applied to all output nodes in
+the first output layer but is limited to the first ten as the
+calculations become more computationally expensive for more output
+nodes.\cr
+}}
+
+\item{\code{output_label}}{(\code{character}, \code{factor}, \code{list} or \code{NULL})\cr
+These values specify the output nodes for which
+the method is to be applied. Only values that were previously passed with
+the argument \code{output_names} in the \code{converter} can be used. In order to
+allow models with multiple
+output layers, there are the following possibilities to select
+the names of the output nodes in the individual output layers:
+\itemize{
+\item A \code{character} vector or \code{factor} of labels: If the model has only one output
+layer, the values correspond to the labels of the output nodes named in the
+passed \code{Converter} object, e.g.,
+\code{c("a", "c", "d")} for the first, third and fourth output node if the
+output names are \code{c("a", "b", "c", "d")}. If there are
+multiple output layers, the names of the output nodes from the first
+output layer are considered.
+\item A \code{list} of \code{charactor}/\code{factor} vectors of labels: If the method is to be
+applied to output nodes from different layers, a list can be passed
+that specifies the desired labels of the output nodes for each
+output layer. Unwanted output layers have the entry \code{NULL} instead of
+a vector of labels, e.g., \code{list(NULL, c("a", "c"))} for the first and
 third output node in the second output layer.
 \item \code{NULL} (default): The method is applied to all output nodes in
 the first output layer but is limited to the first ten as the

@@ -97,12 +97,28 @@ converter <- Converter$new(model,
 )
 ```
 
+As you can see, the `Converter` class is implemented using an `R6::R6Class()` 
+class. However, this assumes that users have prior knowledge of these classes, 
+potentially making the application a bit unfamiliar. For this reason, we 
+have implemented a shortcut function that initializes an object of the 
+`Converter` class in a more familiar R syntax:
+
+```{r, eval = FALSE}
+converter <- convert(model,
+  input_dim = NULL,
+  input_names = NULL,
+  output_names = NULL,
+  dtype = "float",
+  save_model_as_list = FALSE
+)
+```
+
 ## Argument `model`
 
 This is the passed trained model. Currently, it can be a sequential
-[**torch**](https://torch.mlverse.org/) model (`nn_sequential`), a 
-[**tensorflow/keras**](https://tensorflow.rstudio.com/) model (`keras_model` or
-`keras_model_sequential`), a **neuralnet** model or a model as a list. All
+[**torch**](https://torch.mlverse.org/) model (`nn_sequential()`), a 
+[**tensorflow/keras**](https://tensorflow.rstudio.com/) model (`keras_model()` or
+`keras_model_sequential()`), a **neuralnet** model or a model as a list. All
 these options are explained in detail in the following subsections.
 
 ### Package torch
@@ -111,24 +127,24 @@ Currently, only models created by [`torch::nn_sequential`](https://torch.mlverse
 However, the most popular standard layers and activation functions are
 available:
 
--   Linear layers: `nn_linear`
+-   Linear layers: `nn_linear()`
 
--   Convolutional layers: `nn_conv1d`, `nn_conv2d` (but only with
+-   Convolutional layers: `nn_conv1d()`, `nn_conv2d()` (but only with
     `padding_mode = "zeros"` and numerical padding)
     
--   Max-pooling layers: `nn_max_pool1d`, `nn_max_pool2d` (both only with
+-   Max-pooling layers: `nn_max_pool1d()`, `nn_max_pool2d()` (both only with
     default arguments for `padding = 0`, `dilation = 1`,
     `return_indices = FALSE` and `ceil_mode = FALSE`)
     
--   Average-pooling layers: `nn_avg_pool1d`, `nn_avg_pool2d` (both only
+-   Average-pooling layers: `nn_avg_pool1d()`, `nn_avg_pool2d()` (both only
     with default arguments for `padding = 0`, `return_indices = FALSE`
     and `ceil_mode = FALSE`)
     
--   Batch-normalization layers: `nn_batch_norm1d`, `nn_batch_norm2d`
+-   Batch-normalization layers: `nn_batch_norm1d()`, `nn_batch_norm2d()`
 
--   Flatten layer: `nn_flatten` 
+-   Flatten layer: `nn_flatten()` 
 
--   Skipped layers: `nn_dropout` 
+-   Skipped layers: `nn_dropout()` 
 
 -   Activation functions: `nn_relu`, `nn_leaky_relu`, `nn_softplus`, 
     `nn_sigmoid`, `nn_softmax`, `nn_tanh` (open an issue if you need any more)
@@ -159,7 +175,7 @@ torch_model <- nn_sequential(
 )
 
 # For torch models the optional argument `input_dim` becomes a necessary one
-converter <- Converter$new(torch_model, input_dim = c(3, 10, 10))
+converter <- convert(torch_model, input_dim = c(3, 10, 10))
 ```
 
 </details>
@@ -171,34 +187,34 @@ or [`keras_model`](https://tensorflow.rstudio.com/reference/keras/keras_model) a
 accepted. Within these functions, the following layers are allowed to be
 used:
 
--   Input layer: `layer_input`
+-   Input layer: `layer_input()`
 
--   Linear layers: `layer_dense`
+-   Linear layers: `layer_dense()`
 
--   Convolutional layers: `layer_conv_1d`, `layer_conv_2d`
+-   Convolutional layers: `layer_conv_1d()`, `layer_conv_2d()`
 
--   Pooling layers: `layer_max_pooling_1d`, `layer_max_pooling_2d`,
-    `layer_average_pooling_1d`, `layer_average_pooling_2d`,
-    `layer_global_average_pooling_1d`, `layer_global_average_pooling_2d`,
-    `layer_global_max_pooling_1d`, `layer_global_max_pooling_2d`
+-   Pooling layers: `layer_max_pooling_1d()`, `layer_max_pooling_2d()`,
+    `layer_average_pooling_1d()`, `layer_average_pooling_2d()`,
+    `layer_global_average_pooling_1d()`, `layer_global_average_pooling_2d()`,
+    `layer_global_max_pooling_1d()`, `layer_global_max_pooling_2d()`
 
--   Batch-normalization layer: `layer_batch_normalization`
+-   Batch-normalization layer: `layer_batch_normalization()`
 
--   Flatten layer: `layer_flatten`
+-   Flatten layer: `layer_flatten()`
 
--   Merging layers: `layer_add`, `layer_concatenate` (but it is assumed
+-   Merging layers: `layer_add()`, `layer_concatenate()` (but it is assumed
     that the concatenation axis points to the channel axis)
     
--   Padding layers: `layer_zero_padding_1d`, `layer_zero_padding_2d`
+-   Padding layers: `layer_zero_padding_1d()`, `layer_zero_padding_2d()`
 
--   Skipped layers: `layer_dropout`
+-   Skipped layers: `layer_dropout()`
 
 -   Activation functions: The following activation functions are allowed
     as character argument (`activation`) in a linear and convolutional
     layer: `"relu"`, `"softplus"`, `"sigmoid"`, `"softmax"`, `"tanh"`,
     `"linear"`. But you can also specify the activation function as a
-    standalone layer: `layer_activation_relu`,
-    `layer_activation_softmax`. But keep in mind that an activation
+    standalone layer: `layer_activation_relu()`,
+    `layer_activation_softmax()`. But keep in mind that an activation
     layer may only follow a dense, convolutional or pooling layer. If you 
     miss an activation function, feel free to open an issue on GitHub.
 
@@ -219,7 +235,7 @@ keras_model_seq <- keras_model_seq %>%
   layer_dropout(0.2) %>%
   layer_dense(4, activation = "softmax")
 
-converter <- Converter$new(keras_model_seq)
+converter <- convert(keras_model_seq)
 ```
 
 **Example 2: `keras_model`**
@@ -244,7 +260,7 @@ output <- layer_concatenate(list(conv_part, input_tab)) %>%
 
 keras_model_concat <- keras_model(inputs = list(input_image, input_tab), outputs = output)
 
-converter <- Converter$new(keras_model_concat)
+converter <- convert(keras_model_concat)
 ```
 
 </details>
@@ -273,7 +289,7 @@ neuralnet_model <- neuralnet(Species ~ Petal.Length + Petal.Width, iris,
 )
 
 # Convert model
-converter <- Converter$new(neuralnet_model)
+converter <- convert(neuralnet_model)
 # Show input names
 converter$input_names
 # Show output names
@@ -286,9 +302,9 @@ converter$output_names
 
 Besides models from the packages **keras**, **torch** and **neuralnet** it is
 also possible to pass a self-defined model in the form of a named list to
-the `Converter` class. This enables the interpretation of networks from
-other libraries with all available methods provided by the **innsight**
-package.
+the `Converter` class/`convert()` function. This enables the interpretation 
+of networks from other libraries with all available methods provided by 
+the **innsight** package.
 
 If you want to create a custom model, your list (e.g., `model <- list()`)
 needs at least the keys `model$input_dim` and `model$layers`. However,
@@ -1049,7 +1065,7 @@ is loaded!):
 
 ```{r}
 # Convert the model and save the model as a list
-converter <- Converter$new(keras_model_concat, save_model_as_list = TRUE)
+converter <- convert(keras_model_concat, save_model_as_list = TRUE)
 
 # Get the field `input_dim`
 converter$input_dim
@@ -1106,7 +1122,7 @@ str(model_as_list$layers[[4]])
 # let's change the activation function to "relu"
 model_as_list$layers[[4]]$activation_name <- "relu"
 # create a Converter object with the modified model
-converter_modified <- Converter$new(model_as_list)
+converter_modified <- convert(model_as_list)
 
 # now, we get different results for the same input because of the relu activation
 converter_modified$model(x, channels_first = FALSE)
@@ -1145,11 +1161,18 @@ method looks like this:
 method <- Method$new(converter, data,
   channels_first = TRUE,
   output_idx = NULL,
+  output_label = NULL,
   ignore_last_act = TRUE,
   verbose = interactive(),
   dtype = "float"
 )
 ```
+
+In this case as well, all methods are implemented as R6 classes. However, 
+here we have also implemented helper functions for initialization, allowing 
+the application of a method through a simple method call instead of `$new()`. 
+These methods all start with the prefix `run_` and end with the corresponding 
+acronym for the method (e.g., `run_grad()`).
 
 ## Arguments
 
@@ -1222,6 +1245,35 @@ the output nodes in the individual output layers:
     calculations become more computationally expensive for more output
     nodes.
 
+### Argument `output_label`
+
+These values specify the output nodes for which the method is to be applied and
+can be used as an alternative to the argument `output_idx`. 
+Only values that were previously passed with the argument `output_names` in 
+the `converter` can be used. In order to allow models with multiple output 
+layers, there are the following possibilities to select the names of 
+the output nodes in the individual output layers:
+
+-   A `character` vector or `factor` of labels: If the model has only one output
+    layer, the values correspond to the labels of the output nodes named in the
+    passed `Converter` object, e.g.,
+    `c("a", "c", "d")` for the first, third and fourth output node if the
+    output names are `c("a", "b", "c", "d")`. If there are
+    multiple output layers, the names of the output nodes from the first
+    output layer are considered.
+    
+-   A `list` of `charactor`/`factor` vectors of labels: If the method is to be
+    applied to output nodes from different layers, a list can be passed
+    that specifies the desired labels of the output nodes for each
+    output layer. Unwanted output layers have the entry `NULL` instead of
+    a vector of labels, e.g., `list(NULL, c("a", "c"))` for the first and
+    third output node in the second output layer.
+  
+-   `NULL` (default): The method is applied to all output nodes in
+    the first output layer but is limited to the first ten as the
+    calculations become more computationally expensive for more output
+    nodes.
+
 ### Argument `ignore_last_act`
 
 Set this logical value to include the last activation function for each
@@ -1282,7 +1334,7 @@ model <- list(
   )
 )
 
-converter <- Converter$new(model)
+converter <- convert(model)
 ```
 
 </details>
@@ -1293,7 +1345,8 @@ One of the first and most intuitive methods for interpreting neural
 networks is the *Gradients* method introduced by [Simonyan et al. (2013)](https://arxiv.org/abs/1312.6034),
 also known as *Vanilla Gradients* or *Saliency maps*. This method
 computes the gradients of the selected output with respect to the input
-variables. Therefore the resulting relevance values indicate those
+variables. Therefore the resulting relevance values indicate 
+prediction-sensitive variables, i.e., those
 variables that can be locally perturbed the least to change the outcome
 the most. Mathematically, this method can be described by the following
 formula for the input variable $x_i$ with $x \in \mathbb{R}^n$, the
@@ -1306,14 +1359,24 @@ $$
 As described in the introduction of this section, the corresponding 
 **innsight**-method `Gradient` inherits from the super class 
 `InterpretingMethod`, meaning that we need
-to change the term `Method` to `Gradient`. The only model-specific
+to change the term `Method` to `Gradient`. Alternatively, an object of the 
+class `Gradient` can also be created using the mentioned helper function 
+`run_grad()`, which does not require prior knowledge of R6 objects. 
+The only model-specific
 argument is `times_input`, which can be used to switch between the two
 methods *Gradient* (default `FALSE`) and *Gradient$\times$Input* (`TRUE`). For more
 information on the method *Gradient$\times$Input* see [this
 subsection](#gradienttimesinput-and-smoothgradtimesinput).
 
 ```{r, eval = FALSE}
+# R6 class syntax
 grad <- Gradient$new(converter, data,
+  times_input = FALSE,
+  ... # other arguments inherited from 'InterpretingMethod'
+)
+
+# Using the helper function 
+grad <- run_grad(converter, data,
   times_input = FALSE,
   ... # other arguments inherited from 'InterpretingMethod'
 )
@@ -1385,9 +1448,9 @@ result:
 data <- matrix(c(0.45), 1, 1)
 
 # Apply method (but don't ignore last activation)
-grad <- Gradient$new(converter, data, ignore_last_act = FALSE)
+grad <- run_grad(converter, data, ignore_last_act = FALSE)
 # get result
-grad$get_result()
+get_result(grad)
 ```
 
 </details>
@@ -1418,8 +1481,9 @@ $$
 
 As described in the introduction of this section, the **innsight** method
 `SmoothGrad` inherits from the super class `InterpretingMethod`, meaning
-that we need to change the term `Method` to `SmoothGrad`. In addition,
-there are the following three model-specific arguments:
+that we need to change the term `Method` to `SmoothGrad` or use the helper
+function `run_smoothgrad()` for initializing an object of class `SmoothGrad`.
+In addition, there are the following three model-specific arguments:
 
 -   `n` (default: `50`): This integer value specifies how many
     perturbations will be used to calculate the mean gradient, i.e., the
@@ -1440,12 +1504,21 @@ there are the following three model-specific arguments:
     subsection](#gradienttimesinput-and-smoothgradtimesinput).
 
 ```{r, eval = FALSE}
+# R6 class syntax
 smoothgrad <- SmoothGrad$new(converter, data,
   n = 50,
   noise_level = 0.1,
   times_input = FALSE,
   ... # other arguments inherited from 'InterpretingMethod'
-) 
+)
+
+# Using the helper function 
+smoothgrad <- run_smoothgrad(converter, data,
+  n = 50,
+  noise_level = 0.1,
+  times_input = FALSE,
+  ... # other arguments inherited from 'InterpretingMethod'
+)
 ```
 
 <details>
@@ -1515,13 +1588,13 @@ With **innsight**, this method is applied as follows:
 data <- matrix(c(0.6), 1, 1)
 
 # Apply method
-smoothgrad <- SmoothGrad$new(converter, data,
+smoothgrad <- run_smoothgrad(converter, data,
   noise_level = 0.2,
   n = 50,
   ignore_last_act = FALSE # include the tanh activation
 ) 
 # get result
-smoothgrad$get_result()
+get_result(smoothgrad)
 ```
 
 </details>
@@ -1601,7 +1674,8 @@ $$
 
 Both methods are variants of the respective gradient methods `Gradient`
 and `SmoothGrad` and also have the corresponding model-specific
-arguments. These variants can be chosen with the argument `times_input`:
+arguments and helper functions for the initialization. These variants can 
+be chosen with the argument `times_input`:
 
 ```{r, eval = FALSE}
 # the "x Input" variant of method "Gradient"
@@ -1610,11 +1684,23 @@ grad_x_input <- Gradient$new(converter, data,
   ... # other arguments of method "Gradient"
 ) 
 
+# the same using the corresponding helper function
+grad_x_input <- run_grad(converter, data,
+  times_input = TRUE,
+  ... # other arguments of method "Gradient"
+) 
+
 # the "x Input" variant of method "SmoothGrad"
 smoothgrad_x_input <- SmoothGrad$new(converter, data,
   times_input = TRUE,
   ... # other arguments of method "SmoothGrad"
-) 
+)
+
+# the same using the corresponding helper function
+smoothgrad_x_input <- run_smoothgrad(converter, data,
+  times_input = TRUE,
+  ... # other arguments of method "SmoothGrad"
+)
 ```
 
 <details>
@@ -1662,12 +1748,12 @@ With **innsight**, this method is applied as follows:
 data <- matrix(c(0.49), 1, 1)
 
 # Apply method
-grad_x_input <- Gradient$new(converter, data,
+grad_x_input <- run_grad(converter, data,
   times_input = TRUE,
   ignore_last_act = FALSE # include the tanh activation
 ) 
 # get result
-grad_x_input$get_result()
+get_result(grad_x_input)
 ```
 
 **SmoothGrad$\times$Input:**  
@@ -1724,12 +1810,12 @@ With **innsight**, this method is applied as follows:
 data <- matrix(c(0.49), 1, 1)
 
 # Apply method
-smoothgrad_x_input <- SmoothGrad$new(converter, data,
+smoothgrad_x_input <- run_smoothgrad(converter, data,
   times_input = TRUE,
   ignore_last_act = FALSE # include the tanh activation
 ) 
 # get result
-smoothgrad_x_input$get_result()
+get_result(smoothgrad_x_input)
 ```
 
 </details>
@@ -1855,7 +1941,16 @@ there are the following method-specific arguments for this method:
     nodes in a pooling window.
 
 ```{r, eval = FALSE}
+# R6 class syntax
 lrp <- LRP$new(converter, data,
+  rule_name = "simple",
+  rule_param = NULL,
+  winner_takes_all = TRUE,
+  ... # other arguments inherited from 'InterpretingMethod'
+) 
+
+# Using the helper function for initialization
+lrp <- run_lrp(converter, data,
   rule_name = "simple",
   rule_param = NULL,
   winner_takes_all = TRUE,
@@ -1888,10 +1983,10 @@ data <- matrix(
 )
 
 # Apply LRP with simple rule
-lrp <- LRP$new(converter, data,
+lrp <- run_lrp(converter, data,
   ignore_last_act = FALSE
 )
-lrp$get_result()
+get_result(lrp)
 
 # get approximation error
 matrix(lrp$get_result()) - as_array(converter$model(torch_tensor(data))[[1]])
@@ -1905,19 +2000,19 @@ black.
 
 
 fun_1 <- function(x) {
-  LRP$new(converter, matrix(x, ncol = 1), ignore_last_act = FALSE)$get_result()
+  run_lrp(converter, matrix(x, ncol = 1), ignore_last_act = FALSE)$get_result()
 }
 
 fun_2 <- function(x) {
-  LRP$new(converter, matrix(x, ncol = 1), ignore_last_act = FALSE, rule_name = "epsilon", rule_param = 0.1)$get_result()
+  run_lrp(converter, matrix(x, ncol = 1), ignore_last_act = FALSE, rule_name = "epsilon", rule_param = 0.1)$get_result()
 }
 
 fun_3 <- function(x) {
-  LRP$new(converter, matrix(x, ncol = 1), ignore_last_act = FALSE, rule_name = "alpha_beta", rule_param = 0.5)$get_result()
+  run_lrp(converter, matrix(x, ncol = 1), ignore_last_act = FALSE, rule_name = "alpha_beta", rule_param = 0.5)$get_result()
 }
 
 fun_4 <- function(x) {
-  LRP$new(converter, matrix(x, ncol = 1), ignore_last_act = FALSE, rule_name = "alpha_beta", rule_param = 1)$get_result()
+  run_lrp(converter, matrix(x, ncol = 1), ignore_last_act = FALSE, rule_name = "alpha_beta", rule_param = 1)$get_result()
 }
 
 ggplot() +
@@ -1957,8 +2052,10 @@ after adding the negative or positive contribution revealing dependencies missed
 by other approaches.
 
 Analogous to the previous methods, the **innsight** method `DeepLift` inherits 
-from the `InterpretingMetod` super class and thus all arguments. In addition,
-there are the following method-specific arguments for this method:
+from the `InterpretingMetod` super class and thus all arguments. Alternatively, 
+an object of the class `DeepLift` can also be created using the helper function 
+`run_deeplift()`, which does not require prior knowledge of R6 objects. In 
+addition, there are the following method-specific arguments for this method:
 
 * `x_ref` (default: `NULL`): This argument describes the reference input
 $\tilde{x}$ for the DeepLift method. This value must have the same format as
@@ -1985,7 +2082,16 @@ distribution of the upper-layer contribution to the lower layer.
 
 
 ```{r, eval = FALSE}
+# R6 class syntax
 deeplift <- DeepLift$new(converter, data,
+  x_ref = NULL,
+  rule_name = "rescale",
+  winner_takes_all = TRUE,
+  ... # other arguments inherited from 'InterpretingMethod'
+) 
+
+# Using the helper function for initialization
+deeplift <- run_deeplift(converter, data,
   x_ref = NULL,
   rule_name = "rescale",
   winner_takes_all = TRUE,
@@ -2008,7 +2114,7 @@ x <- matrix(c(0.55))
 x_ref <- matrix(c(0.1))
 
 # Apply method DeepLift with rescale rule
-deeplift <- DeepLift$new(converter, x, x_ref = x_ref, ignore_last_act = FALSE)
+deeplift <- run_deeplift(converter, x, x_ref = x_ref, ignore_last_act = FALSE)
 
 # Get result
 get_result(deeplift)
@@ -2023,11 +2129,11 @@ set.seed(42)
 model <- neuralnet(Species ~ ., iris, hidden = 5, linear.output = FALSE)
 
 # Step 1: Create 'Converter'
-conv <- Converter$new(model)
+conv <- convert(model)
 
 # Step 2: Apply DeepLift (reveal-cancel rule)
 x_ref <- matrix(colMeans(iris[, -5]), nrow = 1) # use colmeans as reference value
-deeplift <- DeepLift$new(conv, iris[, -5],
+deeplift <- run_deeplift(conv, iris[, -5],
   x_ref = x_ref, ignore_last_act = FALSE,
   rule_name = "reveal_cancel"
 )
@@ -2043,6 +2149,281 @@ mean((delta_y - summed_decomposition)^2)
 ```
 
 </details>
+
+
+### Integrated Gradients
+
+In the *Integrated Gradients* method introduced by 
+[Sundararajan et al. (2017)](https://arxiv.org/abs/1703.01365), the gradients 
+are integrated along a path from the value $x$ to a reference value $\tilde{x}$. 
+This integration results, similar to DeepLift, in a decomposition of $f(x) - f(\tilde{x})$. In 
+this sense, the method uncovers the feature-wise relative effect of the 
+input features on the difference between the prediction $f(x)$ and the 
+reference prediction $f(\tilde{x})$. This is archived through the following
+formula:
+$$
+\text{IntGrad}(x)_i^c = (x - \tilde{x}) \int_{\alpha = 0}^1 \frac{\partial f(\tilde{x} + \alpha (x - \tilde{x}))}{\partial x} d\alpha
+$$
+In simpler terms, it calculates how much each feature contributes to a model's 
+output by tracing a path from a baseline input $\tilde{x}$ to the actual input 
+$x$ and measuring the average gradients along that path.
+
+Similar to the other gradient-based methods, by default the integrated 
+gradient is multiplied by the input to get an approximate decomposition of 
+$f(x) - f(\tilde{x})$. However, with the parameter `times_input` only the 
+gradient describing the output sensitivity can be returned.
+
+Analogous to the previous methods, the **innsight** method `IntegratedGradient` 
+inherits from the `InterpretingMetod` super class and thus all arguments. 
+Alternatively, an object of the class `IntegratedGradient` can also be created 
+using the helper function `run_intgrad()`, which does not require prior 
+knowledge of R6 objects. In addition, there are the following method-specific 
+arguments for this method:
+
+* `x_ref` (default: `NULL`): This argument describes the reference input
+$\tilde{x}$ for the Integrated Gradients method. This value must have the same 
+format as the input data of the passed model to the converter class, i.e.,
+
+  * an `array`, `data.frame`, `torch_tensor` or array-like format of size
+  $\left(1, \text{input_dim}\right)$ or
+  * a `list` with the corresponding input data (according to the upper point)
+  for each of the input layers.
+  * It is also possible to use the default value `NULL` to take only zeros
+  as reference input.
+  
+* `n` (default: `50`): Number of steps for the approximation of the 
+integration path along $\alpha$.
+  
+* `times_input` (default: `TRUE`): Multiplies the integrated gradients with 
+the difference of the input features and the baseline values. By default, the
+original definition of Integrated Gradient is applied. However, by setting 
+`times_input = FALSE` only an approximation of the integral is calculated, 
+which describes the sensitivity of the features to the output.
+
+
+```{r, eval = FALSE}
+# R6 class syntax
+intgrad <- IntegratedGradient$new(converter, data,
+  x_ref = NULL,
+  n = 50,
+  times_input = TRUE,
+  ... # other arguments inherited from 'InterpretingMethod'
+) 
+
+# Using the helper function for initialization
+intgrad <- run_intgrad(converter, data,
+  x_ref = NULL,
+  n = 50,
+  times_input = TRUE,
+  ... # other arguments inherited from 'InterpretingMethod'
+) 
+```
+
+<details>
+<summary> Examples </summary>
+In this example, let's consider the point $x = 0.55$ and the reference point 
+$\tilde{x} = 0.1$. With the help of the model defined previously, the 
+respective outputs are $y = f(x) = 0.4699$ and $\tilde{y} = f(\tilde{x}) = 0.0997$.
+The Integrated Gradient method now generates an approximate variable-wise 
+decomposition of the so-called difference-from-reference value 
+$\Delta y = y - \tilde{y} = 0.3702772$.
+Since there is only one input feature in this case, the entire value should be 
+assigned to it:
+```{r}
+# Create data
+x <- matrix(c(0.55))
+x_ref <- matrix(c(0.1))
+
+# Apply method IntegratedGradient
+intgrad <- run_intgrad(converter, x, x_ref = x_ref, ignore_last_act = FALSE)
+
+# Get result
+get_result(intgrad)
+```
+
+</details>
+
+
+### Expected Gradients
+
+The *Expected Gradients* method ([Erion et al., 2021](https://doi.org/10.1038/s42256-021-00343-w)), 
+also known as *GradSHAP*, 
+is a local feature attribution technique which extends the Integrated Gradient 
+method and provides approximate Shapley values. In contrast to Integrated 
+Gradient, it considers not only a single reference value $\tilde{x}$ but the 
+whole distribution of reference values $\tilde{X} \sim \tilde{x}$ and averages 
+the Integrated Gradient values over this distribution. Mathematically, the 
+method can be described as follows:
+$$
+\text{ExpGrad}(x)_i^c = \mathbb{E}_{\tilde{x}\sim \tilde{X}, \alpha \sim U(0,1)} \left[(x - \tilde{x}) \times \frac{\partial f(\tilde{x} + \alpha (x - \tilde{x}))}{\partial x} \right]
+$$
+These feature-wise values approximate a decomposition of the prediction minus
+the average prediction in the reference dataset, i.e., 
+$f(x) - \mathbb{E}_{\tilde{x}}\left[f(\tilde{x}) \right]$. This means, it
+solves the issue of choosing the right reference value.
+
+Analogous to the previous methods, the **innsight** method `ExpectedGradient` 
+inherits from the `InterpretingMetod` super class and thus all arguments. 
+Alternatively, an object of the class `ExpectedGradient` can also be created 
+using the helper function `run_expgrad()`, which does not require prior 
+knowledge of R6 objects. In addition, there are the following method-specific 
+arguments for this method:
+
+* `data_ref` (default: `NULL`): This argument describes the reference inputs
+$\tilde{x}$ for the Expected Gradients method. This value must have the same 
+format as the input data of the passed model to the converter class, i.e.,
+
+  * an `array`, `data.frame`, `torch_tensor` or array-like format of size
+  $\left(1, \text{input_dim}\right)$ or
+  * a `list` with the corresponding input data (according to the upper point)
+  for each of the input layers.
+  * It is also possible to use the default value `NULL` to take only zeros
+  as reference input.
+  
+* `n` (default: `50`): Number of samples from the distribution of reference 
+values $\tilde{x} \sim \tilde{X}$ and number of samples for the approximation 
+of the integration path along $\alpha$.
+
+
+```{r, eval = FALSE}
+# R6 class syntax
+expgrad <- ExpectedGradient$new(converter, data,
+  data_ref = NULL,
+  n = 50,
+  ... # other arguments inherited from 'InterpretingMethod'
+) 
+
+# Using the helper function for initialization
+expgrad <- run_expgrad(converter, data,
+  x_ref = NULL,
+  n = 50,
+  ... # other arguments inherited from 'InterpretingMethod'
+) 
+```
+
+<details>
+<summary> Examples </summary>
+In the following example, we demonstrate how the Expected Gradient method 
+is applied to the Iris dataset, accurately approximating the difference 
+between the prediction and the mean prediction 
+(adjusted for a very high sample size of $10\,000$):
+```{r}
+library(neuralnet)
+set.seed(42)
+
+# Crate model with package 'neuralnet'
+model <- neuralnet(Species ~ ., iris, linear.output = FALSE)
+
+# Step 1: Create 'Converter'
+conv <- convert(model)
+
+# Step 2: Apply Expected Gradient
+expgrad <- run_expgrad(conv, iris[c(1, 60), -5],
+  data_ref = iris[, -5], ignore_last_act = FALSE,
+  n = 10000
+)
+
+# Verify exact decomposition
+y <- predict(model, iris[, -5])
+delta_y <- y[c(1, 60), ] - rbind(colMeans(y), colMeans(y))
+summed_decomposition <- apply(get_result(expgrad), c(1, 3), FUN = sum) # dim 2 is the input feature dim
+
+# Show the error between both
+delta_y - summed_decomposition
+```
+
+</details>
+
+### DeepSHAP
+
+The *DeepSHAP* method [(Lundberg & Lee, 2017)](https://dl.acm.org/doi/10.5555/3295222.3295230) 
+extends the DeepLift technique by not only considering a 
+single reference value but by calculating the average from several, ideally 
+representative reference values at each layer. The obtained feature-wise 
+results are approximate Shapley values for the chosen output, where the 
+conditional expectation is computed using these different reference values, 
+i.e., the DeepSHAP method decompose the difference from the prediction and the 
+mean prediction $f(x) - \mathbb{E}_{\tilde{x}}\left[f(\tilde{x}) \right]$ in 
+feature-wise effects. This means, the DeepSHAP method has the same underlying
+goal as the Expected Gradient method and, hence, also solves the issue of
+choosing the right reference value for the DeepLift method.
+
+Analogous to the previous methods, the **innsight** method `DeepSHAP` 
+inherits from the `InterpretingMetod` super class and thus all arguments. 
+Alternatively, an object of the class `DeepSHAP` can also be created 
+using the helper function `run_deepshap`()`, which does not require prior 
+knowledge of R6 objects. In addition, there are the following method-specific 
+arguments for this method:
+
+* `data_ref` (default: `NULL`): The reference data which is used to estimate 
+the conditional expectation. These must have the same format as the input data
+of the passed model to the converter object. This means either
+
+  * an `array`, `data.frame`, `torch_tensor` or array-like format of size
+  $\left(1, \text{input_dim}\right)$ or
+  * a `list` with the corresponding input data (according to the upper point)
+  for each of the input layers.
+  * It is also possible to use the default value `NULL` to take only zeros
+  as reference input.
+  
+* `limit_ref` (default: `100`): This argument limits the number of instances taken from 
+the reference dataset `data_ref` so that only random `limit_ref` elements and 
+not the entire dataset are used to estimate the conditional expectation. A 
+too-large number can significantly increase the computation time.
+
+* (other model-specific arguments already explained in the DeepLift method, e.g.,
+`rule_name` or `winner_takes_all`).
+
+
+```{r, eval = FALSE}
+# R6 class syntax
+deepshap <- DeepSHAP$new(converter, data,
+  data_ref = NULL,
+  limit_ref = 100,
+  ... # other arguments inherited from 'DeepLift'
+) 
+
+# Using the helper function for initialization
+deepshap <- run_deepshap(converter, data,
+  data_ref = NULL,
+  limit_ref = 100,
+  ... # other arguments inherited from 'DeepLift'
+) 
+```
+
+<details>
+<summary> Examples </summary>
+In the following example, we demonstrate how the DeepSHAP method 
+is applied to the Iris dataset, accurately approximating the difference 
+between the prediction and the mean prediction 
+(adjusted for a very high sample size of $10\,000$):
+```{r}
+library(neuralnet)
+set.seed(42)
+
+# Crate model with package 'neuralnet'
+model <- neuralnet(Species ~ ., iris, linear.output = FALSE)
+
+# Step 1: Create 'Converter'
+conv <- convert(model)
+
+# Step 2: Apply Expected Gradient
+deepshap <- run_deepshap(conv, iris[c(1, 60), -5],
+  data_ref = iris[, -5], ignore_last_act = FALSE,
+  limit_ref = nrow(iris)
+)
+
+# Verify exact decomposition
+y <- predict(model, iris[, -5])
+delta_y <- y[c(1, 60), ] - rbind(colMeans(y), colMeans(y))
+summed_decomposition <- apply(get_result(deepshap), c(1, 3), FUN = sum) # dim 2 is the input feature dim
+
+# Show the error between both
+delta_y - summed_decomposition
+```
+
+</details>
+
 
 ### Connection Weights
 
@@ -2062,9 +2443,12 @@ to `TRUE` and providing input data.
 
 The **innsight** method `ConnectionWeights` also inherits from the 
 super class `InterpretingMethod`, meaning that you need to change the 
-term `Method` to `ConnectionWeights`. The only model-specific argument is 
-`times_input`, which can be used to switch between the
-global (`FALSE`) and the local (`TRUE`) *Connection Weights* method.
+term `Method` to `ConnectionWeights`. Alternatively, 
+an object of the class `ConnectionWeights` can also be created using the 
+helper function `run_cw()`, which does not require prior knowledge of R6 objects.
+The only model-specific argument is `times_input`, which can be used to 
+switch between the global (`FALSE`) and the local (`TRUE`) 
+*Connection Weights* method.
 
 ```{r, eval = FALSE}
 # The global variant (argument 'data' is no longer required)
@@ -2075,6 +2459,12 @@ cw_global <- ConnectionWeights$new(converter,
 
 # The local variant (argument 'data' is required)
 cw_local <- ConnectionWeights$new(converter, data,
+  times_input = TRUE,
+  ... # other arguments inherited from 'InterpretingMethod'
+) 
+
+# Using the helper function
+cw_local <- run_cw(converter, data,
   times_input = TRUE,
   ... # other arguments inherited from 'InterpretingMethod'
 ) 
@@ -2090,7 +2480,7 @@ $$
 With the **innsight** package, we get the same value:
 ```{r}
 # Apply global Connection Weights method
-cw_global <- ConnectionWeights$new(converter, times_input = FALSE)
+cw_global <- run_cw(converter, times_input = FALSE)
 
 # Show the result
 get_result(cw_global)
@@ -2102,7 +2492,7 @@ relevances:
 data <- array(c(0.1, 0.4, 0.6), dim = c(3, 1))
 
 # Apply local Connection Weights method
-cw_local <- ConnectionWeights$new(converter, data, times_input = TRUE)
+cw_local <- run_cw(converter, data, times_input = TRUE)
 
 # Show the result
 get_result(cw_local)
@@ -2120,7 +2510,8 @@ signals or 2D images) suitable plot and boxplot functions based on
 complexity of higher dimensional inputs, these plots and boxplots can also 
 be displayed as an interactive [plotly](https://plotly.com/r/) plots by using 
 the argument `as_plotly`. These three class methods have also been implemented 
-as S3 methods (`get_result()`, `plot()` and `boxplot()`) for easier handling.
+as S3 methods (`get_result()`, `plot()` and `plot_global()`/`boxplot()`) for 
+easier handling.
 
 <details>
 <summary> Create results to be visualized </summary>
@@ -2159,17 +2550,17 @@ img_model <- nn_sequential(
 )
 
 # Create converter
-tab_conv <- Converter$new(tab_model,
+tab_conv <- convert(tab_model,
   input_dim = c(4),
   input_names = tab_names,
   output_names = out_names
 )
 
-img_conv <- Converter$new(img_model, input_dim = c(3, 32, 32))
+img_conv <- convert(img_model, input_dim = c(3, 32, 32))
 
 # Apply Gradient x Input
-tab_grad <- Gradient$new(tab_conv, tab_data, times_input = TRUE)
-img_grad <- Gradient$new(img_conv, img_data, times_input = TRUE)
+tab_grad <- run_grad(tab_conv, tab_data, times_input = TRUE)
+img_grad <- run_grad(img_conv, img_data, times_input = TRUE)
 ```
 </details>
 
@@ -2250,7 +2641,7 @@ List of k
 <summary> **Example with a tabular model** </summary>
 ```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Apply method 'Gradient x Input' for classes 1 ('setosa')  and 3 ('virginica')
-tab_grad <- Gradient$new(tab_conv, tab_data,
+tab_grad <- run_grad(tab_conv, tab_data,
   output_idx = c(1, 3),
   times_input = TRUE
 )
@@ -2268,7 +2659,7 @@ result_array[c(1, 10), , ]
 <summary> **Example with an image model** </summary>
 ```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Apply method 'Gradient' for outputs 1  and 2
-img_grad <- Gradient$new(img_conv, img_data, output_idx = c(1, 2))
+img_grad <- run_grad(img_conv, img_data, output_idx = c(1, 2))
 # Get result
 result_array <- img_grad$get_result()
 # You can also use the S3 function 'get_result'
@@ -2309,7 +2700,7 @@ model <- keras_model(
   outputs = output
 )
 
-conv <- Converter$new(model)
+conv <- convert(model)
 data <- lapply(
   list(c(10, 10, 2), c(11)),
   function(x) array(rnorm(5 * prod(x)), dim = c(5, x))
@@ -2319,7 +2710,7 @@ data <- lapply(
 
 ```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Apply method 'Gradient' for outputs 1  and 2
-grad <- Gradient$new(conv, data, output_idx = c(1, 2), channels_first = FALSE)
+grad <- run_grad(conv, data, output_idx = c(1, 2), channels_first = FALSE)
 # Get result
 result_array <- grad$get_result()
 # You can also use the S3 function 'get_result'
@@ -2361,7 +2752,7 @@ model <- keras_model(
   outputs = c(first_output, second_output)
 )
 
-conv <- Converter$new(model)
+conv <- convert(model)
 data <- lapply(
   list(c(10, 10, 2), c(11)),
   function(x) array(rnorm(5 * prod(x)), dim = c(5, x))
@@ -2372,7 +2763,7 @@ data <- lapply(
 ```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
 # Apply method 'Gradient' for outputs 1 and 2 in the first and
 # for outputs 1 and 3 in the second output layer
-grad <- Gradient$new(conv, data,
+grad <- run_grad(conv, data,
   output_idx = list(c(1, 2), c(1, 3)),
   channels_first = FALSE
 )
@@ -2428,6 +2819,17 @@ output layer specified with the argument `output_idx`.
 * `'value'`: This column contains the result of the applied method for the 
 respective data point, input layer, output layer,  output node/class and 
 input feature.
+
+* `'pred'`: The prediction of the respective input instance (`'data'`) for
+the output node `'output_node'` in the output layer `'model_output'`.
+
+* `'decomp_sum'`: The sum of all relevance values (`'value'`) for an input 
+instance (`'data'`) and output node `'output_node'` in the output layer 
+`'model_output'`.
+
+* `'decomp_goal'`: The corresponding decomposition goal of the applied feature
+attribution method (if available, otherwise `NA`s) for an input instance 
+(`'data'`) and output node `'output_node'` in the output layer `'model_output'`.
 
 * `'input_dimension'`: This column contains one of the values 
   * `1`: the value corresponds to an tabular input.
@@ -2489,8 +2891,10 @@ This method visualizes the result of the selected method and enables a in-depth
 visual investigation with the help of the S4 classes `innsight_ggplot2` and
 `innsight_plotly`. You can use the argument `data_idx` to select the data 
 points in the given data for the plot. In addition, the individual plot's output 
-nodes or classes can be selected with the argument `output_idx`. 
-But this has to be a subset of the [argument `output_idx`](#argument-output_idx) 
+nodes or classes can be selected with the argument `output_idx` (for indices) or
+`output_label` (for the class labels). 
+But this has to be a subset of the [argument `output_idx`](#argument-output_idx)
+or [`output_label`](#argument-output_label)
 passed to the respective method previously because the results were only 
 calculated for these outputs. The different results for the selected data points and 
 outputs are visualized using the **ggplot2**-based S4 class `innsight_ggplot2`. 
@@ -2516,6 +2920,15 @@ the given data.
 be plotted. This can be either a vector of indices or a list of vectors of 
 indices but must be a subset of the indices for which the results were 
 calculated, i.e., a subset of the [argument `output_idx`](#argument-output_idx) 
+passed to the respective method previously. By default (`NULL`), the smallest 
+index of all calculated output nodes and output layers is used.
+</li>
+
+<li>
+`output_label`: The labels of the output nodes for which the results is to 
+be plotted. This can be either a vector of labels or a list of vectors of 
+labels (character or factor) but must be a subset of the labels for which the 
+results were calculated, i.e., a subset of the [argument `output_label`](#argument-output_label) 
 passed to the respective method previously. By default (`NULL`), the smallest 
 index of all calculated output nodes and output layers is used.
 </li>
@@ -2555,6 +2968,18 @@ positive, blue for negative, and white for the absence of relevance so that the
 different intensities of the relevances can be distinguished by their colors.
 
 </li>
+
+<li>
+`show_preds`: This logical value indicates whether the plots display the 
+prediction, the sum of calculated relevances, and, if available, the targeted 
+decomposition value in a small infobox. For example, in the case of 
+Gradient$\times$Input, the goal is to obtain a feature-wise decomposition of 
+the predicted value, while for DeepLift and IntegratedGradient, the goal is 
+the difference between the prediction and the reference value, i.e., 
+$f(x) - f(\tilde{x})$. However, the infoboxes are only shown for ggplo2-based
+plots.
+
+</li>
 </ul>
 
 ```{r, eval = FALSE}
@@ -2562,27 +2987,31 @@ different intensities of the relevances can be distinguished by their colors.
 method$plot(
   data_idx = 1,
   output_idx = NULL,
+  output_label = NULL,
   aggr_channels = "sum",
   as_plotly = FALSE,
-  same_scale = FALSE
+  same_scale = FALSE,
+  show_preds = TRUE
 )
 
 # or the S3 method
 plot(method,
   data_idx = 1,
   output_idx = NULL,
+  output_label = NULL,
   aggr_channels = "sum",
   as_plotly = FALSE,
-  same_scale = FALSE
+  same_scale = FALSE,
+  show_preds = TRUE
 )
 ```
 
 **Examples and usage:**
 
 ```{r, fig.width = 8, fig.height=5, eval = torch::torch_is_installed() & keras::is_keras_available()}
-# Create plot for output classes '1' (setosa) and '3' (virginica) and
+# Create plot for output classes 'setosa' and  'virginica' and
 # data points '1' and '70'
-p <- plot(tab_grad, output_idx = c(1, 3), data_idx = c(1, 70))
+p <- plot(tab_grad, output_label = c("setosa", "virginica"), data_idx = c(1, 70))
 
 # Although it's not a ggplot2 object ...
 class(p)
@@ -2656,14 +3085,15 @@ tab_grad$result[[1]][[1]] <- abs(result[[1]][[1]])
 plot(tab_grad, output_idx = c(1, 3), data_idx = c(1, 70))
 ```
 
-## Plot summarized results `boxplot()`
+## Plot summarized results `plot_global()`
 
 This method visualizes summarized results of the selected method over all data
 points (or a subset) and enables an in-depth visual investigation with the help 
 of the S4 classes `innsight_ggplot2` and `innsight_plotly` similar to the 
 previous [`plot` function](#plot-single-results-plot). You can use the argument 
-`output_idx` to select the individual output nodes for the plot. But this 
-has to be a subset of the [argument `output_idx`](#argument-output_idx) 
+`output_idx`/`output_label` to select the individual output nodes for the plot. But this 
+has to be a subset of the [argument `output_idx`](#argument-output_idx) or
+[`output_label`](#argument-output_label) 
 passed to the respective method previously because the results were only 
 calculated for these outputs. For tabular and 1D signal data, boxplots are created in 
 which a reference value can be selected from the data using the 
@@ -2693,6 +3123,15 @@ index of all calculated output nodes and output layers is used.
 the boxplot information. However, this parameter can be used to select a 
 subset of them by passing the indices. For example, with `c(1:10, 25, 26)` only the 
 first 10 data points and the 25th and 26th are used to calculate the boxplots.
+</li>
+
+<li>
+`output_label`: The labels of the output nodes for which the results is to 
+be plotted. This can be either a vector of labels or a list of vectors of 
+labels (character or factor) but must be a subset of the labels for which the 
+results were calculated, i.e., a subset of the [argument `output_label`](#argument-output_label) 
+passed to the respective method previously. By default (`NULL`), the smallest 
+index of all calculated output nodes and output layers is used.
 </li>
 
 <li>
@@ -2763,7 +3202,7 @@ increase the runtime.
 
 ```{r, eval = FALSE}
 # Class method
-method$boxplot(
+method$plot_global(
   output_idx = NULL,
   data_idx = "all",
   ref_data_idx = NULL,
@@ -2775,7 +3214,7 @@ method$boxplot(
 )
 
 # or the S3 method
-boxplot(method,
+plot_global(method,
   output_idx = NULL,
   data_idx = "all",
   ref_data_idx = NULL,
@@ -2785,6 +3224,9 @@ boxplot(method,
   individual_data_idx = NULL,
   individual_max = 20
 )
+
+# or the alias for tabular or signal data
+boxplot(...)
 ```
 
 **Examples and usage:**
@@ -2827,9 +3269,10 @@ p <- boxplot(tab_grad,
 plotly::config(print(p))
 ```
 ```{r, fig.width=8, fig.height=4, eval = torch::torch_is_installed() & keras::is_keras_available()}
-# We can do the same for models with image data. In addition, you can define
+# We can do the same for models with image data (but have to use the method
+# `plot_global`, since no boxplots are created). In addition, you can define
 # the aggregation function for the channels
-p <- boxplot(img_grad, output_idx = c(1, 2), aggr_channels = "norm")
+p <- plot_global(img_grad, output_idx = c(1, 2), aggr_channels = "norm")
 
 # Although it's not a ggplot2 object ...
 class(p)
@@ -2842,7 +3285,7 @@ p +
 ```
 ```{r, fig.width = 8, fig.height=4, echo = TRUE, eval = FALSE}
 # You can do the same with the plotly-based plots
-p <- boxplot(img_grad,
+p <- plot_global(img_grad,
   output_idx = c(1, 2), aggr_channels = "norm",
   as_plotly = TRUE
 )
@@ -2854,7 +3297,7 @@ p
 ```
 ```{r, fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available()}
 # You can do the same with the plotly-based plots
-p <- boxplot(img_grad,
+p <- plot_global(img_grad,
   output_idx = c(1, 2), aggr_channels = "norm",
   as_plotly = TRUE
 )
@@ -2863,7 +3306,7 @@ plotly::config(print(p))
 
 ## Advanced plotting
 
-In the preceding two sections, the basic `plot()` and `boxplot()` functions have 
+In the preceding two sections, the basic `plot()` and `plot_global()`/`boxplot()` functions have 
 already been explained. As mentioned there, these functions create either an 
 object of the S4 class `innsight_ggplot2` (if `as_plotly = FALSE`) or one of 
 the S4 class `innsight_plotly` (if `as_plotly = TRUE`). These are intended 
@@ -2885,10 +3328,10 @@ model <- keras_model_sequential() %>%
   layer_dense(20, activation = "relu") %>%
   layer_dense(3, activation = "softmax")
 
-converter <- Converter$new(model)
+converter <- convert(model)
 
 data <- array(rnorm(5 * 50), dim = c(50, 5))
-res_simple <- Gradient$new(converter, data)
+res_simple <- run_grad(converter, data)
 
 # Create model with images as inputs and two output layers
 input_image <- layer_input(shape = c(10, 10, 3))
@@ -2912,10 +3355,10 @@ keras_model_concat <- keras_model(
   outputs = c(output_1, output_2)
 )
 
-converter <- Converter$new(keras_model_concat)
+converter <- convert(keras_model_concat)
 
 data <- array(rnorm(10 * 10 * 3 * 5), dim = c(5, 10, 10, 3))
-res_one_input <- Gradient$new(converter, data,
+res_one_input <- run_grad(converter, data,
   channels_first = FALSE,
   output_idx = list(1:3, 1:3)
 )
@@ -2945,10 +3388,10 @@ keras_model_concat <- keras_model(
   outputs = list(output_1, output_2)
 )
 
-converter <- Converter$new(keras_model_concat)
+converter <- convert(keras_model_concat)
 
 data <- lapply(list(c(10, 10, 3), c(10)), function(x) torch_randn(c(5, x)))
-res_two_inputs <- Gradient$new(converter, data,
+res_two_inputs <- run_grad(converter, data,
   times_input = TRUE,
   channels_first = FALSE,
   output_idx = list(1:3, 1:3)

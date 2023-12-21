@@ -12,10 +12,14 @@
 #' data <- torch_randn(25, 5)
 #'
 #' # Create Converter
-#' converter <- Converter$new(model, input_dim = c(5))
+#' converter <- convert(model, input_dim = c(5))
 #'
 #' # Apply method LRP with simple rule (default)
 #' lrp <- LRP$new(converter, data)
+#'
+#' # You can also use the helper function `run_lrp` for initializing
+#' # an R6 LRP object
+#' lrp <- run_lrp(converter, data)
 #'
 #' # Print the result as an array for data point one and two
 #' get_result(lrp)[1:2,,]
@@ -37,10 +41,10 @@
 #'   )
 #'
 #'   # Create an converter for this model
-#'   converter <- Converter$new(nn)
+#'   converter <- convert(nn)
 #'
 #'   # Create new instance of 'LRP'
-#'   lrp <- LRP$new(converter, iris[, -5], rule_name = "simple")
+#'   lrp <- run_lrp(converter, iris[, -5], rule_name = "simple")
 #'
 #'   # Get the result as an array for data point one and two
 #'   get_result(lrp)[1:2,,]
@@ -49,13 +53,13 @@
 #'   get_result(lrp, type = "torch.tensor")[1:2]
 #'
 #'   # Use the alpha-beta rule with alpha = 2
-#'   lrp <- LRP$new(converter, iris[, -5],
+#'   lrp <- run_lrp(converter, iris[, -5],
 #'     rule_name = "alpha_beta",
 #'     rule_param = 2
 #'   )
 #'
 #'   # Include the last activation into the calculation
-#'   lrp <- LRP$new(converter, iris[, -5],
+#'   lrp <- run_lrp(converter, iris[, -5],
 #'     rule_name = "alpha_beta",
 #'     rule_param = 2,
 #'     ignore_last_act = FALSE
@@ -65,9 +69,9 @@
 #'   plot(lrp, output_idx = 1:3)
 #' }
 #'
-#' @examplesIf keras::is_keras_available() & torch::torch_is_installed()
+#' @examplesIf torch::torch_is_installed()
 #' # ------------------------- Example 3: Keras -------------------------------
-#' if (require("keras")) {
+#' if (require("keras") & keras::is_keras_available()) {
 #'   library(keras)
 #'
 #'   # Make sure keras is installed properly
@@ -92,11 +96,11 @@
 #'     layer_dense(units = 3, activation = "softmax")
 #'
 #'   # Convert the model
-#'   converter <- Converter$new(model)
+#'   converter <- convert(model)
 #'
 #'   # Apply the LRP method with the epsilon rule for the dense layers and
 #'   # the alpha-beta rule for the convolutional layers
-#'   lrp_comp <- LRP$new(converter, data,
+#'   lrp_comp <- run_lrp(converter, data,
 #'     channels_first = FALSE,
 #'     rule_name = list(Dense_Layer = "epsilon", Conv1D_Layer = "alpha_beta"),
 #'     rule_param = list(Dense_Layer = 0.1, Conv1D_Layer = 1)

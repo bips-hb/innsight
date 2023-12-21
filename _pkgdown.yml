@@ -17,15 +17,22 @@ reference:
   contents:
     - Gradient
     - SmoothGrad
+    - IntegratedGradient
+    - ExpectedGradient
     - LRP
     - DeepLift
+    - DeepSHAP
     - ConnectionWeights
+    - LIME
+    - SHAP
+    - innsight_sugar
 
 - title: Visualization and getting results
   desc: >
       Functions and S4 classes for getting and visualizing the results
   contents:
   - get_result
+  - plot_global
   - innsight_ggplot2
   - innsight_plotly
 
@@ -56,5 +63,6 @@ reference:
       Super classes intended only for the user's information
   contents:
   - innsight-package
+  - AgnosticWrapper
   - GradientBased
   - InterpretingMethod

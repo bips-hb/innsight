@@ -8,7 +8,8 @@ get_result(x, ...)
 }
 \arguments{
 \item{x}{An object of the class \code{\link{InterpretingMethod}} including the
-subclasses \code{\link{Gradient}}, \code{\link{SmoothGrad}}, \code{\link{LRP}}, \code{\link{DeepLift}} and
+subclasses \code{\link{Gradient}}, \code{\link{SmoothGrad}}, \code{\link{LRP}}, \code{\link{DeepLift}},
+\code{\link{DeepSHAP}}, \code{\link{IntegratedGradient}}, \code{\link{ExpectedGradient}} and
 \code{\link{ConnectionWeights}}.}
 
 \item{...}{Other arguments specified in the R6 method

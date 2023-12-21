@@ -12,11 +12,15 @@
 #' data <- torch_randn(25, 5)
 #' ref <- torch_randn(1, 5)
 #'
-#' # Create Converter
-#' converter <- Converter$new(model, input_dim = c(5))
+#' # Create Converter using the helper function `convert`
+#' converter <- convert(model, input_dim = c(5))
 #'
 #' # Apply method DeepLift
 #' deeplift <- DeepLift$new(converter, data, x_ref = ref)
+#'
+#' # You can also use the helper function `run_deeplift` for initializing
+#' # an R6 DeepLift object
+#' deeplift <- run_deeplift(converter, data, x_ref = ref)
 #'
 #' # Print the result as a torch tensor for first two data points
 #' get_result(deeplift, "torch.tensor")[1:2]
@@ -40,12 +44,12 @@
 #'   )
 #'
 #'   # Convert the model
-#'   converter <- Converter$new(nn)
+#'   converter <- convert(nn)
 #'
 #'   # Apply DeepLift with rescale-rule and a reference input of the feature
 #'   # means
 #'   x_ref <- matrix(colMeans(iris[, c(3, 4)]), nrow = 1)
-#'   deeplift_rescale <- DeepLift$new(converter, iris[, c(3, 4)], x_ref = x_ref)
+#'   deeplift_rescale <- run_deeplift(converter, iris[, c(3, 4)], x_ref = x_ref)
 #'
 #'   # Get the result as a dataframe and show first 5 rows
 #'   get_result(deeplift_rescale, type = "data.frame")[1:5, ]
@@ -57,9 +61,9 @@
 #'   boxplot(deeplift_rescale)
 #' }
 #'
-#' @examplesIf keras::is_keras_available() & torch::torch_is_installed()
+#' @examplesIf torch::torch_is_installed()
 #' # ------------------------- Example 3: Keras -------------------------------
-#' if (require("keras")) {
+#' if (require("keras") & keras::is_keras_available()) {
 #'   library(keras)
 #'
 #'   # Make sure keras is installed properly
@@ -84,10 +88,10 @@
 #'     layer_dense(units = 2, activation = "softmax")
 #'
 #'   # Convert the model
-#'   converter <- Converter$new(model)
+#'   converter <- convert(model)
 #'
 #'   # Apply the DeepLift method with reveal-cancel rule
-#'   deeplift_revcancel <- DeepLift$new(converter, data,
+#'   deeplift_revcancel <- run_deeplift(converter, data,
 #'     channels_first = FALSE,
 #'     rule_name = "reveal_cancel"
 #'   )
@@ -95,8 +99,8 @@
 #'   # Plot the result for the first image and both classes
 #'   plot(deeplift_revcancel, output_idx = 1:2)
 #'
-#'   # Plot the result as boxplots for first class
-#'   boxplot(deeplift_revcancel, output_idx = 1)
+#'   # Plot the pixel-wise median reelvance image
+#'   plot_global(deeplift_revcancel, output_idx = 1)
 #' }
 #' @examplesIf torch::torch_is_installed() & Sys.getenv("RENDER_PLOTLY", unset = 0) == 1
 #' #------------------------- Plotly plots ------------------------------------

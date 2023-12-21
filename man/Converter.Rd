@@ -20,6 +20,9 @@ You can use models from the following libraries:
 Furthermore, a model can be passed as a list (see
 \code{vignette("detailed_overview", package = "innsight")} or the
 \href{https://bips-hb.github.io/innsight/articles/detailed_overview.html#model-as-named-list}{website}).
+
+The R6 class can also be initialized using the \code{\link{convert}} function
+as a helper function so that no prior knowledge of R6 classes is required.
 }
 \details{
 In order to better understand and analyze the prediction of a neural
@@ -43,9 +46,14 @@ following methods:
 \itemize{
 \item \emph{Layerwise Relevance Propagation} (\link{LRP}), Bach et al. (2015)
 \item \emph{Deep Learning Important Features} (\link{DeepLift}), Shrikumar et al. (2017)
+\item \emph{\link{DeepSHAP}}, Lundberg et al. (2017)
 \item \emph{\link{SmoothGrad}} including \emph{SmoothGrad\eqn{\times}Input}, Smilkov et al. (2017)
 \item \emph{Vanilla \link{Gradient}} including \emph{Gradient\eqn{\times}Input}
+\item \emph{Integrated gradients} (\link{IntegratedGradient}), Sundararajan et al. (2017)
+\item \emph{Expected gradients} (\link{ExpectedGradient}), Erion et al. (2021)
 \item \emph{\link{ConnectionWeights}}, Olden et al. (2004)
+\item \emph{Local interpretable model-agnostic explanation (\link{LIME})}, Ribeiro et al. (2016)
+\item \emph{Shapley values (\link{SHAP})}, Lundberg et al. (2017)
 }
 }
 
@@ -77,6 +85,10 @@ data <- torch_randn(25, 5)
 # Convert the model (for torch models is 'input_dim' required!)
 converter <- Converter$new(model, input_dim = c(5))
 
+# You can also use the helper function `convert()` for initializing a
+# Converter object
+converter <- convert(model, input_dim = c(5))
+
 # Get the converted model stored in the field 'model'
 converted_model <- converter$model
 
@@ -97,15 +109,15 @@ if (require("neuralnet")) {
   )
 
   # Convert the model
-  converter <- Converter$new(nn)
+  converter <- convert(nn)
 
   # Print all the layers
   converter$model$modules_list
 }
 \dontshow{\}) # examplesIf}
-\dontshow{if (keras::is_keras_available() & torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 #----------------------- Example 3: Keras ----------------------------------
-if (require("keras")) {
+if (require("keras") & keras::is_keras_available()) {
   library(keras)
 
   # Make sure keras is installed properly
@@ -127,7 +139,7 @@ if (require("keras")) {
     layer_dense(units = 1, activation = "sigmoid")
 
   # Convert this model and save model as list
-  converter <- Converter$new(model, save_model_as_list = TRUE)
+  converter <- convert(model, save_model_as_list = TRUE)
 
   # Print the converted model as a named list
   str(converter$model_as_list, max.level = 1)
@@ -169,7 +181,7 @@ model$layers$Layer_2 <-
   )
 
 # Convert the model
-converter <- Converter$new(model)
+converter <- convert(model)
 
 # Get the model as a torch::nn_module
 torch_model <- converter$model
@@ -187,10 +199,19 @@ simulated data.} Ecological Modelling 178, p. 389–397
 \item S. Bach et al. (2015) \emph{On pixel-wise explanations for non-linear
 classifier decisions by layer-wise relevance propagation.} PLoS ONE 10,
 p. 1-46
+\item M. T. Ribeiro et al. (2016) \emph{"Why should I trust you?": Explaining
+the predictions of any classifier.} KDD 2016, p. 1135-1144
 \item A. Shrikumar et al. (2017) \emph{Learning important features through
 propagating activation differences.}  ICML 2017, p. 4844-4866
 \item D. Smilkov et al. (2017) \emph{SmoothGrad: removing noise by adding noise.}
 CoRR, abs/1706.03825
+M. Sundararajan et al. (2017) \emph{Axiomatic attribution for deep networks.}
+ICML 2017, p.3319-3328
+\item S. Lundberg et al. (2017) \emph{A unified approach to interpreting model
+predictions.} NIPS 2017, p. 4768-4777
+\item G. Erion et al. (2021) \emph{Improving performance of deep learning models
+with axiomatic attribution priors and expected gradients.} Nature Machine
+Intelligence 3, p. 620-631
 }
 }
 \section{Public fields}{

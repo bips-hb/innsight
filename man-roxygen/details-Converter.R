@@ -21,9 +21,14 @@
 #' following methods:
 #'   * *Layerwise Relevance Propagation* ([LRP]), Bach et al. (2015)
 #'   * *Deep Learning Important Features* ([DeepLift]), Shrikumar et al. (2017)
+#'   * *[DeepSHAP]*, Lundberg et al. (2017)
 #'   * *[SmoothGrad]* including *SmoothGrad\eqn{\times}Input*, Smilkov et al. (2017)
 #'   * *Vanilla [Gradient]* including *Gradient\eqn{\times}Input*
+#'   * *Integrated gradients* ([IntegratedGradient]), Sundararajan et al. (2017)
+#'   * *Expected gradients* ([ExpectedGradient]), Erion et al. (2021)
 #'   * *[ConnectionWeights]*, Olden et al. (2004)
+#'   * *Local interpretable model-agnostic explanation ([LIME])*, Ribeiro et al. (2016)
+#'   * *Shapley values ([SHAP])*, Lundberg et al. (2017)
 #'
 #'
 #' ## Implemented libraries

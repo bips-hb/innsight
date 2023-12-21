@@ -16,8 +16,17 @@
 #'   input_names = list(c("Car", "Cat", "Dog", "Plane", "Horse"))
 #' )
 #'
+#' # You can also use the helper function for the initialization part
+#' converter <- convert(model,
+#'   input_dim = c(5),
+#'   input_names = list(c("Car", "Cat", "Dog", "Plane", "Horse"))
+#' )
+#'
 #' # Apply method Connection Weights
 #' cw <- ConnectionWeights$new(converter)
+#'
+#' # Again, you can use a helper function `run_cw()` for initializing
+#' cw <- run_cw(converter)
 #'
 #' # Print the head of the result as a data.frame
 #' head(get_result(cw, "data.frame"), 5)
@@ -38,10 +47,10 @@
 #'   )
 #'
 #'   # Convert the trained model
-#'   converter <- Converter$new(nn)
+#'   converter <- convert(nn)
 #'
 #'   # Apply the Connection Weights method
-#'   cw <- ConnectionWeights$new(converter)
+#'   cw <- run_cw(converter)
 #'
 #'   # Get the result as a torch tensor
 #'   get_result(cw, type = "torch.tensor")
@@ -49,9 +58,9 @@
 #'   # Plot the result
 #'   plot(cw)
 #' }
-#' @examplesIf keras::is_keras_available() & torch::torch_is_installed()
+#' @examplesIf torch::torch_is_installed()
 #' # ------------------------- Example 3: Keras -------------------------------
-#' if (require("keras")) {
+#' if (require("keras") & keras::is_keras_available()) {
 #'   library(keras)
 #'
 #'   # Make sure keras is installed properly
@@ -76,10 +85,10 @@
 #'     layer_dense(units = 2, activation = "softmax")
 #'
 #'   # Convert the model
-#'   converter <- Converter$new(model)
+#'   converter <- convert(model)
 #'
 #'   # Apply the Connection Weights method
-#'   cw <- ConnectionWeights$new(converter)
+#'   cw <- run_cw(converter)
 #'
 #'   # Get the head of the result as a data.frame
 #'   head(get_result(cw, type = "data.frame"), 5)

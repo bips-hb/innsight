@@ -30,12 +30,20 @@ This package implements several model-specific interpretability
 \item Including propagation rules for non-linearities: \emph{Rescale} rule and
 \emph{RevealCancel} rule
 }
+\item \link{DeepSHAP}
 \item Gradient-based methods:
 \itemize{
 \item \emph{Vanilla \link{Gradient}}, including \emph{Gradient\eqn{\times}Input}
 \item Smoothed gradients \emph{(\link{SmoothGrad})}, including \emph{SmoothGrad\eqn{\times}Input}
+\item \emph{Integrated gradients} (\link{IntegratedGradient})
+\item \emph{Expected gradients} (\link{ExpectedGradient})
 }
 \item \emph{\link{ConnectionWeights}}
+\item Model-agnostic methods:
+\itemize{
+\item \emph{Local interpretable model-agnostic explanation (\link{LIME})}
+\item \emph{Shapley values} (\link{SHAP})
+}
 }
 
 The package \code{innsight} aims to be as flexible as possible and independent
