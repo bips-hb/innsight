@@ -10,7 +10,7 @@ Authors@R: c(
 Description: Interpretation methods for analyzing the behavior and individual
     predictions of modern neural networks in a three-step procedure: Converting 
     the model, running the interpretation method, and visualizing the results. 
-    Implemented methods are e.g., 'Connection Weights' described by Olden et al. (2004)
+    Implemented methods are, e.g., 'Connection Weights' described by Olden et al. (2004)
     <doi:10.1016/j.ecolmodel.2004.03.013>, layer-wise relevance
     propagation ('LRP') described by Bach et al. (2015)
     <doi:10.1371/journal.pone.0130140>, deep learning important features
