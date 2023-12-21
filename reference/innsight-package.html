@@ -25,7 +25,7 @@ as an R analogue to 'iNNvestigate' or 'Captum' for Python."><meta property="og:i
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">innsight</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.0</span>
       </span>
     </div>
 
@@ -100,10 +100,16 @@ as an R analogue to 'iNNvestigate' or 'Captum' for Python.</p>
 <li><p><em>Deep learning important features (<a href="DeepLift.html">DeepLift</a>)</em></p><ul><li><p>Including propagation rules for non-linearities: <em>Rescale</em> rule and
 <em>RevealCancel</em> rule</p></li>
 </ul></li>
+<li><p><a href="DeepSHAP.html">DeepSHAP</a></p></li>
 <li><p>Gradient-based methods:</p><ul><li><p><em>Vanilla <a href="Gradient.html">Gradient</a></em>, including <em>Gradient\(\times\)Input</em></p></li>
 <li><p>Smoothed gradients <em>(<a href="SmoothGrad.html">SmoothGrad</a>)</em>, including <em>SmoothGrad\(\times\)Input</em></p></li>
+<li><p><em>Integrated gradients</em> (<a href="IntegratedGradient.html">IntegratedGradient</a>)</p></li>
+<li><p><em>Expected gradients</em> (<a href="ExpectedGradient.html">ExpectedGradient</a>)</p></li>
 </ul></li>
 <li><p><em><a href="ConnectionWeights.html">ConnectionWeights</a></em></p></li>
+<li><p>Model-agnostic methods:</p><ul><li><p><em>Local interpretable model-agnostic explanation (<a href="LIME.html">LIME</a>)</em></p></li>
+<li><p><em>Shapley values</em> (<a href="SHAP.html">SHAP</a>)</p></li>
+</ul></li>
 </ul><p>The package <code>innsight</code> aims to be as flexible as possible and independent
 of a specific deep learning package in which the passed network has been
 learned. Basically, a neural network of the libraries

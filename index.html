@@ -18,9 +18,10 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Get the Insights of Your Neural Network">
-<meta property="og:description" content="Interpretability methods to analyze the behavior and
-    individual predictions of modern neural networks. Implemented methods
-    are: Connection Weights described by Olden et al. (2004)
+<meta property="og:description" content="Interpretation methods for analyzing the behavior and individual
+    predictions of modern neural networks in a three-step procedure: Converting 
+    the model, running the interpretation method, and visualizing the results. 
+    Implemented methods are, e.g., Connection Weights described by Olden et al. (2004)
     &lt;doi:10.1016/j.ecolmodel.2004.03.013&gt;, layer-wise relevance
     propagation (LRP) described by Bach et al. (2015)
     &lt;doi:10.1371/journal.pone.0130140&gt;, deep learning important features
@@ -49,7 +50,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">innsight</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.0</span>
       </span>
     </div>
 
@@ -138,6 +139,7 @@
 <li>Deep Learning Important Features (<a href="https://arxiv.org/abs/1704.02685" class="external-link">DeepLift</a>)
 <ul>
 <li>Including propagation rules for non-linearities: Rescale rule and RevealCancel rule</li>
+<li><a href="https://proceedings.neurips.cc/paper/2017/hash/8a20a8621978632d76c43dfd28b67767-Abstract.html" class="external-link">DeepSHAP</a></li>
 </ul>
 </li>
 <li>Gradient-based methods:
@@ -145,6 +147,8 @@
 <li>Vanilla Gradient, including <a href="https://www.jmlr.org/papers/v11/baehrens10a.html" class="external-link">Gradient x Input</a>
 </li>
 <li>Smoothed gradients (<a href="https://arxiv.org/abs/1706.03825" class="external-link">SmoothGrad</a>), including SmoothGrad x Input</li>
+<li><a href="https://arxiv.org/abs/1703.01365" class="external-link">Integrated gradients</a></li>
+<li><a href="https://doi.org/10.1038/s42256-021-00343-w" class="external-link">Expected gradients</a></li>
 </ul>
 </li>
 <li>Connection Weights</li>
@@ -157,7 +161,7 @@
 </h2>
 <p>The package can be installed directly from CRAN and the development version from GitHub with the following commands (successful installation of <a href="https://www.r-project.org/nosvn/pandoc/devtools.html" class="external-link"><code>devtools</code></a> is required)</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Stable version (v0.1.1)</span></span>
+<code class="sourceCode R"><span><span class="co"># Stable version</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"innsight"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Development version</span></span>
@@ -182,23 +186,24 @@ Currently this can lead to problems under Windows if the Visual Studio runtime i
 <span></span>
 <span><span class="co"># -------------- Step 1: Convert your model ----------------</span></span>
 <span><span class="co"># For keras and neuralnet</span></span>
-<span><span class="va">converter</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/Converter.html">Converter</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span>
+<span><span class="va">converter</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/innsight_sugar.html">convert</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span>
 <span><span class="co"># For a torch model the argument 'input_dim' is required</span></span>
-<span><span class="va">converter</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/Converter.html">Converter</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">model</span>, input_dim <span class="op">=</span> <span class="va">model_input_dim</span><span class="op">)</span></span>
+<span><span class="va">converter</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/innsight_sugar.html">convert</a></span><span class="op">(</span><span class="va">model</span>, input_dim <span class="op">=</span> <span class="va">model_input_dim</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># -------------- Step 2: Apply method ----------------------</span></span>
 <span><span class="co"># Apply global method</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="va">Method</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">converter</span><span class="op">)</span> <span class="co"># no data argument is needed</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">run_method</span><span class="op">(</span><span class="va">converter</span><span class="op">)</span> <span class="co"># no data argument is needed</span></span>
 <span><span class="co"># Apply local methods</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="va">Method</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">converter</span>, <span class="va">data</span><span class="op">)</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">run_method</span><span class="op">(</span><span class="va">converter</span>, <span class="va">data</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># -------------- Step 3: Get and plot results --------------</span></span>
 <span><span class="co"># Get the results as an array</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/get_result.html">get_result</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
 <span><span class="co"># Plot individual results</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
-<span><span class="co"># Plot a boxplot of all given data points in argument 'data' </span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
+<span><span class="co"># Plot a aggregated plot of all given data points in argument 'data' </span></span>
+<span><span class="fu"><a href="reference/plot_global.html">plot_global</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span> <span class="co"># alias of `plot_global` for tabular and signal data</span></span>
 <span><span class="co"># Interactive plots can also be created for both methods</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">result</span>, as_plotly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>For a more detailed high-level introduction, see the <a href="https://bips-hb.github.io/innsight/articles/innsight.html">introduction</a> vignette, and for a full in-depth explanation with all the possibilities, see the <a href="https://bips-hb.github.io/innsight/articles/detailed_overview.html">“In-depth explanation”</a> vignette.</p>
@@ -224,7 +229,7 @@ Currently this can lead to problems under Windows if the Visual Studio runtime i
 <li>
 <input type="checkbox" disabled>GPU support</li>
 <li>
-<input type="checkbox" disabled>More methods, e.g. Grad-CAM, integrated gradients, etc.</li>
+<input type="checkbox" disabled>More methods, e.g. Grad-CAM, etc.</li>
 <li>
 <input type="checkbox" disabled>More examples and documentation (contact me if you have a non-trivial application for me)</li>
 </ul>

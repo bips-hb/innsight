@@ -34,6 +34,9 @@
     <loc>https://bips-hb.github.io/innsight/news/index.html</loc>
   </url>
   <url>
+    <loc>https://bips-hb.github.io/innsight/reference/AgnosticWrapper.html</loc>
+  </url>
+  <url>
     <loc>https://bips-hb.github.io/innsight/reference/ConnectionWeights.html</loc>
   </url>
   <url>
@@ -46,16 +49,31 @@
     <loc>https://bips-hb.github.io/innsight/reference/DeepLift.html</loc>
   </url>
   <url>
+    <loc>https://bips-hb.github.io/innsight/reference/DeepSHAP.html</loc>
+  </url>
+  <url>
+    <loc>https://bips-hb.github.io/innsight/reference/ExpectedGradient.html</loc>
+  </url>
+  <url>
     <loc>https://bips-hb.github.io/innsight/reference/Gradient.html</loc>
   </url>
   <url>
     <loc>https://bips-hb.github.io/innsight/reference/GradientBased.html</loc>
   </url>
   <url>
+    <loc>https://bips-hb.github.io/innsight/reference/IntegratedGradient.html</loc>
+  </url>
+  <url>
     <loc>https://bips-hb.github.io/innsight/reference/InterpretingMethod.html</loc>
   </url>
   <url>
+    <loc>https://bips-hb.github.io/innsight/reference/LIME.html</loc>
+  </url>
+  <url>
     <loc>https://bips-hb.github.io/innsight/reference/LRP.html</loc>
+  </url>
+  <url>
+    <loc>https://bips-hb.github.io/innsight/reference/SHAP.html</loc>
   </url>
   <url>
     <loc>https://bips-hb.github.io/innsight/reference/SmoothGrad.html</loc>
@@ -89,5 +107,11 @@
   </url>
   <url>
     <loc>https://bips-hb.github.io/innsight/reference/innsight_plotly-print.html</loc>
+  </url>
+  <url>
+    <loc>https://bips-hb.github.io/innsight/reference/innsight_sugar.html</loc>
+  </url>
+  <url>
+    <loc>https://bips-hb.github.io/innsight/reference/plot_global.html</loc>
   </url>
 </urlset>

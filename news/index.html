@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">innsight</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.0</span>
       </span>
     </div>
 
@@ -69,6 +69,64 @@
       <small>Source: <a href="https://github.com/bips-hb/innsight/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="0.3.0" id="innsight-030">innsight 0.3.0<a class="anchor" aria-label="anchor" href="#innsight-030"></a></h2>
+<p>This is a minor release but does contain a range of substantial new features as well as visual changes, along with some bug fixes. For users, however, nothing changes that is not set by default as in the previous version or made aware by warnings. An exception to this are the graphics that are created using <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>. These now contain a small box with information about the prediction, the sum of the relevances and the goal of the method.</p>
+<div class="section level4">
+<h4 id="breaking-changes-0-3-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-3-0"></a></h4>
+<ul><li><p>By default, the <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method now creates a small box within the plot with the prediction for the instance and the corresponding class. This info box also contains the sum of the relevances and, if available, the decomposition target of the method. Displaying the box can be toggled with the <code>show_preds</code> argument.</p></li>
+<li><p>The <code><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot()</a></code> function for the interpretation methods has been renamed <code><a href="../reference/plot_global.html">plot_global()</a></code> due to the inappropriate name (especially for images). The old method <code><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot()</a></code> can still be used, but throws a warning for image data and executes the method <code><a href="../reference/plot_global.html">plot_global()</a></code> internally.</p></li>
+</ul></div>
+<div class="section level4">
+<h4 id="new-features-0-3-0">New features<a class="anchor" aria-label="anchor" href="#new-features-0-3-0"></a></h4>
+<ul><li>We have now implemented the following other feature attribution methods:
+<ul><li>Integrated Gradients (<code>IntegratedGradient</code>)</li>
+<li>Expected Gradients (<code>ExpectedGradient</code>)</li>
+<li>DeepSHAP (<code>DeepSHAP</code>)</li>
+<li>and the model-agnostic approaches LIME (<code>LIME</code>) and Shapley values (<code>SHAP</code>). Both can be applied to arbitrary models (by providing the prediction function <code>pref_fun</code>) and wrap the suggested packages <code>lime</code> and <code>fastshap</code>. However, they can only be applied to models with a single input and output layer.</li>
+</ul></li>
+<li>We have added functions for the initialization of R6 classes. In this way, we don’t require prior knowledge of R6 syntax for our package. We implemented the following methods:
+<ul><li>
+<code>convert(...)</code> for <code>Converter$new(...)</code>
+</li>
+<li>
+<code>run_grad(...)</code> for <code>Gradient$new(...)</code>
+</li>
+<li>
+<code>run_smoothgrad(...)</code> for <code>SmoothGrad$new(...)</code>
+</li>
+<li>
+<code>run_intgrad(...)</code> for <code>IntegratedGradient$new(...)</code>
+</li>
+<li>
+<code>run_expgrad(...)</code> for <code>ExpectedGradient$new(...)</code>
+</li>
+<li>
+<code>run_deeplift(...)</code> for <code>DeepLift$new(...)</code>
+</li>
+<li>
+<code>run_deepshap(...)</code> for <code>DeepSHAP$new(...)</code>
+</li>
+<li>
+<code>run_lrp(...)</code> for <code>LRP$new(...)</code>
+</li>
+<li>
+<code>run_cw(...)</code> for <code>ConnectionWeights$new(...)</code>
+</li>
+<li>
+<code>run_lime(...)</code> for <code>LIME$new(...)</code>
+</li>
+<li>
+<code>run_shap(...)</code> for <code>SHAP$new(...)</code>
+</li>
+</ul></li>
+<li>In addition to the output index with <code>output_idx</code>, the new argument <code>output_label</code> for the output label can now also be specified in order to calculate or visualize only certain output nodes.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="documentation-and-vignettes-0-3-0">Documentation and vignettes<a class="anchor" aria-label="anchor" href="#documentation-and-vignettes-0-3-0"></a></h4>
+<ul><li>Update documentation and vignettes according to the new features and changes</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.2.1" id="innsight-021">innsight 0.2.1<a class="anchor" aria-label="anchor" href="#innsight-021"></a></h2>
 <ul><li>Add <code>if(require("pkgname"))</code> for suggested packages in examples</li>

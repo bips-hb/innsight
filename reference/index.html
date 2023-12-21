@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">innsight</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.0</span>
       </span>
     </div>
 
@@ -93,6 +93,14 @@
         </td>
         <td><p>SmoothGrad and SmoothGrad\(\times\)Input</p></td>
       </tr><tr><td>
+          <p><code><a href="IntegratedGradient.html">IntegratedGradient</a></code> </p>
+        </td>
+        <td><p>Integrated Gradients</p></td>
+      </tr><tr><td>
+          <p><code><a href="ExpectedGradient.html">ExpectedGradient</a></code> </p>
+        </td>
+        <td><p>Expected Gradients</p></td>
+      </tr><tr><td>
           <p><code><a href="LRP.html">LRP</a></code> </p>
         </td>
         <td><p>Layer-wise relevance propagation (LRP)</p></td>
@@ -101,15 +109,35 @@
         </td>
         <td><p>Deep learning important features (DeepLift)</p></td>
       </tr><tr><td>
+          <p><code><a href="DeepSHAP.html">DeepSHAP</a></code> </p>
+        </td>
+        <td><p>Deep Shapley additive explanations (DeepSHAP)</p></td>
+      </tr><tr><td>
           <p><code><a href="ConnectionWeights.html">ConnectionWeights</a></code> </p>
         </td>
         <td><p>Connection weights method</p></td>
+      </tr><tr><td>
+          <p><code><a href="LIME.html">LIME</a></code> </p>
+        </td>
+        <td><p>Local interpretable model-agnostic explanations (LIME)</p></td>
+      </tr><tr><td>
+          <p><code><a href="SHAP.html">SHAP</a></code> </p>
+        </td>
+        <td><p>Shapley values</p></td>
+      </tr><tr><td>
+          <p><code><a href="innsight_sugar.html">convert()</a></code> <code><a href="innsight_sugar.html">run_grad()</a></code> <code><a href="innsight_sugar.html">run_smoothgrad()</a></code> <code><a href="innsight_sugar.html">run_intgrad()</a></code> <code><a href="innsight_sugar.html">run_expgrad()</a></code> <code><a href="innsight_sugar.html">run_lrp()</a></code> <code><a href="innsight_sugar.html">run_deeplift()</a></code> <code><a href="innsight_sugar.html">run_deepshap()</a></code> <code><a href="innsight_sugar.html">run_cw()</a></code> <code><a href="innsight_sugar.html">run_lime()</a></code> <code><a href="innsight_sugar.html">run_shap()</a></code> </p>
+        </td>
+        <td><p>Syntactic sugar for object construction</p></td>
       </tr></tbody><tbody><tr><th colspan="2">
           <h2 id="visualization-and-getting-results">Visualization and getting results <a href="#visualization-and-getting-results" class="anchor" aria-hidden="true"></a></h2>
           <p class="section-desc"></p><p>Functions and S4 classes for getting and visualizing the results</p>
         </th>
       </tr></tbody><tbody><tr><td>
           <p><code><a href="get_result.html">get_result()</a></code> </p>
+        </td>
+        <td><p>Get the result of an interpretation method</p></td>
+      </tr><tr><td>
+          <p><code><a href="plot_global.html">plot_global()</a></code> </p>
         </td>
         <td><p>Get the result of an interpretation method</p></td>
       </tr><tr><td>
@@ -129,7 +157,7 @@
         </td>
         <td><p>Generic print, plot and show for <code>innsight_ggplot2</code></p></td>
       </tr><tr><td>
-          <p><code><a href="innsight_ggplot2-indexing.html">`[`(<i>&lt;innsight_ggplot2&gt;</i>)</a></code> <code><a href="innsight_ggplot2-indexing.html">`[[`(<i>&lt;innsight_ggplot2&gt;</i>)</a></code> <code><a href="innsight_ggplot2-indexing.html">`[&lt;-`(<i>&lt;innsight_ggplot2&gt;</i>)</a></code> <code><a href="innsight_ggplot2-indexing.html">`[[&lt;-`(<i>&lt;innsight_ggplot2&gt;</i>)</a></code> </p>
+          <p><code><a href="innsight_ggplot2-indexing.html">`[`(<i>&lt;innsight_ggplot2&gt;</i>,<i>&lt;ANY&gt;</i>,<i>&lt;ANY&gt;</i>,<i>&lt;ANY&gt;</i>)</a></code> <code><a href="innsight_ggplot2-indexing.html">`[[`(<i>&lt;innsight_ggplot2&gt;</i>)</a></code> <code><a href="innsight_ggplot2-indexing.html">`[&lt;-`(<i>&lt;innsight_ggplot2&gt;</i>,<i>&lt;ANY&gt;</i>,<i>&lt;ANY&gt;</i>,<i>&lt;ANY&gt;</i>)</a></code> <code><a href="innsight_ggplot2-indexing.html">`[[&lt;-`(<i>&lt;innsight_ggplot2&gt;</i>)</a></code> </p>
         </td>
         <td><p>Indexing plots of <code>innsight_ggplot2</code></p></td>
       </tr><tr><td>
@@ -145,7 +173,7 @@
         </td>
         <td><p>Generic print, plot and show for <code>innsight_plotly</code></p></td>
       </tr><tr><td>
-          <p><code><a href="innsight_plotly-indexing.html">`[`(<i>&lt;innsight_plotly&gt;</i>)</a></code> <code><a href="innsight_plotly-indexing.html">`[[`(<i>&lt;innsight_plotly&gt;</i>)</a></code> </p>
+          <p><code><a href="innsight_plotly-indexing.html">`[`(<i>&lt;innsight_plotly&gt;</i>,<i>&lt;ANY&gt;</i>,<i>&lt;ANY&gt;</i>,<i>&lt;ANY&gt;</i>)</a></code> <code><a href="innsight_plotly-indexing.html">`[[`(<i>&lt;innsight_plotly&gt;</i>)</a></code> </p>
         </td>
         <td><p>Indexing plots of <code>innsight_plotly</code></p></td>
       </tr></tbody><tbody><tr><th colspan="2">
@@ -156,6 +184,10 @@
           <p><code><a href="innsight-package.html">innsight</a></code> <code><a href="innsight-package.html">innsight-package</a></code> </p>
         </td>
         <td><p>Get the insight of your neural network</p></td>
+      </tr><tr><td>
+          <p><code><a href="AgnosticWrapper.html">AgnosticWrapper</a></code> </p>
+        </td>
+        <td><p>Super class for model-agnostic interpretability methods</p></td>
       </tr><tr><td>
           <p><code><a href="GradientBased.html">GradientBased</a></code> </p>
         </td>
