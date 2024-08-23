@@ -3,7 +3,8 @@ implemented_layers_keras <- c(
   "MaxPooling1D", "MaxPooling2D", "AveragePooling1D", "AveragePooling2D",
   "Concatenate", "Add", "Activation", "ZeroPadding1D", "ZeroPadding2D",
   "BatchNormalization", "GlobalAveragePooling1D", "GlobalAveragePooling2D",
-  "GlobalMaxPooling1D", "GlobalMaxPooling2D"
+  "GlobalMaxPooling1D", "GlobalMaxPooling2D", "RepeatVector", "Permute",
+  "Multiply"
 )
 
 
@@ -99,6 +100,9 @@ convert_keras_model <- function(model) {
         },
         Concatenate = convert_keras_concatenate(layer),
         Add = convert_keras_add(layer),
+        RepeatVector = convert_keras_repeatvector(layer),
+        Permute = convert_keras_permute(layer),
+        Multiply = convert_keras_multiply(layer),
         Activation = convert_keras_activation(layer$get_config()$activation),
         ZeroPadding1D = convert_keras_zeropadding(layer, type),
         ZeroPadding2D = convert_keras_zeropadding(layer, type),
@@ -444,6 +448,39 @@ convert_keras_add <- function(layer) {
     dim_out = NULL
   )
 }
+
+# RepeatVector Layer ----------------------------------------------------------
+
+convert_keras_repeatvector <- function(layer) {
+  list(
+    type = "RepeatVector",
+    n = layer$n,
+    dim_in = unlist(layer$input_shape),
+    dim_out = unlist(layer$output_shape)
+  )
+}
+
+# Permute Layer ---------------------------------------------------------------
+
+convert_keras_permute <- function(layer) {
+  list(
+    type = "Permute",
+    dims = unlist(layer$dims),
+    dim_in = unlist(layer$input_shape),
+    dim_out = unlist(layer$output_shape)
+  )
+}
+
+# Multiply Layer --------------------------------------------------------------
+
+convert_keras_multiply <- function(layer) {
+  list(
+    type = "Multiply",
+    dim_in = lapply(layer$input_shape, unlist),
+    dim_out = unlist(layer$output_shape)
+  )
+}
+
 
 # Activation Layer ------------------------------------------------------------
 

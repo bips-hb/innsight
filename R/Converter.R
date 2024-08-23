@@ -287,7 +287,7 @@ Converter <- R6Class("Converter",
           "Flatten", "Skipping", "Dense", "Conv1D", "Conv2D",
           "MaxPooling1D", "MaxPooling2D", "AveragePooling1D",
           "AveragePooling2D", "Concatenate", "Add", "Padding", "BatchNorm",
-          "GlobalPooling", "Activation"
+          "GlobalPooling", "Activation", "RepeatVector", "Permute", "Multiply"
         )), "type")
 
         # Get incoming and outgoing layers (as indices) of the current layer
@@ -336,6 +336,9 @@ Converter <- R6Class("Converter",
           AveragePooling2D = create_pooling_layer(layer_as_list, type),
           Concatenate = create_concatenate_layer(layer_as_list),
           Add = create_add_layer(layer_as_list),
+          RepeatVector = create_repeatvector_layer(layer_as_list),
+          Permute = create_permute_layer(layer_as_list),
+          Multiply = create_multiply_layer(layer_as_list),
           Padding = create_padding_layer(layer_as_list),
           BatchNorm = create_batchnorm_layer(layer_as_list),
           GlobalPooling = create_globalpooling_layer(layer_as_list),
@@ -757,6 +760,59 @@ create_add_layer <- function(layer_as_list) {
             "dim_out")
 
   add_layer(dim_in, dim_out)
+}
+
+# RepeatVector Layer ----------------------------------------------------------
+create_repeatvector_layer <- function(layer_as_list) {
+  # Get arguments
+  dim_in <- layer_as_list$dim_in
+  dim_out <- layer_as_list$dim_out
+  n <- layer_as_list$n
+
+  # Check arguments
+  cli_check(checkIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_in")
+  cli_check(checkIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_out")
+  cli_check(checkInt(n), "n")
+
+  repeatvector_layer(as.integer(n), dim_in, dim_out)
+}
+
+# Permute Layer ---------------------------------------------------------------
+create_permute_layer <- function(layer_as_list) {
+  # Get arguments
+  dim_in <- layer_as_list$dim_in
+  dim_out <- layer_as_list$dim_out
+  dims <- layer_as_list$dims
+
+  # Check arguments
+  cli_check(checkIntegerish(dim_in, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_in")
+  cli_check(checkIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_out")
+  cli_check(checkIntegerish(dims, lower = 1, upper = 3), "dims")
+
+  if (length(dims) > 2 || abs(dims[1] - dims[2]) != 1) {
+    stopf("Permute layer currently supports only the permutation of two ",
+    "consecutive dimensions!")
+  }
+
+  permute_layer(as.integer(dims), dim_in, dim_out)
+}
+
+# Multiply Layer --------------------------------------------------------------
+create_multiply_layer <- function(layer_as_list) {
+  # Get arguments
+  dim_in <- layer_as_list$dim_in
+  dim_out <- layer_as_list$dim_out
+
+  # Check arguments
+  cli_check(checkList(dim_in, null.ok = TRUE, types = "integerish"), "dim_in")
+  cli_check(checkIntegerish(dim_out, min.len = 1, max.len = 3, null.ok = TRUE),
+            "dim_out")
+
+  multiply_layer(dim_in, dim_out)
 }
 
 # Padding Layer ---------------------------------------------------------------

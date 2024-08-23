@@ -184,6 +184,97 @@ add_layer <- nn_module(
 )
 
 ###############################################################################
+#                           RepeatVector Layer
+###############################################################################
+repeatvector_layer <- nn_module(
+  classname = "RepeatVector_Layer",
+  inherit = OtherLayer,
+
+  initialize = function(n, dim_in, dim_out) {
+    self$n <- torch_tensor(n, dtype = torch_int())
+    self$input_dim <- dim_in
+    self$output_dim <- dim_out
+  },
+
+  forward = function(x, ...) {
+    # (batch_size, dim_in) -> (batch_size, 1, dim_in) -> (batch_size, n, dim_in)
+    x$unsqueeze(2)$repeat_interleave(self$n, dim = 2)
+  },
+
+  update_ref = function(x_ref, ...) {
+    x_ref$unsqueeze(2)$repeat_interleave(self$n, dim = 2)
+  },
+
+  get_input_multiplier = function(mult_out, ...) {
+    mult_out$sum(dim = 2)
+  },
+
+  reshape_to_input = function(rel_output, ...) {
+    rel_output$sum(dim = 2)
+  }
+)
+
+###############################################################################
+#                           Permute Layer
+###############################################################################
+permute_layer <- nn_module(
+  classname = "Permute_Layer",
+  inherit = OtherLayer,
+
+  initialize = function(dims, dim_in, dim_out) {
+    self$dims <- dims
+    self$input_dim <- dim_in
+    self$output_dim <- dim_out
+  },
+
+  forward = function(x, ...) {
+    torch_movedim(x, source = self$dims[1] + 1, destination = self$dims[2] + 1)
+  },
+
+  update_ref = function(x_ref, ...) {
+    torch_movedim(x_ref, source = self$dims[1] + 1, destination = self$dims[2] + 1)
+  },
+
+  reshape_to_input = function(rel_output, ...) {
+    torch_movedim(rel_output, source = self$dims[2] + 1, destination = self$dims[1] + 1)
+  }
+)
+
+###############################################################################
+#                             Multiply Layer
+###############################################################################
+multiply_layer <- nn_module(
+  classname = "Multiply_Layer",
+  inherit = OtherLayer,
+
+  initialize = function(dim_in, dim_out) {
+    self$input_dim <- dim_in
+    self$output_dim <- dim_out
+  },
+
+  forward = function(x, save_input = TRUE,...) {
+    if (save_input) self$input <- x
+    do.call("torch_multiply", x)
+  },
+
+  update_ref = function(x_ref, save_input = TRUE, ...) {
+    if (save_input) self$input_ref <- x_ref
+    do.call("torch_multiply", x_ref)
+  },
+
+  get_input_multiplier = function(mult_out, ...) {
+    list(
+      mult_out * self$input[[2]]$unsqueeze(-1),
+      mult_out * self$input_ref[[1]]$unsqueeze(-1)
+    )
+  },
+
+  reshape_to_input = function(rel_output, ...) {
+    list(rel_output / 2, rel_output / 2)
+  }
+)
+
+###############################################################################
 #                           Padding Layer
 ###############################################################################
 padding_layer <- nn_module(
