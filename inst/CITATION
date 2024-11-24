@@ -1,0 +1,17 @@
+bibentry(bibtype = "Article",
+  title        = "Interpreting Deep Neural Networks with the Package {innsight}",
+  author       = c(person(given = "Niklas",
+                          family = "Koenen",
+                          email = "koenen@leibniz-bips.de"),
+                   person(given = c("Marvin", "N."),
+                          family = "Wright",
+                          email = "wright@leibniz-bips.de")),
+  journal      = "Journal of Statistical Software",
+  year         = "2024",
+  volume       = "111",
+  number       = "8",
+  pages        = "1--52",
+  doi          = "10.18637/jss.v111.i08",
+  header       = "To cite innsight in publications use:"
+)
+

@@ -1,4 +1,7 @@
-## --- `innsight` 0.3.0 ------------------------------------------------------
+## --- `innsight` 0.3.1 --------------------------------------------------------
+
+* The DOI in the CITATION is for a new JSS publication that will be registered 
+after publication on CRAN.
 
 ### Test environments with LibTorch
 * GitHub Actions (ubuntu-22.04): 4.1, 4.2, release, devel
