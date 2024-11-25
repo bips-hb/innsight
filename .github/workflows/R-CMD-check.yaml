@@ -75,8 +75,8 @@ jobs:
 
       # See https://github.com/mlverse/torch/issues/1213#issuecomment-2495533992
       - name: Build libtorch without openMP (only for macOS)
-      - if: ${{ matrix.config.os == 'MacOS' }}
-      - run: |
+        if: ${{ matrix.config.os == 'MacOS' }}
+        run: |
           options(timeout = 600)
           kind <- "cpu-intel"
           version <- "0.13.0.9001"
@@ -85,7 +85,7 @@ jobs:
             CRAN = "https://cloud.r-project.org" # or any other from which you want to install the other R dependencies.
           ))
           install.packages("torch", type = "binary")
-      - shell: Rscript {0}
+        shell: Rscript {0}
 
       - name: Check if torch is installed
         run: |
