@@ -4,14 +4,9 @@
 after publication on CRAN.
 
 ### Test environments with LibTorch
-* GitHub Actions (ubuntu-22.04): 4.1, 4.2, release, devel
+* GitHub Actions (ubuntu-22.04): 4.2, 4.3, release, devel
 * GitHub Actions (windows): release
 * Github Actions (macOS): release
-
-**Note:** There is currently something wrong with the image on MacOS, which is 
-why the GitHub Actions workflow failed, but this is unrelated to the package
-(see [here](https://forum.posit.co/t/r-cmd-check-fails-on-macos-latest-release-r-lib-actions-setup-r-v2/195084)
-for details).
 
 #### R CMD check results
 
