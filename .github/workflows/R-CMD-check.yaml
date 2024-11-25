@@ -62,7 +62,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Install Tensorflow + Keras deps
-        run: keras::install_keras(tensorflow = 'default-cpu')
+        run: keras::install_keras(tensorflow = '2.13-cpu')
         shell: Rscript {0}
 
       - name: Check if torch is installed
