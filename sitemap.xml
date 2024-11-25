@@ -1,117 +1,41 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://bips-hb.github.io/innsight/404.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/articles/Example_1_iris.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/articles/Example_2_penguin.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/articles/Example_3_imagenet.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/articles/detailed_overview.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/articles/innsight.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/index.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/news/index.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/AgnosticWrapper.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/ConnectionWeights.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/ConvertedModel.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/Converter.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/DeepLift.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/DeepSHAP.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/ExpectedGradient.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/Gradient.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/GradientBased.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/IntegratedGradient.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/InterpretingMethod.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/LIME.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/LRP.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/SHAP.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/SmoothGrad.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/get_result.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/innsight-package.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/innsight_ggplot2-class.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/innsight_ggplot2-indexing.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/innsight_ggplot2-plus.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/innsight_ggplot2-print.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/innsight_plotly-class.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/innsight_plotly-indexing.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/innsight_plotly-print.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/innsight_sugar.html</loc>
-  </url>
-  <url>
-    <loc>https://bips-hb.github.io/innsight/reference/plot_global.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://bips-hb.github.io/innsight/404.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/LICENSE-text.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/articles/Example_1_iris.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/articles/Example_2_penguin.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/articles/Example_3_imagenet.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/articles/detailed_overview.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/articles/index.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/articles/innsight.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/authors.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/index.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/news/index.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/AgnosticWrapper.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/ConnectionWeights.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/ConvertedModel.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/Converter.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/DeepLift.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/DeepSHAP.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/ExpectedGradient.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/Gradient.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/GradientBased.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/IntegratedGradient.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/InterpretingMethod.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/LIME.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/LRP.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/SHAP.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/SmoothGrad.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/get_result.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/index.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/innsight-package.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/innsight_ggplot2-class.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/innsight_ggplot2-indexing.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/innsight_ggplot2-plus.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/innsight_ggplot2-print.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/innsight_plotly-class.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/innsight_plotly-indexing.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/innsight_plotly-print.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/innsight_sugar.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/plot_global.html</loc></url>
 </urlset>
+
