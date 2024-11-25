@@ -18,7 +18,7 @@ are available (all are wrapped by other packages):
 }
 }
 \section{Super class}{
-\code{innsight::InterpretingMethod} -> \code{AgnosticWrapper}
+\code{\link[innsight:InterpretingMethod]{innsight::InterpretingMethod}} -> \code{AgnosticWrapper}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

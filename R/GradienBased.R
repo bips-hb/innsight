@@ -319,7 +319,7 @@ IntegratedGradient <- R6Class(
     #' @param n (`integer(1)`)\cr
     #' Number of steps for the approximation of the integration path along
     #' \eqn{\alpha} (default: \eqn{50}).\cr
-    #' @param x_ref ([`array`], [`data.frame`], [`torch_tensor`] or `list`)\cr
+    #' @param x_ref ([`array`], [`data.frame`], \code{\link[torch]{torch_tensor}} or `list`)\cr
     #' The reference input for the IntegratedGradient method. This value
     #' must have the same format as the input data of the passed model to the
     #' converter object. This means either
@@ -723,7 +723,7 @@ ExpectedGradient <- R6Class(
     #' Number of samples from the distribution of reference values and number
     #' of samples for the approximation of the integration path along
     #' \eqn{\alpha} (default: \eqn{50}).\cr
-    #' @param data_ref ([`array`], [`data.frame`], [`torch_tensor`] or `list`)\cr
+    #' @param data_ref ([`array`], [`data.frame`], \code{\link[torch]{torch_tensor}} or `list`)\cr
     #' The reference inputs for the ExpectedGradient method. This value
     #' must have the same format as the input data of the passed model to the
     #' converter object. This means either

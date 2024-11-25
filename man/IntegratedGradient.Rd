@@ -159,7 +159,7 @@ Other methods:
 }
 \concept{methods}
 \section{Super classes}{
-\code{innsight::InterpretingMethod} -> \code{innsight::GradientBased} -> \code{IntegratedGradient}
+\code{\link[innsight:InterpretingMethod]{innsight::InterpretingMethod}} -> \code{\link[innsight:GradientBased]{innsight::GradientBased}} -> \code{IntegratedGradient}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -234,7 +234,7 @@ size \emph{(batch_size, dim_in)}, if e.g., the model has only one input layer, o
 upper point) for each of the input layers.\cr
 }}
 
-\item{\code{x_ref}}{(\code{\link{array}}, \code{\link{data.frame}}, \code{\link{torch_tensor}} or \code{list})\cr
+\item{\code{x_ref}}{(\code{\link{array}}, \code{\link{data.frame}}, \code{\link[torch]{torch_tensor}} or \code{list})\cr
 The reference input for the IntegratedGradient method. This value
 must have the same format as the input data of the passed model to the
 converter object. This means either

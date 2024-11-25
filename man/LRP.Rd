@@ -170,7 +170,7 @@ Other methods:
 }
 \concept{methods}
 \section{Super class}{
-\code{innsight::InterpretingMethod} -> \code{LRP}
+\code{\link[innsight:InterpretingMethod]{innsight::InterpretingMethod}} -> \code{LRP}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

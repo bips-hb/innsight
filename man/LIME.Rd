@@ -131,7 +131,7 @@ Other methods:
 }
 \concept{methods}
 \section{Super classes}{
-\code{innsight::InterpretingMethod} -> \code{innsight::AgnosticWrapper} -> \code{LIME}
+\code{\link[innsight:InterpretingMethod]{innsight::InterpretingMethod}} -> \code{\link[innsight:AgnosticWrapper]{innsight::AgnosticWrapper}} -> \code{LIME}
 }
 \section{Methods}{
 \subsection{Public methods}{

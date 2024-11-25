@@ -155,7 +155,7 @@ Other methods:
 }
 \concept{methods}
 \section{Super classes}{
-\code{innsight::InterpretingMethod} -> \code{innsight::GradientBased} -> \code{ExpectedGradient}
+\code{\link[innsight:InterpretingMethod]{innsight::InterpretingMethod}} -> \code{\link[innsight:GradientBased]{innsight::GradientBased}} -> \code{ExpectedGradient}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -230,7 +230,7 @@ size \emph{(batch_size, dim_in)}, if e.g., the model has only one input layer, o
 upper point) for each of the input layers.\cr
 }}
 
-\item{\code{data_ref}}{(\code{\link{array}}, \code{\link{data.frame}}, \code{\link{torch_tensor}} or \code{list})\cr
+\item{\code{data_ref}}{(\code{\link{array}}, \code{\link{data.frame}}, \code{\link[torch]{torch_tensor}} or \code{list})\cr
 The reference inputs for the ExpectedGradient method. This value
 must have the same format as the input data of the passed model to the
 converter object. This means either

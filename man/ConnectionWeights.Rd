@@ -156,7 +156,7 @@ Other methods:
 }
 \concept{methods}
 \section{Super class}{
-\code{innsight::InterpretingMethod} -> \code{ConnectionWeights}
+\code{\link[innsight:InterpretingMethod]{innsight::InterpretingMethod}} -> \code{ConnectionWeights}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

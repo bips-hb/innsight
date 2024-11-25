@@ -152,7 +152,7 @@ Other methods:
 }
 \concept{methods}
 \section{Super class}{
-\code{innsight::InterpretingMethod} -> \code{DeepSHAP}
+\code{\link[innsight:InterpretingMethod]{innsight::InterpretingMethod}} -> \code{DeepSHAP}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -300,7 +300,8 @@ often omitted.\cr}
 Name of the applied rule to calculate the
 contributions. Use either \code{'rescale'} or \code{'reveal_cancel'}. \cr}
 
-\item{\code{data_ref}}{(\code{\link{array}}, \code{\link{data.frame}}, \code{\link{torch_tensor}} or \code{list})\cr
+\item{\code{data_ref}}{(\code{\link{array}}, \code{\link{data.frame}},
+\code{\link[torch]{torch_tensor}} or \code{list})\cr
 The reference data which is used to estimate the conditional expectation.
 These must have the same format as the input data of the passed model to
 the converter object. This means either
