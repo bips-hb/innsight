@@ -295,8 +295,8 @@ the output of the primitive R function <code><a href="https://rdrr.io/r/base/int
 <dt><code>dtype</code></dt>
 <dd><p>(<code>character(1)</code>)<br>
 The data type for the calculations. Use
-either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dtype.html" class="external-link">torch_float</a> or <code>'double'</code> for
-<a href="https://rdrr.io/pkg/torch/man/torch_dtype.html" class="external-link">torch_double</a>.<br></p></dd>
+either <code>'float'</code> for <code><a href="https://rdrr.io/pkg/torch/man/torch_dtype.html" class="external-link">torch_float</a></code> or <code>'double'</code> for
+<code><a href="https://rdrr.io/pkg/torch/man/torch_dtype.html" class="external-link">torch_double</a></code>.<br></p></dd>
 
 
 </dl><p></p></div>
@@ -351,18 +351,19 @@ either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dty
 <span class="r-in"><span><span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">int_grad</span>, <span class="st">"torch.tensor"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (1,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0020  0.0030</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0419 -0.0285</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.1152 -0.0683</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0554  0.0093</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0203 -0.0243</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0212  0.0101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.1794 -0.2323</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0296 -0.0295</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0726 -0.1600</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.1774  0.0710</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (2,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.2050  0.2483</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0320  0.0422</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.1830 -0.1574</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.2041  0.0502</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0003  0.0065</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.01 *</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -2.0577  5.9470</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -0.6606  1.4640</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    3.4118 -4.2380</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -7.7163 -28.7991</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -25.3432  4.2670</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{2,5,2} ]</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the result for both classes</span></span></span>

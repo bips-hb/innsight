@@ -267,7 +267,8 @@ contributions. Use either <code>'rescale'</code> or <code>'reveal_cancel'</code>
 
 
 <dt><code>data_ref</code></dt>
-<dd><p>(<code><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></code>, <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></code>, <code><a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">torch_tensor</a></code> or <code>list</code>)<br>
+<dd><p>(<code><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></code>, <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></code>,
+<code><a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">torch_tensor</a></code> or <code>list</code>)<br>
 The reference data which is used to estimate the conditional expectation.
 These must have the same format as the input data of the passed model to
 the converter object. This means either</p><ul><li><p>an <code>array</code>, <code>data.frame</code>, <code>torch_tensor</code> or array-like format of
@@ -308,8 +309,8 @@ the output of the primitive R function <code><a href="https://rdrr.io/r/base/int
 <dt><code>dtype</code></dt>
 <dd><p>(<code>character(1)</code>)<br>
 The data type for the calculations. Use
-either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dtype.html" class="external-link">torch_float</a> or <code>'double'</code> for
-<a href="https://rdrr.io/pkg/torch/man/torch_dtype.html" class="external-link">torch_double</a>.<br></p></dd>
+either <code>'float'</code> for <code><a href="https://rdrr.io/pkg/torch/man/torch_dtype.html" class="external-link">torch_float</a></code> or <code>'double'</code> for
+<code><a href="https://rdrr.io/pkg/torch/man/torch_dtype.html" class="external-link">torch_double</a></code>.<br></p></dd>
 
 
 </dl><p></p></div>
@@ -367,18 +368,19 @@ either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dty
 <span class="r-in"><span><span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">deepshap</span>, <span class="st">"torch.tensor"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (1,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0903  0.1402</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.1561 -0.0363</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.1865 -0.2326</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0066  0.0038</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0214  0.0360</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0087 -0.0010</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.1486  0.0216</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0283 -0.0706</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0704 -0.0167</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0270  0.0199</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (2,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.1260 -0.1502</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0813 -0.0291</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0650  0.0833</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0053 -0.0137</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0096 -0.0062</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.01 *</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -2.6487 -2.6259</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -7.4905 -3.7409</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -3.4833 -2.2341</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -3.9069 -0.4557</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -3.6933 -4.3260</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{2,5,2} ]</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the result for both classes</span></span></span>
