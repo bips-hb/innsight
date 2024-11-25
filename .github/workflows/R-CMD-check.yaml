@@ -9,6 +9,15 @@ on:
     branches: [main, master]
   pull_request:
     branches: [main, master]
+  # Allow manually triggering the workflow via GitHub website, gh CLI tool etc.
+  # Also adds parameter to enable tmate (inetractive tmux session for debugging)
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        type: boolean
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        required: false
+        default: false
 
 name: R-CMD-check
 
@@ -75,7 +84,7 @@ jobs:
 
       # See https://github.com/mlverse/torch/issues/1213#issuecomment-2495533992
       - name: Build libtorch without openMP (only for macOS)
-        if: ${{ matrix.config.os == 'MacOS' }}
+        if: ${{ runner.os == 'macOS' }}
         run: |
           options(timeout = 600)
           kind <- "cpu-intel"
