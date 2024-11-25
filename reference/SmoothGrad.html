@@ -332,18 +332,18 @@ either <code>'float'</code> for <code><a href="https://rdrr.io/pkg/torch/man/tor
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Print the result as a data.frame for first 5 rows</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">smoothgrad</span>, <span class="st">"data.frame"</span><span class="op">)</span>, <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     data model_input model_output feature output_node         value      pred</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 data_1     Input_1     Output_1      X1          Y1  0.1111006513 0.5813944</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 data_2     Input_1     Output_1      X1          Y1  0.0897379518 0.4428981</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 data_3     Input_1     Output_1      X1          Y1 -0.0260244198 0.5597386</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 data_4     Input_1     Output_1      X1          Y1  0.0550670996 0.5211924</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 data_5     Input_1     Output_1      X1          Y1 -0.0006804453 0.5595314</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   decomp_sum decomp_goal input_dimension</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.30462608  0.32850009               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.34580110 -0.22940837               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.09693455  0.24010149               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.35837139  0.08482063               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 0.34586213  0.23926041               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     data model_input model_output feature output_node       value      pred</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 data_1     Input_1     Output_1      X1          Y1  0.08289637 0.4610219</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 data_2     Input_1     Output_1      X1          Y1  0.15029831 0.6285627</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 data_3     Input_1     Output_1      X1          Y1 -0.07859076 0.3718890</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 data_4     Input_1     Output_1      X1          Y1 -0.16808838 0.4949231</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 data_5     Input_1     Output_1      X1          Y1 -0.07095923 0.4702661</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    decomp_sum decomp_goal input_dimension</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.12992666 -0.15622967               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.32080512  0.52605587               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.11609214 -0.52412164               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 -0.13717349 -0.02030858               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 -0.09186404 -0.11907609               1</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the result for both classes</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">smoothgrad</span>, output_idx <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span></span>
