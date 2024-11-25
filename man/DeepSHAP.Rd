@@ -220,7 +220,7 @@ An instance of the \code{Converter} class that includes the
 torch-converted model and some other model-specific attributes. See
 \code{\link{Converter}} for details.\cr}
 
-\item{\code{data}}{(\code{\link{array}}, \code{\link{data.frame}}, \code{\link{torch_tensor}} or \code{list})\cr
+\item{\code{data}}{(\code{\link{array}}, \code{\link{data.frame}}, \code{\link[torch]{torch_tensor}} or \code{list})\cr
 The data to which the method is to be applied. These must
 have the same format as the input data of the passed model to the
 converter object. This means either
@@ -300,7 +300,8 @@ often omitted.\cr}
 Name of the applied rule to calculate the
 contributions. Use either \code{'rescale'} or \code{'reveal_cancel'}. \cr}
 
-\item{\code{data_ref}}{(\code{\link{array}}, \code{\link{data.frame}}, \code{\link{torch_tensor}} or \code{list})\cr
+\item{\code{data_ref}}{(\code{\link{array}}, \code{\link{data.frame}},
+\code{\link[torch]{torch_tensor}} or \code{list})\cr
 The reference data which is used to estimate the conditional expectation.
 These must have the same format as the input data of the passed model to
 the converter object. This means either
@@ -335,8 +336,8 @@ the output of the primitive R function \code{\link[=interactive]{interactive()}}
 
 \item{\code{dtype}}{(\code{character(1)})\cr
 The data type for the calculations. Use
-either \code{'float'} for \link{torch_float} or \code{'double'} for
-\link{torch_double}.\cr}
+either \code{'float'} for \code{\link[torch]{torch_float}} or \code{'double'} for
+\code{\link[torch]{torch_double}}.\cr}
 }
 \if{html}{\out{</div>}}
 }

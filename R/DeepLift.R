@@ -212,7 +212,8 @@ DeepSHAP <- R6Class(
     #' another variant is implemented, which treats a MaxPooling layer as an
     #' AveragePooling layer in the backward pass only, leading to an uniform
     #' distribution of the upper-layer contribution to the lower layer.\cr
-    #' @param data_ref ([`array`], [`data.frame`], [`torch_tensor`] or `list`)\cr
+    #' @param data_ref ([`array`], [`data.frame`],
+    #' \code{\link[torch]{torch_tensor}} or `list`)\cr
     #' The reference data which is used to estimate the conditional expectation.
     #' These must have the same format as the input data of the passed model to
     #' the converter object. This means either

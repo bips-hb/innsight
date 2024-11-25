@@ -81,7 +81,8 @@ Converter <- R6Class("Converter",
     #' torch-converted model ([ConvertedModel]) is created and stored in
     #' the field `model`.
     #'
-    #' @param model ([`nn_sequential`], \code{\link[keras]{keras_model}},
+    #' @param model (\code{\link[torch]{nn_sequential}},
+    #' \code{\link[keras]{keras_model}},
     #' \code{\link[neuralnet]{neuralnet}} or `list`)\cr
     #' A trained neural network for classification or regression
     #' tasks to be interpreted. Only models from the following types or

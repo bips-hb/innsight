@@ -8,6 +8,11 @@ after publication on CRAN.
 * GitHub Actions (windows): release
 * Github Actions (macOS): release
 
+**Note:** There is currently something wrong with the image on MacOS, which is 
+why the GitHub Actions workflow failed, but this is unrelated to the package
+(see [here](https://forum.posit.co/t/r-cmd-check-fails-on-macos-latest-release-r-lib-actions-setup-r-v2/195084)
+for details).
+
 #### R CMD check results
 
 There were no errors or warnings only one note which is not related to our 
@@ -30,28 +35,12 @@ of the authors of torch (see torch
 and disabled their execution on CRAN.
 
 ### Test environments without LibTorch
-- winbuilder Windows Server 2022, R-devel, 64 bit
-- winbuilder Windows Server 2022, R-release, 64 bit
-- winbuilder Windows Server 2022, R-oldrel, 64 bit
-- R-hub Ubuntu Linux 20.04.1 LTS, R-release
-- R-hub Fedora Linux, R-devel, clang, gfortran
+- R-hub Ubuntu Linux 22.04 R-release
+- R-hub Ubuntu Linux, R-devel
+- R-hub Windows, R-devel
+- R-hub macOS, R-devel
 - macOS builder, R-release
 
 #### R CMD check results
 
-There were no errors or warnings, only some notes under R-Hub unrelated to the 
-package: (see issues [#548](https://github.com/r-hub/rhub/issues/548), 
-[#560](https://github.com/r-hub/rhub/issues/560),
-[#503](https://github.com/r-hub/rhub/issues/503)):
-
-```
-* checking HTML version of manual ... NOTE
-  Skipping checking HTML validation: no command 'tidy' found
-  Skipping checking math rendering: package 'V8' unavailable
-* checking for non-standard things in the check directory ... NOTE
-  Found the following files/directories:
-    ''NULL''
-* checking for detritus in the temp directory ... NOTE
-  Found the following files/directories:
-    'lastMiKTeXException'
-```
+There were no errors, warnings or notes.

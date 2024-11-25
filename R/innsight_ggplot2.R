@@ -4,8 +4,8 @@ NULL
 #' S4 class for ggplot2-based plots
 #'
 #' The S4 class `innsight_ggplot2` visualizes the results of the methods
-#' provided from the package `innsight` using [ggplot2]. In addition, it
-#' allows easier analysis of the results and modification of the
+#' provided from the package `innsight` using [ggplot2][ggplot2::ggplot2]. In
+#' addition, it allows easier analysis of the results and modification of the
 #' visualization by basic generic functions. The individual slots are for
 #' internal use only and should not be modified.
 #'
@@ -23,11 +23,12 @@ NULL
 #'
 #' @details
 #'
-#' This S4 class is a simple extension of a [ggplot2] object that enables
-#' a more detailed analysis of the results and a way to visualize the results
-#' of models with multiple input layers (e.g., images and tabular data).
-#' The distinction between one and multiple input layers decides the behavior
-#' of this class, and this information is stored in the slot `multiplot`.
+#' This S4 class is a simple extension of a [ggplot2][ggplot2::ggplot2] object
+#' that enables a more detailed analysis of the results and a way to visualize
+#' the results of models with multiple input layers (e.g., images and tabular
+#' data). The distinction between one and multiple input layers decides the
+#' behavior of this class, and this information is stored in the slot
+#' `multiplot`.
 #'
 #' ## One input layer (`multiplot = FALSE`)
 #'
@@ -187,8 +188,9 @@ setMethod(
 #' Generic add function for `innsight_ggplot2`
 #'
 #' This generic add function allows to treat an instance of [`innsight_ggplot2`]
-#' as an ordinary plot object of [`ggplot2`]. For example geoms, themes and
-#' scales can be added as usual (see [`ggplot2::+.gg`] for more information).\cr \cr
+#' as an ordinary plot object of [ggplot2][ggplot2::ggplot2]. For example geoms,
+#' themes and scales can be added as usual (see [`ggplot2::+.gg`] for more
+#' information).\cr \cr
 #' **Note:** If `e1` represents a multiplot (i.e., `e1@mulitplot = TRUE`),
 #' `e2` is added to each individual plot. If only specific plots need to be
 #' changed, the generic assignment function should be used (see

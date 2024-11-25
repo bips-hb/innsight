@@ -275,7 +275,8 @@ the field \code{model}.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{model}}{(\code{\link{nn_sequential}}, \code{\link[keras]{keras_model}},
+\item{\code{model}}{(\code{\link[torch]{nn_sequential}},
+\code{\link[keras]{keras_model}},
 \code{\link[neuralnet]{neuralnet}} or \code{list})\cr
 A trained neural network for classification or regression
 tasks to be interpreted. Only models from the following types or

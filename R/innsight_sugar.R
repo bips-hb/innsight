@@ -23,7 +23,7 @@
 #' @template param-converter
 #' @template param-data_ref-agnostic
 #'
-#' @param model ([`nn_sequential`], \code{\link[keras]{keras_model}},
+#' @param model (\code{\link[torch]{nn_sequential}}, \code{\link[keras]{keras_model}},
 #' \code{\link[neuralnet]{neuralnet}} or `list`)\cr
 #' A trained neural network for classification or regression
 #' tasks to be interpreted. Only models from the following types or
@@ -40,7 +40,7 @@
 #' \code{\link[neuralnet]{neuralnet}} or [`Converter`],
 #' these have already been pre-implemented and do not need to be
 #' specified.\cr
-#' @param data ([`array`], [`data.frame`], [`torch_tensor`] or `list`)\cr
+#' @param data ([`array`], [`data.frame`], \code{\link[torch]{torch_tensor}} or `list`)\cr
 #' The data to which the method is to be applied. These must
 #' have the same format as the input data of the passed model to the
 #' converter object. This means either
