@@ -157,7 +157,7 @@ Other methods:
 }
 \concept{methods}
 \section{Super class}{
-\code{\link[innsight:InterpretingMethod]{innsight::InterpretingMethod}} -> \code{DeepLift}
+\code{innsight::InterpretingMethod} -> \code{DeepLift}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

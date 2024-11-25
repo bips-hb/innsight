@@ -88,11 +88,11 @@ upper point) for each of the input layers.
 \strong{Note:} For the model-agnostic methods, only models with a single
 input and output layer is allowed!\cr}
 
-\item{data_ref}{(\code{\link{array}}, \code{\link{data.frame}} or \code{\link{torch_tensor}})\cr
+\item{data_ref}{(\code{\link{array}}, \code{\link{data.frame}} or \code{\link[torch]{torch_tensor}})\cr
 The dataset to which the method is to be applied. These must
 have the same format as the input data of the passed model and has to
 be either \code{\link{matrix}}, an \code{\link{array}}, a \code{\link{data.frame}} or a
-\code{\link{torch_tensor}}.\cr
+\code{\link[torch]{torch_tensor}}.\cr
 \strong{Note:} For the model-agnostic methods, only models with a single
 input and output layer is allowed!\cr}
 }

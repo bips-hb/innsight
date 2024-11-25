@@ -156,7 +156,7 @@ Other methods:
 }
 \concept{methods}
 \section{Super class}{
-\code{\link[innsight:InterpretingMethod]{innsight::InterpretingMethod}} -> \code{ConnectionWeights}
+\code{innsight::InterpretingMethod} -> \code{ConnectionWeights}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -215,7 +215,7 @@ An instance of the \code{Converter} class that includes the
 torch-converted model and some other model-specific attributes. See
 \code{\link{Converter}} for details.\cr}
 
-\item{\code{data}}{(\code{\link{array}}, \code{\link{data.frame}}, \code{\link{torch_tensor}} or \code{list})\cr
+\item{\code{data}}{(\code{\link{array}}, \code{\link{data.frame}}, \code{\link[torch]{torch_tensor}} or \code{list})\cr
 The data to which the method is to be applied. These must
 have the same format as the input data of the passed model to the
 converter object. This means either

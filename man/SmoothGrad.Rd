@@ -150,7 +150,7 @@ Other methods:
 }
 \concept{methods}
 \section{Super classes}{
-\code{\link[innsight:InterpretingMethod]{innsight::InterpretingMethod}} -> \code{\link[innsight:GradientBased]{innsight::GradientBased}} -> \code{SmoothGrad}
+\code{innsight::InterpretingMethod} -> \code{innsight::GradientBased} -> \code{SmoothGrad}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

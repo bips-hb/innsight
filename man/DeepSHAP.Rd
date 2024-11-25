@@ -152,7 +152,7 @@ Other methods:
 }
 \concept{methods}
 \section{Super class}{
-\code{\link[innsight:InterpretingMethod]{innsight::InterpretingMethod}} -> \code{DeepSHAP}
+\code{innsight::InterpretingMethod} -> \code{DeepSHAP}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

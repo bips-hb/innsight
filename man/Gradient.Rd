@@ -154,7 +154,7 @@ Other methods:
 }
 \concept{methods}
 \section{Super classes}{
-\code{\link[innsight:InterpretingMethod]{innsight::InterpretingMethod}} -> \code{\link[innsight:GradientBased]{innsight::GradientBased}} -> \code{Gradient}
+\code{innsight::InterpretingMethod} -> \code{innsight::GradientBased} -> \code{Gradient}
 }
 \section{Methods}{
 \subsection{Public methods}{

@@ -16,7 +16,7 @@ gradients w.r.t. to the input for given data. Implemented are:
 }
 }
 \section{Super class}{
-\code{\link[innsight:InterpretingMethod]{innsight::InterpretingMethod}} -> \code{GradientBased}
+\code{innsight::InterpretingMethod} -> \code{GradientBased}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

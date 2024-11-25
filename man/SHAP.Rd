@@ -126,7 +126,7 @@ Other methods:
 }
 \concept{methods}
 \section{Super classes}{
-\code{\link[innsight:InterpretingMethod]{innsight::InterpretingMethod}} -> \code{\link[innsight:AgnosticWrapper]{innsight::AgnosticWrapper}} -> \code{SHAP}
+\code{innsight::InterpretingMethod} -> \code{innsight::AgnosticWrapper} -> \code{SHAP}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -186,16 +186,16 @@ specified.\cr}
 The individual instances to be explained by the method.
 These must have the same format as the input data of the passed model
 and has to be either \code{\link{matrix}}, an \code{\link{array}}, a \code{\link{data.frame}} or a
-\code{\link{torch_tensor}}. If no value is specified, all instances in the
+\code{\link[torch]{torch_tensor}}. If no value is specified, all instances in the
 dataset \code{data} will be explained.\cr
 \strong{Note:} For the model-agnostic methods, only models with a single
 input and output layer is allowed!\cr}
 
-\item{\code{data_ref}}{(\code{\link{array}}, \code{\link{data.frame}} or \code{\link{torch_tensor}})\cr
+\item{\code{data_ref}}{(\code{\link{array}}, \code{\link{data.frame}} or \code{\link[torch]{torch_tensor}})\cr
 The dataset to which the method is to be applied. These must
 have the same format as the input data of the passed model and has to
 be either \code{\link{matrix}}, an \code{\link{array}}, a \code{\link{data.frame}} or a
-\code{\link{torch_tensor}}.\cr
+\code{\link[torch]{torch_tensor}}.\cr
 \strong{Note:} For the model-agnostic methods, only models with a single
 input and output layer is allowed!\cr}
 
