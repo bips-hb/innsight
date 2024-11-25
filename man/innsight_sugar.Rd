@@ -49,7 +49,7 @@ run_lime(model, data, data_ref, ...)
 run_shap(model, data, data_ref, ...)
 }
 \arguments{
-\item{model}{(\code{\link{nn_sequential}}, \code{\link[keras]{keras_model}},
+\item{model}{(\code{\link[torch]{nn_sequential}}, \code{\link[keras]{keras_model}},
 \code{\link[neuralnet]{neuralnet}} or \code{list})\cr
 A trained neural network for classification or regression
 tasks to be interpreted. Only models from the following types or
@@ -75,7 +75,7 @@ An instance of the \code{Converter} class that includes the
 torch-converted model and some other model-specific attributes. See
 \code{\link{Converter}} for details.\cr}
 
-\item{data}{(\code{\link{array}}, \code{\link{data.frame}}, \code{\link{torch_tensor}} or \code{list})\cr
+\item{data}{(\code{\link{array}}, \code{\link{data.frame}}, \code{\link[torch]{torch_tensor}} or \code{list})\cr
 The data to which the method is to be applied. These must
 have the same format as the input data of the passed model to the
 converter object. This means either

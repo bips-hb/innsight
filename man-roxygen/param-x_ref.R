@@ -1,4 +1,4 @@
-#' @param x_ref ([`array`], [`data.frame`], [`torch_tensor`] or `list`)\cr
+#' @param x_ref ([`array`], [`data.frame`], \code{\link[torch]{torch_tensor}} or `list`)\cr
 #' The reference input for the DeepLift method. This value
 #' must have the same format as the input data of the passed model to the
 #' converter object. This means either

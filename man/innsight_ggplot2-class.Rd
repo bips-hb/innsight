@@ -6,17 +6,18 @@
 \title{S4 class for ggplot2-based plots}
 \description{
 The S4 class \code{innsight_ggplot2} visualizes the results of the methods
-provided from the package \code{innsight} using \link{ggplot2}. In addition, it
-allows easier analysis of the results and modification of the
+provided from the package \code{innsight} using \link[ggplot2:ggplot2-package]{ggplot2}. In
+addition, it allows easier analysis of the results and modification of the
 visualization by basic generic functions. The individual slots are for
 internal use only and should not be modified.
 }
 \details{
-This S4 class is a simple extension of a \link{ggplot2} object that enables
-a more detailed analysis of the results and a way to visualize the results
-of models with multiple input layers (e.g., images and tabular data).
-The distinction between one and multiple input layers decides the behavior
-of this class, and this information is stored in the slot \code{multiplot}.
+This S4 class is a simple extension of a \link[ggplot2:ggplot2-package]{ggplot2} object
+that enables a more detailed analysis of the results and a way to visualize
+the results of models with multiple input layers (e.g., images and tabular
+data). The distinction between one and multiple input layers decides the
+behavior of this class, and this information is stored in the slot
+\code{multiplot}.
 \subsection{One input layer (\code{multiplot = FALSE})}{
 
 If the model passed to a method from the innsight package has only one

@@ -14,8 +14,9 @@
 }
 \description{
 This generic add function allows to treat an instance of \code{\link{innsight_ggplot2}}
-as an ordinary plot object of \code{\link{ggplot2}}. For example geoms, themes and
-scales can be added as usual (see \code{\link[ggplot2:gg-add]{ggplot2::+.gg}} for more information).\cr \cr
+as an ordinary plot object of \link[ggplot2:ggplot2-package]{ggplot2}. For example geoms,
+themes and scales can be added as usual (see \code{\link[ggplot2:gg-add]{ggplot2::+.gg}} for more
+information).\cr \cr
 \strong{Note:} If \code{e1} represents a multiplot (i.e., \code{e1@mulitplot = TRUE}),
 \code{e2} is added to each individual plot. If only specific plots need to be
 changed, the generic assignment function should be used (see

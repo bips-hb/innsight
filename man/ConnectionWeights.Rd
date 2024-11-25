@@ -301,8 +301,8 @@ the output of the primitive R function \code{\link[=interactive]{interactive()}}
 
 \item{\code{dtype}}{(\code{character(1)})\cr
 The data type for the calculations. Use
-either \code{'float'} for \link{torch_float} or \code{'double'} for
-\link{torch_double}.\cr}
+either \code{'float'} for \code{\link[torch]{torch_float}} or \code{'double'} for
+\code{\link[torch]{torch_double}}.\cr}
 }
 \if{html}{\out{</div>}}
 }
