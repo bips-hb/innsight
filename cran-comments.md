@@ -8,6 +8,10 @@ after publication on CRAN.
 * GitHub Actions (windows): release
 * Github Actions (macOS): release
 
+**Note:** The creation of vignettes using the `luz` package is currently 
+failing on MacOS, but this is not due to our package (see [issue #1213](https://github.com/mlverse/torch/issues/1213)
+in`torch` and [issue #143](https://github.com/mlverse/luz/issues/143) in `luz`).
+
 #### R CMD check results
 
 There were no errors or warnings only one note which is not related to our 
