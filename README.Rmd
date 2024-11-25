@@ -178,6 +178,24 @@ have great ideas for extending this package. Currently, we are working on the fo
 - [ ]  More examples and documentation (contact me if you have a non-trivial
 application for me)
 
+## Citation
+
+If you use this package in your research, please cite it as follows:
+
+```{}
+@Article{,
+    title = {Interpreting Deep Neural Networks with the Package {innsight}},
+    author = {Niklas Koenen and Marvin N. Wright},
+    journal = {Journal of Statistical Software},
+    year = {2024},
+    volume = {111},
+    number = {8},
+    pages = {1--52},
+    doi = {10.18637/jss.v111.i08},
+}
+```
+
+
 ## Funding
 This work is funded by the German Research Foundation (DFG) in the context
 of the Emmy Noether Grant 437611051.

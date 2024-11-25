@@ -1,3 +1,8 @@
+# innsight 0.3.1
+
+* Added citation information for the accompanying scientific publication in the
+documentation and the package metadata.
+
 # innsight 0.3.0
 
 This is a minor release but does contain a range of substantial new features 

@@ -1,7 +1,7 @@
 Type: Package
 Package: innsight
 Title: Get the Insights of Your Neural Network
-Version: 0.3.0
+Version: 0.3.1
 Authors@R: c(
     person("Niklas", "Koenen", , "niklas.koenen@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-4623-8271")),
@@ -18,6 +18,8 @@ Description: Interpretation methods for analyzing the behavior and individual
     and gradient-based methods like 'SmoothGrad' described by Smilkov et
     al. (2017) <arXiv:1706.03825>, 'Gradient x Input' described by
     Baehrens et al. (2009) <arXiv:0912.1128> or 'Vanilla Gradient'.
+    Details can be found in the accompanying scientific paper: Koenen & Wright 
+    (2024, Journal of Statistical Software, <doi:10.18637/jss.v111.i08>).
 License: MIT + file LICENSE
 URL: https://bips-hb.github.io/innsight/,
     https://github.com/bips-hb/innsight/
