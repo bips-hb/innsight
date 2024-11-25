@@ -3,7 +3,7 @@ implemented_layers_keras <- c(
   "MaxPooling1D", "MaxPooling2D", "AveragePooling1D", "AveragePooling2D",
   "Concatenate", "Add", "Activation", "ZeroPadding1D", "ZeroPadding2D",
   "BatchNormalization", "GlobalAveragePooling1D", "GlobalAveragePooling2D",
-  "GlobalMaxPooling1D", "GlobalMaxPooling2D"
+  "GlobalMaxPooling1D", "GlobalMaxPooling2D", "Masking"
 )
 
 
@@ -51,6 +51,7 @@ convert_keras_model <- function(model) {
     # convolutional layers!
     layer_list <-
       switch(type,
+        Masking = convert_keras_skipping(type),
         InputLayer = convert_keras_skipping(type),
         Dropout = convert_keras_skipping(type),
         Dense = convert_keras_dense(layer),
