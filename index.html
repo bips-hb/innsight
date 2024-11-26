@@ -18,7 +18,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Get the Insights of Your Neural Network">
-<meta property="og:description" content="Interpretation methods for analyzing the behavior and individual predictions of modern neural networks in a three-step procedure: Converting the model, running the interpretation method, and visualizing the results. Implemented methods are, e.g., Connection Weights described by Olden et al. (2004) &lt;doi:10.1016/j.ecolmodel.2004.03.013&gt;, layer-wise relevance propagation (LRP) described by Bach et al. (2015) &lt;doi:10.1371/journal.pone.0130140&gt;, deep learning important features (DeepLIFT) described by Shrikumar et al. (2017) &lt;arXiv:1704.02685&gt; and gradient-based methods like SmoothGrad described by Smilkov et al. (2017) &lt;arXiv:1706.03825&gt;, Gradient x Input described by Baehrens et al. (2009) &lt;arXiv:0912.1128&gt; or Vanilla Gradient. Details can be found in the accompanying scientific paper: Koenen &amp; Wright (2024, Journal of Statistical Software, &lt;doi:10.18637/jss.v111.i08&gt;).">
+<meta property="og:description" content="Interpretation methods for analyzing the behavior and individual predictions of modern neural networks in a three-step procedure: Converting the model, running the interpretation method, and visualizing the results. Implemented methods are, e.g., Connection Weights described by Olden et al. (2004) &lt;doi:10.1016/j.ecolmodel.2004.03.013&gt;, layer-wise relevance propagation (LRP) described by Bach et al. (2015) &lt;doi:10.1371/journal.pone.0130140&gt;, deep learning important features (DeepLIFT) described by Shrikumar et al. (2017) &lt;doi:10.48550/arXiv.1704.02685&gt; and gradient-based methods like SmoothGrad described by Smilkov et al. (2017) &lt;doi:10.48550/arXiv.1706.03825&gt;, Gradient x Input or Vanilla Gradient. Details can be found in the accompanying scientific paper: Koenen &amp; Wright (2024, Journal of Statistical Software, &lt;doi:10.18637/jss.v111.i08&gt;).">
 <meta property="og:image" content="https://bips-hb.github.io/innsight/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -112,6 +112,7 @@
 <li><a href="#usage">Usage</a></li>
 <li><a href="#examples">Examples</a></li>
 <li><a href="#contributing-and-future-work">Contributing and future work</a></li>
+<li><a href="#citation">Citation</a></li>
 <li><a href="#funding">Funding</a></li>
 </ul>
 </div>
@@ -149,7 +150,7 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>The package can be installed directly from CRAN and the development version from GitHub with the following commands (successful installation of <a href="https://www.r-project.org/nosvn/pandoc/devtools.html" class="external-link"><code>devtools</code></a> is required)</p>
+<p>The package can be installed directly from CRAN and the development version from GitHub with the following commands (successful installation of <a href="https://devtools.r-lib.org/" class="external-link"><code>devtools</code></a> is required)</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Stable version</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"innsight"</span><span class="op">)</span></span>
