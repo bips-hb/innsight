@@ -81,7 +81,7 @@ data.frame back into an array as necessary."><meta property="og:image" content="
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Shapley values</h1>
-    <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/master/R/AgnosticMethods.R" class="external-link"><code>R/AgnosticMethods.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/v0.3.1/R/AgnosticMethods.R" class="external-link"><code>R/AgnosticMethods.R</code></a></small>
     <div class="hidden name"><code>SHAP.Rd</code></div>
     </div>
 
@@ -349,15 +349,15 @@ output names in the passed model will be disregarded.<br></p></dd>
 <span class="r-in"><span><span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">shap</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,, <span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , Buy it!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               Car       Cat        Dog       Plane       Horse</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] -0.002318889 0.1419315 0.00699687 -0.04044771 -0.01266500</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]  0.010592848 0.0275993 0.00000000 -0.10005927 -0.08379063</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               Car          Cat         Dog        Plane       Horse</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] -0.008805692  0.034070820 -0.02459812 -0.035755724 -0.03845069</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]  0.048597306 -0.002759516  0.00000000  0.002144039 -0.07650542</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , Don't buy it!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             Car         Cat          Dog      Plane      Horse</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.01180428  0.03085333 0.0114286542 0.10106999 0.04726356</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0.01826233 -0.05126607 0.0001776218 0.02029669 0.03772181</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              Car          Cat          Dog       Plane       Horse</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] -0.02542257 -0.038758606 1.927227e-02  0.02593446 -0.01201844</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] -0.01413250 -0.008205563 6.130338e-05 -0.01806748  0.02788341</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the result for both classes</span></span></span>

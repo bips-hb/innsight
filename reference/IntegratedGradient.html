@@ -84,7 +84,7 @@ as a helper function so that no prior knowledge of R6 classes is required."><met
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Integrated Gradients</h1>
-    <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/master/R/GradienBased.R" class="external-link"><code>R/GradienBased.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/v0.3.1/R/GradienBased.R" class="external-link"><code>R/GradienBased.R</code></a></small>
     <div class="hidden name"><code>IntegratedGradient.Rd</code></div>
     </div>
 
@@ -366,19 +366,18 @@ either <code>'float'</code> for <code><a href="https://rdrr.io/pkg/torch/man/tor
 <span class="r-in"><span><span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">int_grad</span>, <span class="st">"torch.tensor"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (1,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0081 -0.0003</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.3639 -0.2948</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0676  0.1020</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0034 -0.0095</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0408 -0.0195</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0934  0.2019</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0002  0.0000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0595 -0.0219</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.2179 -0.1043</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0006  0.0016</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (2,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.01 *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.8516  0.3024</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   -44.3494 -37.2617</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    6.6202  9.0055</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    1.9486  6.6413</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   -3.6768 -2.2878</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.1249  0.3973</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0081  0.0281</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0268  0.0117</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0248 -0.0819</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0185  0.0843</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{2,5,2} ]</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the result for both classes</span></span></span>

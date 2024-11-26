@@ -79,7 +79,7 @@ as a helper function so that no prior knowledge of R6 classes is required."><met
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Layer-wise relevance propagation (LRP)</h1>
-    <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/master/R/LRP.R" class="external-link"><code>R/LRP.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/v0.3.1/R/LRP.R" class="external-link"><code>R/LRP.R</code></a></small>
     <div class="hidden name"><code>LRP.Rd</code></div>
     </div>
 
@@ -377,15 +377,15 @@ either <code>'float'</code> for <code><a href="https://rdrr.io/pkg/torch/man/tor
 <span class="r-in"><span><span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">lrp</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,,<span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , Y1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               X1          X2          X3         X4         X5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] -0.03884860  0.07278180 -0.13302113 0.01201744 0.02257666</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] -0.01999244 -0.02485864  0.07431371 0.04680417 0.04504487</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               X1           X2          X3          X4          X5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] -0.11312622 -0.012522431  0.06181223 -0.02348430 -0.17150135</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] -0.01354965 -0.003430305 -0.04263717 -0.04696937  0.00816929</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , Y2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               X1          X2          X3         X4           X5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] -0.01525109  0.15358011 -0.02789297 0.22921170 -0.012848184</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] -0.05115769 -0.02275296  0.01611406 0.07071713 -0.006808903</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                X1           X2          X3          X4          X5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] -0.074300401 -0.025125891  0.09750687 -0.09341457  0.11145811</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] -0.005407318  0.001520467 -0.02757026  0.21416998 -0.02573873</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the result for both classes</span></span></span>

@@ -75,7 +75,7 @@ as a helper function so that no prior knowledge of R6 classes is required."><met
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>SmoothGrad and SmoothGrad\(\times\)Input</h1>
-    <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/master/R/GradienBased.R" class="external-link"><code>R/GradienBased.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/v0.3.1/R/GradienBased.R" class="external-link"><code>R/GradienBased.R</code></a></small>
     <div class="hidden name"><code>SmoothGrad.Rd</code></div>
     </div>
 
@@ -333,17 +333,17 @@ either <code>'float'</code> for <code><a href="https://rdrr.io/pkg/torch/man/tor
 <span class="r-in"><span><span class="co"># Print the result as a data.frame for first 5 rows</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">smoothgrad</span>, <span class="st">"data.frame"</span><span class="op">)</span>, <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     data model_input model_output feature output_node       value      pred</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 data_1     Input_1     Output_1      X1          Y1  0.05168447 0.3943423</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 data_2     Input_1     Output_1      X1          Y1 -0.04433363 0.3219931</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 data_3     Input_1     Output_1      X1          Y1 -0.09659281 0.3022582</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 data_4     Input_1     Output_1      X1          Y1 -0.10550380 0.3712806</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 data_5     Input_1     Output_1      X1          Y1 -0.11714230 0.4389589</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    decomp_sum decomp_goal input_dimension</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -0.17348729  -0.4290954               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -0.39392206  -0.7446272               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.14815050  -0.8365675               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 -0.22493906  -0.5267272               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 -0.07728353  -0.2453885               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 data_1     Input_1     Output_1      X1          Y1 -0.07597410 0.5560394</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 data_2     Input_1     Output_1      X1          Y1 -0.03862185 0.5533418</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 data_3     Input_1     Output_1      X1          Y1 -0.11168131 0.6134348</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 data_4     Input_1     Output_1      X1          Y1 -0.06703050 0.6120450</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 data_5     Input_1     Output_1      X1          Y1 -0.12298056 0.6092681</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     decomp_sum decomp_goal input_dimension</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -0.052896613   0.2251034               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.060612569   0.2141823               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.020188741   0.4617735               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 -0.006855318   0.4559166               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 -0.032335721   0.4442369               1</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the result for both classes</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">smoothgrad</span>, output_idx <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span></span>

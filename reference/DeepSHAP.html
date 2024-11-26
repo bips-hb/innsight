@@ -76,7 +76,7 @@ as a helper function so that no prior knowledge of R6 classes is required."><met
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Deep Shapley additive explanations (DeepSHAP)</h1>
-    <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/master/R/DeepLift.R" class="external-link"><code>R/DeepLift.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/v0.3.1/R/DeepLift.R" class="external-link"><code>R/DeepLift.R</code></a></small>
     <div class="hidden name"><code>DeepSHAP.Rd</code></div>
     </div>
 
@@ -368,19 +368,19 @@ either <code>'float'</code> for <code><a href="https://rdrr.io/pkg/torch/man/tor
 <span class="r-in"><span><span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">deepshap</span>, <span class="st">"torch.tensor"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (1,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0584 -0.0094</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0613 -0.0389</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0377 -0.1117</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0167  0.0666</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.1756 -0.1989</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.1752  0.0726</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0529 -0.0288</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0492 -0.0793</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0498  0.0284</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0141  0.0082</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (2,.,.) = </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  0.01 *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -3.6767  1.8734</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    2.7245  1.6984</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    1.9866  6.2845</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   -9.2389 -11.0859</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    5.5355 -14.9231</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -5.8743 -0.0431</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -3.3741 -6.6186</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -3.0544 -7.6884</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    1.5087 -2.0334</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -0.9493  0.0583</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{2,5,2} ]</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the result for both classes</span></span></span>

@@ -82,7 +82,7 @@ as a helper function so that no prior knowledge of R6 classes is required."><met
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Connection weights method</h1>
-    <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/master/R/ConnectionWeights.R" class="external-link"><code>R/ConnectionWeights.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/v0.3.1/R/ConnectionWeights.R" class="external-link"><code>R/ConnectionWeights.R</code></a></small>
     <div class="hidden name"><code>ConnectionWeights.Rd</code></div>
     </div>
 
@@ -336,17 +336,17 @@ either <code>'float'</code> for <code><a href="https://rdrr.io/pkg/torch/man/tor
 <span class="r-in"><span><span class="co"># Print the head of the result as a data.frame</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">cw</span>, <span class="st">"data.frame"</span><span class="op">)</span>, <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     data model_input model_output feature output_node       value pred</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 data_1     Input_1     Output_1     Car          Y1 -0.07570085   NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 data_1     Input_1     Output_1     Cat          Y1  0.14107053   NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 data_1     Input_1     Output_1     Dog          Y1  0.03844491   NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 data_1     Input_1     Output_1   Plane          Y1  0.01427058   NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 data_1     Input_1     Output_1   Horse          Y1  0.02426034   NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 data_1     Input_1     Output_1     Car          Y1  0.16912961   NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 data_1     Input_1     Output_1     Cat          Y1 -0.08961743   NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 data_1     Input_1     Output_1     Dog          Y1  0.19053271   NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 data_1     Input_1     Output_1   Plane          Y1 -0.27034861   NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 data_1     Input_1     Output_1   Horse          Y1  0.06183457   NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   decomp_sum decomp_goal input_dimension</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.1423455          NA               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.1423455          NA               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  0.1423455          NA               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  0.1423455          NA               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  0.1423455          NA               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.06153086          NA               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.06153086          NA               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.06153086          NA               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.06153086          NA               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 0.06153086          NA               1</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the result</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cw</span><span class="op">)</span></span></span>

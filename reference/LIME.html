@@ -84,7 +84,7 @@ data.frame back into an array as necessary."><meta property="og:image" content="
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Local interpretable model-agnostic explanations (LIME)</h1>
-    <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/master/R/AgnosticMethods.R" class="external-link"><code>R/AgnosticMethods.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/v0.3.1/R/AgnosticMethods.R" class="external-link"><code>R/AgnosticMethods.R</code></a></small>
     <div class="hidden name"><code>LIME.Rd</code></div>
     </div>
 
@@ -362,15 +362,15 @@ output names in the passed model will be disregarded.<br></p></dd>
 <span class="r-in"><span><span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">lime</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,, <span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , Buy it!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              Car          Cat         Dog      Plane        Horse</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]  0.01024396  0.002091614 0.003054726 0.05778524  0.002752911</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] -0.02735157 -0.003952547 0.015483490 0.05437228 -0.003670471</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              Car        Cat          Dog        Plane       Horse</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.004858102 0.03018898 -0.007996077  0.007313707 -0.02449477</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0.006710387 0.02662084 -0.034046553 -0.022103647  0.00863294</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , Don't buy it!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              Car          Cat          Dog       Plane        Horse</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] -0.01024397 -0.002091614 -0.003054727 -0.05778524 -0.002752913</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]  0.02735157  0.003952547 -0.015483488 -0.05437228  0.003670471</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               Car         Cat         Dog        Plane        Horse</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] -0.004858104 -0.03018898 0.007996076 -0.007313709  0.024494769</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] -0.006710388 -0.02662084 0.034046553  0.022103649 -0.008632941</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the result for both classes</span></span></span>
