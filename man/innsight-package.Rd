@@ -62,12 +62,12 @@ described in the paper "Interpreting Deep Neural Networks with the Package
 innsight" by Koenen & Wright (2024), published in the
 \emph{Journal of Statistical Software}. For a detailed explanation of the
 methods and use cases, please refer to the publication
-(doi: \href{https://doi.org/10.18637/jss.v111.i08}{10.18637/jss.v111.i08}).
+(doi: \doi{10.18637/jss.v111.i08}).
 }
 \references{
 Koenen, N., & Wright, M. N. (2024). Interpreting Deep Neural Networks with
 the Package innsight. Journal of Statistical Software, 111(8), 1-52. doi:
-\href{https://doi.org/10.18637/jss.v111.i08}{10.18637/jss.v111.i08}
+\doi{10.18637/jss.v111.i08}
 }
 \seealso{
 Useful links:

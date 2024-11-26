@@ -21,6 +21,7 @@ coverage](https://codecov.io/gh/bips-hb/innsight/branch/master/graph/badge.svg)]
 - [Usage](#usage)
 - [Examples](#examples)
 - [Contributing and future work](#contributing-and-future-work)
+- [Citation](#citation)
 - [Funding](#funding)
 
 ## Introduction
@@ -80,8 +81,7 @@ for details).
 
 The package can be installed directly from CRAN and the development
 version from GitHub with the following commands (successful installation
-of [`devtools`](https://www.r-project.org/nosvn/pandoc/devtools.html) is
-required)
+of [`devtools`](https://devtools.r-lib.org/) is required)
 
 ``` r
 # Stable version

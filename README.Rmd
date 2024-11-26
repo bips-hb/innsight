@@ -29,6 +29,7 @@ knitr::opts_chunk$set(
 * [Usage](#usage)
 * [Examples](#examples)
 * [Contributing and future work](#contributing-and-future-work)
+* [Citation](#citation)
 * [Funding](#funding)
 
 ## Introduction
@@ -82,7 +83,7 @@ for details).
 
 The package can be installed directly from CRAN and the development version
 from GitHub with the following commands (successful 
-installation of [`devtools`](https://www.r-project.org/nosvn/pandoc/devtools.html) is required)
+installation of [`devtools`](https://devtools.r-lib.org/) is required)
 
 ```{r, eval = FALSE}
 # Stable version

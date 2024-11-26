@@ -42,4 +42,5 @@ and disabled their execution on CRAN.
 
 #### R CMD check results
 
-There were no errors, warnings or notes.
+There were no errors, warnings or notes (only the already mentioned note on 
+the DOI).
