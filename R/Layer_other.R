@@ -281,7 +281,8 @@ activation_layer <- nn_module(
                        leaky_relu = nnf_leaky_relu,
                        softplus = nnf_softplus,
                        sigmoid = nnf_sigmoid,
-                       tanh = torch_tanh)
+                       tanh = torch_tanh,
+                       elu = nnf_elu)
   },
 
   forward = function(x, save_input = TRUE, save_output = TRUE, ...) {

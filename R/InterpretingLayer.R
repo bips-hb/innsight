@@ -229,6 +229,8 @@ get_activation <- function(act_name) {
     act <- nn_softmax(dim = -1)
   } else if (act_name == "tanh") {
     act <- nn_tanh()
+  } else if (act_name == "elu") {
+    act <- nn_elu()
   } else if (act_name == "linear") {
     act <- function(x) x
   } else {

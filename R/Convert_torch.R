@@ -14,7 +14,8 @@ convert_torch_sequential <- function(model) {
   }
 
   include_act <- FALSE
-  impl_acts <- c("relu", "leaky_relu", "softplus", "sigmoid", "softmax", "tanh")
+  impl_acts <- c("relu", "leaky_relu", "softplus", "sigmoid", "softmax", "tanh",
+                 "elu")
 
   for (modul in modules_list) {
     if (inherits(modul, "nn_flatten")) {
