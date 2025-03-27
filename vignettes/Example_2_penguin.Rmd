@@ -26,6 +26,7 @@ knitr::opts_chunk$set(
 
 ```{r, echo = FALSE}
 Sys.setenv(LANG = "en_US.UTF-8")
+Sys.setenv(CUDA_VISIBLE_DEVICES = "")
 set.seed(111)
 torch::torch_manual_seed(111)
 ```
@@ -212,7 +213,7 @@ to be used for **innsight**:
 ```{r}
 # We have imbalanced classes, so we weight the output classes accordingly
 weight <- length(train_ds$y) /
-  (3 * torch_stack(lapply(1:3, function(i) sum(train_ds$y == i))))
+  (3 * sapply(1:3, function(i) as.array(sum(train_ds$y == i))))
 
 # Fit the model
 fitted <- net %>%
@@ -225,7 +226,8 @@ fitted <- net %>%
     )
   ) %>%
   set_hparams(dim_in = 10) %>%
-  fit(train_dl, epochs = 50, valid_data = valid_dl)
+  fit(train_dl, epochs = 50, valid_data = valid_dl,
+      accelerator = accelerator(cpu = TRUE))
 
 # Extract the sequential model
 model <- fitted$model$seq_model
