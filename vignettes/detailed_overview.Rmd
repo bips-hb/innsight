@@ -224,7 +224,7 @@ used:
 
 **Example 1: `keras_model_sequential`**
 
-```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r, eval = keras::is_keras_available() & torch::torch_is_installed()}
 library(keras)
 
 # Create model
@@ -240,7 +240,7 @@ converter <- convert(keras_model_seq)
 
 **Example 2: `keras_model`**
 
-```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r, eval = keras::is_keras_available() & torch::torch_is_installed()}
 library(keras)
 
 input_image <- layer_input(shape = c(10, 10, 3))
@@ -1063,7 +1063,7 @@ Let's consider again the model from Example 2 in the [**keras**
 section](#package-keras) (make sure that the model `keras_model_concat`
 is loaded!):
 
-```{r}
+```{r, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Convert the model and save the model as a list
 converter <- convert(keras_model_concat, save_model_as_list = TRUE)
 
@@ -1076,7 +1076,7 @@ images of shape $3 \times 10 \times 10$ and the second layer for dense
 inputs of shape $20$. For example, we can now examine whether the
 converted model provides the same output as the original model:
 
-```{r}
+```{r, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # create input in the format "channels last"
 x <- list(
   array(rnorm(3 * 10 * 10), dim = c(1, 10, 10, 3)),
@@ -1099,7 +1099,7 @@ were generated and stored in the list format in the `input_names` and
 number of input or output layers, there is always an outer list for the 
 layers and then inner lists for the layer's dimensions.
 
-```{r}
+```{r, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # get the calculated output dimension
 str(converter$output_dim)
 # get the generated output names (one layer with three output nodes)
@@ -1114,7 +1114,7 @@ section [Model as named list](#model-as-named-list). This list can now
 be modified as you wish and it can also be used again as a model for a
 new `Converter` instance.
 
-```{r}
+```{r, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # get the mode as a list
 model_as_list <- converter$model_as_list
 # print the fourth layer
@@ -2639,7 +2639,7 @@ List of k
 
 <details>
 <summary> **Example with a tabular model** </summary>
-```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r}
 # Apply method 'Gradient x Input' for classes 1 ('setosa')  and 3 ('virginica')
 tab_grad <- run_grad(tab_conv, tab_data,
   output_idx = c(1, 3),
@@ -2657,7 +2657,7 @@ result_array[c(1, 10), , ]
 
 <details>
 <summary> **Example with an image model** </summary>
-```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r}
 # Apply method 'Gradient' for outputs 1  and 2
 img_grad <- run_grad(img_conv, img_data, output_idx = c(1, 2))
 # Get result
@@ -2683,7 +2683,7 @@ $\text{input_dim}_i$ the input shape of input layer `'Input_i'`:
 
 <details>
 <summary> Create model and data </summary>
-```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r, eval = keras::is_keras_available() & torch::torch_is_installed()}
 library(keras)
 
 first_input <- layer_input(shape = c(10, 10, 2))
@@ -2708,7 +2708,7 @@ data <- lapply(
 ```
 </details>
 
-```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Apply method 'Gradient' for outputs 1  and 2
 grad <- run_grad(conv, data, output_idx = c(1, 2), channels_first = FALSE)
 # Get result
@@ -2732,7 +2732,7 @@ layer `'Output_j'` as specified in the argument `output_idx`.
 
 <details>
 <summary> Create model and data </summary>
-```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r, eval = keras::is_keras_available() & torch::torch_is_installed()}
 library(keras)
 
 first_input <- layer_input(shape = c(10, 10, 2))
@@ -2760,7 +2760,7 @@ data <- lapply(
 ```
 </details>
 
-```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Apply method 'Gradient' for outputs 1 and 2 in the first and
 # for outputs 1 and 3 in the second output layer
 grad <- run_grad(conv, data,
@@ -2845,7 +2845,7 @@ outputs, we get the following `data.frame`:
 options(width = 500)
 ```
 
-```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r}
 head(get_result(tab_grad, "data.frame"), 5)
 ```
 
@@ -2853,13 +2853,13 @@ Analogously, you can also output the results for the model with image data.
 As already mentioned, the columns for the channel (`"channel"`) and the 
 image width (`"feature_2"`) are then added:
 
-```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r}
 head(get_result(img_grad, "data.frame"), 5)
 ```
 
 <details>
 <summary> Example usage with **ggplot2** </summary>
-```{r, fig.width= 8, fig.height=6, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r, fig.width= 8, fig.height=6}
 library(ggplot2)
 library(neuralnet)
 
@@ -3008,7 +3008,7 @@ plot(method,
 
 **Examples and usage:**
 
-```{r, fig.width = 8, fig.height=5, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r, fig.width = 8, fig.height=5}
 # Create plot for output classes 'setosa' and  'virginica' and
 # data points '1' and '70'
 p <- plot(tab_grad, output_label = c("setosa", "virginica"), data_idx = c(1, 70))
@@ -3021,7 +3021,7 @@ p +
   ggplot2::theme_bw() +
   ggplot2::ggtitle("My first 'innsight'-plot")
 ```
-```{r, fig.width = 8, fig.height=3, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r, fig.width = 8, fig.height=3}
 # In addition, you can use all the options of the class 'innsight_ggplot2',
 # e.g. getting the corresponding ggplot2 object
 class(p[[1, 1]])
@@ -3037,7 +3037,7 @@ p <- plot(tab_grad, output_idx = c(1, 3), data_idx = c(1, 70), as_plotly = TRUE)
 # Show plot (it also includes a drop down menu for selecting the colorscale)
 p
 ```
-```{r, fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available()}
+```{r, fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1}
 # You can do the same with the plotly-based plots
 p <- plot(tab_grad, output_idx = c(1, 3), data_idx = c(1, 70), as_plotly = TRUE)
 
@@ -3045,7 +3045,7 @@ p <- plot(tab_grad, output_idx = c(1, 3), data_idx = c(1, 70), as_plotly = TRUE)
 plotly::config(print(p))
 ```
 
-```{r, fig.width = 8, fig.height=5, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r, fig.width = 8, fig.height=5}
 # We can do the same for models with image data. In addition, you can define
 # the aggregation function for the channels
 p <- plot(img_grad,
@@ -3068,7 +3068,7 @@ get the results  with `method$result` (a list of `torch_tensor`s!), change
 it accordingly, and then save it back to the field `method$result` as a list of 
 `torch_tensor`s.
 
-```{r, fig.width = 8, fig.height=5, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r, fig.width = 8, fig.height=5}
 # You can also do custom modifications of the results, e.g.
 # taking the absolute value of all results. But the
 # shape has to be the same after the modification!
@@ -3231,7 +3231,7 @@ boxplot(...)
 
 **Examples and usage:**
 
-```{r, fig.width = 8, fig.height=5, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r, fig.width = 8, fig.height=5}
 # Create a boxplot for output classes '1' (setosa) and '3' (virginica)
 p <- boxplot(tab_grad, output_idx = c(1, 3))
 
@@ -3257,7 +3257,7 @@ p <- boxplot(tab_grad,
 # point and toggle the plot type 'Boxplot' or 'Violin')
 p
 ```
-```{r, fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available()}
+```{r, fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1}
 # You can do the same with the plotly-based plots
 p <- boxplot(tab_grad,
   output_idx = c(1, 3), data_idx = 1:50,
@@ -3268,7 +3268,7 @@ p <- boxplot(tab_grad,
 # point and toggle the plot type Boxplot or Violin)
 plotly::config(print(p))
 ```
-```{r, fig.width=8, fig.height=4, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r, fig.width=8, fig.height=4}
 # We can do the same for models with image data (but have to use the method
 # `plot_global`, since no boxplots are created). In addition, you can define
 # the aggregation function for the channels
@@ -3295,7 +3295,7 @@ p <- plot_global(img_grad,
 # and a scale for selecting the respective percentile)
 p
 ```
-```{r, fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available()}
+```{r, fig.width = 8, fig.height=4, echo = FALSE, message=FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1}
 # You can do the same with the plotly-based plots
 p <- plot_global(img_grad,
   output_idx = c(1, 2), aggr_channels = "norm",
@@ -3318,7 +3318,7 @@ generated in a model with images and tabular data as inputs.
 
 <details>
 <summary> Create results for the following examples </summary>
-```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r, eval = keras::is_keras_available() & torch::torch_is_installed()}
 library(keras)
 library(torch)
 
@@ -3435,7 +3435,7 @@ output layer is needed.
 * `boxplot`: A logical value indicating whether the result of individual
 data points or a boxplot over multiple instances is displayed.
 
-```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Create plot for output node 1 and 2 in the first output layer and
 # data points 1 and 3
 p <- plot(res_one_input, output_idx = c(1, 2), data_idx = c(1, 3))
@@ -3473,7 +3473,7 @@ can be added as usual (see ```ggplot2::`+.gg` ``` for more information).
 However, an object of the class `innsight_ggplot2` is returned.
 <details>
 <summary> Examples </summary>
-```{r, fig.height=6, fig.width=8, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r, fig.height=6, fig.width=8, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Create plot
 p <- plot(res_one_input, output_idx = c(1, 2), data_idx = c(1, 3))
 
@@ -3505,7 +3505,7 @@ and columns can be accessed and is returned as an object of the class
 `innsight_ggplot2`.
 <details>
 <summary> Example </summary>
-```{r, fig.height=6, fig.width=8, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r, fig.height=6, fig.width=8, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Create plot
 p <- plot(res_one_input, output_idx = c(1, 2), data_idx = c(1, 3))
 
@@ -3529,7 +3529,7 @@ plot by passing the respective row and column index. This plot is returned
 as a **ggplot2** object.
 <details>
 <summary> Example </summary>
-```{r, fig.height=6, fig.width=8, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r, fig.height=6, fig.width=8, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Create plot
 p <- plot(res_one_input, output_idx = c(1, 2), data_idx = c(1, 3))
 
@@ -3553,7 +3553,7 @@ functions, which all behave the same in this case. They create the plot of the
 results and return a **ggplot2** object invisibly.
 <details>
 <summary> Examples </summary>
-```{r, fig.height=3, fig.width=8, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r, fig.height=3, fig.width=8, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Create plot
 p <- plot(res_one_input, output_idx = c(1, 2), data_idx = 1)
 
@@ -3616,7 +3616,7 @@ anymore, the suggested packages **grid**, **gridExtra** and **gtable** are
 needed and loaded. 
 
 
-```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Create a plot for output node 1 in the first output layer and node 2 in the
 # second output layer and data points 1 and 3
 p <- plot(res_two_inputs, output_idx = list(1, c(1, 2)), data_idx = c(1, 3))
@@ -3656,7 +3656,7 @@ labels, facet strips, etc., are transferred) or whether the subplot is extracted
 in the same way as it is shown in the whole plot.
 <details>
 <summary> Example </summary>
-```{r, fig.height=4, fig.width=10, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r, fig.height=4, fig.width=10, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Create plot
 p <- plot(res_two_inputs, output_idx = list(1, 2), data_idx = c(1,2))
 
@@ -3676,7 +3676,7 @@ results and return a **gtable** object invisibly. For `plot` and `print`, you ca
 also pass additional arguments forwarded to `gridExtra::arrangeGrob`.
 <details>
 <summary> Examples </summary>
-```{r, fig.height=4, fig.width=10, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r, fig.height=4, fig.width=10, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Create plot
 p <- plot(res_two_inputs, output_idx = list(1, 2), data_idx = 1)
 
@@ -3698,7 +3698,7 @@ changed individually and is independent of the others. Individual modifications
 can be made with this generic function.
 <details>
 <summary> Examples </summary>
-```{r, fig.height=7, fig.width=12, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r, fig.height=7, fig.width=12, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Create plot
 p <- plot(res_two_inputs, output_idx = list(1, 2), data_idx = c(1, 3))
 
@@ -3802,7 +3802,7 @@ sliders, margins etc. (see `?plotly::layout` for more details).
 * `col_dims` : A list of two lists assigning a column index (`col_idx`) the
 corresponding output strip label (`col_label`).
 
-```{r, eval = torch::torch_is_installed() & keras::is_keras_available()}
+```{r, eval = keras::is_keras_available() & torch::torch_is_installed()}
 # Create a plot for output node 1 in the first layer and output node 2 in the
 # second layer and data point 1 and 3
 p <- plot(res_two_inputs,
@@ -3854,7 +3854,7 @@ p <- plot(res_two_inputs,
 # Show the whole plot
 p
 ```
-```{r, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available(), echo = FALSE, fig.height=4,out.width= "100%", fig.width=20}
+```{r, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & keras::is_keras_available() & torch::torch_is_installed(), echo = FALSE, fig.height=4,out.width= "100%", fig.width=20}
 # Create plot
 p <- plot(res_two_inputs,
   output_idx = list(1, 2), data_idx = c(1, 3),
@@ -3878,7 +3878,7 @@ class(p_new)
 # Show the subplot
 p_new
 ```
-```{r, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available(), echo = FALSE, fig.height=5, fig.width=10}
+```{r, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & keras::is_keras_available() & torch::torch_is_installed(), echo = FALSE, fig.height=5, fig.width=10}
 # Now you can select specific rows and columns for in-depth investigation,
 # e.g. only the result for output "Y2"
 p_new <- p[1:2, 3:4]
@@ -3914,7 +3914,7 @@ class(p_new)
 # Show the plot
 p_new
 ```
-```{r, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available(), echo = FALSE, fig.height=5, fig.width=10}
+```{r, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & keras::is_keras_available() & torch::torch_is_installed(), echo = FALSE, fig.height=5, fig.width=10}
 # Create plot
 p <- plot(res_two_inputs,
   output_idx = list(1, 2), data_idx = c(1, 3),
@@ -3956,7 +3956,7 @@ class(plot(p))
 # e.g. the margins
 print(p, margin = c(0.03, 0.03, 0.01, 0.01))
 ```
-```{r, fig.height=4, fig.width=10, echo = FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & torch::torch_is_installed() & keras::is_keras_available()}
+```{r, fig.height=4, fig.width=10, echo = FALSE, eval=Sys.getenv("RENDER_PLOTLY", unset = 0) == 1 & keras::is_keras_available() & torch::torch_is_installed()}
 # Create plot
 p <- plot(res_two_inputs,
   output_idx = list(1, 2), data_idx = 1,
