@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">innsight</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.2</span>
       </span>
     </div>
 
@@ -99,7 +99,7 @@
 luz</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/v0.3.1/vignettes/Example_2_penguin.Rmd" class="external-link"><code>vignettes/Example_2_penguin.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/master/vignettes/Example_2_penguin.Rmd" class="external-link"><code>vignettes/Example_2_penguin.Rmd</code></a></small>
       <div class="hidden name"><code>Example_2_penguin.Rmd</code></div>
 
     </div>
@@ -111,7 +111,7 @@ luz</h1>
 Since the <strong>innsight</strong> package relies on the
 <strong>torch</strong> package for each method and requires a successful
 installation of LibTorch and other dependencies
-(<code><a href="https://rdrr.io/pkg/torch/man/install_torch.html" class="external-link">torch::install_torch()</a></code>), no examples can be run in the R
+(<code><a href="https://torch.mlverse.org/docs/reference/install_torch.html" class="external-link">torch::install_torch()</a></code>), no examples can be run in the R
 vignette for memory reasons. For the executed code chunks, we refer to
 <a href="https://bips-hb.github.io/innsight/articles/Example_2_penguin.html">our
 website</a>.</p>
@@ -190,7 +190,7 @@ vignette</a>).</p>
 <span></span>
 <span></span>
 <span><span class="co"># Create torch penguin dataset</span></span>
-<span><span class="va">penguin_dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">dataset</a></span><span class="op">(</span></span>
+<span><span class="va">penguin_dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/dataset.html" class="external-link">dataset</a></span><span class="op">(</span></span>
 <span>  name <span class="op">=</span> <span class="st">"penguin_dataset"</span>,</span>
 <span>  initialize <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">df</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span> <span class="co"># remove NAs</span></span>
@@ -200,21 +200,21 @@ vignette</a>).</p>
 <span>      <span class="st">"bill_length_mm"</span>, <span class="st">"bill_depth_mm"</span>, <span class="st">"flipper_length_mm"</span>,</span>
 <span>      <span class="st">"body_mass_g"</span>, <span class="st">"year"</span></span>
 <span>    <span class="op">)</span><span class="op">]</span></span>
-<span>    <span class="va">x_cont</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">torch_tensor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">x_cont</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="va">x_cont</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">x_cont</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span>    <span class="co"># Get and encode (one-hot) categorical features and transform them to `torch_tensor`</span></span>
 <span>    <span class="va">x_cat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">df</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"island"</span>, <span class="st">"sex"</span><span class="op">)</span><span class="op">]</span>, <span class="va">as.integer</span><span class="op">)</span></span>
-<span>    <span class="va">x_cat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">torch_tensor</a></span><span class="op">(</span><span class="va">x_cat</span>, dtype <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_dtype.html" class="external-link">torch_int64</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span>    <span class="va">x_cat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_hstack.html" class="external-link">torch_hstack</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nnf_one_hot.html" class="external-link">nnf_one_hot</a></span><span class="op">(</span><span class="va">x_cat</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span>,</span>
-<span>      <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nnf_one_hot.html" class="external-link">nnf_one_hot</a></span><span class="op">(</span><span class="va">x_cat</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
+<span>    <span class="va">x_cat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></span><span class="op">(</span><span class="va">x_cat</span>, dtype <span class="op">=</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch_int64</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="va">x_cat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_hstack.html" class="external-link">torch_hstack</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>      <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nnf_one_hot.html" class="external-link">nnf_one_hot</a></span><span class="op">(</span><span class="va">x_cat</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>      <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nnf_one_hot.html" class="external-link">nnf_one_hot</a></span><span class="op">(</span><span class="va">x_cat</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
 <span>    <span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span>    <span class="co"># Stack and store all features together in the field 'x'</span></span>
-<span>    <span class="va">self</span><span class="op">$</span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_hstack.html" class="external-link">torch_hstack</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">x_cont</span>, <span class="va">x_cat</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="va">self</span><span class="op">$</span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_hstack.html" class="external-link">torch_hstack</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">x_cont</span>, <span class="va">x_cat</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span>    <span class="co"># Get, transform and store the target variable (the three penguin species)</span></span>
-<span>    <span class="va">self</span><span class="op">$</span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">torch_tensor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">species</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="va">self</span><span class="op">$</span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">species</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">}</span>,</span>
 <span>  .getitem <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">self</span><span class="op">$</span><span class="va">x</span><span class="op">[</span><span class="va">i</span>, <span class="op">]</span>, y <span class="op">=</span> <span class="va">self</span><span class="op">$</span><span class="va">y</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span></span>
@@ -243,8 +243,8 @@ Beforehand, however, we normalize all numerical inputs:</p>
 <span><span class="va">valid_ds</span> <span class="op">&lt;-</span> <span class="fu">penguin_dataset</span><span class="op">(</span><span class="va">scaled_penguin_ds</span><span class="op">[</span><span class="va">valid_idx</span>, <span class="op">]</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Create dataloaders</span></span>
-<span><span class="va">train_dl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/dataloader.html" class="external-link">dataloader</a></span><span class="op">(</span><span class="va">train_ds</span>, batch_size <span class="op">=</span> <span class="fl">32</span>, shuffle <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">valid_dl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/dataloader.html" class="external-link">dataloader</a></span><span class="op">(</span><span class="va">valid_ds</span>, batch_size <span class="op">=</span> <span class="fl">32</span>, shuffle <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">train_dl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/dataloader.html" class="external-link">dataloader</a></span><span class="op">(</span><span class="va">train_ds</span>, batch_size <span class="op">=</span> <span class="fl">32</span>, shuffle <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">valid_dl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/dataloader.html" class="external-link">dataloader</a></span><span class="op">(</span><span class="va">valid_ds</span>, batch_size <span class="op">=</span> <span class="fl">32</span>, shuffle <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># We use the whole dataset as the test data</span></span>
 <span><span class="va">test_ds</span> <span class="op">&lt;-</span> <span class="fu">penguin_dataset</span><span class="op">(</span><span class="va">scaled_penguin_ds</span><span class="op">)</span></span></code></pre></div>
@@ -264,21 +264,21 @@ you want to use several data pre-processing layers before the actual
 model.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create the model</span></span>
-<span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></span><span class="op">(</span></span>
+<span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">nn_module</a></span><span class="op">(</span></span>
 <span>  initialize <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">dim_in</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="co"># Here, we define our sequential model</span></span>
-<span>    <span class="va">self</span><span class="op">$</span><span class="va">seq_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_sequential.html" class="external-link">nn_sequential</a></span><span class="op">(</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="va">dim_in</span>, <span class="fl">256</span><span class="op">)</span>,</span>
-<span>      <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_relu.html" class="external-link">nn_relu</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>      <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_dropout.html" class="external-link">nn_dropout</a></span><span class="op">(</span>p <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span>,</span>
-<span>      <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">256</span>, <span class="fl">256</span><span class="op">)</span>,</span>
-<span>      <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_relu.html" class="external-link">nn_relu</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>      <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_dropout.html" class="external-link">nn_dropout</a></span><span class="op">(</span>p <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span>,</span>
-<span>      <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">256</span>, <span class="fl">64</span><span class="op">)</span>,</span>
-<span>      <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_relu.html" class="external-link">nn_relu</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>      <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_dropout.html" class="external-link">nn_dropout</a></span><span class="op">(</span>p <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span>,</span>
-<span>      <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">64</span>, <span class="fl">3</span><span class="op">)</span>,</span>
-<span>      <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_softmax.html" class="external-link">nn_softmax</a></span><span class="op">(</span>dim <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span>    <span class="va">self</span><span class="op">$</span><span class="va">seq_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_sequential.html" class="external-link">nn_sequential</a></span><span class="op">(</span></span>
+<span>      <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="va">dim_in</span>, <span class="fl">256</span><span class="op">)</span>,</span>
+<span>      <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_relu.html" class="external-link">nn_relu</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>      <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_dropout.html" class="external-link">nn_dropout</a></span><span class="op">(</span>p <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span>,</span>
+<span>      <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">256</span>, <span class="fl">256</span><span class="op">)</span>,</span>
+<span>      <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_relu.html" class="external-link">nn_relu</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>      <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_dropout.html" class="external-link">nn_dropout</a></span><span class="op">(</span>p <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span>,</span>
+<span>      <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">256</span>, <span class="fl">64</span><span class="op">)</span>,</span>
+<span>      <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_relu.html" class="external-link">nn_relu</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>      <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_dropout.html" class="external-link">nn_dropout</a></span><span class="op">(</span>p <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span>,</span>
+<span>      <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">64</span>, <span class="fl">3</span><span class="op">)</span>,</span>
+<span>      <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_softmax.html" class="external-link">nn_softmax</a></span><span class="op">(</span>dim <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">}</span>,</span>
 <span></span>
@@ -293,20 +293,21 @@ extract the sequential model to be used for
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># We have imbalanced classes, so we weight the output classes accordingly</span></span>
 <span><span class="va">weight</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">train_ds</span><span class="op">$</span><span class="va">y</span><span class="op">)</span> <span class="op">/</span></span>
-<span>  <span class="op">(</span><span class="fl">3</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_stack.html" class="external-link">torch_stack</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">train_ds</span><span class="op">$</span><span class="va">y</span> <span class="op">==</span> <span class="va">i</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">(</span><span class="fl">3</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">as.array</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">train_ds</span><span class="op">$</span><span class="va">y</span> <span class="op">==</span> <span class="va">i</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Fit the model</span></span>
 <span><span class="va">fitted</span> <span class="op">&lt;-</span> <span class="va">net</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlverse.github.io/luz/reference/setup.html" class="external-link">setup</a></span><span class="op">(</span></span>
 <span>    loss <span class="op">=</span></span>
-<span>      <span class="kw">function</span><span class="op">(</span><span class="va">input</span>, <span class="va">target</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nnf_nll_loss.html" class="external-link">nnf_nll_loss</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">input</span><span class="op">)</span>, <span class="va">target</span>, weight <span class="op">=</span> <span class="va">weight</span><span class="op">)</span>,</span>
+<span>      <span class="kw">function</span><span class="op">(</span><span class="va">input</span>, <span class="va">target</span><span class="op">)</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nnf_nll_loss.html" class="external-link">nnf_nll_loss</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">input</span><span class="op">)</span>, <span class="va">target</span>, weight <span class="op">=</span> <span class="va">weight</span><span class="op">)</span>,</span>
 <span>    optimizer <span class="op">=</span> <span class="va">optim_adam</span>,</span>
 <span>    metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>      <span class="fu"><a href="https://mlverse.github.io/luz/reference/luz_metric_accuracy.html" class="external-link">luz_metric_accuracy</a></span><span class="op">(</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlverse.github.io/luz/reference/set_hparams.html" class="external-link">set_hparams</a></span><span class="op">(</span>dim_in <span class="op">=</span> <span class="fl">10</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://generics.r-lib.org/reference/fit.html" class="external-link">fit</a></span><span class="op">(</span><span class="va">train_dl</span>, epochs <span class="op">=</span> <span class="fl">50</span>, valid_data <span class="op">=</span> <span class="va">valid_dl</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://generics.r-lib.org/reference/fit.html" class="external-link">fit</a></span><span class="op">(</span><span class="va">train_dl</span>, epochs <span class="op">=</span> <span class="fl">50</span>, valid_data <span class="op">=</span> <span class="va">valid_dl</span>,</span>
+<span>      accelerator <span class="op">=</span> <span class="fu"><a href="https://mlverse.github.io/luz/reference/accelerator.html" class="external-link">accelerator</a></span><span class="op">(</span>cpu <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Extract the sequential model</span></span>
 <span><span class="va">model</span> <span class="op">&lt;-</span> <span class="va">fitted</span><span class="op">$</span><span class="va">model</span><span class="op">$</span><span class="va">seq_model</span></span>
@@ -314,9 +315,9 @@ extract the sequential model to be used for
 <span><span class="co"># Show result</span></span>
 <span><span class="fu"><a href="https://mlverse.github.io/luz/reference/get_metrics.html" class="external-link">get_metrics</a></span><span class="op">(</span><span class="va">fitted</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">99</span>, <span class="fl">100</span>, <span class="fl">199</span>, <span class="fl">200</span><span class="op">)</span>, <span class="op">]</span></span>
 <span><span class="co">#&gt;       set metric epoch       value</span></span>
-<span><span class="co">#&gt; 99  train   loss    50 0.007749626</span></span>
+<span><span class="co">#&gt; 99  train   loss    50 0.008104515</span></span>
 <span><span class="co">#&gt; 100 train    acc    50 0.996000000</span></span>
-<span><span class="co">#&gt; 199 valid   loss    50 0.016769230</span></span>
+<span><span class="co">#&gt; 199 valid   loss    50 0.017180447</span></span>
 <span><span class="co">#&gt; 200 valid    acc    50 0.987951807</span></span></code></pre></div>
 </div>
 </div>
@@ -430,7 +431,7 @@ field <code>result</code> fits the input dimensions again:</p>
 <span>  <span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Combine (sum) the results for feature 'island' and 'sex'</span></span>
-<span><span class="va">lrp_ab_2</span><span class="op">$</span><span class="va">result</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_cat.html" class="external-link">torch_cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span><span class="va">lrp_ab_2</span><span class="op">$</span><span class="va">result</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_cat.html" class="external-link">torch_cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="va">lrp_ab_2</span><span class="op">$</span><span class="va">result</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span>, <span class="co"># results for all numeric features</span></span>
 <span>  <span class="va">lrp_ab_2</span><span class="op">$</span><span class="va">result</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span>, <span class="fl">6</span><span class="op">:</span><span class="fl">8</span>, <span class="op">]</span><span class="op">$</span><span class="fu">sum</span><span class="op">(</span><span class="fl">2</span>, keepdim <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="co"># results for feature island</span></span>
 <span>  <span class="va">lrp_ab_2</span><span class="op">$</span><span class="va">result</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span>, <span class="fl">9</span><span class="op">:</span><span class="fl">10</span>, <span class="op">]</span><span class="op">$</span><span class="fu">sum</span><span class="op">(</span><span class="fl">2</span>, keepdim <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># results for feature sex</span></span>

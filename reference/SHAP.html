@@ -32,7 +32,7 @@ data.frame back into an array as necessary."><meta property="og:image" content="
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">innsight</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.2</span>
       </span>
     </div>
 
@@ -81,7 +81,7 @@ data.frame back into an array as necessary."><meta property="og:image" content="
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Shapley values</h1>
-    <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/v0.3.1/R/AgnosticMethods.R" class="external-link"><code>R/AgnosticMethods.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/master/R/AgnosticMethods.R" class="external-link"><code>R/AgnosticMethods.R</code></a></small>
     <div class="hidden name"><code>SHAP.Rd</code></div>
     </div>
 
@@ -93,7 +93,7 @@ that can be applied to any predictive model. This means, in particular, that
 also to any other model. The only requirement is the argument <code>pred_fun</code>,
 which generates predictions with the model for given data. However, this
 function is pre-implemented for models created with
-<code><a href="https://rdrr.io/pkg/torch/man/nn_sequential.html" class="external-link">nn_sequential</a></code>, <code><a href="https://rdrr.io/pkg/keras/man/keras_model.html" class="external-link">keras_model</a></code>,
+<code><a href="https://torch.mlverse.org/docs/reference/nn_sequential.html" class="external-link">nn_sequential</a></code>, <code><a href="https://rdrr.io/pkg/keras/man/keras_model.html" class="external-link">keras_model</a></code>,
 <code><a href="https://rdrr.io/pkg/neuralnet/man/neuralnet.html" class="external-link">neuralnet</a></code> or <code><a href="Converter.html">Converter</a></code>. Internally, the
 suggested package <code>fastshap</code> is utilized and applied to <code>data.frame</code>.</p>
 <p>The R6 class can also be initialized using the <code><a href="innsight_sugar.html">run_shap</a></code> function
@@ -164,7 +164,7 @@ is intended to be interpreted. A <code><a href="Converter.html">Converter</a></c
 passed. In order for the package to know how to make predictions
 with the given model, a prediction function must also be passed with
 the argument <code>pred_fun</code>. However, for models created by
-<code><a href="https://rdrr.io/pkg/torch/man/nn_sequential.html" class="external-link">nn_sequential</a></code>, <code><a href="https://rdrr.io/pkg/keras/man/keras_model.html" class="external-link">keras_model</a></code>,
+<code><a href="https://torch.mlverse.org/docs/reference/nn_sequential.html" class="external-link">nn_sequential</a></code>, <code><a href="https://rdrr.io/pkg/keras/man/keras_model.html" class="external-link">keras_model</a></code>,
 <code><a href="https://rdrr.io/pkg/neuralnet/man/neuralnet.html" class="external-link">neuralnet</a></code> or <code><a href="Converter.html">Converter</a></code>,
 these have already been pre-implemented and do not need to be
 specified.<br></p></dd>
@@ -175,17 +175,17 @@ specified.<br></p></dd>
 The individual instances to be explained by the method.
 These must have the same format as the input data of the passed model
 and has to be either <code><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></code>, an <code><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></code>, a <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></code> or a
-<code><a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">torch_tensor</a></code>. If no value is specified, all instances in the
+<code><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></code>. If no value is specified, all instances in the
 dataset <code>data</code> will be explained.<br><strong>Note:</strong> For the model-agnostic methods, only models with a single
 input and output layer is allowed!<br></p></dd>
 
 
 <dt><code>data_ref</code></dt>
-<dd><p>(<code><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></code>, <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></code> or <code><a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">torch_tensor</a></code>)<br>
+<dd><p>(<code><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></code>, <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></code> or <code><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></code>)<br>
 The dataset to which the method is to be applied. These must
 have the same format as the input data of the passed model and has to
 be either <code><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></code>, an <code><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></code>, a <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></code> or a
-<code><a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">torch_tensor</a></code>.<br><strong>Note:</strong> For the model-agnostic methods, only models with a single
+<code><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></code>.<br><strong>Note:</strong> For the model-agnostic methods, only models with a single
 input and output layer is allowed!<br></p></dd>
 
 
@@ -193,7 +193,7 @@ input and output layer is allowed!<br></p></dd>
 <dd><p>(<code>function</code>)<br>
 Prediction function for the model. This argument is only
 needed if <code>model</code> is not a model created by
-<code><a href="https://rdrr.io/pkg/torch/man/nn_sequential.html" class="external-link">nn_sequential</a></code>, <code><a href="https://rdrr.io/pkg/keras/man/keras_model.html" class="external-link">keras_model</a></code>,
+<code><a href="https://torch.mlverse.org/docs/reference/nn_sequential.html" class="external-link">nn_sequential</a></code>, <code><a href="https://rdrr.io/pkg/keras/man/keras_model.html" class="external-link">keras_model</a></code>,
 <code><a href="https://rdrr.io/pkg/neuralnet/man/neuralnet.html" class="external-link">neuralnet</a></code> or <code><a href="Converter.html">Converter</a></code>. The first argument of
 <code>pred_fun</code> has to be <code>newdata</code>, e.g.,</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="cf">function</span>(newdata, ...) <span class="fu">model</span>(newdata)</span></code></pre><p></p></div></dd>
@@ -325,13 +325,13 @@ output names in the passed model will be disregarded.<br></p></dd>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://torch.mlverse.org/docs" class="external-link">torch</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Create nn_sequential model and data</span></span></span>
-<span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_sequential.html" class="external-link">nn_sequential</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">12</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_relu.html" class="external-link">nn_relu</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">12</span>, <span class="fl">2</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_softmax.html" class="external-link">nn_softmax</a></span><span class="op">(</span>dim <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_sequential.html" class="external-link">nn_sequential</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">12</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_relu.html" class="external-link">nn_relu</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">12</span>, <span class="fl">2</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_softmax.html" class="external-link">nn_softmax</a></span><span class="op">(</span>dim <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_randn.html" class="external-link">torch_randn</a></span><span class="op">(</span><span class="fl">25</span>, <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_randn.html" class="external-link">torch_randn</a></span><span class="op">(</span><span class="fl">25</span>, <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Calculate Shapley values for the first 10 instances and set the</span></span></span>
 <span class="r-in"><span><span class="co"># feature and outcome names</span></span></span>
@@ -349,15 +349,15 @@ output names in the passed model will be disregarded.<br></p></dd>
 <span class="r-in"><span><span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">shap</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,, <span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , Buy it!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               Car          Cat         Dog        Plane       Horse</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] -0.008805692  0.034070820 -0.02459812 -0.035755724 -0.03845069</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]  0.048597306 -0.002759516  0.00000000  0.002144039 -0.07650542</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              Car           Cat        Dog       Plane      Horse</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] -0.01595750 -0.0104154944 -0.1353946 0.003974169 0.13740677</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]  0.02802178  0.0003221035  0.0000000 0.029981881 0.05376655</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , Don't buy it!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              Car          Cat          Dog       Plane       Horse</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] -0.02542257 -0.038758606 1.927227e-02  0.02593446 -0.01201844</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] -0.01413250 -0.008205563 6.130338e-05 -0.01806748  0.02788341</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              Car          Cat        Dog       Plane       Horse</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] -0.04136598 -0.004209012 0.01494461  0.03036159 -0.02038747</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] -0.02823147  0.009087861 0.01527691 -0.01383358  0.02832079</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the result for both classes</span></span></span>

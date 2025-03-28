@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">innsight</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.2</span>
       </span>
     </div>
 
@@ -66,9 +66,14 @@
   <div class="col-md-9 contents">
     <div class="page-header">
       <h1 data-toc-skip>Changelog <small></small></h1>
-      <small>Source: <a href="https://github.com/bips-hb/innsight/blob/v0.3.1/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/bips-hb/innsight/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="0.3.2" id="innsight-032">innsight 0.3.2<a class="anchor" aria-label="anchor" href="#innsight-032"></a></h2>
+<ul><li>Fixed a bug in the <code>eval</code> argument in vignette chunks.<br></li>
+<li>Skipped some tests for convolutional layers on Windows due to issues with functional convolutions when using non-default dilation and double precision tensors (see <a href="https://github.com/pytorch/pytorch/issues/141221" class="external-link">PyTorch issue </a><a href="https://github.com/bips-hb/innsight/issues/141221" class="external-link">#141221</a>).</li>
+</ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.3.1" id="innsight-031">innsight 0.3.1<small>2024-11-26</small><a class="anchor" aria-label="anchor" href="#innsight-031"></a></h2>
 <ul><li>Added citation information for the accompanying scientific publication in the documentation and the package metadata.</li>

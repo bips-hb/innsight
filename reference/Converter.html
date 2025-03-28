@@ -33,7 +33,7 @@ as a helper function so that no prior knowledge of R6 classes is required.'><met
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">innsight</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.2</span>
       </span>
     </div>
 
@@ -82,17 +82,17 @@ as a helper function so that no prior knowledge of R6 classes is required.'><met
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Converter of an artificial neural network</h1>
-    <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/v0.3.1/R/Converter.R" class="external-link"><code>R/Converter.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/master/R/Converter.R" class="external-link"><code>R/Converter.R</code></a></small>
     <div class="hidden name"><code>Converter.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p>This class analyzes a passed neural network and stores its internal
 structure and the individual layers by converting the entire network into an
-<code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></code>. With the help of this converter, many
+<code><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">nn_module</a></code>. With the help of this converter, many
 methods for interpreting the behavior of neural networks are provided, which
 give a better understanding of the whole model or individual predictions.
-You can use models from the following libraries:</p><ul><li><p><code>torch</code> (<code><a href="https://rdrr.io/pkg/torch/man/nn_sequential.html" class="external-link">nn_sequential</a></code>)</p></li>
+You can use models from the following libraries:</p><ul><li><p><code>torch</code> (<code><a href="https://torch.mlverse.org/docs/reference/nn_sequential.html" class="external-link">nn_sequential</a></code>)</p></li>
 <li><p><code><a href="https://rdrr.io/pkg/keras/man/keras.html" class="external-link">keras</a></code> (<code><a href="https://rdrr.io/pkg/keras/man/keras_model.html" class="external-link">keras_model</a></code>,
 <code><a href="https://rdrr.io/pkg/keras/man/keras_model_sequential.html" class="external-link">keras_model_sequential</a></code>),</p></li>
 <li><p><code><a href="https://rdrr.io/pkg/neuralnet/man/neuralnet.html" class="external-link">neuralnet</a></code></p></li>
@@ -141,7 +141,7 @@ following methods:</p><ul><li><p><em>Layerwise Relevance Propagation</em> (<a hr
 
 
 <p>The converter is implemented for models from the libraries
-<code><a href="https://rdrr.io/pkg/torch/man/nn_sequential.html" class="external-link">nn_sequential</a></code>,
+<code><a href="https://torch.mlverse.org/docs/reference/nn_sequential.html" class="external-link">nn_sequential</a></code>,
 <code><a href="https://rdrr.io/pkg/neuralnet/man/neuralnet.html" class="external-link">neuralnet</a></code> and <code><a href="https://rdrr.io/pkg/keras/man/keras.html" class="external-link">keras</a></code>. But you
 can also write a wrapper for other libraries because a model can be passed
 as a named list which is described in detail in the vignette "In-depth
@@ -245,12 +245,12 @@ the field <code>model</code>.</p><div class="section">
 <div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>model</code></dt>
-<dd><p>(<code><a href="https://rdrr.io/pkg/torch/man/nn_sequential.html" class="external-link">nn_sequential</a></code>,
+<dd><p>(<code><a href="https://torch.mlverse.org/docs/reference/nn_sequential.html" class="external-link">nn_sequential</a></code>,
 <code><a href="https://rdrr.io/pkg/keras/man/keras_model.html" class="external-link">keras_model</a></code>,
 <code><a href="https://rdrr.io/pkg/neuralnet/man/neuralnet.html" class="external-link">neuralnet</a></code> or <code>list</code>)<br>
 A trained neural network for classification or regression
 tasks to be interpreted. Only models from the following types or
-packages are allowed: <code><a href="https://rdrr.io/pkg/torch/man/nn_sequential.html" class="external-link">nn_sequential</a></code>,
+packages are allowed: <code><a href="https://torch.mlverse.org/docs/reference/nn_sequential.html" class="external-link">nn_sequential</a></code>,
 <code><a href="https://rdrr.io/pkg/keras/man/keras_model.html" class="external-link">keras_model</a></code>,
 <code><a href="https://rdrr.io/pkg/keras/man/keras_model_sequential.html" class="external-link">keras_model_sequential</a></code>,
 <code><a href="https://rdrr.io/pkg/neuralnet/man/neuralnet.html" class="external-link">neuralnet</a></code> or a named list (see details).</p></dd>
@@ -261,7 +261,7 @@ packages are allowed: <code><a href="https://rdrr.io/pkg/torch/man/nn_sequential
 The model input dimension excluding the batch
 dimension. If there is only one input layer it can be specified as
 a vector, otherwise use a list of the shapes of the
-individual input layers.<br><em>Note:</em> This argument is only necessary for <code><a href="https://rdrr.io/pkg/torch/man/nn_sequential.html" class="external-link">torch::nn_sequential</a></code>,
+individual input layers.<br><em>Note:</em> This argument is only necessary for <code><a href="https://torch.mlverse.org/docs/reference/nn_sequential.html" class="external-link">torch::nn_sequential</a></code>,
 for all others it is automatically extracted from the passed model
 and used for internal checks. In addition, the input dimension
 <code>input_dim</code> has to be in the format "channels first".<br></p></dd>
@@ -298,8 +298,8 @@ output names in the passed model will be disregarded.<br></p></dd>
 <dt><code>dtype</code></dt>
 <dd><p>(<code>character(1)</code>)<br>
 The data type for the calculations. Use
-either <code>'float'</code> for <a href="https://rdrr.io/pkg/torch/man/torch_dtype.html" class="external-link">torch::torch_float</a> or <code>'double'</code> for
-<a href="https://rdrr.io/pkg/torch/man/torch_dtype.html" class="external-link">torch::torch_double</a>.<br></p></dd>
+either <code>'float'</code> for <a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch::torch_float</a> or <code>'double'</code> for
+<a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch::torch_double</a>.<br></p></dd>
 
 
 <dt><code>save_model_as_list</code></dt>
@@ -356,13 +356,13 @@ individual fields and in particular the torch-converted model
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">#----------------------- Example 1: Torch ----------------------------------</span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://torch.mlverse.org/docs" class="external-link">torch</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_sequential.html" class="external-link">nn_sequential</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_relu.html" class="external-link">nn_relu</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">2</span>, bias <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_softmax.html" class="external-link">nn_softmax</a></span><span class="op">(</span>dim <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_sequential.html" class="external-link">nn_sequential</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_relu.html" class="external-link">nn_relu</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">2</span>, bias <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_softmax.html" class="external-link">nn_softmax</a></span><span class="op">(</span>dim <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_randn.html" class="external-link">torch_randn</a></span><span class="op">(</span><span class="fl">25</span>, <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_randn.html" class="external-link">torch_randn</a></span><span class="op">(</span><span class="fl">25</span>, <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Convert the model (for torch models is 'input_dim' required!)</span></span></span>
 <span class="r-in"><span><span class="va">converter</span> <span class="op">&lt;-</span> <span class="va">Converter</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">model</span>, input_dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -494,13 +494,13 @@ individual fields and in particular the torch-converted model
 <span class="r-in"><span><span class="va">torch_model</span> <span class="op">&lt;-</span> <span class="va">converter</span><span class="op">$</span><span class="va">model</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># You can use it as a normal torch model</span></span></span>
-<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_randn.html" class="external-link">torch_randn</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_randn.html" class="external-link">torch_randn</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">torch_model</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.9955  0.0045</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0004  0.9996</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.9938  0.0062</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1506  0.8494</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4988  0.5012</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0042  0.9958</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3,2} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 </code></pre></div>

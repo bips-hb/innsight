@@ -26,7 +26,7 @@ as a helper function so that no prior knowledge of R6 classes is required."><met
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">innsight</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.2</span>
       </span>
     </div>
 
@@ -75,7 +75,7 @@ as a helper function so that no prior knowledge of R6 classes is required."><met
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>SmoothGrad and SmoothGrad\(\times\)Input</h1>
-    <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/v0.3.1/R/GradienBased.R" class="external-link"><code>R/GradienBased.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/master/R/GradienBased.R" class="external-link"><code>R/GradienBased.R</code></a></small>
     <div class="hidden name"><code>SmoothGrad.Rd</code></div>
     </div>
 
@@ -173,7 +173,7 @@ torch-converted model and some other model-specific attributes. See
 
 
 <dt><code>data</code></dt>
-<dd><p>(<code><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></code>, <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></code>, <code><a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">torch_tensor</a></code> or <code>list</code>)<br>
+<dd><p>(<code><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></code>, <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></code>, <code><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></code> or <code>list</code>)<br>
 The data to which the method is to be applied. These must
 have the same format as the input data of the passed model to the
 converter object. This means either</p><ul><li><p>an <code>array</code>, <code>data.frame</code>, <code>torch_tensor</code> or array-like format of
@@ -279,8 +279,8 @@ the output of the primitive R function <code><a href="https://rdrr.io/r/base/int
 <dt><code>dtype</code></dt>
 <dd><p>(<code>character(1)</code>)<br>
 The data type for the calculations. Use
-either <code>'float'</code> for <code><a href="https://rdrr.io/pkg/torch/man/torch_dtype.html" class="external-link">torch_float</a></code> or <code>'double'</code> for
-<code><a href="https://rdrr.io/pkg/torch/man/torch_dtype.html" class="external-link">torch_double</a></code>.<br></p></dd>
+either <code>'float'</code> for <code><a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch_float</a></code> or <code>'double'</code> for
+<code><a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch_double</a></code>.<br></p></dd>
 
 
 </dl><p></p></div>
@@ -312,13 +312,13 @@ either <code>'float'</code> for <code><a href="https://rdrr.io/pkg/torch/man/tor
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://torch.mlverse.org/docs" class="external-link">torch</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Create nn_sequential model and data</span></span></span>
-<span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_sequential.html" class="external-link">nn_sequential</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_relu.html" class="external-link">nn_relu</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">2</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_sigmoid.html" class="external-link">nn_sigmoid</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_sequential.html" class="external-link">nn_sequential</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_relu.html" class="external-link">nn_relu</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">2</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_sigmoid.html" class="external-link">nn_sigmoid</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_randn.html" class="external-link">torch_randn</a></span><span class="op">(</span><span class="fl">25</span>, <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_randn.html" class="external-link">torch_randn</a></span><span class="op">(</span><span class="fl">25</span>, <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Create Converter</span></span></span>
 <span class="r-in"><span><span class="va">converter</span> <span class="op">&lt;-</span> <span class="fu"><a href="innsight_sugar.html">convert</a></span><span class="op">(</span><span class="va">model</span>, input_dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -332,18 +332,18 @@ either <code>'float'</code> for <code><a href="https://rdrr.io/pkg/torch/man/tor
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Print the result as a data.frame for first 5 rows</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">smoothgrad</span>, <span class="st">"data.frame"</span><span class="op">)</span>, <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     data model_input model_output feature output_node       value      pred</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 data_1     Input_1     Output_1      X1          Y1 -0.07597410 0.5560394</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 data_2     Input_1     Output_1      X1          Y1 -0.03862185 0.5533418</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 data_3     Input_1     Output_1      X1          Y1 -0.11168131 0.6134348</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 data_4     Input_1     Output_1      X1          Y1 -0.06703050 0.6120450</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 data_5     Input_1     Output_1      X1          Y1 -0.12298056 0.6092681</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     decomp_sum decomp_goal input_dimension</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -0.052896613   0.2251034               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.060612569   0.2141823               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.020188741   0.4617735               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 -0.006855318   0.4559166               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 -0.032335721   0.4442369               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     data model_input model_output feature output_node        value      pred</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 data_1     Input_1     Output_1      X1          Y1  0.082018167 0.4828950</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 data_2     Input_1     Output_1      X1          Y1 -0.004675405 0.4994249</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 data_3     Input_1     Output_1      X1          Y1  0.057924591 0.5964745</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 data_4     Input_1     Output_1      X1          Y1  0.025870331 0.6083047</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 data_5     Input_1     Output_1      X1          Y1  0.079880841 0.4521014</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    decomp_sum  decomp_goal input_dimension</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.134530913 -0.068446748               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.103851007 -0.002300344               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.070683771  0.390796900               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.009260343  0.440191656               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 0.126619902 -0.192183554               1</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the result for both classes</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">smoothgrad</span>, output_idx <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span></span>

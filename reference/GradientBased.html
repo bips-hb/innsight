@@ -26,7 +26,7 @@ ExpectedGradients (ExpectedGradient)
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">innsight</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.2</span>
       </span>
     </div>
 
@@ -75,7 +75,7 @@ ExpectedGradients (ExpectedGradient)
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Super class for gradient-based interpretation methods</h1>
-    <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/v0.3.1/R/GradienBased.R" class="external-link"><code>R/GradienBased.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/master/R/GradienBased.R" class="external-link"><code>R/GradienBased.R</code></a></small>
     <div class="hidden name"><code>GradientBased.Rd</code></div>
     </div>
 
@@ -145,7 +145,7 @@ torch-converted model and some other model-specific attributes. See
 
 
 <dt><code>data</code></dt>
-<dd><p>(<code><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></code>, <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></code>, <code><a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">torch_tensor</a></code> or <code>list</code>)<br>
+<dd><p>(<code><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></code>, <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></code>, <code><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></code> or <code>list</code>)<br>
 The data to which the method is to be applied. These must
 have the same format as the input data of the passed model to the
 converter object. This means either</p><ul><li><p>an <code>array</code>, <code>data.frame</code>, <code>torch_tensor</code> or array-like format of
@@ -240,8 +240,8 @@ the output of the primitive R function <code><a href="https://rdrr.io/r/base/int
 <dt><code>dtype</code></dt>
 <dd><p>(<code>character(1)</code>)<br>
 The data type for the calculations. Use
-either <code>'float'</code> for <code><a href="https://rdrr.io/pkg/torch/man/torch_dtype.html" class="external-link">torch_float</a></code> or <code>'double'</code> for
-<code><a href="https://rdrr.io/pkg/torch/man/torch_dtype.html" class="external-link">torch_double</a></code>.<br></p></dd>
+either <code>'float'</code> for <code><a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch_float</a></code> or <code>'double'</code> for
+<code><a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch_double</a></code>.<br></p></dd>
 
 
 </dl><p></p></div>

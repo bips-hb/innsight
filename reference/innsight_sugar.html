@@ -33,7 +33,7 @@ run_shap for SHAP
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">innsight</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.2</span>
       </span>
     </div>
 
@@ -82,7 +82,7 @@ run_shap for SHAP
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Syntactic sugar for object construction</h1>
-    <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/v0.3.1/R/innsight_sugar.R" class="external-link"><code>R/innsight_sugar.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/bips-hb/innsight/blob/master/R/innsight_sugar.R" class="external-link"><code>R/innsight_sugar.R</code></a></small>
     <div class="hidden name"><code>innsight_sugar.Rd</code></div>
     </div>
 
@@ -143,11 +143,11 @@ defined to shorten the construction of the corresponding R6 objects:</p><ul><li>
 
 
 <dl><dt id="arg-model">model<a class="anchor" aria-label="anchor" href="#arg-model"></a></dt>
-<dd><p>(<code><a href="https://rdrr.io/pkg/torch/man/nn_sequential.html" class="external-link">nn_sequential</a></code>, <code><a href="https://rdrr.io/pkg/keras/man/keras_model.html" class="external-link">keras_model</a></code>,
+<dd><p>(<code><a href="https://torch.mlverse.org/docs/reference/nn_sequential.html" class="external-link">nn_sequential</a></code>, <code><a href="https://rdrr.io/pkg/keras/man/keras_model.html" class="external-link">keras_model</a></code>,
 <code><a href="https://rdrr.io/pkg/neuralnet/man/neuralnet.html" class="external-link">neuralnet</a></code> or <code>list</code>)<br>
 A trained neural network for classification or regression
 tasks to be interpreted. Only models from the following types or
-packages are allowed: <code><a href="https://rdrr.io/pkg/torch/man/nn_sequential.html" class="external-link">nn_sequential</a></code>,
+packages are allowed: <code><a href="https://torch.mlverse.org/docs/reference/nn_sequential.html" class="external-link">nn_sequential</a></code>,
 <code><a href="https://rdrr.io/pkg/keras/man/keras_model.html" class="external-link">keras_model</a></code>,
 <code><a href="https://rdrr.io/pkg/keras/man/keras_model_sequential.html" class="external-link">keras_model_sequential</a></code>,
 <code><a href="https://rdrr.io/pkg/neuralnet/man/neuralnet.html" class="external-link">neuralnet</a></code> or a named list (see details).<br><strong>Note:</strong> For the model-agnostic methods, an arbitrary fitted model for a
@@ -155,7 +155,7 @@ classification or regression task can be passed. A <code><a href="Converter.html
 also be passed. In order for the package to know how to make predictions
 with the given model, a prediction function must also be passed with
 the argument <code>pred_fun</code>. However, for models created by
-<code><a href="https://rdrr.io/pkg/torch/man/nn_sequential.html" class="external-link">nn_sequential</a></code>, <code><a href="https://rdrr.io/pkg/keras/man/keras_model.html" class="external-link">keras_model</a></code>,
+<code><a href="https://torch.mlverse.org/docs/reference/nn_sequential.html" class="external-link">nn_sequential</a></code>, <code><a href="https://rdrr.io/pkg/keras/man/keras_model.html" class="external-link">keras_model</a></code>,
 <code><a href="https://rdrr.io/pkg/neuralnet/man/neuralnet.html" class="external-link">neuralnet</a></code> or <code><a href="Converter.html">Converter</a></code>,
 these have already been pre-implemented and do not need to be
 specified.<br></p></dd>
@@ -174,7 +174,7 @@ torch-converted model and some other model-specific attributes. See
 
 
 <dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>(<code><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></code>, <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></code>, <code><a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">torch_tensor</a></code> or <code>list</code>)<br>
+<dd><p>(<code><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></code>, <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></code>, <code><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></code> or <code>list</code>)<br>
 The data to which the method is to be applied. These must
 have the same format as the input data of the passed model to the
 converter object. This means either</p><ul><li><p>an <code>array</code>, <code>data.frame</code>, <code>torch_tensor</code> or array-like format of
@@ -186,11 +186,11 @@ input and output layer is allowed!<br></p></dd>
 
 
 <dt id="arg-data-ref">data_ref<a class="anchor" aria-label="anchor" href="#arg-data-ref"></a></dt>
-<dd><p>(<code><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></code>, <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></code> or <code><a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">torch_tensor</a></code>)<br>
+<dd><p>(<code><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></code>, <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></code> or <code><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></code>)<br>
 The dataset to which the method is to be applied. These must
 have the same format as the input data of the passed model and has to
 be either <code><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></code>, an <code><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></code>, a <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></code> or a
-<code><a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">torch_tensor</a></code>.<br><strong>Note:</strong> For the model-agnostic methods, only models with a single
+<code><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></code>.<br><strong>Note:</strong> For the model-agnostic methods, only models with a single
 input and output layer is allowed!<br></p></dd>
 
 </dl></div>
