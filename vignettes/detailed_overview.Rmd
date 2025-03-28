@@ -2034,7 +2034,7 @@ ggplot() +
 
 One method that, to some extent, echoes the idea of *LRP* is the so-called
 *Deep Learning Important Features (DeepLift)* method introduced by
-[Shrikumar et al.](https://dl.acm.org/doi/10.5555/3305890.3306006) in 2017. It
+[Shrikumar et al.](https://proceedings.mlr.press/v70/shrikumar17a.html) in 2017. It
 behaves similarly to *LRP* in a layer-by-layer backpropagation fashion from a
 selected output node back to the input variables. However, it incorporates a
 reference value $\tilde{x}$ to compare the relevances with each other. Hence,
@@ -2336,7 +2336,7 @@ delta_y - summed_decomposition
 
 ### DeepSHAP
 
-The *DeepSHAP* method [(Lundberg & Lee, 2017)](https://dl.acm.org/doi/10.5555/3295222.3295230) 
+The *DeepSHAP* method [(Lundberg & Lee, 2017)](https://papers.nips.cc/paper_files/paper/2017/hash/8a20a8621978632d76c43dfd28b67767-Abstract.html) 
 extends the DeepLift technique by not only considering a 
 single reference value but by calculating the average from several, ideally 
 representative reference values at each layer. The obtained feature-wise 
