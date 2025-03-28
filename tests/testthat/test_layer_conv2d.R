@@ -164,6 +164,9 @@ test_that("Test get_pos_and_neg_outputs and get_gradient", {
   #------------------------- Dilation --------------------------
   #
 
+  # https://github.com/pytorch/pytorch/issues/141221
+  skip_on_os("windows")
+
   input <- torch_randn(batch_size, in_channels, in_height, in_width,
     dtype = torch_double(),
     requires_grad = TRUE
