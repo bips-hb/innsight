@@ -15,6 +15,7 @@ knitr::opts_chunk$set(
   size = "huge",
   collapse = TRUE,
   comment = "#>",
+  eval = torch::torch_is_installed(),
   fig.align = "center",
   out.width = "95%"
 )
@@ -209,7 +210,7 @@ in every given **torch** model.
 
 <details>
 <summary> **Example** </summary>
-```{r, eval = torch::torch_is_installed()}
+```{r}
 library(torch)
 library(innsight)
 torch_manual_seed(123)
@@ -275,7 +276,7 @@ outputs, which can, of course, be overwritten with the arguments
 
 <details>
 <summary> **Example** </summary>
-```{r, eval = torch::torch_is_installed()}
+```{r}
 library(neuralnet)
 data(iris)
 
@@ -298,7 +299,7 @@ in the [in-depth vignette](https://bips-hb.github.io/innsight/articles/detailed_
 
 <details>
 <summary> **Example** </summary>
-```{r, eval = torch::torch_is_installed()}
+```{r}
 model <- list(
   input_dim = 2,
   input_names = list(c("X1", "Feat2")),
@@ -324,7 +325,7 @@ After an instance of the `Converter` class has been created, the base `print()`
 method can be used to output the most important components of the object in 
 summary form:
 
-```{r, eval = torch::torch_is_installed()}
+```{r}
 converter
 ```
 

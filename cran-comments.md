@@ -1,16 +1,9 @@
-## --- `innsight` 0.3.1 --------------------------------------------------------
-
-* The DOI in the CITATION is for a new JSS publication that will be registered 
-after publication on CRAN.
+## --- `innsight` 0.3.2 --------------------------------------------------------
 
 ### Test environments with LibTorch
 * GitHub Actions (ubuntu-22.04): 4.2, 4.3, release, devel
 * GitHub Actions (windows): release
 * Github Actions (macOS): release
-
-**Note:** The creation of vignettes using the `luz` package is currently 
-failing on MacOS, but this is not due to our package (see [issue #1213](https://github.com/mlverse/torch/issues/1213)
-in`torch` and [issue #143](https://github.com/mlverse/luz/issues/143) in `luz`).
 
 #### R CMD check results
 
@@ -21,7 +14,7 @@ the tests' execution; see [here](https://github.com/rstudio/keras/blob/eb5d21b9e
 ```
 * checking for detritus in the temp directory ... NOTE
 Found the following files/directories:
-  ‘__autograph_generated_filejdw6cqsg.py’ ‘__pycache__’
+  ‘__autograph_generated_filet4_ztm6r.py’ ‘__pycache__’
 ```
 
 **Note:** We can't run examples, tests or vignettes on CRAN, as this 
@@ -34,13 +27,10 @@ of the authors of torch (see torch
 and disabled their execution on CRAN.
 
 ### Test environments without LibTorch
-- R-hub Ubuntu Linux 22.04 R-release
-- R-hub Ubuntu Linux, R-devel
-- R-hub Windows, R-devel
-- R-hub macOS, R-devel
 - macOS builder, R-release
-
+- Windows builder, R-release
+  
 #### R CMD check results
 
-There were no errors, warnings or notes (only the already mentioned note on 
-the DOI).
+There were no errors, warnings or notes (only the note on the runtime for the
+example on ConnectionWeights, however, it is due to loading the `keras` package).
