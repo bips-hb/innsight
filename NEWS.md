@@ -1,3 +1,11 @@
+# innsight 0.3.2  
+
+* Fixed a bug in the `eval` argument in vignette chunks.  
+* Skipped some tests for convolutional layers on Windows due to issues with 
+functional convolutions when using non-default dilation and double precision 
+tensors (see [PyTorch issue #141221](https://github.com/pytorch/pytorch/issues/141221)).  
+
+
 # innsight 0.3.1
 
 * Added citation information for the accompanying scientific publication in the
