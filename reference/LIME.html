@@ -362,15 +362,15 @@ output names in the passed model will be disregarded.<br></p></dd>
 <span class="r-in"><span><span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">lime</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,, <span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , Buy it!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               Car         Cat        Dog       Plane       Horse</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] -0.018419232  0.01915762  0.0256181 -0.02024414  0.12926322</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] -0.004557014 -0.02365922 -0.0969191  0.04440350 -0.00397498</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              Car          Cat          Dog      Plane        Horse</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]  0.06111699 -0.019744143 -0.005756284 0.02323571 -0.001681805</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] -0.06445776  0.009459503  0.012160261 0.05842546 -0.010750969</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , Don't buy it!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              Car         Cat        Dog       Plane        Horse</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.018419232 -0.01915762 -0.0256181  0.02024414 -0.129263222</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0.004557013  0.02365922  0.0969191 -0.04440350  0.003974979</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              Car          Cat          Dog       Plane       Horse</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] -0.06111699  0.019744145  0.005756287 -0.02323571 0.001681805</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]  0.06445776 -0.009459503 -0.012160263 -0.05842546 0.010750969</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the result for both classes</span></span></span>
@@ -386,7 +386,7 @@ output names in the passed model will be disregarded.<br></p></dd>
 <span class="r-in"><span><span class="va">lime</span> <span class="op">&lt;-</span> <span class="fu"><a href="innsight_sugar.html">run_lime</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">data</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="op">]</span>, data_ref <span class="op">=</span> <span class="va">data</span>,</span></span>
 <span class="r-in"><span>                 input_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Car"</span>, <span class="st">"Cat"</span>, <span class="st">"Dog"</span>, <span class="st">"Plane"</span>, <span class="st">"Horse"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                 output_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Buy it!"</span>, <span class="st">"Don't buy it!"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                 n_perturbations <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                 n_perturbations <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the boxplots again</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">lime</span>, output_idx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -401,7 +401,7 @@ output names in the passed model will be disregarded.<br></p></dd>
 <span class="r-in"><span>                output_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Buy it!"</span>, <span class="st">"Don't buy it!"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Calculate LIME for the first 10 instances</span></span></span>
-<span class="r-in"><span><span class="va">lime</span> <span class="op">&lt;-</span> <span class="fu"><a href="innsight_sugar.html">run_lime</a></span><span class="op">(</span><span class="va">conv</span>, <span class="va">data</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span>, data_ref <span class="op">=</span> <span class="va">data</span>, n_perturbations <span class="op">=</span> <span class="fl">300</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">lime</span> <span class="op">&lt;-</span> <span class="fu"><a href="innsight_sugar.html">run_lime</a></span><span class="op">(</span><span class="va">conv</span>, <span class="va">data</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span>, data_ref <span class="op">=</span> <span class="va">data</span>, n_perturbations <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the result for both classes</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lime</span>, output_idx <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -425,11 +425,11 @@ output names in the passed model will be disregarded.<br></p></dd>
 <span class="r-in"><span>  <span class="co"># Calculate LIME for the instances of index 1 and 111 and add</span></span></span>
 <span class="r-in"><span>  <span class="co"># the outcome labels (for LIME, the output_type is required!)</span></span></span>
 <span class="r-in"><span>  <span class="va">lime</span> <span class="op">&lt;-</span> <span class="fu"><a href="innsight_sugar.html">run_lime</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">iris</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">111</span><span class="op">)</span>, <span class="op">-</span><span class="fl">5</span><span class="op">]</span>,</span></span>
-<span class="r-in"><span>                   data_ref <span class="op">=</span> <span class="va">iris</span><span class="op">[</span>, <span class="op">-</span><span class="fl">5</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>                   data_ref <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">20</span>, <span class="op">-</span><span class="fl">5</span><span class="op">]</span>,</span></span>
 <span class="r-in"><span>                   pred_fun <span class="op">=</span> <span class="va">pred_fun</span>,</span></span>
 <span class="r-in"><span>                   output_type <span class="op">=</span> <span class="st">"classification"</span>,</span></span>
 <span class="r-in"><span>                   output_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">iris</span><span class="op">$</span><span class="va">Species</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                   n_perturbations <span class="op">=</span> <span class="fl">300</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                   n_perturbations <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># Plot the result for the first two classes and all selected instances</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lime</span>, data_idx <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, output_idx <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span></span>
@@ -438,19 +438,7 @@ output names in the passed model will be disregarded.<br></p></dd>
 <span class="r-in"><span>  <span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">lime</span>, <span class="st">"torch_tensor"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: ranger</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (1,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0314 -0.0109 -0.0205</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0221 -0.0071 -0.0150</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.4255 -0.1990 -0.2263</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.3813 -0.1826 -0.1986</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (2,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0240 -0.0230  0.0470</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0011  0.0154 -0.0165</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.2090  0.2022  0.0067</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.2279 -0.1833  0.4112</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{2,4,3} ]</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Response is constant across permutations. Please check your model</span>
 </code></pre></div>
     </div>
   </div>

@@ -308,17 +308,17 @@ either <code>'float'</code> for <code><a href="https://torch.mlverse.org/docs/re
 <span class="r-in"><span><span class="co"># Print the result as a data.frame for first 5 rows</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="get_result.html">get_result</a></span><span class="op">(</span><span class="va">grad</span>, <span class="st">"data.frame"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     data model_input model_output feature output_node       value      pred</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 data_1     Input_1     Output_1     Car     Buy it! -0.04577655 0.5389617</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 data_2     Input_1     Output_1     Car     Buy it! -0.06147958 0.5712525</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 data_3     Input_1     Output_1     Car     Buy it! -0.04903429 0.4088321</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 data_4     Input_1     Output_1     Car     Buy it!  0.15608256 0.4754771</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 data_5     Input_1     Output_1     Car     Buy it! -0.05988433 0.5691637</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     decomp_sum decomp_goal input_dimension</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -0.004650064   0.3016409               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -0.010066591   0.4411121               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.006939903  -0.1091424               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  0.232618012   0.1130821               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 -0.012845457   0.3360889               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 data_1     Input_1     Output_1     Car     Buy it! -0.14825179 0.4350947</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 data_2     Input_1     Output_1     Car     Buy it!  0.05937952 0.3516106</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 data_3     Input_1     Output_1     Car     Buy it! -0.11920095 0.3579636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 data_4     Input_1     Output_1     Car     Buy it!  0.04680012 0.4330536</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 data_5     Input_1     Output_1     Car     Buy it! -0.10334471 0.4142854</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   decomp_sum decomp_goal input_dimension</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -0.4881209  -0.5611503               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -0.2868419  -0.4182229               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.5454712  -0.5449153               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 -0.3517682  -0.3581279               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 -0.2500831  -0.4560646               1</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot the result for both classes</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">grad</span>, output_idx <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span></span>
