@@ -37,7 +37,7 @@
 #' lime <- run_lime(model, data[1:10, ], data_ref = data,
 #'                  input_names = c("Car", "Cat", "Dog", "Plane", "Horse"),
 #'                  output_names = c("Buy it!", "Don't buy it!"),
-#'                  n_perturbations = 200)
+#'                  n_perturbations = 10)
 #'
 #' # Plot the boxplots again
 #' boxplot(lime, output_idx = c(1, 2))
@@ -51,7 +51,7 @@
 #'                 output_names = c("Buy it!", "Don't buy it!"))
 #'
 #' # Calculate LIME for the first 10 instances
-#' lime <- run_lime(conv, data[1:10], data_ref = data, n_perturbations = 300)
+#' lime <- run_lime(conv, data[1:10], data_ref = data, n_perturbations = 10)
 #'
 #' # Plot the result for both classes
 #' plot(lime, output_idx = c(1, 2))
@@ -74,11 +74,11 @@
 #'   # Calculate LIME for the instances of index 1 and 111 and add
 #'   # the outcome labels (for LIME, the output_type is required!)
 #'   lime <- run_lime(model, iris[c(1, 111), -5],
-#'                    data_ref = iris[, -5],
+#'                    data_ref = iris[1:20, -5],
 #'                    pred_fun = pred_fun,
 #'                    output_type = "classification",
 #'                    output_names = levels(iris$Species),
-#'                    n_perturbations = 300)
+#'                    n_perturbations = 10)
 #'
 #'   # Plot the result for the first two classes and all selected instances
 #'   plot(lime, data_idx = 1:2, output_idx = 1:2)

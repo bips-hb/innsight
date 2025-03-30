@@ -61,7 +61,7 @@
 #'   boxplot(deeplift_rescale)
 #' }
 #'
-#' @examplesIf torch::torch_is_installed()
+#' @examplesIf torch::torch_is_installed() & Sys.getenv("INNSIGHT_EXAMPLE_KERAS", unset = 0) == 1
 #' # ------------------------- Example 3: Keras -------------------------------
 #' if (require("keras") & keras::is_keras_available()) {
 #'   library(keras)
