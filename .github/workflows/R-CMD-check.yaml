@@ -9,6 +9,8 @@ on:
     branches: [main, master]
   pull_request:
     branches: [main, master]
+  schedule:
+    - cron: "0 0 1 * *"
   # Allow manually triggering the workflow via GitHub website, gh CLI tool etc.
   # Also adds parameter to enable tmate (inetractive tmux session for debugging)
   workflow_dispatch:
