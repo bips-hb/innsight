@@ -147,10 +147,17 @@ boxplot(result) # alias of `plot_global` for tabular and signal data
 plot(result, as_plotly = TRUE)
 ```
 
+For a more detailed high-level introduction, see the
+[introduction](https://bips-hb.github.io/innsight/articles/innsight.html)
+vignette, and for a full in-depth explanation with all the
+possibilities, see the [“In-depth
+explanation”](https://bips-hb.github.io/innsight/articles/detailed_overview.html)
+vignette.
+
 ### Direct torch methods (without Converter)
 
-For **torch** models, lightweight alternatives are available that use
-native `torch` autograd directly -- without requiring the `Converter`
+For all **torch** models, lightweight alternatives are available that
+use native `torch` autograd directly without requiring the `Converter`
 step:
 
 ``` r
@@ -179,13 +186,6 @@ Available methods: `torch_grad`, `torch_intgrad`, `torch_smoothgrad`,
 and `torch_expgrad`. See the
 [vignette](https://bips-hb.github.io/innsight/articles/torch_gradients.html)
 for details.
-
-For a more detailed high-level introduction, see the
-[introduction](https://bips-hb.github.io/innsight/articles/innsight.html)
-vignette, and for a full in-depth explanation with all the
-possibilities, see the ["In-depth
-explanation"](https://bips-hb.github.io/innsight/articles/detailed_overview.html)
-vignette.
 
 ## Examples
 
