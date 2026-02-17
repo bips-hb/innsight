@@ -35,14 +35,14 @@ Number of reference samples and integration steps. Default: \code{50}.}
 Data type: \code{"float"} or \code{"double"}. Default: \code{"float"}.}
 
 \item{return_object}{(\code{logical(1)})\cr
-If \code{TRUE}, returns a \code{\link{TorchGradientResult}} object with
+If \code{TRUE}, returns a \code{\link{InterpretingMethod}} object with
 methods like \code{plot()} and \code{get_result()}. If \code{FALSE} (default), returns
 a raw \code{\link[torch]{torch_tensor}}.}
 }
 \value{
 If \code{return_object = FALSE} (default): A \code{\link[torch]{torch_tensor}}
 containing the expected gradients with shape \verb{(batch_size, ..., n_outputs)}.
-If \code{return_object = TRUE}: A \code{\link{TorchGradientResult}} object.
+If \code{return_object = TRUE}: A \code{\link{InterpretingMethod}} object.
 }
 \description{
 Calculate Expected Gradients (GradSHAP) using native torch autograd.

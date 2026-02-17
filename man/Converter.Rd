@@ -70,7 +70,7 @@ explanation" \cr
 }
 }
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 #----------------------- Example 1: Torch ----------------------------------
 library(torch)
 
@@ -115,7 +115,7 @@ if (require("neuralnet")) {
   converter$model$modules_list
 }
 \dontshow{\}) # examplesIf}
-\dontshow{if (torch::torch_is_installed() & Sys.getenv("INNSIGHT_EXAMPLE_KERAS", unset = 0) == 1) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed() & Sys.getenv("INNSIGHT_EXAMPLE_KERAS", unset = 0) == 1) withAutoprint(\{ # examplesIf}
 #----------------------- Example 3: Keras ----------------------------------
 if (require("keras") & keras::is_keras_available()) {
   library(keras)
@@ -145,7 +145,7 @@ if (require("keras") & keras::is_keras_available()) {
   str(converter$model_as_list, max.level = 1)
 }
 \dontshow{\}) # examplesIf}
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 #----------------------- Example 4: List  ----------------------------------
 
 # Define a model

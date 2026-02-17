@@ -42,16 +42,21 @@ methods to neural networks:
 
 This vignette introduces the **direct torch gradient methods** which are
 optimized for `torch` models and provide a streamlined workflow when you only
-need gradient-based explanations.
+need gradient-based explanations. Moreover, these gradient-based methods can
+be applied to **any torch-based models** and are not limited to sequential 
+architectures. They can be used with any model that supports autograd, 
+including custom torch models and complex architectures. The only requirement
+is that the model's output is differentiable with respect to the input features
+and is a single tensor (not a list of tensors).
 
 ## Available Methods
 
 The following gradient-based methods are available as direct torch functions:
 
-- `torch_grad()` - Vanilla Gradient and Gradient×Input
-- `torch_intgrad()` - Integrated Gradients
-- `torch_smoothgrad()` - SmoothGrad and SmoothGrad×Input
-- `torch_expgrad()` - Expected Gradients (GradSHAP)
+- `torch_grad()` - Vanilla Gradient and Gradient×Input (-> similar to `run_grad()`)
+- `torch_intgrad()` - Integrated Gradients (-> similar to `run_intgrad()`)
+- `torch_smoothgrad()` - SmoothGrad and SmoothGrad×Input (-> similar to `run_smoothgrad()`)
+- `torch_expgrad()` - Expected Gradients/GradSHAP (-> similar to `run_expgrad()`)
 
 All methods compute feature attributions that help understand which input
 features contribute most to the model's predictions.
@@ -84,7 +89,9 @@ dim(gradients)
 ```
 
 The result is a tensor with shape `(batch_size, features, outputs)` where each
-element represents the sensitivity of an output to an input feature.
+element represents the sensitivity of an output to an input feature. For more
+details on this method, see the documentation for `run_grad()` which uses the 
+same underlying calculations.
 
 **Note:** By default, functions return raw `torch_tensor` objects. For additional
 features like plotting and data conversion, use `return_object = TRUE` (see
@@ -93,7 +100,8 @@ section "Using Results as innsight Objects").
 ### Gradient×Input
 
 By setting `times_input = TRUE`, we multiply the gradients by the input values.
-This provides a decomposition of the output into feature-wise contributions:
+This provides a approximated decomposition (first-order Taylor decomposition) 
+of the output into feature-wise contributions:
 
 $$x_i \cdot \frac{\partial f(x)_j}{\partial x_i}$$
 
@@ -220,8 +228,8 @@ for (epoch in 1:100) {
   optimizer$step()
 }
 
-# Select a few samples to explain
-samples <- X_tensor[1:3, ]
+# Select samples to explain
+samples <- X_tensor[sample(150, 50), ]
 
 # Calculate different attributions
 vanilla <- torch_grad(model, samples, output_idx = 1)
@@ -275,15 +283,12 @@ Use **direct torch methods** (`torch_grad`, etc.) when:
 
 - Working exclusively with `torch` models
 - You only need gradient-based explanations
-- Performance is important
 - You want a lightweight, dependency-free approach
 
-Use **converter-based methods** (`run_grad`, `run_lrp``, etc.) when:
+Use **converter-based methods** (`run_grad`, `run_lrp`, etc.) when:
 
 - Working with `keras` or `neuralnet` models
-- You need other methods like LRP or DeepLift
-- You want visualization capabilities (`plot`, `plot_global`)
-- You need to work with the unified `innsight` interface
+- You need other (backpropagation-based) methods like LRP or DeepLift
 
 ## Comparison with Converter Methods
 
@@ -317,7 +322,7 @@ full-featured `innsight` objects that support plotting and other methods.
 
 ### Getting Results as Objects
 
-Use `return_object = TRUE` to get a `TorchGradientResult` object:
+Use `return_object = TRUE` to get an `InterpretingMethod`-compatible result object:
 
 ```{r object_results}
 # Get result as object
@@ -333,14 +338,14 @@ print(result_obj)
 
 ### Available Methods
 
-The `TorchGradientResult` object provides the same interface as converter-based
-methods:
+The returned object inherits from `InterpretingMethod` and provides the same
+interface as converter-based methods:
 
 ```{r object_methods}
 # Get results in different formats
-result_array <- result_obj$get_result("array")
-result_tensor <- result_obj$get_result("torch_tensor")
-result_df <- result_obj$get_result("data.frame")
+result_array <- get_result(result_obj, "array")
+result_tensor <- get_result(result_obj, "torch_tensor")
+result_df <- get_result(result_obj, "data.frame")
 
 # View data.frame
 head(result_df)
@@ -353,26 +358,11 @@ The object interface includes plotting capabilities:
 ```{r object_plot, fig.width=7, fig.height=4}
 # Create plot
 plot(result_obj, data_idx = 1, output_idx = 1)
+
+# Plot global
+plot_global(result_obj, output_idx = 1)
 ```
 
-### Comparison: Tensor vs Object
-
-Choose the approach that fits your workflow:
-
-```{r comparison_workflow, eval=FALSE}
-# Workflow 1: Raw tensors (fast, minimal)
-grads <- torch_grad(model, data)
-# Work directly with torch operations
-important_features <- grads[1, , 1]$abs()$topk(3)
-
-# Workflow 2: Objects (feature-rich)
-result <- torch_grad(model, data, return_object = TRUE)
-# Use high-level methods
-plot(result)
-summary_stats <- result$get_result("data.frame")
-```
-
-Both approaches produce identical numerical results - choose based on your needs.
 
 ## Summary
 
@@ -385,6 +375,6 @@ gradient-based feature attributions for `torch` models. Key benefits include:
 - **Equivalence**: Produces identical results to converter methods
 - **Flexibility**: Supports all common gradient-based attribution methods
 
-For comprehensive neural network interpretation including non-gradient methods
+For comprehensive neural network explanations including non-gradient methods
 and advanced visualizations, see the main `innsight` workflow using the
 `Converter` class.

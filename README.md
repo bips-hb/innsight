@@ -147,11 +147,44 @@ boxplot(result) # alias of `plot_global` for tabular and signal data
 plot(result, as_plotly = TRUE)
 ```
 
+### Direct torch methods (without Converter)
+
+For **torch** models, lightweight alternatives are available that use
+native `torch` autograd directly -- without requiring the `Converter`
+step:
+
+``` r
+library(torch)
+
+model <- nn_sequential(nn_linear(10, 50), nn_relu(), nn_linear(50, 3))
+data <- torch_randn(5, 10)
+
+# Returns a raw torch_tensor
+grads <- torch_grad(model, data)
+
+# Returns a full innsight result object (with plot, get_result, etc.)
+result <- torch_grad(model, data, return_object = TRUE)
+plot(result)
+get_result(result, type = "data.frame")
+
+# Or wrap any raw tensor manually
+result <- as_innsight_result(grads, data,
+  input_names = c("x1", "x2", "x3", "x4", "x5",
+                   "x6", "x7", "x8", "x9", "x10"),
+  output_names = c("class_1", "class_2", "class_3"))
+plot(result)
+```
+
+Available methods: `torch_grad`, `torch_intgrad`, `torch_smoothgrad`,
+and `torch_expgrad`. See the
+[vignette](https://bips-hb.github.io/innsight/articles/torch_gradients.html)
+for details.
+
 For a more detailed high-level introduction, see the
 [introduction](https://bips-hb.github.io/innsight/articles/innsight.html)
 vignette, and for a full in-depth explanation with all the
-possibilities, see the [“In-depth
-explanation”](https://bips-hb.github.io/innsight/articles/detailed_overview.html)
+possibilities, see the ["In-depth
+explanation"](https://bips-hb.github.io/innsight/articles/detailed_overview.html)
 vignette.
 
 ## Examples

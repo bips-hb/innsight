@@ -56,6 +56,23 @@ which converts and stores the passed model as a torch model
 (\code{\link{ConvertedModel}}) with special insights needed for interpretation.
 It is also possible to pass an arbitrary net in form of a named list
 (see details in \code{\link{Converter}}).
+}
+\section{Direct torch methods}{
+
+For torch models, lightweight alternatives to the converter-based
+workflow are available that use native torch autograd directly:
+\itemize{
+\item \link{torch_grad} -- Vanilla Gradient / Gradient x Input
+\item \link{torch_intgrad} -- Integrated Gradients
+\item \link{torch_smoothgrad} -- SmoothGrad / SmoothGrad x Input
+\item \link{torch_expgrad} -- Expected Gradients (GradSHAP)
+}
+
+These functions return raw \code{torch_tensor} results by default. Use
+\code{return_object = TRUE} or the standalone function \link{as_innsight_result}
+to wrap results into the standard \link{InterpretingMethod} format with full
+support for \link[=InterpretingMethod]{plot()}, \link[=InterpretingMethod]{plot_global()},
+and \link{get_result}.
 
 The scientific background and implementation details of \code{innsight} are
 described in the paper "Interpreting Deep Neural Networks with the Package
@@ -64,6 +81,7 @@ innsight" by Koenen & Wright (2024), published in the
 methods and use cases, please refer to the publication
 (doi: \doi{10.18637/jss.v111.i08}).
 }
+
 \references{
 Koenen, N., & Wright, M. N. (2024). Interpreting Deep Neural Networks with
 the Package innsight. Journal of Statistical Software, 111(8), 1-52. doi:

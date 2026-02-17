@@ -26,8 +26,16 @@ describing the output sensitivity can be returned.
 The R6 class can also be initialized using the \code{\link{run_intgrad}} function
 as a helper function so that no prior knowledge of R6 classes is required.
 }
+\section{Direct torch alternative}{
+
+For torch models, a lightweight alternative is available via
+\code{\link{torch_intgrad}} that uses native torch autograd directly without
+requiring the \code{\link{Converter}} step. Raw tensor results can be wrapped
+into the standard \code{innsight} format using \code{\link{as_innsight_result}}.
+}
+
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 #----------------------- Example 1: Torch ----------------------------------
 library(torch)
 
@@ -89,7 +97,7 @@ if (require("neuralnet")) {
   boxplot(int_grad)
 }
 \dontshow{\}) # examplesIf}
-\dontshow{if (torch::torch_is_installed() & Sys.getenv("INNSIGHT_EXAMPLE_KERAS", unset = 0) == 1) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed() & Sys.getenv("INNSIGHT_EXAMPLE_KERAS", unset = 0) == 1) withAutoprint(\{ # examplesIf}
 # ------------------------- Example 3: Keras -------------------------------
 if (require("keras") & keras::is_keras_available()) {
   library(keras)
@@ -131,7 +139,7 @@ if (require("keras") & keras::is_keras_available()) {
   plot_global(int_grad, output_idx = 1)
 }
 \dontshow{\}) # examplesIf}
-\dontshow{if (torch::torch_is_installed() & Sys.getenv("RENDER_PLOTLY", unset = 0) == 1) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed() & Sys.getenv("RENDER_PLOTLY", unset = 0) == 1) withAutoprint(\{ # examplesIf}
 #------------------------- Plotly plots ------------------------------------
 if (require("plotly")) {
   # You can also create an interactive plot with plotly.

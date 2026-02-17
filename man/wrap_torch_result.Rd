@@ -2,7 +2,7 @@
 % Please edit documentation in R/torch_gradients.R
 \name{wrap_torch_result}
 \alias{wrap_torch_result}
-\title{Wrap result in TorchGradientResult object if requested}
+\title{Wrap result in innsight result object if requested}
 \usage{
 wrap_torch_result(
   result,
@@ -12,10 +12,11 @@ wrap_torch_result(
   method_name,
   output_idx,
   preds = NULL,
+  times_input = FALSE,
   ...
 )
 }
 \description{
-Wrap result in TorchGradientResult object if requested
+Wrap result in innsight result object if requested
 }
 \keyword{internal}

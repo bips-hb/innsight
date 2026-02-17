@@ -11,22 +11,230 @@
 # - Maintains compatibility with torch's computational graph
 #
 
-#' Wrap result in TorchGradientResult object if requested
+###############################################################################
+#                         InnsightResult Class
+###############################################################################
+
+# Internal R6 class that inherits from GradientBased so that all standard
+# InterpretingMethod methods (plot, plot_global, get_result, print) work
+# out of the box.
+InnsightResult <- R6Class(
+  classname = "InnsightResult",
+  inherit = GradientBased,
+  public = list(
+    initialize = function(result, data, converter, output_idx, output_label,
+                          preds, decomp_goal, channels_first, times_input) {
+      self$converter <- converter
+      self$result <- result
+      self$data <- data
+      self$output_idx <- output_idx
+      self$output_label <- output_label
+      self$preds <- preds
+      self$decomp_goal <- decomp_goal
+      self$channels_first <- channels_first
+      self$times_input <- times_input
+      self$ignore_last_act <- TRUE
+      self$dtype <- "float"
+      self$verbose <- FALSE
+      self$winner_takes_all <- TRUE
+    }
+  )
+)
+
+
+#' Convert gradient results to an innsight result object
+#'
+#' @description
+#' This function wraps raw gradient attribution tensors (e.g., from
+#' \code{\link{torch_grad}}, \code{\link{torch_intgrad}}, etc.) into the
+#' standard \code{\link{InterpretingMethod}} format used by the innsight
+#' package. The returned object supports all standard methods such as
+#' \code{\link[=InterpretingMethod]{plot()}},
+#' \code{\link[=InterpretingMethod]{plot_global()}}, and
+#' \code{\link{get_result}}.
+#'
+#' @param result (\code{\link[torch]{torch_tensor}})\cr
+#'   The gradient-based attributions as a torch tensor with shape
+#'   \code{(batch_size, ..., n_outputs)} where the last dimension corresponds
+#'   to the selected output nodes.
+#' @param data (\code{\link[torch]{torch_tensor}})\cr
+#'   The input data used for calculating the attributions.
+#' @param output_idx (\code{integer})\cr
+#'   Indices of the output nodes for which attributions were calculated.
+#'   If \code{NULL}, defaults to \code{1:n_outputs}.
+#' @param channels_first (\code{logical(1)})\cr
+#'   Whether the data uses channels-first format. Default: \code{TRUE}.
+#' @param input_names (\code{character}, \code{list}, or \code{NULL})\cr
+#'   Names for the input features. If \code{NULL}, default names are
+#'   generated (e.g., \code{"X1"}, \code{"X2"}, ...). Can be a character
+#'   vector for tabular data or a list of character vectors for
+#'   multi-dimensional inputs.
+#' @param output_names (\code{character}, \code{list}, or \code{NULL})\cr
+#'   Names for the output nodes. If \code{NULL}, default names are
+#'   generated (e.g., \code{"Y1"}, \code{"Y2"}, ...).
+#' @param preds (\code{\link[torch]{torch_tensor}} or \code{NULL})\cr
+#'   Model predictions for the input data, with shape
+#'   \code{(batch_size, n_total_outputs)}. If provided, the columns
+#'   corresponding to \code{output_idx} are extracted.
+#' @param decomp_goal (\code{\link[torch]{torch_tensor}} or \code{NULL})\cr
+#'   The decomposition target values. Same shape as \code{preds}.
+#' @param times_input (\code{logical(1)})\cr
+#'   Whether gradients were multiplied by input. This affects the label
+#'   shown in plots (\code{"Relevance"} vs \code{"Gradient"}).
+#'   Default: \code{FALSE}.
+#'
+#' @return An R6 object inheriting from \code{\link{InterpretingMethod}}
+#'   (specifically from \code{\link{GradientBased}}) with full support for
+#'   \code{plot()}, \code{plot_global()}, \code{get_result()}, and
+#'   \code{print()}.
+#'
+#' @examples
+#' \dontrun{
+#' library(torch)
+#'
+#' model <- nn_sequential(nn_linear(10, 3))
+#' data <- torch_randn(5, 10)
+#'
+#' # Calculate raw gradients
+#' grads <- torch_grad(model, data)
+#'
+#' # Convert to innsight result object
+#' result <- as_innsight_result(grads, data)
+#'
+#' # Use standard innsight methods
+#' plot(result)
+#' get_result(result, type = "data.frame")
+#' }
+#'
+#' @seealso
+#' \code{\link{torch_grad}}, \code{\link{torch_intgrad}},
+#' \code{\link{InterpretingMethod}}
+#'
+#' @export
+as_innsight_result <- function(result,
+                               data,
+                               output_idx = NULL,
+                               channels_first = TRUE,
+                               input_names = NULL,
+                               output_names = NULL,
+                               preds = NULL,
+                               decomp_goal = NULL,
+                               times_input = FALSE) {
+
+  # Convert data to torch tensor if needed
+  if (!inherits(data, "torch_tensor")) {
+    data <- torch::torch_tensor(data)
+  }
+  if (!inherits(result, "torch_tensor")) {
+    result <- torch::torch_tensor(result)
+  }
+
+  # Determine dimensions
+
+  input_dim <- list(as.integer(data$shape[-1]))
+  n_outputs <- result$shape[result$dim()]
+
+  # Handle output_idx
+  if (is.null(output_idx)) {
+    output_idx <- seq_len(n_outputs)
+  }
+  output_dim <- list(as.integer(max(output_idx)))
+
+  # Generate default names if not provided
+  if (is.null(input_names)) {
+    input_names <- set_name_format(get_input_names(input_dim))
+  } else {
+    input_names <- set_name_format(input_names)
+  }
+  if (is.null(output_names)) {
+    output_names <- set_name_format(get_output_names(output_dim))
+  } else {
+    output_names <- set_name_format(output_names)
+  }
+
+  # Build mock converter (list with required fields)
+  converter <- list(
+    input_names = input_names,
+    output_names = output_names,
+    input_dim = input_dim,
+    output_dim = output_dim
+  )
+
+  # Check output indices and get labels
+  outputs <- check_output_idx(output_idx, converter$output_dim,
+                              NULL, converter$output_names)
+  out_idx <- outputs[[1]]
+  out_label <- outputs[[2]]
+
+  # Wrap result into nested list format: list(list(tensor))
+  result_list <- list(list(result))
+
+  # Wrap data into list format
+  data_list <- list(data)
+
+  # Process predictions
+  if (!is.null(preds)) {
+    if (inherits(preds, "torch_tensor")) {
+      # Extract only the selected output columns
+      if (preds$dim() == 2) {
+        preds_selected <- preds[, output_idx, drop = FALSE]
+      } else {
+        preds_selected <- preds$unsqueeze(2)
+      }
+      preds_list <- list(as.array(preds_selected))
+    } else {
+      preds_list <- list(preds)
+    }
+  } else {
+    preds_list <- list(NULL)
+  }
+
+  # Process decomposition goal
+  if (!is.null(decomp_goal)) {
+    if (inherits(decomp_goal, "torch_tensor")) {
+      if (decomp_goal$dim() == 2) {
+        decomp_selected <- decomp_goal[, output_idx, drop = FALSE]
+      } else {
+        decomp_selected <- decomp_goal$unsqueeze(2)
+      }
+      decomp_list <- list(as.array(decomp_selected))
+    } else {
+      decomp_list <- list(decomp_goal)
+    }
+  } else {
+    decomp_list <- list(NULL)
+  }
+
+  InnsightResult$new(
+    result = result_list,
+    data = data_list,
+    converter = converter,
+    output_idx = out_idx,
+    output_label = out_label,
+    preds = preds_list,
+    decomp_goal = decomp_list,
+    channels_first = channels_first,
+    times_input = times_input
+  )
+}
+
+
+#' Wrap result in innsight result object if requested
 #' @keywords internal
 wrap_torch_result <- function(result, return_object, data, model, method_name,
-                               output_idx, preds = NULL, ...) {
+                               output_idx, preds = NULL, times_input = FALSE,
+                               ...) {
   if (!return_object) {
     return(result)
   }
 
-  TorchGradientResult$new(
+  as_innsight_result(
     result = result,
     data = data,
-    model = model,
-    method_name = method_name,
     output_idx = output_idx,
     preds = preds,
-    ...
+    decomp_goal = preds,
+    times_input = times_input
   )
 }
 
@@ -56,13 +264,13 @@ wrap_torch_result <- function(result, return_object, data, model, method_name,
 #'   \code{\link[torch]{torch_float}} or `"double"` for
 #'   \code{\link[torch]{torch_double}}. Default: `"float"`.
 #' @param return_object (`logical(1)`)\cr
-#'   If `TRUE`, returns a \code{\link{TorchGradientResult}} object with
+#'   If `TRUE`, returns a \code{\link{InterpretingMethod}} object with
 #'   methods like `plot()` and `get_result()`. If `FALSE` (default), returns
 #'   a raw \code{\link[torch]{torch_tensor}}.
 #'
 #' @return If `return_object = FALSE` (default): A \code{\link[torch]{torch_tensor}}
 #'   containing the gradients with shape `(batch_size, ..., n_outputs)`.
-#'   If `return_object = TRUE`: A \code{\link{TorchGradientResult}} object.
+#'   If `return_object = TRUE`: A \code{\link{InterpretingMethod}} object.
 #'
 #' @details
 #' This function computes the gradients of the outputs with respect to the
@@ -130,7 +338,7 @@ wrap_torch_result <- function(result, return_object, data, model, method_name,
 #' }
 #'
 #' @seealso
-#' \code{\link{run_grad}}, \code{\link{Gradient}}, \code{\link{TorchGradientResult}}
+#' \code{\link{run_grad}}, \code{\link{Gradient}}, \code{\link{InterpretingMethod}}
 #'
 #' @export
 torch_grad <- function(model,
@@ -270,13 +478,13 @@ torch_grad <- function(model,
 #' @param dtype (`character(1)`)\cr
 #'   Data type: `"float"` or `"double"`. Default: `"float"`.
 #' @param return_object (`logical(1)`)\cr
-#'   If `TRUE`, returns a \code{\link{TorchGradientResult}} object with
+#'   If `TRUE`, returns a \code{\link{InterpretingMethod}} object with
 #'   methods like `plot()` and `get_result()`. If `FALSE` (default), returns
 #'   a raw \code{\link[torch]{torch_tensor}}.
 #'
 #' @return If `return_object = FALSE` (default): A \code{\link[torch]{torch_tensor}}
 #'   containing the integrated gradients with shape `(batch_size, ..., n_outputs)`.
-#'   If `return_object = TRUE`: A \code{\link{TorchGradientResult}} object.
+#'   If `return_object = TRUE`: A \code{\link{InterpretingMethod}} object.
 #'
 #' @details
 #' Integrated Gradients calculates feature importance by integrating gradients
@@ -483,13 +691,13 @@ torch_intgrad <- function(model,
 #' @param dtype (`character(1)`)\cr
 #'   Data type: `"float"` or `"double"`. Default: `"float"`.
 #' @param return_object (`logical(1)`)\cr
-#'   If `TRUE`, returns a \code{\link{TorchGradientResult}} object with
+#'   If `TRUE`, returns a \code{\link{InterpretingMethod}} object with
 #'   methods like `plot()` and `get_result()`. If `FALSE` (default), returns
 #'   a raw \code{\link[torch]{torch_tensor}}.
 #'
 #' @return If `return_object = FALSE` (default): A \code{\link[torch]{torch_tensor}}
 #'   containing the smoothed gradients with shape `(batch_size, ..., n_outputs)`.
-#'   If `return_object = TRUE`: A \code{\link{TorchGradientResult}} object.
+#'   If `return_object = TRUE`: A \code{\link{InterpretingMethod}} object.
 #'
 #' @details
 #' SmoothGrad computes gradients for \code{n} noisy versions of each input
@@ -671,13 +879,13 @@ torch_smoothgrad <- function(model,
 #' @param dtype (`character(1)`)\cr
 #'   Data type: `"float"` or `"double"`. Default: `"float"`.
 #' @param return_object (`logical(1)`)\cr
-#'   If `TRUE`, returns a \code{\link{TorchGradientResult}} object with
+#'   If `TRUE`, returns a \code{\link{InterpretingMethod}} object with
 #'   methods like `plot()` and `get_result()`. If `FALSE` (default), returns
 #'   a raw \code{\link[torch]{torch_tensor}}.
 #'
 #' @return If `return_object = FALSE` (default): A \code{\link[torch]{torch_tensor}}
 #'   containing the expected gradients with shape `(batch_size, ..., n_outputs)`.
-#'   If `return_object = TRUE`: A \code{\link{TorchGradientResult}} object.
+#'   If `return_object = TRUE`: A \code{\link{InterpretingMethod}} object.
 #'
 #' @details
 #' Expected Gradients extends Integrated Gradients by averaging over multiple

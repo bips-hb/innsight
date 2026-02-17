@@ -41,6 +41,20 @@
 #' It is also possible to pass an arbitrary net in form of a named list
 #' (see details in [`Converter`]).
 #'
+#' @section Direct torch methods:
+#' For torch models, lightweight alternatives to the converter-based
+#' workflow are available that use native torch autograd directly:
+#' * [torch_grad] -- Vanilla Gradient / Gradient x Input
+#' * [torch_intgrad] -- Integrated Gradients
+#' * [torch_smoothgrad] -- SmoothGrad / SmoothGrad x Input
+#' * [torch_expgrad] -- Expected Gradients (GradSHAP)
+#'
+#' These functions return raw `torch_tensor` results by default. Use
+#' `return_object = TRUE` or the standalone function [as_innsight_result]
+#' to wrap results into the standard [InterpretingMethod] format with full
+#' support for [plot()][InterpretingMethod], [plot_global()][InterpretingMethod],
+#' and [get_result].
+#'
 #' The scientific background and implementation details of `innsight` are
 #' described in the paper "Interpreting Deep Neural Networks with the Package
 #' innsight" by Koenen & Wright (2024), published in the

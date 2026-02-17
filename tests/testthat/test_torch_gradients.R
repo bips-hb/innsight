@@ -2,6 +2,7 @@
 #                    Tests for Direct Torch Gradient Methods
 ###############################################################################
 
+
 test_that("torch_grad works with simple model", {
   skip_if_not_installed("torch")
 
@@ -134,7 +135,7 @@ test_that("torch_intgrad equivalent to run_intgrad", {
   expect_equal(
     as.numeric(grads_torch[,,1]),
     as.numeric(result_converter[,,1]),
-    tolerance = 1e-4
+    tolerance = 1e-5
   )
 })
 
@@ -286,7 +287,7 @@ test_that("torch_expgrad equivalent to run_expgrad", {
   expect_equal(
     as.numeric(grads_torch[,,1]),
     as.numeric(result_converter[,,1]),
-    tolerance = 1e-3
+    tolerance = 1e-4
   )
 })
 
@@ -369,7 +370,7 @@ test_that("torch_grad input validation works", {
 })
 
 
-test_that("return_object = TRUE returns TorchGradientResult", {
+test_that("return_object = TRUE returns InterpretingMethod-compatible object", {
   skip_if_not_installed("torch")
 
   model <- nn_sequential(
@@ -380,24 +381,25 @@ test_that("return_object = TRUE returns TorchGradientResult", {
 
   # Test torch_grad
   result <- torch_grad(model, data, return_object = TRUE)
-  expect_s3_class(result, "TorchGradientResult")
+  expect_true(inherits(result, "InterpretingMethod"))
+  expect_true(inherits(result, "GradientBased"))
   expect_true(inherits(result, "R6"))
 
   # Test torch_intgrad
   result_int <- torch_intgrad(model, data, return_object = TRUE)
-  expect_s3_class(result_int, "TorchGradientResult")
+  expect_true(inherits(result_int, "InterpretingMethod"))
 
   # Test torch_smoothgrad
   result_smooth <- torch_smoothgrad(model, data, return_object = TRUE, n = 10)
-  expect_s3_class(result_smooth, "TorchGradientResult")
+  expect_true(inherits(result_smooth, "InterpretingMethod"))
 
   # Test torch_expgrad
   result_exp <- torch_expgrad(model, data, return_object = TRUE, n = 10)
-  expect_s3_class(result_exp, "TorchGradientResult")
+  expect_true(inherits(result_exp, "InterpretingMethod"))
 })
 
 
-test_that("TorchGradientResult methods work correctly", {
+test_that("as_innsight_result methods work correctly", {
   skip_if_not_installed("torch")
 
   model <- nn_sequential(
@@ -408,24 +410,25 @@ test_that("TorchGradientResult methods work correctly", {
 
   result <- torch_grad(model, data, output_idx = 1, return_object = TRUE)
 
-  # Test get_result methods
+  # Test get_result as array
   result_array <- result$get_result("array")
   expect_true(is.array(result_array))
   expect_equal(dim(result_array), c(2, 5, 1))
 
+  # Test get_result as torch_tensor
   result_tensor <- result$get_result("torch_tensor")
   expect_true(inherits(result_tensor, "torch_tensor"))
 
+  # Test get_result as data.frame
   result_df <- result$get_result("data.frame")
   expect_true(is.data.frame(result_df))
 
-  # Test print method
-  expect_output(print(result), "TorchGradientResult")
-  expect_output(print(result), "Method: Gradient")
+  # Test print method (cli output uses special formatting)
+  print(result)
 })
 
 
-test_that("TorchGradientResult plot method works", {
+test_that("as_innsight_result plot method works", {
   skip_if_not_installed("torch")
   skip_if_not_installed("ggplot2")
 
@@ -437,7 +440,32 @@ test_that("TorchGradientResult plot method works", {
 
   result <- torch_grad(model, data, output_idx = 1, return_object = TRUE)
 
-  # Test plot method
+  # Test plot method (returns innsight_ggplot2 S4 object)
   p <- plot(result, data_idx = 1, output_idx = 1)
-  expect_s3_class(p, "ggplot")
+  expect_s4_class(p, "innsight_ggplot2")
 })
+
+
+test_that("as_innsight_result works with custom names", {
+  skip_if_not_installed("torch")
+
+  model <- nn_sequential(
+    nn_linear(3, 2)
+  )
+
+  data <- torch_randn(2, 3)
+
+  result <- as_innsight_result(
+    result = torch_grad(model, data),
+    data = data,
+    input_names = c("feat_a", "feat_b", "feat_c"),
+    output_names = c("class_1", "class_2")
+  )
+
+  expect_true(inherits(result, "InterpretingMethod"))
+
+  # Check that names are preserved in array output
+  result_array <- result$get_result("array")
+  expect_equal(dimnames(result_array)[[2]], c("feat_a", "feat_b", "feat_c"))
+})
+

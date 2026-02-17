@@ -176,6 +176,12 @@ GradientBased <- R6Class(
 #' The R6 class can also be initialized using the [`run_grad`] function as a
 #' helper function so that no prior knowledge of R6 classes is required.
 #'
+#' @section Direct torch alternative:
+#' For torch models, a lightweight alternative is available via
+#' [`torch_grad`] that uses native torch autograd directly without
+#' requiring the [`Converter`] step. Raw tensor results can be wrapped
+#' into the standard `innsight` format using [`as_innsight_result`].
+#'
 #' @template examples-Gradient
 #' @template param-converter
 #' @template param-data
@@ -272,6 +278,12 @@ Gradient <- R6Class(
 #'
 #' The R6 class can also be initialized using the [`run_intgrad`] function
 #' as a helper function so that no prior knowledge of R6 classes is required.
+#'
+#' @section Direct torch alternative:
+#' For torch models, a lightweight alternative is available via
+#' [`torch_intgrad`] that uses native torch autograd directly without
+#' requiring the [`Converter`] step. Raw tensor results can be wrapped
+#' into the standard `innsight` format using [`as_innsight_result`].
 #'
 #' @template param-converter
 #' @template param-data
@@ -508,6 +520,12 @@ IntegratedGradient <- R6Class(
 #' The R6 class can also be initialized using the [`run_smoothgrad`] function
 #' as a helper function so that no prior knowledge of R6 classes is required.
 #'
+#' @section Direct torch alternative:
+#' For torch models, a lightweight alternative is available via
+#' [`torch_smoothgrad`] that uses native torch autograd directly without
+#' requiring the [`Converter`] step. Raw tensor results can be wrapped
+#' into the standard `innsight` format using [`as_innsight_result`].
+#'
 #' @template examples-SmoothGrad
 #' @template param-converter
 #' @template param-data
@@ -679,6 +697,12 @@ SmoothGrad <- R6Class(
 #'
 #' The R6 class can also be initialized using the [`run_expgrad`] function
 #' as a helper function so that no prior knowledge of R6 classes is required.
+#'
+#' @section Direct torch alternative:
+#' For torch models, a lightweight alternative is available via
+#' [`torch_expgrad`] that uses native torch autograd directly without
+#' requiring the [`Converter`] step. Raw tensor results can be wrapped
+#' into the standard `innsight` format using [`as_innsight_result`].
 #'
 #' @template param-converter
 #' @template param-data
