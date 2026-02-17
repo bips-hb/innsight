@@ -1,8 +1,32 @@
-# innsight 0.3.2  
+# innsight 0.4.0
 
-* Fixed a bug in the `eval` argument in vignette chunks.  
-* Skipped some tests for convolutional layers on Windows due to issues with 
-functional convolutions when using non-default dilation and double precision 
+### New features
+
+* Added direct torch gradient methods that work without model conversion:
+    * `torch_grad()` - Vanilla Gradient and Gradient×Input
+    * `torch_intgrad()` - Integrated Gradients
+    * `torch_smoothgrad()` - SmoothGrad and SmoothGrad×Input
+    * `torch_expgrad()` - Expected Gradients (GradSHAP)
+
+  These functions provide a more efficient alternative for `torch` models by
+  using native torch autograd directly, avoiding the conversion overhead. They
+  are particularly useful when working exclusively with torch models and when
+  performance is important. See `vignette("torch_gradients")` for details and
+  usage examples.
+
+### Bug fixes and improvements
+
+* Added support for keras3 package alongside legacy keras. The package now
+  recognizes models from both `keras` and `keras3` packages.
+* keras-related tests now skip gracefully if keras/keras3 is not functional,
+  making the package more robust to Python environment issues.
+* Improved error messages when keras Python backend is not available.
+
+# innsight 0.3.2
+
+* Fixed a bug in the `eval` argument in vignette chunks.
+* Skipped some tests for convolutional layers on Windows due to issues with
+functional convolutions when using non-default dilation and double precision
 tensors (see [PyTorch issue #141221](https://github.com/pytorch/pytorch/issues/141221)).  
 
 
