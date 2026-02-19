@@ -50,10 +50,11 @@ jobs:
       TORCH_COMMIT_SHA: "none"
       OMP_NUM_THREADS: 1
       MKL_NUM_THREADS: 1
+      TF_USE_LEGACY_KERAS: 1
       PYTORCH_ENABLE_MPS_FALLBACK: 1
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: r-lib/actions/setup-pandoc@v2
 
@@ -74,7 +75,9 @@ jobs:
         shell: Rscript {0}
 
       - name: Install Tensorflow + Keras deps
-        run: keras::install_keras()
+        run: |
+          keras::install_keras()
+          keras3::install_keras()
         shell: Rscript {0}
 
       # Get a tmux ssh session for interactive debugging

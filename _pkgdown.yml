@@ -27,6 +27,18 @@ reference:
     - SHAP
     - innsight_sugar
 
+- title: Direct torch gradient methods
+  desc: >
+      Gradient-based attribution functions that work directly with any
+      `torch::nn_module` without requiring the `Converter` step. These
+      use native torch autograd and support arbitrary model architectures.
+  contents:
+    - torch_grad
+    - torch_intgrad
+    - torch_smoothgrad
+    - torch_expgrad
+    - as_innsight_result
+
 - title: Visualization and getting results
   desc: >
       Functions and S4 classes for getting and visualizing the results
@@ -66,3 +78,13 @@ reference:
   - AgnosticWrapper
   - GradientBased
   - InterpretingMethod
+
+articles:
+- title: Vignettes
+  navbar: Vignettes
+  contents:
+  - innsight
+  - detailed_overview
+  - Example_1_iris
+  - Example_2_penguin
+  - torch_gradients
