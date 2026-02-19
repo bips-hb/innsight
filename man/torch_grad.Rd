@@ -94,7 +94,7 @@ Use \code{\link{run_grad}} when:
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
-libray(torch)
+library(torch)
 
 # Create a simple model
 model <- nn_sequential(

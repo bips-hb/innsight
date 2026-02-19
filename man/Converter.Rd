@@ -14,6 +14,8 @@ You can use models from the following libraries:
 \item \code{torch} (\code{\link[torch]{nn_sequential}})
 \item \code{\link[keras]{keras}} (\code{\link[keras]{keras_model}},
 \code{\link[keras]{keras_model_sequential}}),
+\item \code{\link[keras3]{keras3-package}} (\code{\link[keras3]{keras_model}},
+\code{\link[keras3]{keras_model_sequential}}),
 \item \code{\link[neuralnet]{neuralnet}}
 }
 
@@ -277,12 +279,15 @@ the field \code{model}.
 \describe{
 \item{\code{model}}{(\code{\link[torch]{nn_sequential}},
 \code{\link[keras]{keras_model}},
+\code{\link[keras3]{keras_model}},
 \code{\link[neuralnet]{neuralnet}} or \code{list})\cr
 A trained neural network for classification or regression
 tasks to be interpreted. Only models from the following types or
 packages are allowed: \code{\link[torch]{nn_sequential}},
 \code{\link[keras]{keras_model}},
 \code{\link[keras]{keras_model_sequential}},
+\code{\link[keras3]{keras_model}},
+\code{\link[keras3]{keras_model_sequential}},
 \code{\link[neuralnet]{neuralnet}} or a named list (see details).}
 
 \item{\code{input_dim}}{(\code{integer} or \code{list})\cr

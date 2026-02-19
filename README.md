@@ -69,7 +69,8 @@ The package **innsight** aims to be as flexible as possible and
 independent of a specific deep learning package in which the passed
 network has been learned. Basically, a neural network of the libraries
 [**torch**](https://torch.mlverse.org/),
-[**keras**](https://tensorflow.rstudio.com/) and
+[**keras**](https://tensorflow.rstudio.com/),
+[**keras3**](https://keras3.posit.co/) and
 [**neuralnet**](https://CRAN.R-project.org/package=neuralnet) can be
 passed, which is internally converted into a **torch** model with
 special insights needed for interpretation. But it is also possible to
@@ -119,8 +120,9 @@ to the following pseudo code:
 
 ``` r
 # --------------- Step 0: Train your model -----------------
-# 'model' has to be an instance of either torch::nn_sequential, 
-# keras::keras_model_sequential, keras::keras_model or neuralnet::neuralnet
+# 'model' has to be an instance of either torch::nn_sequential,
+# keras::keras_model_sequential, keras::keras_model,
+# keras3::keras_model_sequential, keras3::keras_model or neuralnet::neuralnet
 model = ...
 
 # -------------- Step 1: Convert your model ----------------
