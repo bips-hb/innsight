@@ -46,7 +46,10 @@ If \code{return_object = TRUE}: A \code{\link{InterpretingMethod}} object.
 }
 \description{
 Calculate Expected Gradients (GradSHAP) using native torch autograd.
-This function provides a lightweight alternative to \code{\link{run_expgrad}}.
+This function provides a lightweight alternative to \code{\link{run_expgrad}}
+and \code{\link{ExpectedGradient}} that is more efficient for torch models as
+it avoids model conversion overhead and uses native torch autograd directly. Therefore,
+it can be used for any \code{torch::nn_module} without restrictions on architecture or layers.
 }
 \details{
 Expected Gradients extends Integrated Gradients by averaging over multiple
@@ -57,7 +60,7 @@ reference values from a distribution:
 This provides approximate Shapley values.
 }
 \examples{
-\dontrun{
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 library(torch)
 
 model <- nn_sequential(nn_linear(10, 3))
@@ -66,8 +69,7 @@ references <- torch_randn(100, 10)  # Reference distribution
 
 # Calculate Expected Gradients
 exp_grads <- torch_expgrad(model, data, data_ref = references)
-}
-
+\dontshow{\}) # examplesIf}
 }
 \references{
 G. Erion et al. (2021) \emph{Improving performance of deep learning models
@@ -76,4 +78,10 @@ Nature Machine Intelligence 3, pp. 620-631.
 }
 \seealso{
 \code{\link{run_expgrad}}, \code{\link{ExpectedGradient}}
+
+Other direct torch methods: 
+\code{\link{torch_grad}()},
+\code{\link{torch_intgrad}()},
+\code{\link{torch_smoothgrad}()}
 }
+\concept{direct torch methods}

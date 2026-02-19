@@ -2,7 +2,7 @@
 % Please edit documentation in R/torch_gradients.R
 \name{torch_grad}
 \alias{torch_grad}
-\title{Direct Gradient calculation for torch models}
+\title{Direct gradient calculation for torch models}
 \usage{
 torch_grad(
   model,
@@ -47,10 +47,11 @@ containing the gradients with shape \verb{(batch_size, ..., n_outputs)}.
 If \code{return_object = TRUE}: A \code{\link{InterpretingMethod}} object.
 }
 \description{
-Calculate gradients of model outputs with respect to inputs using native
-torch autograd. This function provides a lightweight alternative to
-\code{\link{run_grad}} that works directly with \code{torch::nn_module}
-objects without requiring model conversion.
+Calculate gradients of model outputs with respect
+to inputs using native torch autograd. This function provides a lightweight
+alternative to \code{\link{run_grad}} and \code{\link{Gradient}} that works
+directly with any \code{torch::nn_module} objects without requiring model
+conversion.
 }
 \details{
 This function computes the gradients of the outputs with respect to the
@@ -72,7 +73,6 @@ This function is typically faster and more memory-efficient than
 \itemize{
 \item Avoids model conversion overhead
 \item Uses native torch autograd directly
-\item Does not store intermediate layer activations unless needed
 }
 }
 
@@ -80,22 +80,21 @@ This function is typically faster and more memory-efficient than
 
 \code{torch_grad} is recommended when:
 \itemize{
+\item Working with non-sequential torch models
 \item Working with torch models exclusively
 \item Performance is critical
-\item You don't need the full Converter functionality
 }
 
 Use \code{\link{run_grad}} when:
 \itemize{
 \item Working with keras or neuralnet models
-\item You need other interpretation methods (LRP, DeepLift, etc.)
-\item You want visualization capabilities
+\item You need other attribution methods (LRP, DeepLift, etc.)
 }
 }
 
 \examples{
-\dontrun{
-library(torch)
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
+libray(torch)
 
 # Create a simple model
 model <- nn_sequential(
@@ -119,9 +118,14 @@ grads_class1 <- torch_grad(model, data, output_idx = 1)
 # Get result as innsight object with plot() support
 result <- torch_grad(model, data, return_object = TRUE)
 plot(result)
-}
-
+\dontshow{\}) # examplesIf}
 }
 \seealso{
-\code{\link{run_grad}}, \code{\link{Gradient}}, \code{\link{InterpretingMethod}}
+\code{\link{run_grad}}, \code{\link{Gradient}}
+
+Other direct torch methods: 
+\code{\link{torch_expgrad}()},
+\code{\link{torch_intgrad}()},
+\code{\link{torch_smoothgrad}()}
 }
+\concept{direct torch methods}

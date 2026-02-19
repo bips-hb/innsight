@@ -51,8 +51,9 @@ If \code{return_object = TRUE}: A \code{\link{InterpretingMethod}} object.
 }
 \description{
 Calculate Integrated Gradients using native torch autograd. This function
-provides a lightweight alternative to \code{\link{run_intgrad}} that works
-directly with \code{torch::nn_module} objects.
+provides a lightweight alternative to \code{\link{run_intgrad}} and
+\code{\link{IntegratedGradient}} that works
+directly with any \code{torch::nn_module} objects.
 }
 \details{
 Integrated Gradients calculates feature importance by integrating gradients
@@ -63,7 +64,7 @@ along the path from a baseline \eqn{x'} to the input \eqn{x}:
 The integral is approximated using \code{n} interpolation steps.
 }
 \examples{
-\dontrun{
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 library(torch)
 
 model <- nn_sequential(nn_linear(10, 3))
@@ -78,8 +79,7 @@ int_grads <- torch_intgrad(model, data, x_ref = baseline)
 
 # More integration steps for higher accuracy
 int_grads <- torch_intgrad(model, data, n = 100)
-}
-
+\dontshow{\}) # examplesIf}
 }
 \references{
 M. Sundararajan et al. (2017) \emph{Axiomatic attribution for deep networks.}
@@ -87,4 +87,10 @@ ICML 2017, PMLR 70, pp. 3319-3328.
 }
 \seealso{
 \code{\link{run_intgrad}}, \code{\link{IntegratedGradient}}
+
+Other direct torch methods: 
+\code{\link{torch_expgrad}()},
+\code{\link{torch_grad}()},
+\code{\link{torch_smoothgrad}()}
 }
+\concept{direct torch methods}

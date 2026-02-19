@@ -71,7 +71,7 @@ package. The returned object supports all standard methods such as
 \code{\link{get_result}}.
 }
 \examples{
-\dontrun{
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 library(torch)
 
 model <- nn_sequential(nn_linear(10, 3))
@@ -86,10 +86,9 @@ result <- as_innsight_result(grads, data)
 # Use standard innsight methods
 plot(result)
 get_result(result, type = "data.frame")
-}
-
+\dontshow{\}) # examplesIf}
 }
 \seealso{
-\code{\link{torch_grad}}, \code{\link{torch_intgrad}},
+\code{\link{torch_grad}}, \code{\link{torch_intgrad}}, \code{\link{torch_expgrad}},
 \code{\link{InterpretingMethod}}
 }

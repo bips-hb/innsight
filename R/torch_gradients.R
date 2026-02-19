@@ -88,8 +88,7 @@ InnsightResult <- R6Class(
 #'   \code{plot()}, \code{plot_global()}, \code{get_result()}, and
 #'   \code{print()}.
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf torch::torch_is_installed()
 #' library(torch)
 #'
 #' model <- nn_sequential(nn_linear(10, 3))
@@ -104,10 +103,9 @@ InnsightResult <- R6Class(
 #' # Use standard innsight methods
 #' plot(result)
 #' get_result(result, type = "data.frame")
-#' }
 #'
 #' @seealso
-#' \code{\link{torch_grad}}, \code{\link{torch_intgrad}},
+#' \code{\link{torch_grad}}, \code{\link{torch_intgrad}}, \code{\link{torch_expgrad}},
 #' \code{\link{InterpretingMethod}}
 #'
 #' @export
@@ -238,13 +236,14 @@ wrap_torch_result <- function(result, return_object, data, model, method_name,
   )
 }
 
-#' @title Direct Gradient calculation for torch models
+#' @title Direct gradient calculation for torch models
 #'
 #' @description
-#' Calculate gradients of model outputs with respect to inputs using native
-#' torch autograd. This function provides a lightweight alternative to
-#' \code{\link{run_grad}} that works directly with \code{torch::nn_module}
-#' objects without requiring model conversion.
+#' Calculate gradients of model outputs with respect
+#' to inputs using native torch autograd. This function provides a lightweight
+#' alternative to \code{\link{run_grad}} and \code{\link{Gradient}} that works
+#' directly with any \code{torch::nn_module} objects without requiring model
+#' conversion.
 #'
 #' @param model (\code{\link[torch]{nn_module}})\cr
 #'   A torch model. Must be an instance of \code{nn_module}.
@@ -291,26 +290,23 @@ wrap_torch_result <- function(result, return_object, data, model, method_name,
 #' \itemize{
 #'   \item Avoids model conversion overhead
 #'   \item Uses native torch autograd directly
-#'   \item Does not store intermediate layer activations unless needed
 #' }
 #'
 #' @section Comparison with run_grad:
 #' \code{torch_grad} is recommended when:
 #' \itemize{
+#'   \item Working with non-sequential torch models
 #'   \item Working with torch models exclusively
 #'   \item Performance is critical
-#'   \item You don't need the full Converter functionality
 #' }
 #'
 #' Use \code{\link{run_grad}} when:
 #' \itemize{
 #'   \item Working with keras or neuralnet models
-#'   \item You need other interpretation methods (LRP, DeepLift, etc.)
-#'   \item You want visualization capabilities
+#'   \item You need other attribution methods (LRP, DeepLift, etc.)
 #' }
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf torch::torch_is_installed()
 #' library(torch)
 #'
 #' # Create a simple model
@@ -335,10 +331,10 @@ wrap_torch_result <- function(result, return_object, data, model, method_name,
 #' # Get result as innsight object with plot() support
 #' result <- torch_grad(model, data, return_object = TRUE)
 #' plot(result)
-#' }
 #'
+#' @family direct torch methods
 #' @seealso
-#' \code{\link{run_grad}}, \code{\link{Gradient}}, \code{\link{InterpretingMethod}}
+#' \code{\link{run_grad}}, \code{\link{Gradient}}
 #'
 #' @export
 torch_grad <- function(model,
@@ -458,8 +454,9 @@ torch_grad <- function(model,
 #'
 #' @description
 #' Calculate Integrated Gradients using native torch autograd. This function
-#' provides a lightweight alternative to \code{\link{run_intgrad}} that works
-#' directly with \code{torch::nn_module} objects.
+#' provides a lightweight alternative to \code{\link{run_intgrad}} and
+#' \code{\link{IntegratedGradient}} that works
+#' directly with any \code{torch::nn_module} objects.
 #'
 #' @param model (\code{\link[torch]{nn_module}})\cr
 #'   A torch model. Must be an instance of \code{nn_module}.
@@ -494,8 +491,7 @@ torch_grad <- function(model,
 #'
 #' The integral is approximated using \code{n} interpolation steps.
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf torch::torch_is_installed()
 #' library(torch)
 #'
 #' model <- nn_sequential(nn_linear(10, 3))
@@ -510,12 +506,12 @@ torch_grad <- function(model,
 #'
 #' # More integration steps for higher accuracy
 #' int_grads <- torch_intgrad(model, data, n = 100)
-#' }
 #'
 #' @references
 #' M. Sundararajan et al. (2017) \emph{Axiomatic attribution for deep networks.}
 #' ICML 2017, PMLR 70, pp. 3319-3328.
 #'
+#' @family direct torch methods
 #' @seealso
 #' \code{\link{run_intgrad}}, \code{\link{IntegratedGradient}}
 #'
@@ -672,7 +668,11 @@ torch_intgrad <- function(model,
 #'
 #' @description
 #' Calculate SmoothGrad by averaging gradients over noisy samples of the input.
-#' This function provides a lightweight alternative to \code{\link{run_smoothgrad}}.
+#' This function provides a lightweight alternative to \code{\link{run_smoothgrad}}
+#' and \code{\link{SmoothGrad}} that is more efficient for torch models as it avoids
+#' model conversion overhead and uses native torch autograd directly. Therefore,
+#' it can be used for any \code{torch::nn_module} without restrictions on
+#' architecture or layers.
 #'
 #' @param model (\code{\link[torch]{nn_module}})\cr
 #'   A torch model.
@@ -707,8 +707,7 @@ torch_intgrad <- function(model,
 #'
 #' This reduces noise in gradient-based explanations.
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf torch::torch_is_installed()
 #' library(torch)
 #'
 #' model <- nn_sequential(nn_linear(10, 3))
@@ -722,12 +721,12 @@ torch_intgrad <- function(model,
 #'
 #' # More samples for smoother result
 #' smooth_grads <- torch_smoothgrad(model, data, n = 100)
-#' }
 #'
 #' @references
 #' D. Smilkov et al. (2017) \emph{SmoothGrad: removing noise by adding noise.}
 #' arXiv:1706.03825
 #'
+#' @family direct torch methods
 #' @seealso
 #' \code{\link{run_smoothgrad}}, \code{\link{SmoothGrad}}
 #'
@@ -863,7 +862,10 @@ torch_smoothgrad <- function(model,
 #'
 #' @description
 #' Calculate Expected Gradients (GradSHAP) using native torch autograd.
-#' This function provides a lightweight alternative to \code{\link{run_expgrad}}.
+#' This function provides a lightweight alternative to \code{\link{run_expgrad}}
+#' and \code{\link{ExpectedGradient}} that is more efficient for torch models as
+#' it avoids model conversion overhead and uses native torch autograd directly. Therefore,
+#' it can be used for any \code{torch::nn_module} without restrictions on architecture or layers.
 #'
 #' @param model (\code{\link[torch]{nn_module}})\cr
 #'   A torch model.
@@ -895,8 +897,7 @@ torch_smoothgrad <- function(model,
 #'
 #' This provides approximate Shapley values.
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf torch::torch_is_installed()
 #' library(torch)
 #'
 #' model <- nn_sequential(nn_linear(10, 3))
@@ -905,13 +906,13 @@ torch_smoothgrad <- function(model,
 #'
 #' # Calculate Expected Gradients
 #' exp_grads <- torch_expgrad(model, data, data_ref = references)
-#' }
 #'
 #' @references
 #' G. Erion et al. (2021) \emph{Improving performance of deep learning models
 #' with axiomatic attribution priors and expected gradients.}
 #' Nature Machine Intelligence 3, pp. 620-631.
 #'
+#' @family direct torch methods
 #' @seealso
 #' \code{\link{run_expgrad}}, \code{\link{ExpectedGradient}}
 #'

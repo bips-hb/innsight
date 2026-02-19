@@ -51,7 +51,11 @@ If \code{return_object = TRUE}: A \code{\link{InterpretingMethod}} object.
 }
 \description{
 Calculate SmoothGrad by averaging gradients over noisy samples of the input.
-This function provides a lightweight alternative to \code{\link{run_smoothgrad}}.
+This function provides a lightweight alternative to \code{\link{run_smoothgrad}}
+and \code{\link{SmoothGrad}} that is more efficient for torch models as it avoids
+model conversion overhead and uses native torch autograd directly. Therefore,
+it can be used for any \code{torch::nn_module} without restrictions on
+architecture or layers.
 }
 \details{
 SmoothGrad computes gradients for \code{n} noisy versions of each input
@@ -62,7 +66,7 @@ and averages them. With \eqn{\epsilon \sim N(0,\sigma)}:
 This reduces noise in gradient-based explanations.
 }
 \examples{
-\dontrun{
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 library(torch)
 
 model <- nn_sequential(nn_linear(10, 3))
@@ -76,8 +80,7 @@ smooth_grads <- torch_smoothgrad(model, data, times_input = TRUE)
 
 # More samples for smoother result
 smooth_grads <- torch_smoothgrad(model, data, n = 100)
-}
-
+\dontshow{\}) # examplesIf}
 }
 \references{
 D. Smilkov et al. (2017) \emph{SmoothGrad: removing noise by adding noise.}
@@ -85,4 +88,10 @@ arXiv:1706.03825
 }
 \seealso{
 \code{\link{run_smoothgrad}}, \code{\link{SmoothGrad}}
+
+Other direct torch methods: 
+\code{\link{torch_expgrad}()},
+\code{\link{torch_grad}()},
+\code{\link{torch_intgrad}()}
 }
+\concept{direct torch methods}
