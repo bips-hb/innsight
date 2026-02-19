@@ -11,14 +11,14 @@ implemented_layers_keras <- c(
 #                           Convert Keras Model
 ###############################################################################
 
-convert_keras_model <- function(model) {
+convert_keras_model <- function(model, is_legacy = TRUE) {
 
   # Define parameters for the data format and the layer index
   data_format <- NULL
   n <- 1
 
   # Get layer names and reconstruct graph
-  if (inherits(model, "keras.engine.sequential.Sequential")) {
+  if (is_keras_sequential(model)) {
     # If the model is a sequential model, the first layer is the only input
     # layer and the last layer is the only output layer
     graph <- lapply(seq_along(model$layers), function(i) {
@@ -31,11 +31,13 @@ convert_keras_model <- function(model) {
   } else {
     # Otherwise, we have to reconstruct the computational graph from the
     # model config
-    res <- keras_reconstruct_graph(model$layers, model$get_config())
+    res <- keras_reconstruct_graph(model$layers, model$get_config(),
+                                   is_legacy = is_legacy)
     graph <- res$graph
-    input_names <- model$input_names
     layers <- res$layers
     names <- names(layers)
+    # input_names are derived from the model below via keras_get_model_io()
+    input_names <- NULL
   }
 
   # Declare list for the list-converted layers
@@ -53,7 +55,7 @@ convert_keras_model <- function(model) {
       switch(type,
         InputLayer = convert_keras_skipping(type),
         Dropout = convert_keras_skipping(type),
-        Dense = convert_keras_dense(layer),
+        Dense = convert_keras_dense(layer, is_legacy),
         Conv1D = {
           # check for consistent data format
           data_format <- check_consistent_data_format(
@@ -99,7 +101,13 @@ convert_keras_model <- function(model) {
         },
         Concatenate = convert_keras_concatenate(layer),
         Add = convert_keras_add(layer),
-        Activation = convert_keras_activation(layer$get_config()$activation),
+        Activation = {
+          act_cfg <- layer$get_config()$activation
+          act_str <- if (is.character(act_cfg)) act_cfg
+                     else if (is.list(act_cfg) && !is.null(act_cfg$class_name)) act_cfg$class_name
+                     else as.character(act_cfg)
+          convert_keras_activation(act_str)
+        },
         ZeroPadding1D = convert_keras_zeropadding(layer, type),
         ZeroPadding2D = convert_keras_zeropadding(layer, type),
         BatchNormalization = convert_keras_batchnorm(layer),
@@ -123,15 +131,19 @@ convert_keras_model <- function(model) {
   # Combine activation functions with convolution or dense layers
   model_as_list <- combine_activations(model_as_list)
 
-  # Get in- and output shape of the model
-  input_dim <- model$input_shape
-  output_dim <- model$output_shape
-  if (length(model$input_names) == 1) {
+  # Get in- and output shapes and names of the model (version-agnostic)
+  io <- keras_get_model_io(model, is_legacy)
+  if (is.null(input_names)) input_names <- io$input_names
+  output_names <- io$output_names
+
+  input_dim  <- io$input_dim
+  output_dim <- io$output_dim
+  if (length(input_names) == 1) {
     input_dim <- list(unlist(input_dim))
   } else {
     input_dim <- lapply(input_dim, unlist)
   }
-  if (length(model$output_names) == 1) {
+  if (length(output_names) == 1) {
     output_dim <- list(unlist(output_dim))
   } else {
     output_dim <- lapply(output_dim, unlist)
@@ -160,7 +172,19 @@ convert_keras_model <- function(model) {
   }
   input_nodes <- match(input_names, names)
   input_nodes <- input_nodes[!is.na(input_nodes)]
-  output_nodes <- match(model$output_names, names)
+  # Fallback: if name matching failed (e.g. keras3 input tensor names differ
+  # from layer names), derive input nodes from the graph structure.
+  if (length(input_nodes) == 0) {
+    input_nodes <- which(sapply(model_as_list, function(l)
+      !is.null(l$input_layers) && 0L %in% l$input_layers))
+  }
+  output_nodes <- match(output_names, names)
+  # Fallback: if name matching failed (e.g. keras3 output tensor names differ
+  # from layer names in sequential models), derive output nodes from the graph.
+  if (any(is.na(output_nodes))) {
+    output_nodes <- which(sapply(model_as_list, function(l)
+      !is.null(l$output_layers) && -1L %in% l$output_layers))
+  }
   if (layer_list$type == "Activation") {
     if ((n - 1) %in% output_nodes) {
       idx <- layer_list$input_layers
@@ -184,8 +208,8 @@ convert_keras_model <- function(model) {
 
 # Dense Layer -----------------------------------------------------------------
 
-convert_keras_dense <- function(layer) {
-  act_name <- layer$activation$`__name__`
+convert_keras_dense <- function(layer, is_legacy = TRUE) {
+  act_name <- keras_get_activation_name(layer, is_legacy)
   weights <- layer$get_weights()
   w <- torch_tensor(as.array(weights[[1]]))$transpose(1,2)
 
@@ -210,7 +234,10 @@ convert_keras_dense <- function(layer) {
 
 convert_keras_convolution <- function(layer, type) {
   config <- layer$get_config()
-  act_name <- config$activation
+  act_raw  <- config$activation
+  act_name <- if (is.character(act_raw)) act_raw
+              else if (is.list(act_raw) && !is.null(act_raw$class_name)) act_raw$class_name
+              else as.character(act_raw)
   kernel_size <- as.integer(unlist(config$kernel_size))
   stride <- as.integer(unlist(config$strides))
   padding <- config$padding
@@ -219,8 +246,8 @@ convert_keras_convolution <- function(layer, type) {
   # input_shape:
   #     channels_first:  [batch_size, in_channels, in_length]
   #     channels_last:   [batch_size, in_length, in_channels]
-  input_dim <- as.integer(unlist(layer$input_shape))
-  output_dim <- as.integer(unlist(layer$output_shape))
+  input_dim <- as.integer(unlist(keras_layer_shape(layer, "input")))
+  output_dim <- as.integer(unlist(keras_layer_shape(layer, "output")))
 
   # in this package only 'channels_first'
   if (layer$data_format == "channels_last") {
@@ -275,8 +302,8 @@ convert_keras_convolution <- function(layer, type) {
 # Pooling Layer ---------------------------------------------------------------
 
 convert_keras_pooling <- function(layer, type) {
-  input_dim <- unlist(layer$input_shape)
-  output_dim <- unlist(layer$output_shape)
+  input_dim <- unlist(keras_layer_shape(layer, "input"))
+  output_dim <- unlist(keras_layer_shape(layer, "output"))
   kernel_size <- unlist(layer$pool_size)
   strides <- unlist(layer$strides)
 
@@ -308,8 +335,8 @@ convert_keras_globalpooling <- function(layer, type) {
     method <- "max"
   }
 
-  dim_in <- unlist(layer$input_shape)
-  dim_out <- unlist(layer$output_shape)
+  dim_in <- unlist(keras_layer_shape(layer, "input"))
+  dim_out <- unlist(keras_layer_shape(layer, "output"))
   data_format <- layer$data_format
 
   # in this package only 'channels_first'
@@ -337,8 +364,8 @@ convert_keras_zeropadding <- function(layer, type) {
   } else {
     data_format <- "channels_last"
   }
-  dim_in <- unlist(layer$input_shape)
-  dim_out <- unlist(layer$output_shape)
+  dim_in <- unlist(keras_layer_shape(layer, "input"))
+  dim_out <- unlist(keras_layer_shape(layer, "output"))
 
   # in this package only 'channels_first'
   if (data_format == "channels_last") {
@@ -359,22 +386,24 @@ convert_keras_zeropadding <- function(layer, type) {
 # BatchNormalization Layer ----------------------------------------------------
 
 convert_keras_batchnorm <- function(layer) {
-  input_dim <- unlist(layer$input_shape)
-  output_dim <- unlist(layer$output_shape)
+  input_dim <- unlist(keras_layer_shape(layer, "input"))
+  output_dim <- unlist(keras_layer_shape(layer, "output"))
   if (is.numeric(layer$axis)) axis <- layer$axis
   else if (is.list(layer$axis)) axis <- as.numeric(layer$axis)
   else axis <- as.numeric(layer$axis[[0]])
-  gamma <- as.numeric(layer$gamma$value())
+  gamma <- keras_variable_to_numeric(layer$gamma)
   eps <- as.numeric(layer$epsilon)
   if (layer$center) {
-    beta <- as.numeric(layer$beta)
+    beta <- keras_variable_to_numeric(layer$beta)
   } else {
     beta <- NULL
   }
 
-  run_mean <- as.numeric(layer$moving_mean)
-  run_var <- as.numeric(layer$moving_variance)
+  run_mean <- keras_variable_to_numeric(layer$moving_mean)
+  run_var  <- keras_variable_to_numeric(layer$moving_variance)
 
+  # Normalize negative axis (Python convention, e.g. -1) to positive R 1-based index
+  if (axis < 0) axis <- length(input_dim) + axis + 1
   if (axis == length(input_dim)) { # i.e. channels last
     input_dim <- move_channels_first(input_dim)
     output_dim <- move_channels_first(output_dim)
@@ -400,8 +429,8 @@ convert_keras_batchnorm <- function(layer) {
 # Flatten Layer ---------------------------------------------------------------
 
 convert_keras_flatten <- function(layer) {
-  input_dim <- unlist(layer$input_shape)
-  output_dim <- unlist(layer$output_shape)
+  input_dim <- unlist(keras_layer_shape(layer, "input"))
+  output_dim <- unlist(keras_layer_shape(layer, "output"))
 
   # in this package only 'channels_first'
   if (layer$data_format == "channels_last") {
@@ -420,7 +449,8 @@ convert_keras_flatten <- function(layer) {
 # Concatenate Layer -----------------------------------------------------------
 
 convert_keras_concatenate <- function(layer) {
-  num_input_dims <- lapply(layer$input_shape, function(x) length(unlist(x)))
+  in_shapes <- keras_layer_shape(layer, "input")
+  num_input_dims <- lapply(in_shapes, function(x) length(unlist(x)))
   if (any(unlist(num_input_dims) > 1)) {
     warningf(
       "I assume that the concatenations axis points to the channel axis.",
@@ -430,8 +460,8 @@ convert_keras_concatenate <- function(layer) {
   list(
     type = "Concatenate",
     axis = layer$axis,
-    dim_in = lapply(layer$input_shape, unlist),
-    dim_out = unlist(layer$output_shape)
+    dim_in = lapply(in_shapes, unlist),
+    dim_out = unlist(keras_layer_shape(layer, "output"))
   )
 }
 
@@ -463,9 +493,9 @@ convert_keras_skipping <- function(type) {
 #                 Utility methods: Graph reconstruction
 ###############################################################################
 
-keras_reconstruct_graph <- function(layers, config) {
+keras_reconstruct_graph <- function(layers, config, is_legacy = TRUE) {
 
-  res <- get_layers_graph(layers, config)
+  res <- get_layers_graph(layers, config, is_legacy = is_legacy)
 
   graph <- res$graph
   layer_list <- res$layers
@@ -496,13 +526,24 @@ keras_reconstruct_graph <- function(layers, config) {
     }
   }
 
-  # Register model input and output nodes
-  input_nodes <- unlist(lapply(config$input_layers, function(x) x[[1]]))
+  # Register model input and output nodes.
+  # In keras3, a single-item list is simplified by reticulate to a flat tuple
+  # e.g. list("name", 0L, 0L) instead of list(list("name", 0L, 0L)).
+  # Detect this by checking whether the first element is already a character.
+  if (is.character(config$input_layers[[1]])) {
+    input_nodes <- config$input_layers[[1]]
+  } else {
+    input_nodes <- unlist(lapply(config$input_layers, function(x) x[[1]]))
+  }
   for (node in input_nodes) {
     idx <- which(node == names)
     graph[[idx]]$input_layers <- 0L
   }
-  output_nodes <- unlist(lapply(config$output_layers, function(x) x[[1]]))
+  if (is.character(config$output_layers[[1]])) {
+    output_nodes <- config$output_layers[[1]]
+  } else {
+    output_nodes <- unlist(lapply(config$output_layers, function(x) x[[1]]))
+  }
   for (node in output_nodes) {
     idx <- which(node == names)
     graph[[idx]]$output_layers <- -1L
@@ -512,7 +553,7 @@ keras_reconstruct_graph <- function(layers, config) {
 }
 
 
-get_layers_graph <- function(layers, config) {
+get_layers_graph <- function(layers, config, is_legacy = TRUE) {
   config_names <- unlist(lapply(config$layers, function(x) x$name))
 
   graph <- list()
@@ -531,8 +572,8 @@ get_layers_graph <- function(layers, config) {
       l_names <- unlist(lapply(layer$layers, function(x) x$name))
       for (i in seq_along(layer$layers)) {
         if (is_first) {
-          in_names <- unlist(
-            lapply(layer_config$inbound_nodes[[1]], function(x) x[[1]])
+          in_names <- keras_parse_inbound_names(
+            layer_config$inbound_nodes, is_legacy
           )
           is_first <- FALSE
         } else {
@@ -552,11 +593,17 @@ get_layers_graph <- function(layers, config) {
                              list(list(old = layer$name,
                                        new = l_names[i])))
     }  else if (layer_config$class_name == "Functional") {
-      res <- get_layers_graph(layer$layers, layer_config$config)
+      res <- get_layers_graph(layer$layers, layer_config$config,
+                              is_legacy = is_legacy)
       # Register input layers
       layer_graph <- res$graph
+      # First inbound name: keras2 uses [[1]][[1]][[1]], keras3 uses
+      # keras_parse_inbound_names() and takes the first result
+      first_inbound <- keras_parse_inbound_names(
+        layer_config$inbound_nodes, is_legacy
+      )[[1]]
       layer_graph[[layer_config$config$input_layers[[1]][[1]]]]$input_layers <-
-        layer_config$inbound_nodes[[1]][[1]][[1]]
+        first_inbound
 
       graph <- append(graph, layer_graph)
       layer_list <- append(layer_list, res$layers)
@@ -566,14 +613,9 @@ get_layers_graph <- function(layers, config) {
         list(list(old = layer$name,
                   new = layer_config$config$output_layers[[1]][[1]])))
     } else {
-      if (length(layer_config$inbound_nodes) == 1) { # non InputLayer
-        in_names <- unlist(
-          lapply(layer_config$inbound_nodes[[1]], function(x) x[[1]]))
-      } else if (length(layer_config$inbound_nodes) == 0) { # InputLayer
-        in_names <- NULL
-      } else { # Weight-Sharing is not supported
-        stopf("Models that share weights are not supported yet!")
-      }
+      in_names <- keras_parse_inbound_names(
+        layer_config$inbound_nodes, is_legacy
+      )
 
       graph[[layer$name]] <-
         list(input_layers = in_names, output_layers = NULL)
@@ -587,6 +629,122 @@ get_layers_graph <- function(layers, config) {
 ###############################################################################
 #                         Other utility methods
 ###############################################################################
+
+# Returns TRUE for both keras2 and keras3 Sequential models.
+is_keras_sequential <- function(model) {
+  inherits(model, "keras.engine.sequential.Sequential") ||
+    inherits(model, "keras.src.models.sequential.Sequential")
+}
+
+# Extracts inbound layer names from layer config, handling the format
+# difference between keras2 ([[["name",0,0,{}]]]) and keras3
+# ([{"args":[["name",0,0]],"kwargs":{}}]).
+keras_parse_inbound_names <- function(inbound_nodes, is_legacy) {
+  if (length(inbound_nodes) == 0) return(NULL)
+  if (length(inbound_nodes) > 1) stopf("Models that share weights are not supported yet!")
+
+  node <- inbound_nodes[[1]]
+  if (is_legacy) {
+    # keras2: node is a list of tuples [name, node_index, tensor_index, kwargs]
+    unlist(lapply(node, function(x) x[[1]]))
+  } else {
+    # keras3: node is a dict with $args and $kwargs.
+    # args[[1]] is a serialized KerasTensor (single input) or a list of them
+    # (multiple inputs). Each KerasTensor has the form:
+    #   list(class_name = "__keras_tensor__",
+    #        config = list(keras_history = list("layer_name", 0, 0), ...))
+    # The layer name is stored in config$keras_history[[1]].
+    args <- node$args
+    if (length(args) == 0) return(NULL)
+    first_arg <- args[[1]]
+    if (is.character(first_arg[[1]])) {
+      # Single input: first_arg IS the KerasTensor dict
+      first_arg$config$keras_history[[1]]
+    } else {
+      # Multiple inputs: first_arg is a list of KerasTensor dicts
+      unlist(lapply(first_arg, function(x) x$config$keras_history[[1]]))
+    }
+  }
+}
+
+# Extracts the activation function name from a Dense layer, handling the
+# difference between keras2 (layer$activation is a function with __name__)
+# and keras3 (get_config()$activation is a string or class-name dict).
+keras_get_activation_name <- function(layer, is_legacy) {
+  if (is_legacy) {
+    layer$activation$`__name__`
+  } else {
+    act <- layer$get_config()$activation
+    if (is.character(act)) {
+      act
+    } else if (is.list(act) && !is.null(act$class_name)) {
+      # keras3 dict format: {"class_name": "relu", "config": {}, ...}
+      act$class_name
+    } else {
+      tryCatch(layer$activation$`__name__`, error = function(e) "linear")
+    }
+  }
+}
+
+# Converts a Keras weight variable to a plain R numeric vector.
+# Works for keras2 ResourceVariable (value() or direct coercion) and
+# keras3 KerasVariable (as.array() via reticulate / numpy()).
+keras_variable_to_numeric <- function(var) {
+  result <- tryCatch(as.numeric(as.array(var)), error = function(e) NULL)
+  if (!is.null(result)) return(result)
+  result <- tryCatch(as.numeric(var$numpy()), error = function(e) NULL)
+  if (!is.null(result)) return(result)
+  as.numeric(var)
+}
+
+# Centralises access to model-level I/O attributes that differ between
+# keras2 (model$input_names / model$output_names) and keras3
+# (model$inputs / model$outputs as KerasTensor lists).
+keras_get_model_io <- function(model, is_legacy) {
+  if (is_legacy) {
+    input_names  <- model$input_names
+    output_names <- model$output_names
+  } else {
+    # keras3: derive names from the stable model$inputs / model$outputs lists
+    input_names <- tryCatch(
+      unlist(lapply(model$inputs,  function(t) t$name)),
+      error = function(e) model$input_names
+    )
+    output_names <- tryCatch(
+      unlist(lapply(model$outputs, function(t) t$name)),
+      error = function(e) model$output_names
+    )
+  }
+  input_dim  <- model$input_shape
+  output_dim <- model$output_shape
+  list(
+    input_names  = input_names,
+    output_names = output_names,
+    input_dim    = input_dim,
+    output_dim   = output_dim
+  )
+}
+
+# Returns the input or output shape of a Keras layer.
+# keras2 exposes layer$input_shape / layer$output_shape directly; keras3 removed
+# these attributes and requires going through the KerasTensor:
+# layer$input$shape / layer$output$shape.
+# For layers with multiple inputs (e.g. Concatenate) layer$input is a list of
+# KerasTensors, so each tensor's shape is extracted individually.
+keras_layer_shape <- function(layer, which = c("input", "output")) {
+  which <- match.arg(which)
+  if (which == "input") {
+    tryCatch(layer$input_shape, error = function(e) {
+      inp <- layer$input
+      if (is.list(inp)) lapply(inp, function(t) t$shape) else inp$shape
+    })
+  } else {
+    tryCatch(layer$output_shape, error = function(e) {
+      out <- layer$output
+      if (is.list(out)) lapply(out, function(t) t$shape) else out$shape
+    })
+  }
+}
 
 get_same_padding <- function(input_dim, kernel_size, dilation, stride) {
   if (length(kernel_size) == 1) {
