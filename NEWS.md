@@ -1,26 +1,35 @@
 # innsight 0.4.0
 
-### New features
+This minor release introduces direct torch gradient-based attribution functions
+(`torch_*`) that work without model conversion (i.e., without the Converter-step), 
+providing better performance and broader model compatibility. In particular, this
+adds support for non-sequential `nn_modules`. Additionally, the package now supports
+keras3 alongside legacy keras.
 
-* Added direct torch gradient methods that work without model conversion:
-    * `torch_grad()` - Vanilla Gradient and Gradient×Input
-    * `torch_intgrad()` - Integrated Gradients
-    * `torch_smoothgrad()` - SmoothGrad and SmoothGrad×Input
-    * `torch_expgrad()` - Expected Gradients (GradSHAP)
+### Breaking changes
+
+* Added direct torch gradient-based attribution methods that work without model 
+conversion (i.e., without using the `Converter` class):
+    * `torch_grad()` - Vanilla Gradient and Gradient×Input (analogue to `run_grad()`)
+    * `torch_intgrad()` - Integrated Gradients (analogue to `run_intgrad()`)
+    * `torch_smoothgrad()` - SmoothGrad and SmoothGrad×Input (analogue to `run_smoothgrad()`)
+    * `torch_expgrad()` - Expected Gradients/GradSHAP (analogue to`run_expgrad()`)
 
   These functions provide a more efficient alternative for `torch` models by
   using native torch autograd directly, avoiding the conversion overhead. They
   are particularly useful when working exclusively with torch models and when
   performance is important. See `vignette("torch_gradients")` for details and
   usage examples.
+  **Moreover**, since these functions utilize native torch autograd, they are 
+  compatible with a wider range of models. This includes models with complex 
+  non-sequential architectures and custom `nn_module` models. In summary,
+  it is now possible to use any differentiable torch model with the new direct 
+  torch gradient-based attribution methods.
 
-### Bug fixes and improvements
-
-* Added support for keras3 package alongside legacy keras. The package now
-  recognizes models from both `keras` and `keras3` packages.
-* keras-related tests now skip gracefully if keras/keras3 is not functional,
-  making the package more robust to Python environment issues.
-* Improved error messages when keras Python backend is not available.
+* Added support for [keras3](https://cran.r-project.org/package=keras3) package 
+  alongside legacy keras. The package now recognizes models from both `keras` 
+  and `keras3` packages. See https://blogs.rstudio.com/ai/posts/2024-05-21-keras3/ 
+  for details.
 
 # innsight 0.3.2
 
