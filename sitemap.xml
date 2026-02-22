@@ -7,6 +7,7 @@
 <url><loc>https://bips-hb.github.io/innsight/articles/detailed_overview.html</loc></url>
 <url><loc>https://bips-hb.github.io/innsight/articles/index.html</loc></url>
 <url><loc>https://bips-hb.github.io/innsight/articles/innsight.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/articles/torch_gradients.html</loc></url>
 <url><loc>https://bips-hb.github.io/innsight/authors.html</loc></url>
 <url><loc>https://bips-hb.github.io/innsight/index.html</loc></url>
 <url><loc>https://bips-hb.github.io/innsight/news/index.html</loc></url>
@@ -25,6 +26,7 @@
 <url><loc>https://bips-hb.github.io/innsight/reference/LRP.html</loc></url>
 <url><loc>https://bips-hb.github.io/innsight/reference/SHAP.html</loc></url>
 <url><loc>https://bips-hb.github.io/innsight/reference/SmoothGrad.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/as_innsight_result.html</loc></url>
 <url><loc>https://bips-hb.github.io/innsight/reference/get_result.html</loc></url>
 <url><loc>https://bips-hb.github.io/innsight/reference/index.html</loc></url>
 <url><loc>https://bips-hb.github.io/innsight/reference/innsight-package.html</loc></url>
@@ -37,5 +39,10 @@
 <url><loc>https://bips-hb.github.io/innsight/reference/innsight_plotly-print.html</loc></url>
 <url><loc>https://bips-hb.github.io/innsight/reference/innsight_sugar.html</loc></url>
 <url><loc>https://bips-hb.github.io/innsight/reference/plot_global.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/torch_expgrad.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/torch_grad.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/torch_intgrad.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/torch_smoothgrad.html</loc></url>
+<url><loc>https://bips-hb.github.io/innsight/reference/wrap_torch_result.html</loc></url>
 </urlset>
 
