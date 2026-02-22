@@ -11,9 +11,10 @@ methods for interpreting the behavior of neural networks are provided, which
 give a better understanding of the whole model or individual predictions.
 You can use models from the following libraries:
 \itemize{
-\item \code{torch} (\code{\link[torch]{nn_sequential}})
-\item \code{\link[keras]{keras}} (\code{\link[keras]{keras_model}},
-\code{\link[keras]{keras_model_sequential}}),
+\item \code{torch}: \code{\link[torch]{nn_sequential}}
+\item \code{keras}: \code{\link[keras]{keras}} (\code{\link[keras]{keras_model}},
+\code{\link[keras]{keras_model_sequential}}
+\item \code{keras3}: \code{keras_model}, \code{keras_model_sequential}
 \item \code{\link[neuralnet]{neuralnet}}
 }
 
@@ -70,7 +71,7 @@ explanation" \cr
 }
 }
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 #----------------------- Example 1: Torch ----------------------------------
 library(torch)
 
@@ -115,7 +116,7 @@ if (require("neuralnet")) {
   converter$model$modules_list
 }
 \dontshow{\}) # examplesIf}
-\dontshow{if (torch::torch_is_installed() & Sys.getenv("INNSIGHT_EXAMPLE_KERAS", unset = 0) == 1) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed() & Sys.getenv("INNSIGHT_EXAMPLE_KERAS", unset = 0) == 1) withAutoprint(\{ # examplesIf}
 #----------------------- Example 3: Keras ----------------------------------
 if (require("keras") & keras::is_keras_available()) {
   library(keras)
@@ -145,7 +146,7 @@ if (require("keras") & keras::is_keras_available()) {
   str(converter$model_as_list, max.level = 1)
 }
 \dontshow{\}) # examplesIf}
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 #----------------------- Example 4: List  ----------------------------------
 
 # Define a model

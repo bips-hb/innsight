@@ -7,9 +7,10 @@
 #' methods for interpreting the behavior of neural networks are provided, which
 #' give a better understanding of the whole model or individual predictions.
 #' You can use models from the following libraries:
-#' * `torch` (\code{\link[torch]{nn_sequential}})
-#' * \code{\link[keras]{keras}} (\code{\link[keras]{keras_model}},
-#' \code{\link[keras]{keras_model_sequential}}),
+#' * `torch`: \code{\link[torch]{nn_sequential}}
+#' * `keras`: \code{\link[keras]{keras}} (\code{\link[keras]{keras_model}},
+#' \code{\link[keras]{keras_model_sequential}}
+#' * `keras3`: \code{keras_model}, \code{keras_model_sequential}
 #' * \code{\link[neuralnet]{neuralnet}}
 #'
 #' Furthermore, a model can be passed as a list (see
@@ -149,7 +150,26 @@ Converter <- R6Class("Converter",
         model_as_list <- convert_neuralnet_model(model)
       } else if (is_keras_model(model)) {
         # Package: Keras ------------------------------------------------------
-        model_as_list <- convert_keras_model(model)
+        # Since there are some differences between Keras 2 and Keras 3 models,
+        # we have to check for the Keras version and convert the model accordingly.
+
+        # The R package `keras` is no longer maintained at version 2.16.1
+        # and will be archived in the future (see https://blogs.rstudio.com/ai/posts/2024-05-21-keras3/).
+        # It can be used with the legacy Keras 2 backend, but for Keras 3 the
+        # new R package `keras3` has to be used.
+        if (is_keras_legacy_model(model)) {
+          # Keras 2 model
+          model_as_list <- convert_keras_model(model, is_legacy = TRUE)
+        } else if (is_keras3_model(model)) {
+          # Keras 3 model
+          model_as_list <- convert_keras_model(model, is_legacy = FALSE)
+        } else {
+          stopf(c(
+              "x" = "Unable to determine the Keras model type.",
+              "i" = "Please open an issue at {.url https://github.com/bips-hb/innsight/issues}
+           with your model details and Keras version so we can add support."
+          ))
+        }
       } else if (is.list(model)) {
         # Model from list -----------------------------------------------------
         model_as_list <- model
@@ -924,6 +944,7 @@ print_names <- function(x, is_output_layer = FALSE) {
 
 combine_names <- function(x, label = NULL) {
   comb_x <- cumsum(nchar(c(label, paste0(x, sep = ", ")), type = "width"))
+  x <- as.character(x)
   if (any(comb_x > 0.95 * getOption("width"))) {
     idx <- sum(comb_x <= 0.95 * getOption("width")) - 1
     x <- x[seq_len(idx)]
@@ -1216,12 +1237,19 @@ get_output_names <- function(output_dims) {
   })
 }
 
-is_keras_model <- function(model) {
-  inherits(model, c(
-    "keras.engine.sequential.Sequential",
-    "keras.engine.functional.Functional",
-    "keras.engine.training.Model"
-  ))
+is_keras_model <- function(obj) {
+  inherits(obj, "keras.engine.training.Model") ||
+    inherits(obj, "keras.src.models.model.Model")
+}
+
+is_keras3_model <- function(obj) {
+  inherits(obj, "keras.src.models.model.Model") &&
+    !inherits(obj, "keras.engine.training.Model")
+}
+
+is_keras_legacy_model <- function(obj) {
+  inherits(obj, "keras.engine.training.Model") &&
+    !inherits(obj, "keras.src.models.model.Model")
 }
 
 set_name_format <- function(in_or_out_names) {

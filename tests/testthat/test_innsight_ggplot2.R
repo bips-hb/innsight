@@ -1,7 +1,6 @@
 library(torch)
 library(ggplot2)
 
-
 # Create data
 data_tab <- torch_randn(10,12)
 data_1d <- torch_randn(10,3,12)
@@ -33,6 +32,7 @@ net_2d <- nn_sequential(
 )
 
 if (requireNamespace("keras", quietly = FALSE)) {
+  library(keras)
   main_input <- layer_input(shape = c(12,15,2), name = 'main_input')
   lstm_out <- main_input %>%
     layer_conv_2d(2, c(2,2)) %>%
@@ -473,3 +473,4 @@ test_that("innsight_ggplot2: Mixed data", {
   expect_s4_class(p_new, "innsight_ggplot2")
   expect_error(p[1, c(2,3,4,6)] <- p[1, c(2,3,4)] + theme_bw())
 })
+

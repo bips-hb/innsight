@@ -41,6 +41,12 @@ to pre-process the images accordingly, which we will do in the following steps:
 # Load required packages
 library(keras)
 library(innsight)
+library(torch)
+
+# Set seeds for reproducibility
+set.seed(123)
+torch_manual_seed(123)
+tensorflow::set_random_seed(123)
 
 # Load images
 img_files <- paste0("images/", c("image_1.png", "image_2.png", "image_3.png", "image_4.png"))

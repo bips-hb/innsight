@@ -24,7 +24,7 @@ applied. In other words, a custom \code{pred_fun} may need to convert the
 \code{data.frame} back into an \code{array} as necessary.
 }
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 #----------------------- Example 1: Torch -----------------------------------
 library(torch)
 
