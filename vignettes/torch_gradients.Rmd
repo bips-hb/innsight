@@ -4,6 +4,7 @@ output:
   rmarkdown::html_vignette:
     toc: true
     toc_depth: 3
+always_allow_html: yes
 vignette: >
   %\VignetteIndexEntry{Direct Torch Gradient Methods}
   %\VignetteEngine{knitr::rmarkdown}

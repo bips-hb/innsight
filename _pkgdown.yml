@@ -87,6 +87,10 @@ articles:
 - title: Advanced
   contents:
   - detailed_overview
+- title: Torch Gradients
+  navbar: ~
+  contents:
+  - torch_gradients
 
 navbar:
   structure:
