@@ -334,7 +334,13 @@ setMethod(
       data <- data[idx_row & idx_col, ]
 
       # Update the plot with the new data
-      grobs <- matrix(list(x@grobs[[1, 1]] %+% data))
+      if (packageVersion("ggplot2") >= "4.0.0") {
+        # Use + instead of %+%
+        grobs <- matrix(list(x@grobs[[1, 1]] + data))
+      } else {
+        grobs <- matrix(list(x@grobs[[1, 1]] %+% data))
+      }
+
       output_strips <- x@output_strips
       col_dims <- x@col_dims
     }
