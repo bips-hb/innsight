@@ -78,13 +78,12 @@ reference:
   - AgnosticWrapper
   - GradientBased
   - InterpretingMethod
-
 articles:
 - title: Examples
   contents:
   - Example_1_iris
   - Example_2_penguin
-  - Example_3_imagenet
+  - articles/Example_3_imagenet
 - title: Advanced
   contents:
   - detailed_overview
@@ -108,7 +107,7 @@ navbar:
       - text: "Example 2: Penguin dataset"
         href: articles/Example_2_penguin.html
       - text: "Example 3: ImageNet"
-        href: articles/Example_3_imagenet.html
+        href: articles/articles/Example_3_imagenet.html
       - text: "-------"
       - text: Advanced
       - text: "In-depth explanation"
