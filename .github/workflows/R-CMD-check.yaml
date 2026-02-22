@@ -1,9 +1,6 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
-#
-# NOTE: This workflow is overkill for most R packages and
-# check-standard.yaml is likely a better choice.
-# usethis::use_github_action("check-standard") will install it.
+
 on:
   push:
     branches: [main, master]
@@ -11,17 +8,10 @@ on:
     branches: [main, master]
   schedule:
     - cron: "0 0 1 * *"
-  # Allow manually triggering the workflow via GitHub website, gh CLI tool etc.
-  # Also adds parameter to enable tmate (inetractive tmux session for debugging)
-  workflow_dispatch:
-    inputs:
-      debug_enabled:
-        type: boolean
-        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
-        required: false
-        default: false
 
 name: R-CMD-check
+
+permissions: read-all
 
 jobs:
   R-CMD-check:
@@ -33,18 +23,16 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: 'macOS-latest'  , r: 'release'}
-
-          - {os: 'windows-latest', r: 'release'}
-
-          - {os: 'ubuntu-latest', r: 'devel', http-user-agent: 'release'}
-          - {os: 'ubuntu-latest', r: 'release'}
-          - {os: 'ubuntu-latest', r: 'oldrel-1'}
-          - {os: 'ubuntu-latest', r: 'oldrel-2'}
+          - {os: macos-latest,   r: 'release'}
+          - {os: windows-latest, r: 'release'}
+          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
+          - {os: ubuntu-latest,   r: 'release'}
+          - {os: ubuntu-latest,   r: 'oldrel-1'}
 
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
       TORCH_TEST: 1
       TORCH_INSTALL: 1
       TORCH_COMMIT_SHA: "none"
@@ -70,22 +58,15 @@ jobs:
           extra-packages: any::rcmdcheck
           needs: check
 
-      - name: Install Miniconda
-        run: reticulate::install_miniconda()
-        shell: Rscript {0}
-
-      - name: Install Tensorflow + Keras deps
+      - name: Install keras
         run: |
           keras::install_keras()
-          keras3::install_keras()
         shell: Rscript {0}
 
-      # Get a tmux ssh session for interactive debugging
-      # Controlled via inputs from GitHub webinterface
-      # See https://github.com/mxschmitt/action-tmate
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
+      - name: Install keras3 (with TF backend)
+        run: |
+          keras3::install_keras(backend = "tensorflow")
+        shell: Rscript {0}
 
       - name: Check if torch is installed
         run: |

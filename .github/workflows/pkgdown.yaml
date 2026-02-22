@@ -44,12 +44,14 @@ jobs:
             local::.
           needs: website
 
-      - name: Install Miniconda
-        run: reticulate::install_miniconda()
+      - name: Install keras
+        run: |
+          keras::install_keras()
         shell: Rscript {0}
 
-      - name: Install Tensorflow + Keras deps
-        run: keras3::install_keras()
+      - name: Install keras3 (with TF backend)
+        run: |
+          keras3::install_keras(backend = "tensorflow")
         shell: Rscript {0}
 
       - name: Check if torch is installed

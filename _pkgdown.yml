@@ -80,11 +80,36 @@ reference:
   - InterpretingMethod
 
 articles:
-- title: Vignettes
-  navbar: Vignettes
+- title: Examples
   contents:
-  - innsight
-  - detailed_overview
   - Example_1_iris
   - Example_2_penguin
-  - torch_gradients
+  - Example_3_imagenet
+- title: Advanced
+  contents:
+  - detailed_overview
+
+navbar:
+  structure:
+    left:  [intro, torch-gradients, articles, reference, news]
+  components:
+    intro:
+      text: Get started
+      href: articles/innsight.html
+    torch-gradients:
+      text: Torch Gradients
+      href: articles/torch_gradients.html
+    articles:
+      text: Articles
+      menu:
+      - text: Examples
+      - text: "Example 1: Iris dataset"
+        href: articles/Example_1_iris.html
+      - text: "Example 2: Penguin dataset"
+        href: articles/Example_2_penguin.html
+      - text: "Example 3: ImageNet"
+        href: articles/Example_3_imagenet.html
+      - text: "-------"
+      - text: Advanced
+      - text: "In-depth explanation"
+        href: articles/detailed_overview.html
