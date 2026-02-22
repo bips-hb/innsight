@@ -7,11 +7,10 @@
 #' methods for interpreting the behavior of neural networks are provided, which
 #' give a better understanding of the whole model or individual predictions.
 #' You can use models from the following libraries:
-#' * `torch` (\code{\link[torch]{nn_sequential}})
-#' * \code{\link[keras]{keras}} (\code{\link[keras]{keras_model}},
-#' \code{\link[keras]{keras_model_sequential}}),
-#' * \code{\link[keras3]{keras3-package}} (\code{\link[keras3]{keras_model}},
-#' \code{\link[keras3]{keras_model_sequential}}),
+#' * `torch`: \code{\link[torch]{nn_sequential}}
+#' * `keras`: \code{\link[keras]{keras}} (\code{\link[keras]{keras_model}},
+#' \code{\link[keras]{keras_model_sequential}}
+#' * `keras3`: \code{keras_model}, \code{keras_model_sequential}
 #' * \code{\link[neuralnet]{neuralnet}}
 #'
 #' Furthermore, a model can be passed as a list (see
@@ -85,15 +84,12 @@ Converter <- R6Class("Converter",
     #'
     #' @param model (\code{\link[torch]{nn_sequential}},
     #' \code{\link[keras]{keras_model}},
-    #' \code{\link[keras3]{keras_model}},
     #' \code{\link[neuralnet]{neuralnet}} or `list`)\cr
     #' A trained neural network for classification or regression
     #' tasks to be interpreted. Only models from the following types or
     #' packages are allowed: \code{\link[torch]{nn_sequential}},
     #' \code{\link[keras]{keras_model}},
     #' \code{\link[keras]{keras_model_sequential}},
-    #' \code{\link[keras3]{keras_model}},
-    #' \code{\link[keras3]{keras_model_sequential}},
     #' \code{\link[neuralnet]{neuralnet}} or a named list (see details).
     #' @param input_dim (`integer` or `list`)\cr
     #' The model input dimension excluding the batch
